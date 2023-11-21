@@ -4,45 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Página Web</title>
+    </body>
+     <style>
+        body {
+            background-color: violet;
+
+            }
+    </style>
+    <body>
+
+        <h2, style="color: yellow; "></h2>
+    </body>
+    </html>        
     
     <!-- Puedes agregar enlaces a tus hojas de estilo (CSS) aquí -->
     <!-- <link rel="stylesheet" href="estilos.css"> -->
 </head>
 
     <!-- Cabecera -->
- <img src="blackmoon group.jpg" style="width: 200px">
    
 
     <header>
-        <h1>HORARIOS AERIAL BLACKMOON web</h1>
+        <h1>Bienvenido a Blackmoon group web</h1> <img src="blackmoon group.jpg" style="width: 200px">
         
     </header>
 
     <!-- Contenido Principal -->
     <main>
         <section>
-            
-            <p>PAQUETE 1</p>
-            <p>8 CLASES AL MES, 2 A LA SEMANA $650</p>
-            
-            <p>PAQUETE 2</p>
-            <p>12 CLASES AL MES, 3 A LA SEMANA $950</p>
-
+            <h2>Aerial Blackmoon</h2> <img src="aerial black moon.jpg" style="width: 200px">
+            <p>Clases.</p>
+            <a href="index 2">Paquetes</a>
+            <p>Eventos</p>
+            <p>Fotos</p>
+            <a href="https://wa.me/message/ERQZYM3ACHBVO1">Contacto</a>
         </section>
 
-      
+        <section>
+            <h2>Blackmoon podcast</h2> <img src="blackmoon podcast.png "style="width: 200px">
+            <p>Episodios</p>
+            <p>Redes sociales</p>
+            <p>Informacion de las academias que ya entrevistamos</p>
+            
+            <a href="https://wa.me/message/2RRQ5A2DBWIOJ1">Contacto</a>
+        </section>
 
-       
+        <section>
+            <h2>Productos Blackmoon</h2> <img src="PRODUCTOS BLACKMOON.png "style="width: 200px">
+            <p>Episodios</p>
+            <p>Redes sociales</p>
+            <p>Informacion de las academias que ya entrevistamos</p>
+            
+            <a href="https://wa.link/qip7pf">Contacto</a>
+        </section>
+    </main>
 
 
     <!-- Pie de Página -->
     <footer>
         <p>&copy; 2023-2024 Blackmoon Group</p>
-        <p>&copy; creado por ING:carlos fernando lezama calderon</p>
+        <p>&copy; creado por ING: Carlos Fernando Lezama Calderon</p>
     </footer>
 
     <!-- Puedes agregar enlaces a tus scripts (JavaScript) aquí -->
     <!-- <script src="scripts.js"></script> -->
 
-</body>
+
 </html>
