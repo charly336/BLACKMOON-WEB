@@ -8,7 +8,7 @@ body {
 </head>
 <body>
 
-<h1>Contenido de la página</h1>
+
 
 </body>
 </html>
@@ -100,6 +100,9 @@ body {
              
             
         </section>
+         <h1>info de academias que ya salieron </h1><br><br>
+
+         <a href="otro/academias">Ir contacto de academias 2</a><br><br>
          
 
          <p>Escuchanos en tus plataformas de podcast preferidos, aqui te dejamos los links: </p>
