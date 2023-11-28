@@ -1,20 +1,39 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
+
+<style>
+body {
+  background-image: url('fondo 4.png');
+}
+</style>
+</head>
+<body>
+
+<h1>Contenido de la página</h1>
+
+</body>
+</html>
+
+
+</body>
+</html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Página Web</title>
+    <title>Blackmoon web</title>
     </body>
      <style>
-        body {
-            background-color: violet;
-
-            }
+       
+            <html>
     </style>
     <body>
 
-        <h2, style="color: yellow; "></h2>
+        <h2, style="color: black; font-size:25px;"></h2>
+     
     </body>
+    
+    
     </html>        
     
     <!-- Puedes agregar enlaces a tus hojas de estilo (CSS) aquí -->
@@ -25,46 +44,100 @@
    
 
     <header>
-        <h1>Bienvenido a Blackmoon group web</h1> <img src="blackmoon group.jpg" style="width: 200px">
+
+        
+
+     
+        <h1>Bienvenido a Black-moon Group Web</h1> <img src="Sin título.png "style="width: 700px">
         
     </header>
 
     <!-- Contenido Principal -->
     <main>
         <section>
-            <h2>Aerial Blackmoon</h2> <img src="aerial black moon.jpg" style="width: 200px">
-            <p>Clases.</p>
-            <a href="index 2">Paquetes</a>
-            <p>Eventos</p>
-            <p>Fotos</p>
-            <a href="https://wa.me/message/ERQZYM3ACHBVO1">Contacto</a>
+            <h2>Aerial Blackmoon</h2> <img src="aerial black moon.jpg" style="width: 180px">
+
+            
+            <section>
+            
+            <img src="INSTA.png" style="width: 50px"><a href="https://instagram.com/blackmoonofi?igshid=MzMyNGUyNmU2YQ%3D%3D&utm_source=qr">Instagram</a>
+            
+           
+           
+            
+            <img src="WTTS.jpeg" style="width: 50px"><a href="https://wa.me/message/ERQZYM3ACHBVO1">Contacto</a>
+     
+        
         </section>
 
-        <section>
-            <h2>Blackmoon podcast</h2> <img src="blackmoon podcast.png "style="width: 200px">
-            <p>Episodios</p>
-            <p>Redes sociales</p>
-            <p>Informacion de las academias que ya entrevistamos</p>
+                    
+            <h2>Productos Blackmoon</h2> <img src="PRODUCTOS BLACKMOON.png "style="width: 180px">
+
+           <section>
             
-            <a href="https://wa.me/message/2RRQ5A2DBWIOJ1">Contacto</a>
-        </section>
+            
+            <img src="INSTA.png" style="width: 50px"> <a href="https://instagram.com/blackmoonofi?igshid=MzMyNGUyNmU2YQ%3D%3D&utm_source=qr">Instagram</a>
+            
+           
+  
+            
+           <img src="WTTS.jpeg" style="width: 50px"> <a href="https://wa.link/qip7pf">Contacto</a>
 
         <section>
-            <h2>Productos Blackmoon</h2> <img src="PRODUCTOS BLACKMOON.png "style="width: 200px">
-            <p>Episodios</p>
-            <p>Redes sociales</p>
-            <p>Informacion de las academias que ya entrevistamos</p>
+
+
             
-            <a href="https://wa.link/qip7pf">Contacto</a>
+            <h2>Blackmoon podcast</h2> <img src="blackmoon podcast.png "style="width: 180px">
+
+            <section>
+          
+             <img src="INSTA.png" style="width: 50px"><a href="https://instagram.com/carlos_bckmoon?igshid=NzZlODBkYWE4Ng%3D%3D&utm_source=qr">Instagram</a>
+            
+            
+            <img src="WTTS.jpeg" style="width: 50px"><a href="https://wa.me/message/2RRQ5A2DBWIOJ1">Contacto</a>
+
+
+             
+            
         </section>
+         
+
+         <p>Escuchanos en tus plataformas de podcast preferidos, aqui te dejamos los links: </p>
+        
+         
+         
+          
+         
+        </section>
+            <img src="spotify.png" style="width: 50px"><a href="https://open.spotify.com/show/0uZ4oUEp3CjlfjckXVHUfR?si=gsFsxCcPTgiOIenuyVl_8g">Spotify</a><br><br>
+            
+             <img src="amazon music.png" style="width: 100px"><a href="https://music.amazon.com.mx/podcasts/f1e72700-5f6e-424d-b4d0-297d80630d6f/blackmoonpodcast?ref=dm_sh_oQkuIpNcI2AVYEXD4r2K01QMv">AmazonMusic</a><br><br>
+            
+             <img src="youtube.png" style="width: 50px"><a href="https://youtube.com/@Blackmoonpodcast?si=FPBLandM1I_P7Ooj">Youtube</a><br><br>
+            
+             <img src="ivoox.png" style="width: 100px"><a href="https://go.ivoox.com/sq/2302195">Ivoox</a><br><br>
+            
+             <img src="apple podcast.png" style="width: 50px"><a href=https://podcasts.apple.com/mx/podcast/blackmoonpodcast/id1713412787">ApplePodcast</a><br><br>
+            
+             <img src="OIP (2).jpeg" style="width: 100px"><a href="https://podcasts.google.com/feed/aHR0cHM6Ly93d3cuaXZvb3guY29tL3BvZGNhc3QtYmxhY2ttb29ucG9kY2FzdF9mZ19mMTIzMDIxOTVfZmlsdHJvXzEueG1s">PodcastGoogle</a><br><br>
+            
+             <img src="descarga.png" style="width: 50px"><a href="https://www.iheart.com/podcast/269-blackmoonpodcast-127546690?cmp=ios_share&sc=ios_social_share&pr=false&autoplay=true">IHeart</a><br><br>
+
+            
     </main>
 
 
     <!-- Pie de Página -->
     <footer>
         <p>&copy; 2023-2024 Blackmoon Group</p>
-        <p>&copy; creado por ING: Carlos Fernando Lezama Calderon</p>
+        <p>&copy; creado por el ING: Carlos Fdo Lezama Calderon (Blackmoon systems)</p>
     </footer>
+
+    <!-- Puedes agregar enlaces a tus scripts (JavaScript) aquí -->
+    <!-- <script src="scripts.js"></script> -->
+</div>
+</body>
+</html>
 
     <!-- Puedes agregar enlaces a tus scripts (JavaScript) aquí -->
     <!-- <script src="scripts.js"></script> -->
