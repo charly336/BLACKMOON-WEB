@@ -8,7 +8,196 @@
   <div>BLACK MOON WEB</div>
   <div>BLACK MOON WEB</div><br><br>
 </div>
+<style>
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: 100vh;
+  background-color: black;
+  overflow: hidden;
+}
 
+.deconstructed {
+  position: relative;
+  margin: auto;
+  height: 0.71em;
+  color: transparent;
+  font-family: 'Cambay', sans-serif;
+  font-size: 10vw;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.03em;
+}
+
+.deconstructed > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #ffff64;
+  pointer-events: none;
+}
+
+.deconstructed > div:nth-child(1) {
+  -webkit-mask-image: linear-gradient(black 25%, transparent 25%);
+  mask-image: linear-gradient(black 25%, transparent 25%);
+  animation: deconstructed1 5s infinite;
+}
+
+.deconstructed > div:nth-child(2) {
+  -webkit-mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
+  mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
+  animation: deconstructed2 5s infinite;
+}
+
+.deconstructed > div:nth-child(3) {
+   -webkit-mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
+  mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
+  animation: deconstructed3 5s infinite;
+}
+
+.deconstructed > div:nth-child(4) {
+   -webkit-mask-image: linear-gradient(transparent 75%, black 75%);
+  mask-image: linear-gradient(transparent 75%, black 75%);
+  animation: deconstructed4 5s infinite;
+}
+
+@keyframes deconstructed1 {
+  0% {
+    transform: translateX(100%);
+  }
+  26% {
+    transform: translateX(0%);
+  }
+  83% {
+    transform: translateX(-0.1%);
+  }
+  100% {
+    transform: translateX(-120%);
+  }
+}
+
+@keyframes deconstructed2 {
+  0% {
+    transform: translateX(100%);
+  }
+  24% {
+    transform: translateX(0.5%);
+  }
+  82% {
+    transform: translateX(-0.2%);
+  }
+  100% {
+    transform: translateX(-125%);
+  }
+}
+
+@keyframes deconstructed3 {
+  0% {
+    transform: translateX(100%);
+  }
+  22% {
+    transform: translateX(0%);
+  }
+  81% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-130%);
+  }
+}
+
+@keyframes deconstructed4 {
+  0% {
+    transform: translateX(100%);
+  }
+  20% {
+    transform: translateX(0%);
+  }
+  80% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-135%);
+  }
+}
+</style>
+<style>
+//CONFIG
+$time: 250ms;
+$number: 3;
+$ease: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+$move: 2em;
+$color: blue;
+$font: 'Roboto Condensed', sans-serif;
+
+//STYLES
+html{
+	padding: 25vh 10vw;
+	text-align: center;
+}
+a{
+	cursor: pointer;
+	font-family: $font;
+	font-weight: 900;
+	user-select: none;
+	color: $color;
+	font-size: 0;
+	transform: translate3d(0,0,0);
+	filter: blur(0);
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	span{
+		font-size: 40px;
+		margin: 0;
+		padding: 0;
+		display: inline-block;
+		position: relative;
+		transition: transform $ease $time;
+		padding: 0 0.1em;
+		
+		@for $i from 0 through $number{
+			&:nth-child(#{$i}n){ transition-delay: $time*$i/$number;}
+			&:nth-child(#{$i}n):after{ transition-delay: $time*$i/$number;}
+		}
+		&:after{
+			content: '';
+			position: absolute;
+			top: 100%;
+			left: -1%;
+			width: 102%;
+			height: $move;
+			background: $color;
+			transform-origin: top center;
+			transform: scaley(0.1);
+			transition: transform $ease $time;
+		}
+	}
+	&:hover{
+		span{
+			transform: translateY(-$move/2);
+			&:after{ transform: scaleY(1);}
+		}
+	}
+	&:active{
+		span{
+			transform: translateY(0);	
+			transition: transform $ease $time/2;
+			transition-delay: 0 !important;
+			&:after{
+				transform: scaleY(0.5);
+				transition: transform $ease $time/2;
+				transition-delay: 0 !important;
+			}
+		}
+	}
+	
+}
+
+</style>
  
 
 
@@ -257,196 +446,7 @@ tittle >a:hover{
 
 </div>
  
-<style>
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  min-height: 100vh;
-  background-color: black;
-  overflow: hidden;
-}
 
-.deconstructed {
-  position: relative;
-  margin: auto;
-  height: 0.71em;
-  color: transparent;
-  font-family: 'Cambay', sans-serif;
-  font-size: 10vw;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.03em;
-}
-
-.deconstructed > div {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  color: #ffff64;
-  pointer-events: none;
-}
-
-.deconstructed > div:nth-child(1) {
-  -webkit-mask-image: linear-gradient(black 25%, transparent 25%);
-  mask-image: linear-gradient(black 25%, transparent 25%);
-  animation: deconstructed1 5s infinite;
-}
-
-.deconstructed > div:nth-child(2) {
-  -webkit-mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  animation: deconstructed2 5s infinite;
-}
-
-.deconstructed > div:nth-child(3) {
-   -webkit-mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
-  mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
-  animation: deconstructed3 5s infinite;
-}
-
-.deconstructed > div:nth-child(4) {
-   -webkit-mask-image: linear-gradient(transparent 75%, black 75%);
-  mask-image: linear-gradient(transparent 75%, black 75%);
-  animation: deconstructed4 5s infinite;
-}
-
-@keyframes deconstructed1 {
-  0% {
-    transform: translateX(100%);
-  }
-  26% {
-    transform: translateX(0%);
-  }
-  83% {
-    transform: translateX(-0.1%);
-  }
-  100% {
-    transform: translateX(-120%);
-  }
-}
-
-@keyframes deconstructed2 {
-  0% {
-    transform: translateX(100%);
-  }
-  24% {
-    transform: translateX(0.5%);
-  }
-  82% {
-    transform: translateX(-0.2%);
-  }
-  100% {
-    transform: translateX(-125%);
-  }
-}
-
-@keyframes deconstructed3 {
-  0% {
-    transform: translateX(100%);
-  }
-  22% {
-    transform: translateX(0%);
-  }
-  81% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-130%);
-  }
-}
-
-@keyframes deconstructed4 {
-  0% {
-    transform: translateX(100%);
-  }
-  20% {
-    transform: translateX(0%);
-  }
-  80% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-135%);
-  }
-}
-</style>
-<style>
-//CONFIG
-$time: 250ms;
-$number: 3;
-$ease: cubic-bezier(0.770, 0.000, 0.175, 1.000);
-$move: 2em;
-$color: blue;
-$font: 'Roboto Condensed', sans-serif;
-
-//STYLES
-html{
-	padding: 25vh 10vw;
-	text-align: center;
-}
-a{
-	cursor: pointer;
-	font-family: $font;
-	font-weight: 900;
-	user-select: none;
-	color: $color;
-	font-size: 0;
-	transform: translate3d(0,0,0);
-	filter: blur(0);
-	backface-visibility: hidden;
-	-webkit-backface-visibility: hidden;
-	span{
-		font-size: 40px;
-		margin: 0;
-		padding: 0;
-		display: inline-block;
-		position: relative;
-		transition: transform $ease $time;
-		padding: 0 0.1em;
-		
-		@for $i from 0 through $number{
-			&:nth-child(#{$i}n){ transition-delay: $time*$i/$number;}
-			&:nth-child(#{$i}n):after{ transition-delay: $time*$i/$number;}
-		}
-		&:after{
-			content: '';
-			position: absolute;
-			top: 100%;
-			left: -1%;
-			width: 102%;
-			height: $move;
-			background: $color;
-			transform-origin: top center;
-			transform: scaley(0.1);
-			transition: transform $ease $time;
-		}
-	}
-	&:hover{
-		span{
-			transform: translateY(-$move/2);
-			&:after{ transform: scaleY(1);}
-		}
-	}
-	&:active{
-		span{
-			transform: translateY(0);	
-			transition: transform $ease $time/2;
-			transition-delay: 0 !important;
-			&:after{
-				transform: scaleY(0.5);
-				transition: transform $ease $time/2;
-				transition-delay: 0 !important;
-			}
-		}
-	}
-	
-}
-
-</style>
 
      <div>       
       
