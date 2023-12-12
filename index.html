@@ -119,10 +119,19 @@ tittle >a:hover{
             <img src="magnesia.jpg"style="width: 100px">
            
         <section>
+<a>
+ <span>&copy</span>
+	<span>BLACK</span>
+	<span>MOON</span>
+	<span>&copy</span>
+	<span>EL</span>
+	<span>PODCAST</span>
+ <span>&copy</span>
 
+</a>
 
             
-            <h2>Black-moon Podcast</h2> <img src="blackmoon podcast.png "style="width: 180px">
+            <img src="blackmoon podcast.png "style="width: 180px">
 
          <p>Aqui encontraras informcaion del podcast y sus redes sociales donde publicamos los nuevos capitulos y mas...</p><br><br>
 
@@ -247,6 +256,7 @@ tittle >a:hover{
  <div class="fb-comments" data-href="https://charly336.github.io/BLACKMOON-WEB/" data-width="" data-numposts="15"></div><br><br>
 
 </div>
+ 
 <style>
 body {
   display: flex;
@@ -364,8 +374,79 @@ body {
   }
 }
 </style>
+<style>
+//CONFIG
+$time: 250ms;
+$number: 3;
+$ease: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+$move: 2em;
+$color: blue;
+$font: 'Roboto Condensed', sans-serif;
 
+//STYLES
+html{
+	padding: 25vh 10vw;
+	text-align: center;
+}
+a{
+	cursor: pointer;
+	font-family: $font;
+	font-weight: 900;
+	user-select: none;
+	color: $color;
+	font-size: 0;
+	transform: translate3d(0,0,0);
+	filter: blur(0);
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	span{
+		font-size: 40px;
+		margin: 0;
+		padding: 0;
+		display: inline-block;
+		position: relative;
+		transition: transform $ease $time;
+		padding: 0 0.1em;
+		
+		@for $i from 0 through $number{
+			&:nth-child(#{$i}n){ transition-delay: $time*$i/$number;}
+			&:nth-child(#{$i}n):after{ transition-delay: $time*$i/$number;}
+		}
+		&:after{
+			content: '';
+			position: absolute;
+			top: 100%;
+			left: -1%;
+			width: 102%;
+			height: $move;
+			background: $color;
+			transform-origin: top center;
+			transform: scaley(0.1);
+			transition: transform $ease $time;
+		}
+	}
+	&:hover{
+		span{
+			transform: translateY(-$move/2);
+			&:after{ transform: scaleY(1);}
+		}
+	}
+	&:active{
+		span{
+			transform: translateY(0);	
+			transition: transform $ease $time/2;
+			transition-delay: 0 !important;
+			&:after{
+				transform: scaleY(0.5);
+				transition: transform $ease $time/2;
+				transition-delay: 0 !important;
+			}
+		}
+	}
+	
+}
 
+</style>
 
      <div>       
       
@@ -373,19 +454,6 @@ body {
         <p>&copy; 2023-2024 Blackmoon Group</p>
 
      </div>
- 
-
-    <!-- Puedes agregar enlaces a tus scripts (JavaScript) aquí -->
-    <!-- <script src="scripts.js"></script> -->
-  
-
-    
-
-
-
-
-
-
 </div>
  </footer>            
 </body>
