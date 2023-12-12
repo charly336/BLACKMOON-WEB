@@ -20,8 +20,6 @@ body {
   overflow: hidden;
 }
 
-
-
 .deconstructed {
   position: relative;
   margin: auto;
@@ -34,8 +32,6 @@ body {
   line-height: 1.03em;
 }
 
-
-
 .deconstructed > div {
   position: absolute;
   top: 0;
@@ -46,20 +42,17 @@ body {
   pointer-events: none;
 }
 
+.deconstructed > div:nth-child(1) {
+  -webkit-mask-image: linear-gradient(black 25%, transparent 25%);
+  mask-image: linear-gradient(black 25%, transparent 25%);
+  animation: deconstructed1 5s infinite;
+}
 
 .deconstructed > div:nth-child(2) {
   -webkit-mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
   mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
   animation: deconstructed2 5s infinite;
 }
-
-
-.deconstructed > div:nth-child(2) {
-  -webkit-mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  animation: deconstructed2 5s infinite;
-}
-
 
 .deconstructed > div:nth-child(3) {
    -webkit-mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
@@ -67,16 +60,13 @@ body {
   animation: deconstructed3 5s infinite;
 }
 
-
 .deconstructed > div:nth-child(4) {
    -webkit-mask-image: linear-gradient(transparent 75%, black 75%);
   mask-image: linear-gradient(transparent 75%, black 75%);
   animation: deconstructed4 5s infinite;
-  
 }
 
-
- .deconstructed1 {
+@keyframes deconstructed1 {
   0% {
     transform: translateX(100%);
   }
@@ -87,11 +77,11 @@ body {
     transform: translateX(-0.1%);
   }
   100% {
-    transform: translateX(-105%);
+    transform: translateX(-120%);
   }
 }
 
- .deconstructed2 {
+@keyframes deconstructed2 {
   0% {
     transform: translateX(100%);
   }
@@ -102,12 +92,11 @@ body {
     transform: translateX(-0.2%);
   }
   100% {
-    transform: translateX(-110%);
-   }
+    transform: translateX(-125%);
   }
+}
 
-
-.deconstructed3 {
+@keyframes deconstructed3 {
   0% {
     transform: translateX(100%);
   }
@@ -118,11 +107,11 @@ body {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-115%);
+    transform: translateX(-130%);
   }
 }
 
-.deconstructed4 {
+@keyframes deconstructed4 {
   0% {
     transform: translateX(100%);
   }
@@ -133,9 +122,9 @@ body {
     transform: translateX(0%);
   }
   100% {
-    transform: translateX(-120%);
-   }
+    transform: translateX(-135%);
   }
+}
 </style>
  
 
