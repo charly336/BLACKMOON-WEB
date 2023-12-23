@@ -5,21 +5,6 @@
 <head>
 <style>
    
-.slider-container {
-  display: flex;
-  width: 20%;
-  height: 50vh;
-  overflow-x: scroll
-  scroll-snap-type: x mandatory;
-}
-
-.slider-container img {
-  flex: 0 0 50%;
-  width: 20%;
-  object-fit: cover;
-  scroll-snap-align: center;
-}
-
    <!--cuerpo de la pagina. -->
 
 body {
@@ -138,6 +123,20 @@ color: #C0C0C0;
   100% {
     transform: translateX(-135%);
   }
+}
+   .slider-container {
+  display: flex;
+  width: 20%;
+  height: 50vh;
+  overflow-x: scroll
+  scroll-snap-type: x mandatory;
+}
+
+.slider-container img {
+  flex: 0 0 50%;
+  width: 20%;
+  object-fit: cover;
+  scroll-snap-align: center;
 }
  body {
   background-image: url('constelacion-de-acuario 2.0.jpg');
