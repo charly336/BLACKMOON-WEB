@@ -3,6 +3,22 @@
       <div class="center">
 <head>
 <style>
+   .slider-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow-x: scroll
+
+  scroll-snap-type: x mandatory;
+}
+
+.slider-container img {
+  flex: 0 0 100%;
+  width: 100%;
+  object-fit: cover;
+
+  scroll-snap-align: center;
+}
 
    <!--cuerpo de la pagina. -->
    
@@ -214,13 +230,32 @@ color: #C0C0C0;
             <il><img src="INSTA.png" style="width: 100px"> <a href="https://instagram.com/blackmoonofi?igshid=MzMyNGUyNmU2YQ%3D%3D&utm_source=qr">Instagram</a></il><br><br>    
             <il><img src="WTTS.jpeg" style="width: 100px"> <a href="https://wa.link/qip7pf">Whatsapp</a></il><br>
            </ol>   
-           </div>     
-            <img src="magnesia.jpg"style="width: 100px">
-            <img src="BREAS.jpg "style="width: 100px">
-            <img src="BREA SECA.jpg "style="width: 100px">
-            <img src="BREAS 2.jpg "style="width: 300px">
-            <img src="02 BREAS.jpg "style="width: 150px">
-            <img src="03 MAGNESIAS.jpg "style="width: 150px">
+           </div>
+
+<div class="slider-container">  
+  <img
+    class="slider-item"
+    src="03 MAGNESIAS.jpg "
+  />
+  <img
+    class="slider-item"
+    src="02 BREAS.jpg "
+  />
+   <img
+    class="slider-item"
+    src="BREAS 2.jpg"
+  />
+   <img
+    class="slider-item"
+    src="BREA SECA.jpg"
+  />
+   <img
+    class="slider-item"
+    src="BREAS.jpg"
+  />
+</div>                
+            
+                       
             
            
         <section>
