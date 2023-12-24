@@ -159,36 +159,7 @@ color: #FF5722 ;
 
 
 	    <!--slider imagenes. -->
-	.carousel {
-  width: 600px;
-  height: 400px;
-  overflow: hidden;
-}
-.slides {
-  width: 600px;
-  height: 400px;
-  position: relative;
-}
-.slides li {
-  width: 600px;
-  height: 400px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}	
-.slides li.active {
-  opacity: 1;
-}
-var slides = document.querySelectorAll('.slides li');
-var currentSlide = 0;
-var slideInterval = setInterval(nextSlide, 2000);
-
-function nextSlide() {
-  slides[currentSlide].className = '';
-  currentSlide = (currentSlide + 1) % slides.length;
-  slides[currentSlide].className = 'active';	
+	
 
 </style>
 </head>
@@ -252,13 +223,7 @@ function nextSlide() {
              <br><il> <img src="WTTS.jpeg" style="width: 50px"> <a href="https://wa.link/qip7pf">Whatsapp</a></il><br>
              </ol>
              </div>
-   <div class="carousel">
-  <ul class="slides">
-    <li><img src="imagen1.jpg" alt="Imagen 1"></li>
-    <li><img src="imagen2.jpg" alt="Imagen 2"></li>
-    <li><img src="imagen3.jpg" alt="Imagen 3"></li>
-  </ul>
-</div>
+  
 
 
 
@@ -314,7 +279,7 @@ function nextSlide() {
              <br><il><img src="amazon music.png" style="width: 100px"><a href="https://music.amazon.com.mx/podcasts/f1e72700-5f6e-424d-b4d0-297d80630d6f/blackmoonpodcast?ref=dm_sh_oQkuIpNcI2AVYEXD4r2K01QMv">Amazon Music</a></il><br>
             </ol>
              </div>
-en <marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Recuerda compartir y ponerle me gusta a cualquier platafoma que nos escuches, nos ayudarias mucho:</h1></font></marquee>
+ <marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Recuerda compartir y ponerle me gusta a cualquier platafoma que nos escuches, nos ayudarias mucho:</h1></font></marquee>
                
    <div class="deconstructed">
   <div>ACADEMIAS</div>
