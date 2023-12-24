@@ -1,595 +1,338 @@
-<html>
-   <div class="contenedor">
-      <div class="center">
-				
-<head>   
-<style>
-
-   <!--cuerpo de la pagina. -->
- .center {
-  text-align: center;
-     }
-  <a style="color: skyblue; font-size:100px;"</a>
-
+html,
 body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  min-height: 100vh;
-  background-color: ligth gray;
-  overflow: hidden;
+	position: relative;
+	width: 100vw;
+	overflow-x: hidden !important;
+	font-family: 'proxima-nova', sans-serif;
+	color: #555;
+}
+
+.console {
+	position: fixed;
+	top: 10;
+	left: 10;
+}
+
+.video-thumbs-frame {
+	position: relative;
+	margin: 0 auto;
+	margin-top: 50px;
+	width: 375px;
+	height: 340px;
+	overflow: hidden !important;
+	-webkit-perspective: 250px;
+	perspective: 250px;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.nav-arrows {
+	position: absolute;
+	width: 480px;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+	margin-top: 200px;
+	z-index: 0;
+}
+
+.nav-button {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.prev-button {
+	float: left;
+}
+
+.next-button {
+	float: right;
+}
+
+.video-thumbs {
+	position: relative;
+	display: block;
+	width: 1260px;
+	height: 335px;
+	margin-top: 25px;
+	z-index: 300;
+	transform: translateX(0);
+	transform-style: preserve-3d;
+	transition: all 0.2s ease-out;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-thumbs.position-1 {
+	transform: translateX(0);
+	transition: all 0.2s ease-out;
+}
+
+.video-thumbs.position-2 {
+	transform: translateX(-300px);
+	transition: all 0.2s ease-out;
+}
+
+.video-thumbs.position-3 {
+	transform: translateX(-600px);
+	transition: all 0.2s ease-out;
+}
+
+.video-thumbs.position-4 {
+	transform: translateX(-900px);
+	transition: all 0.2s ease-out;
+}
+
+.video-thumb {
+	position: relative;
+	display: inline-block;
+	float: left;
+	background: #fff;
+	width: 260px;
+	height: 260px;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-bottom: 0;
+	border-radius: 2px;
+	box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.25);
+	transform: translateZ(-50px);
+	transform-style: preserve-3d;
+	-webkit-filter: brightness(0.7);
+	filter: brightness(0.7);
+	transition: all 0.2s ease-out;
+	z-index: 10;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-thumb:nth-child(2n+1) {
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.video-thumb.thumb-1 {
+	margin-left: calc((375px - 260px)/2);
+}
+
+.video-thumb:hover {
+	box-shadow: 0px 3px 12px 0px rgba(0, 0, 0, 0.25);
+	transition: all 0.2s ease-out;
+}
+
+.video-thumb.active {
+	transform: translateZ(0);
+	transform-style: preserve-3d;
+	transition: all 0.2s ease-out;
+	z-index: 50;
+	-webkit-filter: brightness(1);
+	filter: brightness(1);
+}
+
+.video-thumb.clone {
+	position: absolute;
+	z-index: 0;
+}
+
+.video-thumb.first-clone {
+	position: absolute;
+	left: 0;
+	margin-left: calc(1260px - 3.5px);
+	z-index: 0;
+}
+
+.video-thumb.last-clone {
+	position: absolute;
+	left: 0;
+	margin-left: calc(-242.5px);
+	z-index: 0;
+}
+
+.video-thumb-wrapper {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 2px;
+	overflow: hidden !important;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-thumbnail {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: block;
+	width: 100%;
+	height: 154px;
+	overflow: hidden !important;
+	cursor: pointer;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-thumb-img {
+	display: block;
+	height: 254px;
+	width: auto;
+	transform: translateX(-38.5px) translateY(-40px);
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.thumbnail-filter {}
+
+.thumbnail-overlay {
+	position: absolute;
+	z-index: 501;
+	width: 100%;
+	height: 100%;
+	background-color: #1deaa9;
+	opacity: 0.1;
+	-webkit-mix-blend-mode: lighten;
+	mix-blend-mode: lighten;
+		-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-thumb-overlay {
+	position: absolute;
+	display: block;
+	top: 0;
+	width: 75px;
+	height: 75px;
+	z-index: 20;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	margin-top: 79px;
+	transform: translateY(-50%);
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-play-icon {
+	position: relative;
+	width: 75px;
+	height: auto;
+	z-index: 501;
+	cursor: pointer;
+}
+
+.video-info-container {
+	position: absolute;
+	bottom: 0;
+	width: calc(100% - 20px);
+	height: 86px;
+	padding-left: 20px;
+	color: #555;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+.video-thumb-title {
+	font-size: 1.25em;
+	font-weight: 500;
+	line-height: 1.25em;
+	cursor: pointer;
+}
+
+.video-thumb-subtitle {
+	font-size: 0.85em;
+	font-weight: 300;
+	color: #a8a8a8;
+}
+
+.video-stats {
+	padding-top: 9px;
+	font-size: 0.7em;
+	font-weight: 400;
+	color: #c8c8c8;
+}
+
+.stats-item {
+	position: relative;
+	display: inline-block;
+	margin-right: 15px;
+}
+
+.item-views,
+.item-likes {
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.stats-icon {
+	width: 11px;
+	height: auto;
+	transform: translateY(-1px);
 }
 
 
-.deconstructed {
-  position: relative;
-  margin: auto;
-  height: 1em;
-  color: transparent;
-   font-family: 'Luminari',fantasía;
-  font-size: 8vw;
-  font-weight: -900;
-  letter-spacing: 0.1em;
-  line-height: 1em;
-}
+<div class="console">Console</div>
 
-.deconstructed > div {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-color: #FF5722 ;
-   
-  pointer-events: none;
-}
-
-.deconstructed > div:nth-child(1) {
-  -webkit-mask-image: linear-gradient(black 25%, transparent 25%);
-  mask-image: linear-gradient(black 25%, transparent 25%);
-  animation: deconstructed1 10s infinite;
-}
-
-.deconstructed > div:nth-child(2) {
-  -webkit-mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  animation: deconstructed2 10s infinite;
-}
-
-.deconstructed > div:nth-child(3) {
-   -webkit-mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
-  mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
-  animation: deconstructed3 10s infinite;
-}
-
-.deconstructed > div:nth-child(4) {
-   -webkit-mask-image: linear-gradient(transparent 75%, black 75%);
-  mask-image: linear-gradient(transparent 75%, black 75%);
-  animation: deconstructed4 10s infinite;
-}
-
-@keyframes deconstructed1 {
-  0% {
-    transform: translateX(100%);
-  }
-  26% {
-    transform: translateX(0%);
-  }
-  83% {
-    transform: translateX(-0.1%);
-  }
-  100% {
-    transform: translateX(-120%);
-  }
-}
-
-@keyframes deconstructed2 {
-  0% {
-    transform: translateX(100%);
-  }
-  24% {
-    transform: translateX(0.5%);
-  }
-  82% {
-    transform: translateX(-0.2%);
-  }
-  100% {
-    transform: translateX(-125%);
-  }
-}
-
-@keyframes deconstructed3 {
-  0% {
-    transform: translateX(100%);
-  }
-  22% {
-    transform: translateX(0%);
-  }
-  81% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-130%);
-  }
-}
-
-@keyframes deconstructed4 {
-  0% {
-    transform: translateX(100%);
-  }
-  20% {
-    transform: translateX(0%);
-  }
-  80% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-135%);
-  }
-}
- body {
-  background-image: url('constelacion-de-acuario 2.0.jpg');
-  cursor: url('c danza-aerea.png'), auto;
-  cursor: url('cursor original.png'), auto;  
-  }
-   <link rel="shortcut icon" href="cursor200.png" type="image/x-icon">
-    .center {
-  text-align: center;
-     }
-
-    tittle >a:hover{
- text-decoration: underline wavy red;
-}
-   
-   H1 {
- color:#FF9966;
-}
-    h2 {
- color: #979A9A;
-}
-   h3 {
- color:#9B59B6;
-}
-   a {
- color: #FF0000;
-}
-    td {
- color: #CCF3F1;
-
-
-	    <!--slider imagenes. -->
-@import url('https://fonts.googleapis.com/css?family=Lobster');
-
-body {
-    background-color: #89FAD0;
-    font-family: 'Lobster';
-}
-
-#carousel {
-    position: absolute;
-    height: 200px;
-    width: 810px;
-    margin: auto;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-}
-
-.arrow {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    background-color: white;
-    text-align: center;
-    font-size: 25px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    color: #228291;
-    line-height: 30px;
-    margin-top: 85px;
-    z-index: 1000;
-}
-
-.arrow-right {
-    left: 780px;
-}
-
-.item {
-    text-align: center;
-    color: white;
-    font-size: 40px;
-    position: absolute;
-    transition: height 1s, width 1s, left 1s, margin-top 1s, line-height 1s, background-color 1s;
-}
-
-$level2-height: 150px;
-$level2-width: 110px;
-$level1-height: 180px;
-$level1-width: 130px;
-$level0-height: 200px;
-$level0-width: 150px;
-
-$level-2-left: 650px;
-$level-1-left: 500px;
-$level0-left: 330px;
-$level1-left: 180px;
-$level2-left: 50px;
-
-
-.level-2 {
-    height: $level2-height;
-    width: $level2-width;
-    line-height: $level2-height;
-    background-color: #228291;
-    left: $level-2-left;
-    margin-top: 25px;
-}
-
-.level-1 {
-    height: $level1-height;
-    width: $level1-width;
-    line-height: $level1-height;
-    background-color: #6796E5;
-    left: $level-1-left;
-    margin-top: 10px;
-}
-
-.level0 {
-    height: $level0-height;
-    width: $level0-width;
-    line-height: $level0-height;
-    background-color: #4EC9E1;
-    left: $level0-left;
-}
-
-.level1 {
-    height: $level1-height;
-    width: $level1-width;
-    line-height: $level1-height;
-    background-color: #6796E5;
-    margin-top: 10px;
-    left: $level1-left;
-}
-
-.level2 {
-    height: $level2-height;
-    width: $level2-width;
-    line-height: $level2-height;
-    background-color: #228291;
-    margin-top: 25px;
-    left: $level2-left;
-}
-
-.left-enter {
-    opacity: 0;
-    left: $level2-left - $level2-width;
-    height: $level2-height - 30;
-    width: $level2-width - 20;
-    line-height: $level2-height - 30;
-    margin-top: 40px;
-}
-
-.left-enter.left-enter-active {
-    opacity: 1;
-    left: $level2-left;
-    height: $level2-height;
-    width: $level2-width;
-    line-height: $level2-height;
-    margin-top: 25px;
-    transition: left 1s, opacity 1s, height 1s, width 1s, margin-top 1s, line-height 1s;
-}
-
-.left-leave {
-    opacity: 1;
-    left: $level-2-left;
-    height: $level2-height;
-    width: $level2-width;
-    line-height: $level2-height;
-    margin-top: 25px;
-}
-
-.left-leave.left-leave-active {
-    left: $level-2-left + $level2-width + 20;
-    opacity: 0;
-    height: $level2-height - 30;
-    line-height: 120px;
-    margin-top: 40px;
-    width: $level2-width - 20;
-    transition: left 1s, opacity 1s, height 1s, width 1s, margin-top 1s, line-height 1s;
-}
-
-.right-enter {
-    opacity: 0;
-    left: $level-2-left + $level2-width;
-    height: $level2-height - 30;
-    width: $level2-width - 20;
-    line-height: $level2-height - 30;
-    margin-top: 40px;
-}
-
-.right-enter.right-enter-active {
-    left: $level-2-left;
-    opacity: 1;
-    height: $level2-height;
-    margin-top: 25px;
-    line-height: $level2-height;
-    width: $level2-width;
-    transition: left 1s, opacity 1s, height 1s, width 1s, margin-top 1s, line-height 1s;
-}
-
-.right-leave {
-    left: $level2-left;
-    height: $level2-height;
-    opacity: 1;
-    margin-top: 25px;
-    line-height: $level2-height;
-    width: $level2-width;
-}
-
-.right-leave.right-leave-active {
-    left: $level2-left - $level2-width;
-    opacity: 0;
-    height: $level2-height - 30;
-    width: $level2-width - 20;
-    line-height: $level2-height - 30;
-    margin-top: 40px;
-    transition: left 1s, opacity 1s, height 1s, width 1s, margin-top 1s, line-height 1s;
-}
-
-.noselect {
-    -webkit-user-select: none; 
-     -khtml-user-select: none; 
-       -moz-user-select: none; 
-        -ms-user-select: none;  
-            user-select: none;
-}
-
-
-	    
-</style>
-</head>
-<div id="sfcbrbndxm2macd3h8578kze25kusff8alm"></div>
-<script type="text/javascript" src="https://counter7.optistats.ovh/private/counter.js?c=brbndxm2macd3h8578kze25kusff8alm&down=async" async></script>
-
-  
-   <div class="deconstructed">
-  <div>BLACKMOON GROUP WEB</div>
-  <div>BLACKMOON GROUP WEB</div>
-  <div>BLACKMOON GROUP WEB</div>
-  <div>BLACKMOON GROUP WEB</div>
+<div class="video-thumbs-frame">
+		<ul class="video-thumbs position-1" current-thumb="1" start-x="" dragging="false">
+			<li class="video-thumb thumb-1 active" index="1" youtube="https://www.youtube.com/embed/9KkKyHUw4f4?autoplay=1&amp;showinfo=0">
+				<div class="video-thumb-wrapper">
+					<div class="video-thumb-overlay"><img class="video-play-icon" src="http://katehummer.com/drewmachak/img/icons/play-alt.svg"></div>
+					<div class="video-info-container">
+						<article class="video-thumb-title">I'm Your President </article>
+						<article class="video-thumb-subtitle"> Drew Machak</article>
+						<div class="video-stats">
+							<article class="stats-item item-views">125 views</article>
+							<div class="stats-item item-likes"><img class="stats-icon thumbs-icon" src="http://katehummer.com/drewmachak/img/icons/thumbs-up-alt.svg"><span class="likes-count"> 2</span></div>
+							<a class="stats-item video-url" target="_blank" href="https://www.youtube.com/watch?v=9KkKyHUw4f4"><img class="stats-icon video-link" src="http://katehummer.com/drewmachak/img/icons/link-alt.svg"></a>
+						</div>
+					</div>
+					<div class="video-thumbnail"><img class="video-thumb-img thumbnail-filter" src="https://i.ytimg.com/vi/9KkKyHUw4f4/hqdefault.jpg" alt=""></div>
+				</div>
+			</li>
+			<li class="video-thumb" youtube="https://www.youtube.com/embed/7GzRZnpTsbE?autoplay=1&amp;showinfo=0" index="2">
+				<div class="video-thumb-wrapper">
+					<div class="video-thumb-overlay"><img class="video-play-icon" src="http://katehummer.com/drewmachak/img/icons/play-alt.svg"></div>
+					<div class="video-info-container">
+						<article class="video-thumb-title">Lost Without U </article>
+						<article class="video-thumb-subtitle"> Robin Thicke (Loop by Drew Machak)</article>
+						<div class="video-stats">
+							<article class="stats-item item-views">64 views</article>
+							<div class="stats-item item-likes"><img class="stats-icon thumbs-icon" src="http://katehummer.com/drewmachak/img/icons/thumbs-up-alt.svg"><span class="likes-count"> 3</span></div>
+							<a class="stats-item video-url" target="_blank" href="https://www.youtube.com/watch?v=7GzRZnpTsbE"><img class="stats-icon video-link" src="http://katehummer.com/drewmachak/img/icons/link-alt.svg"></a>
+						</div>
+					</div>
+					<div class="video-thumbnail"><img class="video-thumb-img thumbnail-filter" src="https://i.ytimg.com/vi/7GzRZnpTsbE/hqdefault.jpg" alt=""></div>
+				</div>
+			</li>
+			<li class="video-thumb" youtube="https://www.youtube.com/embed/hh4PgqsTYlM?autoplay=1&amp;showinfo=0" index="3">
+				<div class="video-thumb-wrapper">
+					<div class="video-thumb-overlay"><img class="video-play-icon" src="http://katehummer.com/drewmachak/img/icons/play-alt.svg"></div>
+					<div class="video-info-container">
+						<article class="video-thumb-title">The Way You Make Me...</article>
+						<article class="video-thumb-subtitle"> Michael Jackson (Loop cover by Dr...</article>
+						<div class="video-stats">
+							<article class="stats-item item-views">45 views</article>
+							<div class="stats-item item-likes"><img class="stats-icon thumbs-icon" src="http://katehummer.com/drewmachak/img/icons/thumbs-up-alt.svg"><span class="likes-count"> 2</span></div>
+							<a class="stats-item video-url" target="_blank" href="https://www.youtube.com/watch?v=hh4PgqsTYlM"><img class="stats-icon video-link" src="http://katehummer.com/drewmachak/img/icons/link-alt.svg"></a>
+						</div>
+					</div>
+					<div class="video-thumbnail"><img class="video-thumb-img thumbnail-filter" src="https://i.ytimg.com/vi/hh4PgqsTYlM/hqdefault.jpg" alt=""></div>
+				</div>
+			</li>
+			<li class="video-thumb" youtube="https://www.youtube.com/embed/ognAQ6xI5hw?autoplay=1&amp;showinfo=0" index="4">
+				<div class="video-thumb-wrapper">
+					<div class="video-thumb-overlay"><img class="video-play-icon" src="http://katehummer.com/drewmachak/img/icons/play-alt.svg"></div>
+					<div class="video-info-container">
+						<article class="video-thumb-title">Island Girl </article>
+						<article class="video-thumb-subtitle"> Davison Magpie (Drew Machak)</article>
+						<div class="video-stats">
+							<article class="stats-item item-views">25 views</article>
+							<div class="stats-item item-likes"><img class="stats-icon thumbs-icon" src="http://katehummer.com/drewmachak/img/icons/thumbs-up-alt.svg"><span class="likes-count"> 2</span></div>
+							<a class="stats-item video-url" target="_blank" href="https://www.youtube.com/watch?v=ognAQ6xI5hw"><img class="stats-icon video-link" src="http://katehummer.com/drewmachak/img/icons/link-alt.svg"></a>
+						</div>
+					</div>
+					<div class="video-thumbnail"><img class="video-thumb-img thumbnail-filter" src="https://i.ytimg.com/vi/ognAQ6xI5hw/hqdefault.jpg" alt=""></div>
+				</div>
+			</li>
+		</ul>
 </div>
-
-<img src="productos 2.png"style="width: 900px">
-<marquee behavior="alternate" direction="left"><FONT SIZE=7><h3>....Bienvenido....</h3></font></marquee>
-  
-
-      
-         <div class="deconstructed">
-  <div>AERIAL BLACKMOON ACADEMY</div>
-  <div>AERIAL BLACKMOON ACADEMY</div>
-  <div>AERIAL BLACKMOON ACADEMY</div>
-  <div>AERIAL BLACKMOON ACADEMY</div><br><br>
-</div>
-   <br><br> <img src="01 INFO ACADEMIA.jpg" style="width: 700px"><br><br>
-
-           
- <H1><marquee behavior="scroll" direction="left"><FONT SIZE=7>Aqui encontraras informacion de la academia y sus redes sociales</font></marquee></H1><br><br>
-            <section>
-              
-           
-              <div style="display: flex; flex-wrap: wrap; font-size:50px;">
-             <ol>
-             <br><il><img src="INSTA.png" style="width: 50px; font-size:100px"><a href="https://instagram.com/blackmoonofi?igshid=MzMyNGUyNmU2YQ%3D%3D&utm_source=qr">Instagram<font-size:100px;</a></il><br>
-            <br><il><img src="WTTS.jpeg" style="width: 50px"><a href="https://wa.me/message/ERQZYM3ACHBVO1">whatssap</a></il><br>
-            <br><il><img src="FACE.png" style="width: 50px"><a href="https://www.facebook.com/charly.blackmoon?mibextid=LQQJ4d">Meta</a></il><br>
-            <br><il><img src="plaza.jpg" style="width: 50px"><a href="https://maps.app.goo.gl/6jr3Rf4ZQPkJEBGG7">Maps</a></il><br>
-            <br><il><img src="06 camara.png" style="width: 50px"><a href="https://drive.google.com/drive/folders/1LUNE-NfE2IIrMaRpCEIqA_Njj5fhRCTN?usp=sharing">fotos</a></il><br>
-            <br><il><img src="cursor 1.png" style="width: 50px;"><a href="https://drive.google.com/drive/folders/1uL5IXjza-84T_JtaTC7muq-YHDxYiK5c?usp=drive_link">clases</a></il><br>     
-            <br><il><img src="d8de9499498d71ca521a14399c496846.jpg" style="width: 50px;"><a href="https://drive.google.com/drive/folders/1CIF-zw5LlsId1ioWO1ImEau1bYZrEtOW?usp=drive_link">eventos</a></il><br>
-             </ol>
-             </div>
-
-
-  </section>
-<div class="deconstructed">
-  <div>PRODUCTS</div>
-  <div>PRODUCTS</div>
-  <div>PRODUCTS</div>
-  <div>PRODUCTS</div>
-</div>
-            <img src="bkmprdcts.jpeg "style="width: 180px">
-         
-           
-           <section>
-            
-            <div style="display: flex; flex-wrap: wrap; font-size:50px;">
-             <ol>
-             <br><il><img src="INSTA.png" style="width: 50px"> <a href="https://instagram.com/blackmoonofi?igshid=MzMyNGUyNmU2YQ%3D%3D&utm_source=qr">Instagram</a></il><br>
-             <br><il> <img src="WTTS.jpeg" style="width: 50px"> <a href="https://wa.link/qip7pf">Whatsapp</a></il><br>
-             </ol>
-             </div>
-               
-	          <div class="slide">
-		   
-		   <div class="slide-track">
-		
-		   <div class="slide">
-		<img src="03 MAGNESIAS.jpg"100" width="100" alt="" />
-		</div>
-		<div class="slide">
-			<img src="02 BREAS.jpg" height="100" width="100" alt="" />
-		</div>
-		<div class="slide">
-			<img src="BREAS 2.jpg" height="100" width="100" alt="" />
-		</div>
-		<div class="slide">
-			<img src="BREA SECA.jpg" height="100" width="100" alt="" />
-		</div>
-		<div class="slide">
-			<img src="BREAS.jpg" height="100" width="100" alt="" />
-		</div>
-		<div class="slide">
-			<img src="magnesia.jpg" height="100" width="100" alt="" />
-		</div>
-	</div>
-</div>
-        <section>
-
-<div class="deconstructed">
-  <div>PODCAST</div>
-  <div>PODCAST</div>
-  <div>PODCAST</div>
-  <div>PODCAST</div><br><br>
-</div>
-           <br><br> <img src="blackmoon podcast.png "style="width: 180px"><br><br>
-
-        
-            <section>
-         
-             <div style="display: flex; flex-wrap: wrap; font-size:50px;">
-             <ol>
-             <br><il><img src="INSTA.png" style="width: 50px"><a href="https://instagram.com/carlos_bckmoon?igshid=NzZlODBkYWE4Ng%3D%3D&utm_source=qr">Instagram</a></il><br>
-             <br><il><img src="WTTS.jpeg" style="width: 50px"><a href="https://wa.me/message/2RRQ5A2DBWIOJ1">whatssap</a></il><br>
-             <br><il><img src="FACE.png" style="width: 50px"><a href="https://www.facebook.com/profile.php?id=61551351785543&mibextid=JRoKGi">Meta</a></il><br>
-             <br><il><img src="WTTS.jpeg" style="width: 50px"><a href="https://whatsapp.com/channel/0029VaFxew0002TCUDYGgO3H">Canal de WhatsApp</a></il><br>
-             <br><il><img src="tik tok.png" style="width: 50px"><a href="https://www.tiktok.com/@blackmoonpodcast?_t=8iKiami7J93&_r=1">tiktok</a></il><br>
-             </ol>
-             </div>
-                               <!--paypal. -->
-         
-          <marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Apoyanos en Paypal para Seguir haciendo contenidos: </h1></font></marquee><br><br>
-             <div style="display: flex; flex-wrap: wrap; font-size:50px;">
-             <ol>
-             <br><il><img src="PAY PAL.png" style="width:100px"><a href="https://www.paypal.me/blackmoonpodcast">Paypal</a></il><br>
-             </ol>
-             </div>
-
- <div class="deconstructed">
-  <div>LINKS</div>
-  <div>LINKS</div>
-  <div>LINKS</div>
-  <div>LINKS</div><br><br>
-</div>
-<br><br> <img src="PODCAST LISTA.png" style="width: 400px"><br><br>
-<marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Escuchanos en tus plataformas de podcast preferidas</h1></font></marquee><br><br>
-   
-                       
-       
-             <div style="display: flex; flex-wrap: wrap; font-size:50px;">
-             <ol>
-             <br><il><img src="spotify.png" style="width: 50px"><a href="https://open.spotify.com/show/0uZ4oUEp3CjlfjckXVHUfR?si=gsFsxCcPTgiOIenuyVl_8g">Spotify</a></il><br>
-             <br><il><img src="apple podcast.png" style="width: 50px"><a href=https://podcasts.apple.com/mx/podcast/blackmoonpodcast/id1713412787">Apple Podcast</a></il><br>
-             <br><il><img src="descarga.png" style="width: 50px"><a href="https://www.iheart.com/podcast/269-blackmoonpodcast-127546690?cmp=ios_share&sc=ios_social_share&pr=false&autoplay=true">IHeart</a></il><br>
-             <br><il><img src="youtube.png" style="width: 50px"><a href="https://youtube.com/@Blackmoonpodcast?si=FPBLandM1I_P7Ooj">Youtube</a></il><br>
-             <br><il> <img src="dzer.jpg" style="width: 100px"><a href="https://deezer.page.link/5gG6x13Ad2StkgPp7">Deezer</a></il><br>
-             <br><il><img src="ivoox.png" style="width: 100px"><a href="https://go.ivoox.com/sq/2302195">Ivoox</a></il><br>
-             <br><il><img src="google podcas.jpeg" style="width: 100px"><a href="https://podcasts.google.com/feed/aHR0cHM6Ly93d3cuaXZvb3guY29tL3BvZGNhc3QtYmxhY2ttb29ucG9kY2FzdF9mZ19mMTIzMDIxOTVfZmlsdHJvXzEueG1s">Podcast Google</a></il><br>
-             <br><il><img src="amazon music.png" style="width: 100px"><a href="https://music.amazon.com.mx/podcasts/f1e72700-5f6e-424d-b4d0-297d80630d6f/blackmoonpodcast?ref=dm_sh_oQkuIpNcI2AVYEXD4r2K01QMv">Amazon Music</a></il><br>
-            </ol>
-             </div>
-en <marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Recuerda compartir y ponerle me gusta a cualquier platafoma que nos escuches, nos ayudarias mucho:</h1></font></marquee>
-               
-   <div class="deconstructed">
-  <div>ACADEMIAS</div>
-  <div>ACADEMIAS</div>
-  <div>ACADEMIAS</div>
-  <div>ACADEMIAS</div><br><br>
-</div>
- 
- <table>
-     <div style="display: flex; flex-wrap: wrap; font-size:200px;">
-  <tr>
-    <td>&nbsp;</td>
-    <td>escuelas</td>
-    <td>link</td>
-    <td>escuelas</td>
-    <td>link</td>
-     <td>escuelas</td>
-    <td>link</td>
-     </div>
-     </tr>
-    
-     <tr>
-     <div style="display: flex; flex-wrap: wrap; font-size:150px;">
-    <td>1-3</td>
-    <td><br><il><img src="sinergia.jpeg " style="width: 150px"></td>
-    <td><a href="https://drive.google.com/file/d/1OuYE2Hv-koheBC-DlRMDzjXuMvqOCgV8/view?usp=sharing"style="width: 100px"</il><br>redes</a></il><br></td><br>
-    <td> <br><il><img src="volando en la luna.jpg" style="width: 100px"></td>
-    <td><a href="https://drive.google.com/file/d/1WRT2JBFlj2TMV63WmIpdEWlUBCOYpA6E/view?usp=sharing"style="width: 100px"</il><br>redes</a></il></td><br>
-    <td>  <br><il><img src="citla.jpg" style="width: 100px;"></td>
-    <td><a href="https://drive.google.com/file/d/1WuL7N6j2IB_rDn5dLGs4lAQCsdrdz_VV/view?usp=sharing"style="width: 100px"</il><br>redes</a></il></td><br>
-    </div>
-    </tr>
-    
-     <tr>
-    <td>4-6</td>
-    <td><br><il><img src="aerialistas del sur.jpg " style="width: 100px"></td>
-    <td><a href="https://drive.google.com/file/d/1OjeQRewsJEPrMkCo7s46SBzIsjH7L7GV/view?usp=sharing"style="width: 100px"</il><br>redes</a></il></td><br>
-    <td><br><il><img src="trepando el trapo.jpg " style="width: 100px"></td>
-    <td><a href="https://www.facebook.com/trepandoeltrapo?mibextid=JRoKGi"style="width: 100px"</il><br>redes</a></il><br></td>
-    <td><br><il><img src="gori cirque.jpg" style="width: 100px"></td>
-    <td><a href="https://www.atom.bio/gorigorefilicmime"style="width: 100px"</il><br>contacto</a></il><br></td>
-  </tr>
-    <tr>
-    <td>7-9</td>
-    <td><br><il><img src="carpita de puebla.jpg" style="width: 100px"></td>
-    <td><a href="https://www.facebook.com/profile.php?id=61552192734191&mibextid=JRoKGi"style="width: 100px"</il><br>contacto</a></il><br></td>
-    <td><br><il><img src="Captura de pantalla 2023-11-12 a la(s) 17.34.44.png" style="width: 100px"></td>
-    <td> <a href="https://drive.google.com/file/d/1-LjzeKJ91j18OasmUn4UdaaV0DLtVPNH/view?usp=sharing"style="width: 100px"</il><br>redes</a></il><br></td>
-    <td><br><il><img src="danza aerea vertical.jpg" style="width: 100px"></td>
-    <td><a href="https://instagram.com/globosydanzaaerea?igshid=OGQ5ZDc2ODk2ZA%3D%3D&utm_source=qr"style="width: 100px"</il><br>contacto</a></il><br></td>
-  </tr>
-    <tr>
-    <td>10-12</td>
-    <td><br><il><img src="PHOTO-2023-11-27-16-39-08.jpg" style="width:100px"></td>
-    <td><a href=""</il><br>Proximamente</a></il><br></td>
-    <td><br><il><img src="adri abuela acrobata.jpg" style="width: 100px"></td>
-    <td> <a href=""</il><br>Proximamente</a></il><br></td>
-    <td><br><il><img src="circo volador.jpg" style="width: 100px"></td>
-    <td><a href=""</il><br>Proximamente</a></td>
-  </tr>
-     <tr>
-    <td>13-15</td>
-    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
-    <td><a href=""</il><br>Proximamente</a></il><br></td>
-    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
-    <td><a href=""</il><br>Proximamente</a></il><br></td>
-    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
-    <td><a href=""</il><br>Proximamente</a></il><br></td>
-    </tr>
-    </div>
-</table>
-
-<div class="deconstructed">
-<div>COMENTARIOS</div>
-<div>COMENTARIOS</div>
-<div>COMENTARIOS</div>
-<div>COMENTARIOS</div>
-</div>
-<div id="fb-root"></div><br><br>
-<br><br><script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0" nonce="ZzdicfFE"></script><br>
-
- <div class="fb-comments" data-href="https://charly336.github.io/BLACKMOON-WEB/" data-width="" data-numposts="15"></div><br><br>
-
-</div>
-
-               <!--final de pagina. -->
-   <footer>
-  <address>
-    <marquee behavior="scroll" direction="left"><FONT SIZE=7><h2> Autor el ING: Carlos Lezama de (Blackmoon systems)</h2></font><br><br></marquee>
-    
-  </address>
-
-  <marquee behavior="alternate" direction="left"><FONT SIZE=7><h2>&copy; 2023-2024 Blackmoon Group</h2></font></marquee> 
- <marquee behavior="scroll" direction="left"><br><br><FONT SIZE=7><h2>( Gracias por su visita... )</h2></font><br><br></marquee>
-   </footer>
-        
- 
- 
-</body>
-</body>
-</body>
-</html>
