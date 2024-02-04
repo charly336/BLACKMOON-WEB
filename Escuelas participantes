@@ -2,10 +2,87 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Título de la página</title>
+  <title>academias que ya participaron </title>
   <!-- Aquí puedes poner otros elementos como enlaces a hojas de estilo, scripts, etc. -->
 </head>
 <body>
-  <!-- Aquí va el contenido principal de la página -->
+  <table>
+     <div style="display: flex; flex-wrap: wrap; font-size:200px;">
+  <tr>
+    <td>&nbsp;</td>
+    <td>escuelas</td>
+    <td>link</td>
+    <td>escuelas</td>
+    <td>link</td>
+    <td>escuelas</td>
+    <td>link</td>
+     <td>escuelas</td>
+    <td>link</td>
+     </div>
+     </tr>
+    
+     <tr>
+     <div style="display: flex; flex-wrap: wrap; font-size:150px;">
+    <td>1-</td>
+    <td><br><il><img src="sinergia.jpeg " style="width: 150px"></td>
+    <td><a href="https://drive.google.com/file/d/1OuYE2Hv-koheBC-DlRMDzjXuMvqOCgV8/view?usp=sharing"style="width: 100px"</il><br>redes</a></il><br></td><br>
+    <td> <br><il><img src="volando en la luna.jpg" style="width: 100px"></td>
+    <td><a href="https://drive.google.com/file/d/1WRT2JBFlj2TMV63WmIpdEWlUBCOYpA6E/view?usp=sharing"style="width: 100px"</il><br>redes</a></il></td><br>
+    <td>  <br><il><img src="citla.jpg" style="width: 100px;"></td>
+    <td><a href="https://drive.google.com/file/d/1WuL7N6j2IB_rDn5dLGs4lAQCsdrdz_VV/view?usp=sharing"style="width: 100px"</il><br>redes</a></il></td><br>
+   <td><br><il><img src="aerialistas del sur.jpg " style="width: 100px"></td>
+    <td><a href="https://drive.google.com/file/d/1OjeQRewsJEPrMkCo7s46SBzIsjH7L7GV/view?usp=sharing"style="width: 100px"</il><br>redes</a></il></td><br>
+
+     </div>
+    </tr>
+    
+     <tr>
+    <td>5-8</td>
+    <td><br><il><img src="trepando el trapo.jpg " font-size:100px; style="width: 100px"></td>
+    <td><a href="https://www.facebook.com/trepandoeltrapo?mibextid=JRoKGi"style="width: 100px"</il><br>redes</a></il><br></td>
+    <td><br><il><img src="gori cirque.jpg" style="width: 100px"></td>
+    <td><a href="https://www.atom.bio/gorigorefilicmime"style="width: 100px"</il><br>contacto</a></il><br></td>
+    <td><br><il><img src="carpita de puebla.jpg" style="width: 100px"></td>
+    <td><a href="https://www.facebook.com/profile.php?id=61552192734191&mibextid=JRoKGi"style="width: 100px"</il><br>contacto</a></il><br></td>
+    <td><br><il><img src="Captura de pantalla 2023-11-12 a la(s) 17.34.44.png" style="width: 100px"></td>
+    <td> <a href="https://drive.google.com/file/d/1-LjzeKJ91j18OasmUn4UdaaV0DLtVPNH/view?usp=sharing"style="width: 100px"</il><br>redes</a></il><br></td>
+  </tr>
+    <tr>
+	    0
+    <td>9-13</td> 
+    <td><br><il><img src="danza aerea vertical.jpg" style="width: 100px"></td>
+    <td><a href="https://instagram.com/globosydanzaaerea?igshid=OGQ5ZDc2ODk2ZA%3D%3D&utm_source=qr"style="width: 100px"</il><br>contacto</a></il><br></td>
+    <td><br><il><img src="PHOTO-2023-11-27-16-39-08.jpg" style="width:100px"></td>
+    <td><a href="https://www.facebook.com/escueladeartespelayos?mibextid=JRoKGi"</il><br>contacto</a></il><br></td>
+    <td><br><il><img src="adri abuela acrobata.jpg" style="width: 100px"></td>
+    <td> <a href=""</il><br>Proximamente</a></il><br></td>
+    <td><br><il><img src="circo volador.jpg" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></td>
+    </tr>
+    <tr>
+    <td>14-16</td>
+    <td><br><il><img src="magia y mov.jpg" style="width: 100px"></td>
+    <td><a href="https://www.instagram.com/magiaescuelacircooficial?igsh=eXBmc2g3Ynd6Yzdr&utm_source=qr"</il><br>contacto</a></il><br></td>
+    <td><br><il><img src="poniente iztapalapa.jpg" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+    <td><br><il><img src="academia artes circenses.jpg" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+  </tr>
+<tr>
+<td>17-20</td>
+    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+    <td><br><il><img src="logo academia.png" style="width: 100px"></td>
+    <td><a href=""</il><br>Proximamente</a></il><br></td>
+    </tr>
+    </div>
+</table>
+
 </body>
 </html>
