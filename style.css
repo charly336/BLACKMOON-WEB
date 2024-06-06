@@ -34,6 +34,10 @@ header {
     text-align: center;
 }
 
+  img {
+            width: 300px; /* Ancho deseado en píxeles */
+            height: auto; /* Altura automática para mantener la proporción */
+        }
 /* Estilos para el pie de página */
 footer {
     background-color: #ffffff; /* Blanco */
