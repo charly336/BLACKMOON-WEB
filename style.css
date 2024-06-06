@@ -1,46 +1,10 @@
-/* Estilos generales */
-body {
-    background-color: #add8e6; /* Azul claro */
-    color: #000000; /* Negro */
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-/* Estilos para los campos de entrada */
-input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #000000; /* Negro */
-    border-radius: 5px;
-}
-
-/* Estilos para los botones */
-button {
-    background-color: #000000; /* Negro */
-    color: #ffffff; /* Blanco */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 10px;
-}
-
-/* Estilos para el encabezado */
-header {
-    background-color: #ffffff; /* Blanco */
-    padding: 20px;
-    text-align: center;
-}
-
-  img {
+}  img {
             width: 300px; /* Ancho deseado en píxeles */
             height: auto; /* Altura automática para mantener la proporción */
         }
-/* Estilos para el pie de página */
-footer {
-    background-color: #ffffff; /* Blanco */
-    padding: 10px;
-    text-align: center;
-}
+    body {
+            background-image: url("blackmoon group.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
