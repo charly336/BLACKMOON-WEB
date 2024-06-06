@@ -3,36 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackmoon group</title>
-    <link rel="style.css" href="style.css">
+    <title>Mi Página Web</title>
+    <style>
+        body {
+            background-image: url("ruta_de_la_imagen_de_fondo.jpg");
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h2 {
+            font-weight: bold;
+            font-size: 24px;
+        }
+        a {
+            color: blue;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .espacio {
+            margin: 20px;
+        }
+        .imagen-mediana {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #000;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>BLACkMOON GROUP</h1>
-    </header>
-    <main>
-      
-        <!-- Botones para navegar y fotos -->
-      <img src="blackmoon group.jpg" alt="Grupo">
+    <div class="espacio">
+        <a href="pagina1.html">
+            <img src="imagen1.jpg" alt="Imagen 1" class="imagen-mediana">
+        </a>
+        <h2><a href="pagina1.html">Enlace 1</a></h2>
+    </div>
 
-        <button onclick="window.location.href='pagina1.html'">Ir a Aerial blackmoon</button>
-        
-        <img src="aerial black moon.jpg" alt="Aerial">
+    <div class="espacio">
+        <a href="pagina2.html">
+            <img src="imagen2.jpg" alt="Imagen 2" class="imagen-mediana">
+        </a>
+        <h2><a href="pagina2.html">Enlace 2</a></h2>
+    </div>
 
-        <button onclick="window.location.href='pagina2.html'">Ir a Blackmoon podcast</button>
-            <img src="bkmprdcts.jpeg" alt="Podcast">
+    <div class="espacio">
+        <a href="pagina3.html">
+            <img src="imagen3.jpg" alt="Imagen 3" class="imagen-mediana">
+        </a>
+        <h2><a href="pagina3.html">Enlace 3</a></h2>
+    </div>
 
-        <button onclick="window.location.href='pagina1.html'">Ir a productos blackmoon</button>
-        
-        <img src="PRODUCTOS BLACKMOON.png" alt="Productos">
-
-        <button onclick="window.location.href='pagina1.html'">Ir a Blackmoon systems</button>
-
-          <img src="PRODUCTOS BLACKMOON.png" alt="Productos">
-    </main>
-    <footer>
-        <p>© 2024 Blackmoon group</p>
-         <p>© 2024 Ing.Carlos Lezama</p>
-    </footer>
+    <div class="espacio">
+        <a href="pagina4.html">
+            <img src="imagen4.jpg" alt="Imagen 4" class="imagen-mediana">
+        </a>
+        <h2><a href="pagina4.html">Enlace 4</a></h2>
+    </div>
 </body>
 </html>
+
