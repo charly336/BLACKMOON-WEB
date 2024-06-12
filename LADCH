@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <style>
+        body {
+            background-image: url("aerial black moon.jpg");
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            font-weight: bold;
+            font-size: 35px;
+        }
+      
+      h2 {
+            font-weight: bold;
+            font-size: 35px;
+        }
+        a {
+            color: purple;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .espacio {
+            margin: 20px;
+        }
+        .imagen-mediana {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #000;
+            border-radius: 10px;
+        }
+.enlace-botón {
+  background-color: #CCCCFF;
+  border: none;
+  color: #6600FF;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: cursor 1.png;
+  border-radius: 12px;
+  }
+
+    </style>
+</head>
+	<title>Mi Página Web | Inicio</title>
+    <meta name="description" content="Descripción breve de mi sitio web">
+<body>
+<body>
+
+ <marquee behavior="scroll" direction="left"><h1>Los angeles de charly </h1></font></marquee><br><br>
+      
+<section>
+              
+           
+ <div style="display: flex; flex-wrap: wrap; font-size:50px;">
+<ol>
+
+<p>Somos una filial de Aerial BlackMoon gracias por ver</p>
+ <!-- boton videos -->
+<br><il><img src="INSTA.png" style="width: 150px"></il><br><br><il><a href="https://instagram.com/blackmoonofi?igshid=MzMyNGUyNmU2YQ%3D%3D&utm_source=qr" class="enlace-botón">INSTAGRAM</a></il><br>
+
+<!-- boton fotos -->
+<br><il><img src="WTTS.jpeg" style="width: 150px"></il><br><br><il><a href=https://wa.me/message/ERQZYM3ACHBVO1" class="enlace-botón">WHATSAPP</a></il><br>
+
+
+
+ </ol>
+ </div>
+
+
+
+<marquee behavior="scroll" direction="left"><h2>&copy; Todos somos Blackmoon</h2></font></marquee> 
+ <marquee behavior="scroll" direction="left"><h2>&copy; Y..... VOLEMOS ALTO  </h2></font></marquee> 
+
+             
+</html>
