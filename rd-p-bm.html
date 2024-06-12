@@ -31,6 +31,50 @@
             border: 2px solid #000;
             border-radius: 10px;
         }
+      .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            overflow: hidden;
+            border: 2px solid #ddd;
+        }
+        .carousel-inner {
+            display: flex;
+            width: 300%;
+            transition: transform 0.5s ease;
+        }
+        .carousel-item {
+            width: 100%;
+            flex: 1 0 100%;
+        }
+        .carousel-item img {
+            width: 100%;
+            display: block;
+        }
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transform: translateY(-50%);
+        }
+        .carousel-control.prev {
+            left: 10px;
+        }
+        .carousel-control.next {
+            right: 10px;
+        }
+      
+      
+      
+      
+      
+      
     </style>
 </head>
 	<title>Mi Página Web | Inicio</title>
@@ -56,4 +100,32 @@
 
             <marquee behavior="alternate" direction="left"><FONT SIZE=7><h2>&copy; Todos somos Blackmoon</h2></font></marquee> 	
 	   <marquee behavior="alternate" direction="left"><FONT SIZE=7><h2>&copy; Y..... VOLEMOS ALTO  </h2></font></marquee>  
+      
+      
+      <div class="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item">
+                <img src="imagen1.jpg" alt="Imagen 1">
+            </div>
+            <div class="carousel-item">
+                <img src="imagen2.jpg" alt="Imagen 2">
+            </div>
+            <div class="carousel-item">
+                <img src="imagen3.jpg" alt="Imagen 3">
+            </div>
+        </div>
+        <button class="carousel-control prev" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="carousel-control next" onclick="moveSlide(1)">&#10095;</button>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+
+        function moveSlide(direction) {
+            const carouselInner = document.querySelector('.carousel-inner');
+            const totalItems = document.querySelectorAll('.carousel-item').length;
+            currentIndex = (currentIndex + direction + totalItems) % totalItems;
+            carouselInner.style.transform = `translateX(-${currentIndex * 100}%)`;
+        }
+    </script>
 </html>
