@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego: Danza Aérea</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(#87CEFA, #ffffff);
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('https://www.transparenttextures.com/patterns/white-wall-3.png');
+      overflow: hidden;
+    }
+
+    #player {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      background: url('https://cdn-icons-png.flaticon.com/512/871/871529.png') no-repeat center;
+      background-size: contain;
+    }
+
+    .ribbon {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: url('https://cdn-icons-png.flaticon.com/512/4821/4821969.png') no-repeat center;
+      background-size: contain;
+      top: 0;
+    }
+
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="score">Puntos: 0</div>
+    <div id="player"></div>
+  </div>
+
+  <script>
+    const game = document.getElementById('game');
+    const player = document.getElementById('player');
+    const scoreDisplay = document.getElementById('score');
+    let score = 0;
+    let playerX = window.innerWidth / 2 - 30;
+
+    // Mover al jugador
+    document.addEventListener('keydown', (e) => {
+      const step = 20;
+      if (e.key === 'ArrowLeft') {
+        playerX -= step;
+      } else if (e.key === 'ArrowRight') {
+        playerX += step;
+      }
+      playerX = Math.max(0, Math.min(window.innerWidth - 60, playerX));
+      player.style.left = playerX + 'px';
+    });
+
+    // Crear cintas
+    function createRibbon() {
+      const ribbon = document.createElement('div');
+      ribbon.classList.add('ribbon');
+      ribbon.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+      game.appendChild(ribbon);
+
+      let ribbonY = 0;
+      const fallSpeed = 3;
+
+      const fallInterval = setInterval(() => {
+        ribbonY += fallSpeed;
+        ribbon.style.top = ribbonY + 'px';
+
+        // Colisión
+        const playerRect = player.getBoundingClientRect();
+        const ribbonRect = ribbon.getBoundingClientRect();
+
+        if (
+          ribbonRect.bottom >= playerRect.top &&
+          ribbonRect.left < playerRect.right &&
+          ribbonRect.right > playerRect.left
+        ) {
+          clearInterval(fallInterval);
+          ribbon.remove();
+          score++;
+          scoreDisplay.textContent = 'Puntos: ' + score;
+        }
+
+        // Fuera de pantalla
+        if (ribbonY > window.innerHeight) {
+          clearInterval(fallInterval);
+          ribbon.remove();
+        }
+      }, 20);
+    }
+
+    // Lluvia de cintas
+    setInterval(createRibbon, 1500);
+  </script>
+</body>
+</html>
