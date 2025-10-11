@@ -60,7 +60,7 @@ const telaImg = new Image();
 let assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
 
 // Paths por defecto (cámbialas si quieres):
-let DEFAULT_GIM = 'tela.png.png';
+let DEFAULT_GIM = 'tela transpartente.png';
 let DEFAULT_TELA = 'tela 2.png';
 
 // Preload usando Promises
@@ -131,7 +131,7 @@ function drawTela(tela){
 
 // --- Lógica del juego ---
 function resetGame(){
-  gimnasta.y = 150; gimnasta.velocity = 0; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 2; spawnInterval = 90; running = false;
+  gimnasta.y = 150; gimnasta.velocity = -1; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 1; spawnInterval = 90; running = false;
 }
 
 function startGame(){
