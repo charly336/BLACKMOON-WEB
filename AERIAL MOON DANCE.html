@@ -9,6 +9,7 @@
       background: radial-gradient(circle at center, #000 0%, #111 100%);
       color: #f0f0f0;
       font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
     }
 
     h1 {
@@ -27,6 +28,8 @@
       border: 3px solid #ff69b4;
       background-color: #222;
       box-shadow: 0 0 20px #ff69b4;
+      position: relative;
+      z-index: 1;
     }
 
     #restartBtn {
@@ -45,9 +48,22 @@
     #restartBtn:hover {
       background-color: #ff85c1;
     }
+
+    #moon {
+      position: absolute;
+      top: 40px;
+      right: 80px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle at center, #fff 0%, #ccc 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 30px #fff;
+      z-index: 0;
+    }
   </style>
 </head>
 <body>
+  <div id="moon"></div>
   <h1>Aerial Run</h1>
   <p>Presiona <strong>ESPACIO</strong> para saltar</p>
   <div id="score">Puntaje: 0</div>
@@ -63,7 +79,7 @@
     const scoreDisplay = document.getElementById("score");
     const highScoreDisplay = document.getElementById("highScore");
 
-    let dancer, obstacles, frame, gameOver, score, highScore;
+    let dancer, obstacles, topObstacles, frame, gameOver, score, highScore;
 
     function initGame() {
       dancer = {
@@ -72,11 +88,12 @@
         width: 40,
         height: 40,
         velocityY: 0,
-        gravity: 1.0,
-        jumpForce: -25
+        gravity: 1.2,
+        jumpForce: -18
       };
 
       obstacles = [];
+      topObstacles = [];
       frame = 0;
       score = 0;
       gameOver = false;
@@ -94,8 +111,8 @@
       ctx.fillRect(dancer.x, dancer.y, dancer.width, dancer.height);
     }
 
-    function drawObstacle(ob) {
-      ctx.fillStyle = "#00ffff";
+    function drawObstacle(ob, fromTop = false) {
+      ctx.fillStyle = fromTop ? "#ffcc00" : "#00ffff";
       ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
     }
 
@@ -120,6 +137,12 @@
         obstacles.push({ x: canvas.width, y: canvas.height - height, width, height, passed: false });
       }
 
+      if (frame % 150 === 0) {
+        let height = Math.random() * 80 + 40;
+        let width = Math.random() * 30 + 20;
+        topObstacles.push({ x: canvas.width, y: 0, width, height, passed: false });
+      }
+
       for (let i = 0; i < obstacles.length; i++) {
         obstacles[i].x -= 5;
         drawObstacle(obstacles[i]);
@@ -130,13 +153,7 @@
           dancer.y < obstacles[i].y + obstacles[i].height &&
           dancer.y + dancer.height > obstacles[i].y
         ) {
-          gameOver = true;
-          restartBtn.style.display = "inline-block";
-
-          if (score > highScore) {
-            localStorage.setItem("aerialHighScore", score);
-            highScoreDisplay.textContent = "Récord: " + score;
-          }
+          endGame();
         }
 
         if (!obstacles[i].passed && obstacles[i].x + obstacles[i].width < dancer.x) {
@@ -146,8 +163,36 @@
         }
       }
 
+      for (let i = 0; i < topObstacles.length; i++) {
+        topObstacles[i].x -= 5;
+        drawObstacle(topObstacles[i], true);
+
+        if (
+          dancer.x < topObstacles[i].x + topObstacles[i].width &&
+          dancer.x + dancer.width > topObstacles[i].x &&
+          dancer.y < topObstacles[i].y + topObstacles[i].height
+        ) {
+          endGame();
+        }
+
+        if (!topObstacles[i].passed && topObstacles[i].x + topObstacles[i].width < dancer.x) {
+          topObstacles[i].passed = true;
+          score++;
+          scoreDisplay.textContent = "Puntaje: " + score;
+        }
+      }
+
       frame++;
       requestAnimationFrame(update);
+    }
+
+    function endGame() {
+      gameOver = true;
+      restartBtn.style.display = "inline-block";
+      if (score > highScore) {
+        localStorage.setItem("aerialHighScore", score);
+        highScoreDisplay.textContent = "Récord: " + score;
+      }
     }
 
     document.addEventListener("keydown", (e) => {
@@ -164,4 +209,3 @@
   </script>
 </body>
 </html>
-
