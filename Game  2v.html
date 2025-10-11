@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Gimnasta Voladora — (Preload & fallback de imágenes)</title>
   <style>
-    :root{ --bg1:#8EB4F8; --bg2:#89f7fe; --accent:#8D94A0 }
+    :root{ --bg1:#ff9ad6; --bg2:#89f7fe; --accent:#ff1493 }
     html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2))}
     .center{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px}
     canvas{background:linear-gradient(180deg,#fff1fb,#e6fbff);border-radius:10px;border:6px solid rgba(0,0,0,0.06);width:400px;height:600px}
@@ -31,7 +31,7 @@
 
   <!-- Recomendación: reemplaza "gimnasta.png" y "tela.png" por tus archivos locales o URLs. -->
   <audio id="bgMusic" loop>
-    <source src="15.-En el aire soy todo.m4a" type="audio/mpeg">
+    <source src="musica.mp3" type="audio/mpeg">
   </audio>
 
 <script>
@@ -54,14 +54,19 @@ let gameSpeed = 2;
 let running = false;
 let spawnInterval = 90; // frames
 
+// --- Gap configuration (cambia estos valores para separar más o menos los pilares/telas) ---
+const GAP_BASE = 180;       // tamaño inicial del hueco entre telas (mayor = más separación)
+const GAP_MIN = 120;        // gap mínimo que no se reducirá
+const GAP_REDUCE_PER_LEVEL = 6; // cuánto se reduce el gap por nivel
+
 // --- Assets ---
 const gimnastaImg = new Image();
 const telaImg = new Image();
 let assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
 
 // Paths por defecto (cámbialas si quieres):
-let DEFAULT_GIM = 'tela transpartente.png';
-let DEFAULT_TELA = 'tela 2.png';
+let DEFAULT_GIM = 'gimnasta.png';
+let DEFAULT_TELA = 'tela.png';
 
 // Preload usando Promises
 function preloadImages(gimPath = DEFAULT_GIM, telaPath = DEFAULT_TELA){
@@ -131,7 +136,7 @@ function drawTela(tela){
 
 // --- Lógica del juego ---
 function resetGame(){
-  gimnasta.y = 150; gimnasta.velocity = -1; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 1; spawnInterval = 90; running = false;
+  gimnasta.y = 150; gimnasta.velocity = 0; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 2; spawnInterval = 90; running = false;
 }
 
 function startGame(){
@@ -149,7 +154,8 @@ function startGame(){
 }
 
 function spawnTelas(){
-  const gap = Math.max(90, 140 - level*6);
+  // Usamos la configuración de gap definida arriba. Increase GAP_BASE para separar más.
+  const gap = Math.max(GAP_MIN, GAP_BASE - level * GAP_REDUCE_PER_LEVEL);
   const top = Math.floor(Math.random() * (canvas.height - gap - 120)) + 60; // evita bordes
   telas.push({ x: canvas.width, y: 0, width: 64, height: top });
   telas.push({ x: canvas.width, y: top + gap, width: 64, height: canvas.height - top - gap });
