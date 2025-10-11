@@ -2,226 +2,187 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Aerial Run – Edición Nocturna con Luna</title>
+  <title>Aerial Run: Noche Estelar</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      text-align: center;
-      background: radial-gradient(circle at center, #000 0%, #111 100%);
-      color: #f0f0f0;
+      background-color: #0b0b2e;
       font-family: 'Segoe UI', sans-serif;
       overflow: hidden;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 0;
-      color: #ff69b4;
-      text-shadow: 0 0 10px #ff69b4;
-    }
-
-    #score, #highScore {
-      font-size: 1.2em;
-      margin: 5px;
-    }
-
-    canvas {
-      border: 3px solid #ff69b4;
-      background-color: #222;
-      box-shadow: 0 0 20px #ff69b4;
-      position: relative;
-      z-index: 1;
-    }
-
-    #restartBtn {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 25px;
-      font-size: 16px;
-      background-color: #ff69b4;
       color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #ff69b4;
     }
-
-    #restartBtn:hover {
-      background-color: #ff85c1;
+    .game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(#0b0b2e, #000);
     }
-
-    #moon {
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('https://i.imgur.com/3Wb5g0i.png') repeat;
+      opacity: 0.3;
+      z-index: 0;
+    }
+    .moon {
       position: absolute;
       top: 40px;
       right: 80px;
       width: 100px;
-      height: 100px;
-      background: radial-gradient(circle at center, #fff 0%, #ccc 100%);
-      border-radius: 50%;
-      box-shadow: 0 0 30px #fff;
-      z-index: 0;
+      z-index: 1;
+    }
+    .aerialist {
+      position: absolute;
+      bottom: 100px;
+      left: 100px;
+      width: 80px;
+      height: 80px;
+      background-image: url('https://i.imgur.com/2yaf2wb.png');
+      background-size: cover;
+      z-index: 2;
+      transition: bottom 0.3s;
+    }
+    .obstacle {
+      position: absolute;
+      bottom: 100px;
+      right: -60px;
+      width: 60px;
+      height: 60px;
+      background-size: cover;
+      z-index: 2;
+    }
+    #scoreboard {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 18px;
+      z-index: 3;
+    }
+    #startBtn {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #222;
+      color: white;
+      border: 2px solid white;
+      cursor: pointer;
+      z-index: 3;
     }
   </style>
 </head>
 <body>
-  <div id="moon"></div>
-  <h1>Aerial Run – Edición Nocturna con Luna</h1>
-  <p>Presiona <strong>ESPACIO</strong> para saltar</p>
-  <div id="score">Puntaje: 0</div>
-  <div id="highScore">Récord: 0</div>
-  <canvas id="gameCanvas" width="800" height="300"></canvas>
-  <br />
-  <button id="restartBtn">Reiniciar</button>
+  <div class="game">
+    <div class="stars"></div>
+    <img src="https://i.imgur.com/9L3ZQ2b.png" class="moon" />
+    <div id="aerialist" class="aerialist"></div>
+    <div id="obstacle" class="obstacle"></div>
+    <div id="scoreboard">
+      Puntaje: <span id="score">0</span> |
+      Máximo: <span id="highScore">0</span>
+    </div>
+    <button id="startBtn">Iniciar / Reiniciar</button>
+  </div>
 
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const restartBtn = document.getElementById("restartBtn");
-    const scoreDisplay = document.getElementById("score");
-    const highScoreDisplay = document.getElementById("highScore");
+    const aerialist = document.getElementById('aerialist');
+    const obstacle = document.getElementById('obstacle');
+    const scoreDisplay = document.getElementById('score');
+    const highScoreDisplay = document.getElementById('highScore');
+    const startBtn = document.getElementById('startBtn');
 
-    // Cargar imágenes
-    const imgDancer = new Image();
-    imgDancer.src = "bailarina.png "; // ← Reemplaza con tu imagen de personaje
+    let score = 0;
+    let highScore = 0;
+    let gameInterval;
+    let isJumping = false;
+    let isCrouching = false;
 
-    const imgObstacleBottom = new Image();
-    imgObstacleBottom.src = "obstaculo_abajo.png"; // ← Reemplaza con imagen de obstáculos inferiores
+    const obstacleImages = [
+      'https://i.imgur.com/4Zz0b9V.png', // aro
+      'https://i.imgur.com/6xk1Zx9.png', // tela
+      'https://i.imgur.com/3e5zZ8m.png', // trapecio
+      'https://i.imgur.com/7YkzY1r.png'  // obstáculo bajo
+    ];
 
-    const imgObstacleTop = new Image();
-    imgObstacleTop.src = "obstaculo_arriba.png"; // ← Reemplaza con imagen de obstáculos superiores
-
-    let dancer, obstacles, topObstacles, frame, gameOver, score, highScore;
-
-    function initGame() {
-      dancer = {
-        x: 50,
-        y: 200,
-        width: 40,
-        height: 40,
-        velocityY: 0,
-        gravity: 1.2,
-        jumpForce: -18
-      };
-
-      obstacles = [];
-      topObstacles = [];
-      frame = 0;
+    function startGame() {
       score = 0;
-      gameOver = false;
-      restartBtn.style.display = "none";
-      scoreDisplay.textContent = "Puntaje: 0";
-
-      highScore = localStorage.getItem("aerialHighScore") || 0;
-      highScoreDisplay.textContent = "Récord: " + highScore;
-
-      update();
+      scoreDisplay.textContent = score;
+      obstacle.style.right = '-60px';
+      obstacle.style.bottom = '100px';
+      obstacle.style.backgroundImage = `url(${randomObstacle()})`;
+      clearInterval(gameInterval);
+      gameInterval = setInterval(gameLoop, 20);
     }
 
-    function drawDancer() {
-      ctx.drawImage(imgDancer, dancer.x, dancer.y, dancer.width, dancer.height);
-    }
+    function gameLoop() {
+      let obstacleRight = parseInt(obstacle.style.right);
+      obstacleRight += 5;
+      obstacle.style.right = `${obstacleRight}px`;
 
-    function drawObstacle(ob, fromTop = false) {
-      if (fromTop) {
-        ctx.drawImage(imgObstacleTop, ob.x, ob.y, ob.width, ob.height);
-      } else {
-        ctx.drawImage(imgObstacleBottom, ob.x, ob.y, ob.width, ob.height);
-      }
-    }
-
-    function update() {
-      if (gameOver) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      dancer.velocityY += dancer.gravity;
-      dancer.y += dancer.velocityY;
-
-      if (dancer.y > canvas.height - dancer.height) {
-        dancer.y = canvas.height - dancer.height;
-        dancer.velocityY = 0;
-      }
-
-      drawDancer();
-
-      // Obstáculos inferiores
-      if (frame % 100 === 0) {
-        let height = Math.random() * 80 + 40;
-        let width = Math.random() * 30 + 20;
-        obstacles.push({ x: canvas.width, y: canvas.height - height, width, height, passed: false });
-      }
-
-      // Obstáculos superiores
-      if (frame % 150 === 0) {
-        let height = Math.random() * 80 + 40;
-        let width = Math.random() * 30 + 20;
-        topObstacles.push({ x: canvas.width, y: 0, width, height, passed: false });
-      }
-
-      // Dibujar y mover obstáculos inferiores
-      for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].x -= 5;
-        drawObstacle(obstacles[i]);
-
-        if (
-          dancer.x < obstacles[i].x + obstacles[i].width &&
-          dancer.x + dancer.width > obstacles[i].x &&
-          dancer.y < obstacles[i].y + obstacles[i].height &&
-          dancer.y + dancer.height > obstacles[i].y
-        ) {
-          endGame();
-        }
-
-        if (!obstacles[i].passed && obstacles[i].x + obstacles[i].width < dancer.x) {
-          obstacles[i].passed = true;
-          score++;
-          scoreDisplay.textContent = "Puntaje: " + score;
+      if (obstacleRight > window.innerWidth + 60) {
+        obstacle.style.right = '-60px';
+        obstacle.style.backgroundImage = `url(${randomObstacle()})`;
+        score++;
+        scoreDisplay.textContent = score;
+        if (score > highScore) {
+          highScore = score;
+          highScoreDisplay.textContent = highScore;
         }
       }
 
-      // Dibujar y mover obstáculos superiores
-      for (let i = 0; i < topObstacles.length; i++) {
-        topObstacles[i].x -= 5;
-        drawObstacle(topObstacles[i], true);
-
-        if (
-          dancer.x < topObstacles[i].x + topObstacles[i].width &&
-          dancer.x + dancer.width > topObstacles[i].x &&
-          dancer.y < topObstacles[i].y + topObstacles[i].height
-        ) {
-          endGame();
-        }
-
-        if (!topObstacles[i].passed && topObstacles[i].x + topObstacles[i].width < dancer.x) {
-          topObstacles[i].passed = true;
-          score++;
-          scoreDisplay.textContent = "Puntaje: " + score;
-        }
-      }
-
-      frame++;
-      requestAnimationFrame(update);
+      checkCollision();
     }
 
-    function endGame() {
-      gameOver = true;
-      restartBtn.style.display = "inline-block";
-      if (score > highScore) {
-        localStorage.setItem("aerialHighScore", score);
-        highScoreDisplay.textContent = "Récord: " + score;
+    function checkCollision() {
+      const aRect = aerialist.getBoundingClientRect();
+      const oRect = obstacle.getBoundingClientRect();
+
+      const overlap = !(
+        aRect.right < oRect.left ||
+        aRect.left > oRect.right ||
+        aRect.bottom < oRect.top ||
+        aRect.top > oRect.bottom
+      );
+
+      if (overlap) {
+        clearInterval(gameInterval);
+        alert('¡Ups! Colisión aérea. Intenta de nuevo.');
       }
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Space" && dancer.y >= canvas.height - dancer.height) {
-        dancer.velocityY = dancer.jumpForce;
-      }
+    function jump() {
+      if (isJumping || isCrouching) return;
+      isJumping = true;
+      aerialist.style.bottom = '200px';
+      setTimeout(() => {
+        aerialist.style.bottom = '100px';
+        isJumping = false;
+      }, 600);
+    }
+
+    function crouch() {
+      if (isJumping || isCrouching) return;
+      isCrouching = true;
+      aerialist.style.height = '40px';
+      setTimeout(() => {
+        aerialist.style.height = '80px';
+        isCrouching = false;
+      }, 600);
+    }
+
+    function randomObstacle() {
+      return obstacleImages[Math.floor(Math.random() * obstacleImages.length)];
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') jump();
+      if (e.code === 'ArrowDown') crouch();
     });
 
-    restartBtn.addEventListener("click", () => {
-      initGame();
-    });
-
-    initGame();
+    startBtn.addEventListener('click', startGame);
   </script>
 </body>
 </html>
