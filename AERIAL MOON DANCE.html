@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Aerial Run – BlackMoon</title>
+  <title>Aerial Run – Edición Nocturna con Luna</title>
   <style>
     body {
       text-align: center;
@@ -64,7 +64,7 @@
 </head>
 <body>
   <div id="moon"></div>
-  <h1>Aerial Run</h1>
+  <h1>Aerial Run – Edición Nocturna con Luna</h1>
   <p>Presiona <strong>ESPACIO</strong> para saltar</p>
   <div id="score">Puntaje: 0</div>
   <div id="highScore">Récord: 0</div>
@@ -78,6 +78,16 @@
     const restartBtn = document.getElementById("restartBtn");
     const scoreDisplay = document.getElementById("score");
     const highScoreDisplay = document.getElementById("highScore");
+
+    // Cargar imágenes
+    const imgDancer = new Image();
+    imgDancer.src = "bailarina.png"; // ← Reemplaza con tu imagen de personaje
+
+    const imgObstacleBottom = new Image();
+    imgObstacleBottom.src = "obstaculo_abajo.png"; // ← Reemplaza con imagen de obstáculos inferiores
+
+    const imgObstacleTop = new Image();
+    imgObstacleTop.src = "obstaculo_arriba.png"; // ← Reemplaza con imagen de obstáculos superiores
 
     let dancer, obstacles, topObstacles, frame, gameOver, score, highScore;
 
@@ -107,13 +117,15 @@
     }
 
     function drawDancer() {
-      ctx.fillStyle = "#ff69b4";
-      ctx.fillRect(dancer.x, dancer.y, dancer.width, dancer.height);
+      ctx.drawImage(imgDancer, dancer.x, dancer.y, dancer.width, dancer.height);
     }
 
     function drawObstacle(ob, fromTop = false) {
-      ctx.fillStyle = fromTop ? "#ffcc00" : "#00ffff";
-      ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
+      if (fromTop) {
+        ctx.drawImage(imgObstacleTop, ob.x, ob.y, ob.width, ob.height);
+      } else {
+        ctx.drawImage(imgObstacleBottom, ob.x, ob.y, ob.width, ob.height);
+      }
     }
 
     function update() {
@@ -131,18 +143,21 @@
 
       drawDancer();
 
+      // Obstáculos inferiores
       if (frame % 100 === 0) {
         let height = Math.random() * 80 + 40;
         let width = Math.random() * 30 + 20;
         obstacles.push({ x: canvas.width, y: canvas.height - height, width, height, passed: false });
       }
 
+      // Obstáculos superiores
       if (frame % 150 === 0) {
         let height = Math.random() * 80 + 40;
         let width = Math.random() * 30 + 20;
         topObstacles.push({ x: canvas.width, y: 0, width, height, passed: false });
       }
 
+      // Dibujar y mover obstáculos inferiores
       for (let i = 0; i < obstacles.length; i++) {
         obstacles[i].x -= 5;
         drawObstacle(obstacles[i]);
@@ -163,6 +178,7 @@
         }
       }
 
+      // Dibujar y mover obstáculos superiores
       for (let i = 0; i < topObstacles.length; i++) {
         topObstacles[i].x -= 5;
         drawObstacle(topObstacles[i], true);
