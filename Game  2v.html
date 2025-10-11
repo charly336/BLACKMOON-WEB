@@ -55,7 +55,7 @@ let running = false;
 let spawnInterval = 90; // frames
 
 // --- Gap configuration (cambia estos valores para separar más o menos los pilares/telas) ---
-const GAP_BASE = 180;       // tamaño inicial del hueco entre telas (mayor = más separación)
+const GAP_BASE = 220;       // tamaño inicial del hueco entre telas (mayor = más separación)
 const GAP_MIN = 120;        // gap mínimo que no se reducirá
 const GAP_REDUCE_PER_LEVEL = 6; // cuánto se reduce el gap por nivel
 
@@ -65,7 +65,7 @@ const telaImg = new Image();
 let assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
 
 // Paths por defecto (cámbialas si quieres):
-let DEFAULT_GIM = 'gimnasta.png';
+let DEFAULT_GIM = 'tela transpartente.png';
 let DEFAULT_TELA = 'tela.png';
 
 // Preload usando Promises
