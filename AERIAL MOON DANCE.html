@@ -15,41 +15,64 @@
       border: 2px solid white;
       background-color: #222;
     }
+
+    #restartBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #restartBtn:hover {
+      background-color: #ff85c1;
+    }
   </style>
 </head>
 <body>
   <h1>Aerial Run</h1>
   <p>Presiona <strong>ESPACIO</strong> para saltar</p>
   <canvas id="gameCanvas" width="800" height="300"></canvas>
+  <br />
+  <button id="restartBtn">Reiniciar</button>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+    const restartBtn = document.getElementById("restartBtn");
 
-    let dancer = {
-      x: 50,
-      y: 200,
-      width: 40,
-      height: 40,
-      velocityY: 0,
-      gravity: 1.5,
-      jumpForce: -15
-    };
+    let dancer, obstacles, frame, gameOver;
 
-    let obstacles = [];
-    let frame = 0;
-    let gameOver = false;
+    function initGame() {
+      dancer = {
+        x: 50,
+        y: 200,
+        width: 40,
+        height: 40,
+        velocityY: 0,
+        gravity: 1.5,
+        jumpForce: -15
+      };
+
+      obstacles = [];
+      frame = 0;
+      gameOver = false;
+      restartBtn.style.display = "none";
+      update();
+    }
 
     function drawDancer() {
-      ctx.fillStyle = "#ff69b4"; // Color rosa para la bailarina
+      ctx.fillStyle = "#ff69b4";
       ctx.fillRect(dancer.x, dancer.y, dancer.width, dancer.height);
-      // Puedes reemplazar esto con una imagen usando ctx.drawImage()
     }
 
     function drawObstacle(ob) {
-      ctx.fillStyle = "#00ffff"; // Color para obstáculos
+      ctx.fillStyle = "#00ffff";
       ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
-      // Personaliza aquí para representar telas, cadenas, etc.
     }
 
     function update() {
@@ -57,7 +80,6 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Movimiento de la bailarina
       dancer.velocityY += dancer.gravity;
       dancer.y += dancer.velocityY;
 
@@ -68,7 +90,6 @@
 
       drawDancer();
 
-      // Obstáculos
       if (frame % 100 === 0) {
         let height = Math.random() * 50 + 20;
         obstacles.push({ x: canvas.width, y: canvas.height - height, width: 20, height });
@@ -78,7 +99,6 @@
         obstacles[i].x -= 5;
         drawObstacle(obstacles[i]);
 
-        // Colisión
         if (
           dancer.x < obstacles[i].x + obstacles[i].width &&
           dancer.x + dancer.width > obstacles[i].x &&
@@ -86,7 +106,7 @@
           dancer.y + dancer.height > obstacles[i].y
         ) {
           gameOver = true;
-          alert("¡Has caído! Intenta de nuevo.");
+          restartBtn.style.display = "inline-block";
         }
       }
 
@@ -100,7 +120,12 @@
       }
     });
 
-    update();
+    restartBtn.addEventListener("click", () => {
+      initGame();
+    });
+
+    initGame();
   </script>
 </body>
 </html>
+
