@@ -79,16 +79,6 @@
     const scoreDisplay = document.getElementById("score");
     const highScoreDisplay = document.getElementById("highScore");
 
-    // Cargar imágenes
-    const imgDancer = new Image();
-    imgDancer.src = "bailarina.png"; // ← reemplaza con tu imagen
-
-    const imgObstacleBottom = new Image();
-    imgObstacleBottom.src = "obstaculo_abajo.png"; // ← reemplaza con tu imagen
-
-    const imgObstacleTop = new Image();
-    imgObstacleTop.src = "obstaculo_arriba.png"; // ← reemplaza con tu imagen
-
     let dancer, obstacles, topObstacles, frame, gameOver, score, highScore;
 
     function initGame() {
@@ -117,15 +107,13 @@
     }
 
     function drawDancer() {
-      ctx.drawImage(imgDancer, dancer.x, dancer.y, dancer.width, dancer.height);
+      ctx.fillStyle = "#ff69b4";
+      ctx.fillRect(dancer.x, dancer.y, dancer.width, dancer.height);
     }
 
     function drawObstacle(ob, fromTop = false) {
-      if (fromTop) {
-        ctx.drawImage(imgObstacleTop, ob.x, ob.y, ob.width, ob.height);
-      } else {
-        ctx.drawImage(imgObstacleBottom, ob.x, ob.y, ob.width, ob.height);
-      }
+      ctx.fillStyle = fromTop ? "#ffcc00" : "#00ffff";
+      ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
     }
 
     function update() {
