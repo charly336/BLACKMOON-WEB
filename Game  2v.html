@@ -21,7 +21,8 @@
     <div id="loading">Cargando recursos... (esperando imágenes)</div>
     <div id="ui">
       <button id="startBtn" disabled>Iniciar Juego</button>
-     
+      <button id="simBroken">Simular imagen rota</button>
+      <button id="chooseBtn">Elegir imágenes (opcional)</button>
     </div>
 
     <canvas id="gameCanvas" width="400" height="600"></canvas>
@@ -59,8 +60,8 @@ const telaImg = new Image();
 let assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
 
 // Paths por defecto (cámbialas si quieres):
-let DEFAULT_GIM = 'yoga.png';
-let DEFAULT_TELA = 'tela.png';
+let DEFAULT_GIM = 'tela.png.png';
+let DEFAULT_TELA = 'tela.png.jpg';
 
 // Preload usando Promises
 function preloadImages(gimPath = DEFAULT_GIM, telaPath = DEFAULT_TELA){
