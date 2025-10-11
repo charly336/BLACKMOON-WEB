@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gimnasta Voladora — (Preload & fallback de imágenes)</title>
+  <style>
+    :root{ --bg1:#ff9ad6; --bg2:#89f7fe; --accent:#ff1493 }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2))}
+    .center{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px}
+    canvas{background:linear-gradient(180deg,#fff1fb,#e6fbff);border-radius:10px;border:6px solid rgba(0,0,0,0.06);width:400px;height:600px}
+    #ui{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
+    #loading{font-size:14px;color:#222;background:#ffffffcc;padding:6px 10px;border-radius:8px}
+    #debug{font-size:13px;color:#222;background:#fff8;padding:6px 10px;border-radius:8px}
+    .small{font-size:12px;color:#1116}
+  </style>
+</head>
+<body>
+  <div class="center">
+    <div id="loading">Cargando recursos... (esperando imágenes)</div>
+    <div id="ui">
+      <button id="startBtn" disabled>Iniciar Juego</button>
+      <button id="simBroken">Simular imagen rota</button>
+      <button id="chooseBtn">Elegir imágenes (opcional)</button>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div class="small">Controles: Barra espaciadora o tecla ↑ para saltar / tocar la pantalla para móviles.</div>
+  </div>
+
+  <!-- Recomendación: reemplaza "gimnasta.png" y "tela.png" por tus archivos locales o URLs. -->
+  <audio id="bgMusic" loop>
+    <source src="musica.mp3" type="audio/mpeg">
+  </audio>
+
+<script>
+// --- Variables DOM ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const startBtn = document.getElementById('startBtn');
+const loadingEl = document.getElementById('loading');
+const simBrokenBtn = document.getElementById('simBroken');
+const chooseBtn = document.getElementById('chooseBtn');
+const bgMusic = document.getElementById('bgMusic');
+
+// --- Game state ---
+let gimnasta = { x: 80, y: 150, width: 48, height: 48, gravity: 0.6, lift: -10, velocity: 0 };
+let telas = [];
+let frame = 0;
+let score = 0;
+let level = 1;
+let gameSpeed = 2;
+let running = false;
+let spawnInterval = 90; // frames
+
+// --- Assets ---
+const gimnastaImg = new Image();
+const telaImg = new Image();
+let assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
+
+// Paths por defecto (cámbialas si quieres):
+let DEFAULT_GIM = 'gimnasta.png';
+let DEFAULT_TELA = 'tela.png';
+
+// Preload usando Promises
+function preloadImages(gimPath = DEFAULT_GIM, telaPath = DEFAULT_TELA){
+  gimnastaImg.src = '';
+  telaImg.src = '';
+  assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
+
+  return new Promise(resolve => {
+    let toFinish = 2;
+    function done(){ toFinish--; if(toFinish === 0) resolve(); }
+
+    gimnastaImg.onload = () => { assets.gimLoaded = true; done(); };
+    gimnastaImg.onerror = () => { assets.gimFailed = true; assets.gimLoaded = true; done(); };
+
+    telaImg.onload = () => { assets.telaLoaded = true; done(); };
+    telaImg.onerror = () => { assets.telaFailed = true; assets.telaLoaded = true; done(); };
+
+    // establecer src AL FINAL para que onload/onerror se disparen
+    gimnastaImg.src = gimPath;
+    telaImg.src = telaPath;
+  });
+}
+
+function canDraw(img){
+  // comprobar que la imagen está completamente cargada y no está rota
+  return img && img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+}
+
+// --- Fallbacks gráficos (si las imágenes fallan) ---
+function drawFallbackGimnasta(x,y,w,h){
+  const cx = x + w/2, cy = y + h/2;
+  const r = Math.min(w,h)/2;
+  const g = ctx.createRadialGradient(cx,cy, r*0.1, cx,cy, r);
+  g.addColorStop(0,'#fff'); g.addColorStop(1,'#ff1493');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  // cuerda
+  ctx.strokeStyle = '#ff1493'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx,cy-r); ctx.lineTo(cx,cy-r-28); ctx.stroke();
+}
+
+function drawFallbackTela(x,y,w,h){
+  // tela con rayas diagonales
+  ctx.fillStyle = '#ff8acb'; ctx.fillRect(x,y,w,h);
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 6;
+  for(let i=-h;i<w;i+=24){ ctx.beginPath(); ctx.moveTo(x+i,y); ctx.lineTo(x+i+h,y+h); ctx.stroke(); }
+  ctx.restore();
+}
+
+// --- Dibujado seguro que evita drawImage sobre imágenes rotas ---
+function drawGimnasta(){
+  if(canDraw(gimnastaImg) && !assets.gimFailed){
+    ctx.drawImage(gimnastaImg, gimnasta.x, gimnasta.y, gimnasta.width, gimnasta.height);
+  } else {
+    drawFallbackGimnasta(gimnasta.x, gimnasta.y, gimnasta.width, gimnasta.height);
+  }
+}
+
+function drawTela(tela){
+  if(canDraw(telaImg) && !assets.telaFailed){
+    // cuando se usa una sola imagen para una tela, la estiramos para cubrir la pieza
+    ctx.drawImage(telaImg, tela.x, tela.y, tela.width, tela.height);
+  } else {
+    drawFallbackTela(tela.x, tela.y, tela.width, tela.height);
+  }
+}
+
+// --- Lógica del juego ---
+function resetGame(){
+  gimnasta.y = 150; gimnasta.velocity = 0; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 2; spawnInterval = 90; running = false;
+}
+
+function startGame(){
+  // Asegurarse que los assets han terminado (cargaron o fallaron)
+  if(!(assets.gimLoaded && assets.telaLoaded)){
+    loadingEl.textContent = 'Esperando a que terminen de cargarse las imágenes...';
+    return;
+  }
+  loadingEl.style.display = 'none';
+  startBtn.disabled = true;
+  running = true;
+  // reproducir música (al iniciar, interacción del usuario permite autoplay)
+  bgMusic.play().catch(()=>{});
+  requestAnimationFrame(loop);
+}
+
+function spawnTelas(){
+  const gap = Math.max(90, 140 - level*6);
+  const top = Math.floor(Math.random() * (canvas.height - gap - 120)) + 60; // evita bordes
+  telas.push({ x: canvas.width, y: 0, width: 64, height: top });
+  telas.push({ x: canvas.width, y: top + gap, width: 64, height: canvas.height - top - gap });
+}
+
+function loop(){
+  if(!running) return;
+  frame++;
+
+  // física gimnasta
+  gimnasta.velocity += gimnasta.gravity;
+  gimnasta.y += gimnasta.velocity;
+  if(gimnasta.y + gimnasta.height > canvas.height){
+    gimnasta.y = canvas.height - gimnasta.height; gimnasta.velocity = 0; endGame(); return;
+  }
+  if(gimnasta.y < 0) gimnasta.y = 0;
+
+  // spawn
+  if(frame % Math.max(40,spawnInterval - Math.floor(level*3)) === 0) spawnTelas();
+
+  // mover y dibujar
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // fondo degradado (suave)
+  const bg = ctx.createLinearGradient(0,0,0,canvas.height);
+  bg.addColorStop(0,'#fff1fb'); bg.addColorStop(1,'#e6fbff');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // telas
+  for(let i = telas.length -1; i >= 0; i--){
+    const t = telas[i];
+    t.x -= gameSpeed;
+    drawTela(t);
+
+    // colisión AABB simple
+    if(gimnasta.x < t.x + t.width && gimnasta.x + gimnasta.width > t.x && gimnasta.y < t.y + t.height && gimnasta.y + gimnasta.height > t.y){
+      endGame(); return;
+    }
+
+    if(t.x + t.width < 0) telas.splice(i,1);
+    // puntuación cuando la pareja de telas pasa
+    // cuando la tela inferior pasa el centro de la gimnasta
+    if(!t.passed && t.y > 0 && t.x + t.width < gimnasta.x){ t.passed = true; score++; if(score%5===0){ level++; gameSpeed += 0.5; }}
+  }
+
+  // dibujar gimnasta
+  drawGimnasta();
+
+  // HUD
+  ctx.fillStyle = '#111'; ctx.font = '16px sans-serif'; ctx.fillText('Puntos: ' + score, 10, 22);
+  ctx.fillText('Nivel: ' + level, canvas.width - 90, 22);
+
+  requestAnimationFrame(loop);
+}
+
+function endGame(){
+  running = false; startBtn.disabled = false; startBtn.textContent = 'Reiniciar'; loadingEl.style.display = 'block'; loadingEl.textContent = 'Juego terminado. Presiona Reiniciar.';
+  bgMusic.pause();
+}
+
+// --- Interacción: controles y selección de imágenes ---
+document.addEventListener('keydown', e => { if(e.code === 'Space' || e.code === 'ArrowUp'){ gimnasta.velocity = gimnasta.lift; } });
+canvas.addEventListener('touchstart', e=>{ gimnasta.velocity = gimnasta.lift; e.preventDefault(); }, {passive:false});
+
+startBtn.addEventListener('click', ()=>{
+  // si assets no terminaron, espera y luego inicia
+  if(!(assets.gimLoaded && assets.telaLoaded)){
+    loadingEl.textContent = 'Cargando imágenes — espere...';
+    return;
+  }
+  // reiniciar estado y comenzar
+  resetGame(); startGame();
+});
+
+simBrokenBtn.addEventListener('click', ()=>{
+  // herramienta de pruebas: fuerza que las imágenes fallen para ver el fallback
+  assets.gimFailed = true; assets.telaFailed = true; loadingEl.textContent = 'Modo prueba: imágenes simuladas como rotas (fallback activado).'; startBtn.disabled = false;
+});
+
+chooseBtn.addEventListener('click', ()=>{
+  // permitir que el usuario cargue imágenes locales usando input file
+  const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.multiple=true;
+  input.onchange = async (ev) => {
+    const files = ev.target.files;
+    if(files.length===0) return;
+    // Si el usuario carga 1 imagen: será la gimnasta; si 2: gimnasta + tela
+    const urls = [];
+    for(let i=0;i<Math.min(files.length,2);i++) urls.push(URL.createObjectURL(files[i]));
+    loadingEl.textContent = 'Cargando imágenes desde archivos...';
+    await preloadImages(urls[0]||DEFAULT_GIM, urls[1]||DEFAULT_TELA);
+    loadingEl.textContent = 'Imágenes cargadas desde archivos.'; startBtn.disabled = false;
+  };
+  input.click();
+});
+
+// --- Iniciar preload automático al cargar la página ---
+preloadImages().then(()=>{
+  // mostrar estado (cargadas o fallback)
+  if(assets.gimFailed || assets.telaFailed){
+    loadingEl.textContent = 'Imágenes no disponibles — se usará fallback gráfico.';
+  } else {
+    loadingEl.textContent = 'Listo — pulsa Iniciar para comenzar.';
+  }
+  startBtn.disabled = false;
+});
+
+// --- Nota: si quieres probar con imágenes públicas, sustituye DEFAULT_GIM y DEFAULT_TELA por URLs válidas ---
+// Ejemplo (no activo):
+// DEFAULT_GIM = 'https://example.com/mymi.png'; DEFAULT_TELA = 'https://example.com/tela.png';
+
+</script>
+</body>
+</html>
