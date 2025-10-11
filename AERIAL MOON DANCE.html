@@ -2,30 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Aerial Run</title>
+  <title>Aerial Run – BlackMoon</title>
   <style>
     body {
       text-align: center;
-      background: linear-gradient(to bottom, #111, #333);
-      color: white;
-      font-family: sans-serif;
+      background: radial-gradient(circle at center, #000 0%, #111 100%);
+      color: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 0;
+      color: #ff69b4;
+      text-shadow: 0 0 10px #ff69b4;
+    }
+
+    #score, #highScore {
+      font-size: 1.2em;
+      margin: 5px;
     }
 
     canvas {
-      border: 2px solid white;
+      border: 3px solid #ff69b4;
       background-color: #222;
+      box-shadow: 0 0 20px #ff69b4;
     }
 
     #restartBtn {
       display: none;
       margin-top: 20px;
-      padding: 10px 20px;
+      padding: 10px 25px;
       font-size: 16px;
       background-color: #ff69b4;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      box-shadow: 0 0 10px #ff69b4;
     }
 
     #restartBtn:hover {
@@ -36,6 +50,8 @@
 <body>
   <h1>Aerial Run</h1>
   <p>Presiona <strong>ESPACIO</strong> para saltar</p>
+  <div id="score">Puntaje: 0</div>
+  <div id="highScore">Récord: 0</div>
   <canvas id="gameCanvas" width="800" height="300"></canvas>
   <br />
   <button id="restartBtn">Reiniciar</button>
@@ -44,8 +60,10 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const restartBtn = document.getElementById("restartBtn");
+    const scoreDisplay = document.getElementById("score");
+    const highScoreDisplay = document.getElementById("highScore");
 
-    let dancer, obstacles, frame, gameOver;
+    let dancer, obstacles, frame, gameOver, score, highScore;
 
     function initGame() {
       dancer = {
@@ -54,14 +72,20 @@
         width: 40,
         height: 40,
         velocityY: 0,
-        gravity: 1.0,
-        jumpForce: -30
+        gravity: 1.2,
+        jumpForce: -18
       };
 
       obstacles = [];
       frame = 0;
+      score = 0;
       gameOver = false;
       restartBtn.style.display = "none";
+      scoreDisplay.textContent = "Puntaje: 0";
+
+      highScore = localStorage.getItem("aerialHighScore") || 0;
+      highScoreDisplay.textContent = "Récord: " + highScore;
+
       update();
     }
 
@@ -91,8 +115,9 @@
       drawDancer();
 
       if (frame % 100 === 0) {
-        let height = Math.random() * 50 + 20;
-        obstacles.push({ x: canvas.width, y: canvas.height - height, width: 20, height });
+        let height = Math.random() * 80 + 40;
+        let width = Math.random() * 30 + 20;
+        obstacles.push({ x: canvas.width, y: canvas.height - height, width, height, passed: false });
       }
 
       for (let i = 0; i < obstacles.length; i++) {
@@ -107,6 +132,17 @@
         ) {
           gameOver = true;
           restartBtn.style.display = "inline-block";
+
+          if (score > highScore) {
+            localStorage.setItem("aerialHighScore", score);
+            highScoreDisplay.textContent = "Récord: " + score;
+          }
+        }
+
+        if (!obstacles[i].passed && obstacles[i].x + obstacles[i].width < dancer.x) {
+          obstacles[i].passed = true;
+          score++;
+          scoreDisplay.textContent = "Puntaje: " + score;
         }
       }
 
