@@ -1,521 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>BlackMoon Aerial Runner</title>
-<style>
-  :root {
-    --canvas-width: 900px;
-    --canvas-height: 450px;
-    --ui-bg: rgba(0,0,0,0.6);
-    --ui-color: #fff;
-  }
-  body {
-    margin:0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: #0b0f1a;
-    color: #fff;
-    display:flex;
-    gap:16px;
-    padding:16px;
-    align-items:flex-start;
-  }
-  #game {
-    position: relative;
-    width: var(--canvas-width);
-    height: var(--canvas-height);
-    box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-    border-radius:8px;
-    overflow:hidden;
-    background: linear-gradient(#061021, #081026 60%);
-  }
-  canvas { display:block; width:100%; height:100%; background:transparent; }
-  #ui {
-    width: 320px;
-    background: var(--ui-bg);
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-  }
-  h2 { margin:6px 0 10px 0; font-size:18px; }
-  label { display:block; margin:8px 0 4px; font-size:13px; color:var(--ui-color); }
-  input[type="file"] { color:#fff; }
-  .row { display:flex; gap:8px; align-items:center; }
-  button, input[type="range"], select { width:100%; margin-top:6px; }
-  small { color:#ccc; }
-  .controls { margin-top:10px; background: rgba(255,255,255,0.03); padding:8px; border-radius:6px; }
-  .hint { font-size:12px; color:#ddd; margin-top:8px; }
-  .btn-row { display:flex; gap:8px; margin-top:8px; }
-  .btn-row button { flex:1; }
-</style>
+  <meta charset="UTF-8" />
+  <title>Aerial Run</title>
+  <style>
+    body {
+      text-align: center;
+      background: linear-gradient(to bottom, #111, #333);
+      color: white;
+      font-family: sans-serif;
+    }
+
+    canvas {
+      border: 2px solid white;
+      background-color: #222;
+    }
+  </style>
 </head>
 <body>
-  <div id="game">
-    <canvas id="canvas" width="900" height="450"></canvas>
-  </div>
+  <h1>Aerial Run</h1>
+  <p>Presiona <strong>ESPACIO</strong> para saltar</p>
+  <canvas id="gameCanvas" width="800" height="300"></canvas>
 
-  <div id="ui">
-    <h2>BlackMoon Aerial Runner</h2>
-    <div>
-      <label>Subir imagen del personaje (PNG/JPG)</label>
-      <input id="playerFile" type="file" accept="image/*">
-      <label>Subir imagen de obstáculo</label>
-      <input id="obstacleFile" type="file" accept="image/*">
-      <label>Elegir obstáculo por defecto</label>
-      <select id="obstacleSelect">
-        <option value="fabric">Telas (por defecto)</option>
-        <option value="hoop">Aro</option>
-        <option value="mat">Colchoneta</option>
-      </select>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-      <label>Velocidad del juego</label>
-      <input id="speedRange" type="range" min="3" max="14" value="7">
+    let dancer = {
+      x: 50,
+      y: 200,
+      width: 40,
+      height: 40,
+      velocityY: 0,
+      gravity: 1.5,
+      jumpForce: -15
+    };
 
-      <label>Tamaño del personaje (%)</label>
-      <input id="playerScale" type="range" min="30" max="200" value="100">
+    let obstacles = [];
+    let frame = 0;
+    let gameOver = false;
 
-      <div class="btn-row">
-        <button id="toggleNight">Alternar noche/luna</button>
-        <button id="toggleSalon">Alternar salón</button>
-      </div>
+    function drawDancer() {
+      ctx.fillStyle = "#ff69b4"; // Color rosa para la bailarina
+      ctx.fillRect(dancer.x, dancer.y, dancer.width, dancer.height);
+      // Puedes reemplazar esto con una imagen usando ctx.drawImage()
+    }
 
-      <div class="controls">
-        <strong>Controles</strong>
-        <div class="hint">1 / 2 / 3 = Saltos (pequeño, medio, grande).</div>
-        <div class="hint">↓ o S = Agacharse (mantener). Espacio = Salto (usa último nivel seleccionado).</div>
-        <div class="hint">Click izquierdo también salta usando nivel seleccionado.</div>
-      </div>
+    function drawObstacle(ob) {
+      ctx.fillStyle = "#00ffff"; // Color para obstáculos
+      ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
+      // Personaliza aquí para representar telas, cadenas, etc.
+    }
 
-      <div style="margin-top:8px;">
-        <button id="resetBtn">Reiniciar</button>
-        <button id="addObstacleBtn">Agregar obstáculo manual</button>
-      </div>
+    function update() {
+      if (gameOver) return;
 
-      <small style="display:block;margin-top:8px;">Tip: sube PNG con fondo transparente para mejores resultados.</small>
-    </div>
-  </div>
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-<script>
-/* -------------------------
-  Juego: Aerial Runner
-  - canvas, personaje personalizable
-  - obstáculos personalizables
-  - noche / luna + salón de fondo
-  - agacharse y saltos 1/2/3
--------------------------*/
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+      // Movimiento de la bailarina
+      dancer.velocityY += dancer.gravity;
+      dancer.y += dancer.velocityY;
 
-let W = canvas.width, H = canvas.height;
-let gameSpeed = 7;
-let gravity = 0.9;
-let groundY = H - 70;
-let running = true;
-let score = 0;
-let night = true;
-let salon = true;
-
-// assets placeholders
-const assets = {
-  moon: null,
-  salonBg: null,
-  playerImg: null,
-  obstacleImg: null,
-};
-
-// load default moon and salon created with canvas fallback if not provided
-function createMoon() {
-  const c = document.createElement('canvas'); c.width=200; c.height=200;
-  const g = c.getContext('2d');
-  g.fillStyle = '#f7f1d0'; g.beginPath(); g.arc(100,100,70,0,Math.PI*2); g.fill();
-  g.globalCompositeOperation='destination-out';
-  g.fillStyle='rgba(0,0,0,0.18)'; g.beginPath(); g.arc(120,85,28,0,Math.PI*2); g.fill();
-  return c;
-}
-function createSalon() {
-  const c = document.createElement('canvas'); c.width=900; c.height=450;
-  const g = c.getContext('2d');
-  // floor
-  g.fillStyle = '#1b1b2b'; g.fillRect(0, groundY, c.width, c.height-groundY);
-  // subtle wall texture
-  for(let i=0;i<30;i++){
-    g.fillStyle = 'rgba(255,255,255,0.01)';
-    g.fillRect(i*30, 20, 10, 200);
-  }
-  // stage light arc
-  g.fillStyle='rgba(255,255,255,0.02)';
-  g.beginPath(); g.ellipse(450, groundY-50, 420, 140, 0, 0, Math.PI*2); g.fill();
-  return c;
-}
-
-assets.moon = createMoon();
-assets.salonBg = createSalon();
-
-// player object
-const player = {
-  x: 120,
-  y: groundY - 120,
-  w: 64,
-  h: 120,
-  vy: 0,
-  onGround: true,
-  crouch: false,
-  scale: 1.0,
-  img: null,
-  defaultDraw(ctx){
-    ctx.fillStyle = '#ffb6c1';
-    ctx.beginPath(); ctx.ellipse(this.x+this.w/2, this.y+this.h/2, this.w/2, this.h/2, 0, 0, Math.PI*2); ctx.fill();
-  }
-};
-
-// obstacles array
-let obstacles = [];
-const obstacleDefaults = {
-  fabric: { w: 60, h: 160, color:'#a23b9b', gap: 1300 },
-  hoop:   { w: 80, h: 80, color:'#f2d33d', gap: 1700 },
-  mat:    { w: 80, h: 40, color:'#2d9cdb', gap: 1200 },
-};
-let selectedObstacleType = 'fabric';
-
-// spawn control
-let spawnTimer = 0;
-let spawnInterval = 120; // frames
-
-// jump level state (1 small, 2 medium, 3 big)
-let jumpLevel = 2;
-
-// load image from file input
-function loadImageFile(file, callback){
-  if(!file) { callback(null); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => { callback(img); };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-// UI bindings
-document.getElementById('playerFile').addEventListener('change', (e)=>{
-  const f = e.target.files[0];
-  loadImageFile(f, img => {
-    if(img){ assets.playerImg = img; player.img = img; }
-  });
-});
-document.getElementById('obstacleFile').addEventListener('change', (e)=>{
-  const f = e.target.files[0];
-  loadImageFile(f, img => {
-    if(img){ assets.obstacleImg = img; }
-  });
-});
-document.getElementById('obstacleSelect').addEventListener('change', (e)=>{
-  selectedObstacleType = e.target.value;
-});
-document.getElementById('speedRange').addEventListener('input', (e)=>{
-  gameSpeed = Number(e.target.value);
-});
-document.getElementById('playerScale').addEventListener('input', (e)=>{
-  player.scale = Number(e.target.value)/100;
-});
-document.getElementById('toggleNight').addEventListener('click', ()=>{
-  night = !night;
-});
-document.getElementById('toggleSalon').addEventListener('click', ()=>{
-  salon = !salon;
-});
-document.getElementById('resetBtn').addEventListener('click', resetGame);
-document.getElementById('addObstacleBtn').addEventListener('click', ()=>{
-  // add one obstacle right away
-  spawnObstacle(true);
-});
-
-// resize handling (canvas stays fixed size but handle logical scale if needed)
-function resetSizes(){
-  W = canvas.width; H = canvas.height;
-  groundY = H - 70;
-  if(!player.img){
-    player.w = 64 * player.scale;
-    player.h = 120 * player.scale;
-  }
-}
-resetSizes();
-
-/* ---------- Game functions ---------- */
-function spawnObstacle(force=false){
-  // uses selectedObstacleType or uploaded image
-  const type = selectedObstacleType;
-  const def = obstacleDefaults[type] || obstacleDefaults.fabric;
-  const gap = def.gap + Math.random()*800 - 200;
-  // spawn at right edge
-  const o = {
-    x: W + 40 + (force?0: Math.random()*400),
-    y: 0,
-    w: def.w,
-    h: def.h,
-    speed: gameSpeed,
-    type,
-    img: assets.obstacleImg || null,
-  };
-  // set y depending on type (fabric hanging from top, hoop mid-air, mat ground)
-  if(type === 'fabric'){
-    o.y = groundY - o.h - 20; // hanging but tall
-  } else if(type === 'hoop'){
-    o.y = groundY - o.h - 200; // midair hoop
-  } else {
-    o.y = groundY - o.h; // mat on floor
-  }
-  obstacles.push(o);
-}
-
-function updatePlayer(){
-  // crouch reduces height
-  const crouchFactor = player.crouch ? 0.55 : 1.0;
-  const baseW = player.img ? player.img.width : 64;
-  const baseH = player.img ? player.img.height : 120;
-  player.w = (player.img ? baseW : 64) * player.scale;
-  player.h = (player.img ? baseH : 120) * player.scale * crouchFactor;
-
-  // vertical physics
-  player.vy += gravity;
-  player.y += player.vy;
-
-  if(player.y + player.h >= groundY){
-    player.y = groundY - player.h;
-    player.vy = 0;
-    player.onGround = true;
-  } else {
-    player.onGround = false;
-  }
-}
-
-function drawBackground(){
-  // night gradient with stars
-  if(night){
-    const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,'#061021'); g.addColorStop(1,'#071224');
-    ctx.fillStyle = g;
-  } else {
-    ctx.fillStyle = '#0b2740';
-  }
-  ctx.fillRect(0,0,W,H);
-
-  // salon background image (simple canvas)
-  if(salon && assets.salonBg){
-    ctx.drawImage(assets.salonBg, 0, 0, W, H);
-  } else {
-    // simple floor
-    ctx.fillStyle = '#12121a';
-    ctx.fillRect(0, groundY, W, H-groundY);
-  }
-
-  // moon
-  if(night && assets.moon){
-    ctx.globalAlpha = 0.9;
-    ctx.drawImage(assets.moon, W - 220, 30, 160, 160);
-    ctx.globalAlpha = 1;
-  }
-
-  // subtle lights / bulbs to suggest salon ceiling
-  ctx.fillStyle = 'rgba(255,255,255,0.03)';
-  for(let i=0;i<6;i++){
-    const bx = 60 + i*140;
-    ctx.beginPath();
-    ctx.ellipse(bx, 40, 30, 10, 0, 0, Math.PI*2);
-    ctx.fill();
-  }
-}
-
-function drawPlayer(){
-  if(player.img){
-    // draw image with scale and maintaining bottom alignment
-    const drawW = player.w;
-    const drawH = player.h;
-    const dx = player.x;
-    const dy = player.y;
-    ctx.drawImage(player.img, dx, dy, drawW, drawH);
-  } else {
-    player.defaultDraw(ctx);
-  }
-}
-
-function drawObstacles(){
-  obstacles.forEach(o=>{
-    if(o.img){
-      ctx.drawImage(o.img, o.x, o.y, o.w, o.h);
-    } else {
-      ctx.fillStyle = obstacleDefaults[o.type].color || '#c94bff';
-      // if fabric draw as tall rectangle with top clamp
-      if(o.type === 'fabric'){
-        ctx.fillRect(o.x, o.y, o.w, o.h);
-        // small ring on top
-        ctx.fillStyle = 'rgba(0,0,0,0.12)';
-        ctx.fillRect(o.x+o.w/2 - 6, o.y - 8, 12, 8);
-      } else if(o.type === 'hoop'){
-        // draw hoop (circle)
-        ctx.beginPath();
-        ctx.lineWidth = 6;
-        ctx.strokeStyle = obstacleDefaults[o.type].color;
-        ctx.arc(o.x + o.w/2, o.y + o.h/2, Math.max(o.w,o.h)/2, 0, Math.PI*2);
-        ctx.stroke();
-        ctx.lineWidth = 1;
-      } else {
-        ctx.fillRect(o.x, o.y, o.w, o.h);
+      if (dancer.y > canvas.height - dancer.height) {
+        dancer.y = canvas.height - dancer.height;
+        dancer.velocityY = 0;
       }
+
+      drawDancer();
+
+      // Obstáculos
+      if (frame % 100 === 0) {
+        let height = Math.random() * 50 + 20;
+        obstacles.push({ x: canvas.width, y: canvas.height - height, width: 20, height });
+      }
+
+      for (let i = 0; i < obstacles.length; i++) {
+        obstacles[i].x -= 5;
+        drawObstacle(obstacles[i]);
+
+        // Colisión
+        if (
+          dancer.x < obstacles[i].x + obstacles[i].width &&
+          dancer.x + dancer.width > obstacles[i].x &&
+          dancer.y < obstacles[i].y + obstacles[i].height &&
+          dancer.y + dancer.height > obstacles[i].y
+        ) {
+          gameOver = true;
+          alert("¡Has caído! Intenta de nuevo.");
+        }
+      }
+
+      frame++;
+      requestAnimationFrame(update);
     }
-  });
-}
 
-function updateObstacles(){
-  spawnTimer++;
-  if(spawnTimer > spawnInterval / (gameSpeed/6)){
-    spawnTimer = 0;
-    spawnObstacle();
-  }
-
-  // update and remove
-  for(let i=obstacles.length-1;i>=0;i--){
-    const o = obstacles[i];
-    o.x -= gameSpeed + (o.speed?0:0);
-    // remove if off screen
-    if(o.x + o.w < -50) obstacles.splice(i,1);
-  }
-}
-
-function detectCollisions(){
-  for(let i=0;i<obstacles.length;i++){
-    const o = obstacles[i];
-    // simple AABB
-    const px = player.x, py = player.y, pw = player.w, ph = player.h;
-    const ox = o.x, oy = o.y, ow = o.w, oh = o.h;
-    if(px < ox + ow && px + pw > ox && py < oy + oh && py + ph > oy){
-      // collision detected
-      running = false;
-    }
-  }
-}
-
-function drawUIOverlay(){
-  ctx.fillStyle = 'rgba(0,0,0,0.25)';
-  ctx.fillRect(10,10,140,50);
-  ctx.fillStyle = '#fff';
-  ctx.font = '16px system-ui';
-  ctx.fillText('Score: ' + Math.floor(score), 20, 34);
-  ctx.fillStyle = '#ccc';
-  ctx.font = '12px system-ui';
-  ctx.fillText('Vel: ' + gameSpeed.toFixed(1), 20, 48);
-
-  if(!running){
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(W/2 - 180, H/2 - 60, 360, 120);
-    ctx.fillStyle = '#fff';
-    ctx.font = '28px system-ui';
-    ctx.fillText('¡Game Over!', W/2 - 80, H/2 - 10);
-    ctx.font = '14px system-ui';
-    ctx.fillText('Presiona R para reiniciar', W/2 - 84, H/2 + 18);
-  }
-}
-
-/* ---------- Main loop ---------- */
-function loop(){
-  if(running){
-    // update
-    updatePlayer();
-    updateObstacles();
-    detectCollisions();
-    score += 0.1 * (gameSpeed/6);
-  }
-
-  // draw
-  drawBackground();
-  drawObstacles();
-  drawPlayer();
-  drawUIOverlay();
-
-  requestAnimationFrame(loop);
-}
-
-/* ---------- Controls ---------- */
-window.addEventListener('keydown', (e)=>{
-  if(e.key === '1' || e.key === '2' || e.key === '3'){
-    jumpLevel = Number(e.key);
-    // immediate jump
-    attemptJump(jumpLevel);
-  }
-  if(e.key === ' '){
-    // space uses last selected level
-    e.preventDefault();
-    attemptJump(jumpLevel);
-  }
-  if(e.key === 'ArrowDown' || e.key.toLowerCase() === 's'){
-    player.crouch = true;
-  }
-  if(e.key.toLowerCase() === 'r'){
-    resetGame();
-  }
-});
-
-window.addEventListener('keyup', (e)=>{
-  if(e.key === 'ArrowDown' || e.key.toLowerCase() === 's'){
-    player.crouch = false;
-  }
-});
-
-canvas.addEventListener('mousedown', (e)=>{
-  attemptJump(jumpLevel);
-});
-
-function attemptJump(level){
-  if(!player.onGround) return; // no double jumps
-  // map level to velocity (negative)
-  // carefully computed: level1 small, level2 medium, level3 high
-  const vMap = {1: -12, 2: -16, 3: -20};
-  player.vy = vMap[level] || -14;
-  player.onGround = false;
-}
-
-/* ---------- Collision safe restart ---------- */
-function resetGame(){
-  obstacles = [];
-  spawnTimer = 0;
-  running = true;
-  score = 0;
-  player.x = 120;
-  player.y = groundY - player.h;
-  player.vy = 0;
-  player.crouch = false;
-}
-
-/* ---------- Add sample user images if provided ---------- */
-// If user uploaded player image earlier, assets.playerImg will be set by UI file input handler
-// But allow drag & drop quick set (optional)
-document.addEventListener('dragover', e => e.preventDefault());
-document.addEventListener('drop', e => {
-  e.preventDefault();
-  const f = e.dataTransfer.files?.[0];
-  if(f && f.type.startsWith('image/')){
-    loadImageFile(f, img => {
-      if(img){ assets.playerImg = img; player.img = img; }
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && dancer.y >= canvas.height - dancer.height) {
+        dancer.velocityY = dancer.jumpForce;
+      }
     });
-  }
-});
 
-// initial obstacles so game starts interesting
-for(let i=0;i<3;i++){ spawnObstacle(true); }
-
-// Start loop
-loop();
-
-/* ---------- Responsive: redraw salon/mood if window resizes (canvas fixed size though) ---------- */
-window.addEventListener('resize', () => {
-  resetSizes();
-});
-
-/* ---------- Optional: allow selecting obstacle types programmatically ---------- */
-document.getElementById('obstacleSelect').value = selectedObstacleType;
-
-/* ---------- Extra: allow changing obstacle image on the fly via UI if available ---------- */
-</script>
+    update();
+  </script>
 </body>
 </html>
