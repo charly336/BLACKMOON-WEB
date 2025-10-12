@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rompecabezas - BlackMoon Puzzle</title>
+<style>
+  :root{
+    --bg:#0b0b12;
+    --card:#0f1724;
+    --accent:#7c3aed;
+    --text:#e6eef8;
+  }
+  body{background:linear-gradient(180deg,#06060a 0%, #0e1020 100%); color:var(--text); font-family:Inter,system-ui,Segoe UI,Roboto,Arial; margin:0; display:flex; min-height:100vh; align-items:flex-start; justify-content:center; padding:28px;}
+  .app{width:1100px; max-width:96vw; display:grid; grid-template-columns:340px 1fr; gap:20px;}
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border-radius:12px; padding:16px; box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+  h1{margin:0 0 8px 0; font-size:20px;}
+  .controls{display:flex; flex-direction:column; gap:10px;}
+  label{font-size:13px; color:#cfe0ff; display:block; margin-bottom:6px;}
+  select,input[type="file"], input[type="number"]{width:100%; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:var(--text);}
+  button{background:var(--accent); color:white; border:0; padding:10px 12px; border-radius:10px; cursor:pointer;}
+  button.ghost{background:transparent; border:1px solid rgba(255,255,255,0.06);}
+  .board-wrap{display:flex; gap:16px; align-items:flex-start; flex-direction:column;}
+  .board{background:radial-gradient(circle at 10% 10%, rgba(255,255,255,0.02), transparent); border-radius:12px; padding:10px; display:flex; align-items:center; justify-content:center;}
+  canvas{display:block; max-width:100%; height:auto; border-radius:8px; background:#111;}
+  .stats{display:flex; gap:12px; margin-top:10px; flex-wrap:wrap;}
+  .stat{background:rgba(255,255,255,0.02); padding:8px 10px; border-radius:8px; font-size:13px;}
+  .history-list{max-height:220px; overflow:auto; margin-top:10px; font-size:13px;}
+  .history-item{padding:8px; border-bottom:1px dashed rgba(255,255,255,0.03);}
+  .small{font-size:12px; color:#bcd3ff;}
+  .top-row{display:flex; gap:8px; align-items:center;}
+  .actions{display:flex; gap:8px; margin-top:8px;}
+  footer{margin-top:12px; font-size:12px; color:#9fb3ff; opacity:0.9;}
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h1>BlackMoon Puzzle</h1>
+    <div class="small">Juego de rompecabezas deslizante — elige nivel, imagen y música.</div>
+
+    <div class="controls" style="margin-top:12px;">
+      <div>
+        <label>Nivel (1–40)</label>
+        <input id="level" type="number" min="1" max="40" value="1" />
+        <div class="small" id="gridInfo"></div>
+      </div>
+
+      <div>
+        <label>Subir imagen (o usa predeterminada)</label>
+        <input id="imgUpload" type="file" accept="image/*" />
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="useDefault">Usar imagen predeterminada</button>
+          <button id="fitBoard" class="ghost">Ajustar mesa</button>
+        </div>
+      </div>
+
+      <div>
+        <label>Opciones</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label><input type="checkbox" id="showGrid" checked /> Mostrar líneas entre piezas</label>
+          <label><input type="checkbox" id="musicToggle" /> Música de fondo</label>
+          <label>Estimación de tiempo por nivel: <span id="estTime">—</span></label>
+        </div>
+      </div>
+
+      <div>
+        <label>Controles</label>
+        <div class="actions">
+          <button id="shuffleBtn">Reiniciar / Mezclar</button>
+          <button id="solveBtn" class="ghost">Mostrar solución</button>
+          <button id="saveImg" class="ghost">Descargar tablero (PNG)</button>
+        </div>
+      </div>
+
+      <div>
+        <label>Historial de rompecabezas resueltos</label>
+        <div class="history-list" id="history"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="clearHistory" class="ghost">Borrar historial</button>
+        </div>
+      </div>
+
+      <footer>Guardado automático en <em>localStorage</em>.</footer>
+    </div>
+  </div>
+
+  <div class="panel board-wrap">
+    <div class="top-row" style="width:100%; justify-content:space-between;">
+      <div>
+        <strong id="title">Nivel 1 — 2 x 2</strong>
+        <div class="small">Mueve las piezas para restaurar la imagen</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="stat">Movimientos: <span id="moves">0</span></div>
+        <div class="stat">Tiempo: <span id="time">00:00</span></div>
+        <div class="stat">Piezas: <span id="pieces">4</span></div>
+      </div>
+    </div>
+
+    <div class="board" id="boardContainer" style="width:720px; height:540px;">
+      <canvas id="boardCanvas" width="720" height="540"></canvas>
+    </div>
+
+    <div class="stats" style="width:100%; justify-content:space-between;">
+      <div>
+        <div class="small">Imagen actual: <span id="imgName">default.jpg</span></div>
+        <div class="small">Mesa: <input id="boardWidth" type="number" min="300" max="1400" value="720" /> x <input id="boardHeight" type="number" min="200" max="1000" value="540" /></div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button id="hint" class="ghost">Pista (mueve 3 pasos)</button>
+        <button id="pause" class="ghost">Pausar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Audio (puedes reemplazar por tu mp3) -->
+<audio id="bgm" loop src=""></audio>
+
+<script>
+/*
+  BlackMoon Puzzle - Sliding puzzle single-file implementation
+  Features:
+  - Levels 1..40 mapped to grids (2x2 .. 9x9 every 5 levels increase)
+  - Upload image or use default
+  - Shuffle by doing random legal moves (solvable)
+  - Timer, move counter, history saved to localStorage
+  - Download board as PNG
+*/
+
+const canvas = document.getElementById('boardCanvas');
+const ctx = canvas.getContext('2d', {alpha:true});
+const levelInput = document.getElementById('level');
+const movesEl = document.getElementById('moves');
+const timeEl = document.getElementById('time');
+const piecesEl = document.getElementById('pieces');
+const titleEl = document.getElementById('title');
+const imgNameEl = document.getElementById('imgName');
+const historyEl = document.getElementById('history');
+const estTimeEl = document.getElementById('estTime');
+const gridInfoEl = document.getElementById('gridInfo');
+const boardContainer = document.getElementById('boardContainer');
+const boardWidthInput = document.getElementById('boardWidth');
+const boardHeightInput = document.getElementById('boardHeight');
+const showGridInput = document.getElementById('showGrid');
+const musicToggle = document.getElementById('musicToggle');
+const bgm = document.getElementById('bgm');
+
+let boardW = parseInt(boardWidthInput.value);
+let boardH = parseInt(boardHeightInput.value);
+canvas.width = boardW; canvas.height = boardH;
+
+let defaultImageURL = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200">
+  <rect width="100%" height="100%" fill="#0b1220"/>
+  <circle cx="1200" cy="200" r="180" fill="#eae8ff" opacity="0.9"/>
+  <text x="100" y="200" font-size="80" fill="#cdd9ff" font-family="Verdana">BlackMoon</text>
+  <text x="100" y="300" font-size="48" fill="#9fb3ff" font-family="Verdana">BlackMoon Puzzle</text>
+</svg>
+`);
+
+let image = new Image();
+image.crossOrigin = "anonymous";
+image.src = defaultImageURL;
+image.onload = ()=>{ imgNameEl.textContent = 'default'; initForLevel(); };
+
+let grid = {rows:2, cols:2};
+let tileW=0, tileH=0;
+let tiles = []; // array of objects {sx, sy, w, h, correctIndex}
+let emptyIndex = 0;
+let moves = 0;
+let timerInterval = null;
+let startTime = null;
+let paused = false;
+let finished = false;
+
+function levelToGrid(lvl){
+  // Levels 1-5 => 2x2, 6-10 => 3x3, ... up to 9x9 for 40
+  let group = Math.min(8, Math.floor((lvl - 1) / 5)); // 0..7
+  let size = 2 + group; // 2..9
+  return {rows:size, cols:size};
+}
+
+function estimateTimeFor(level){
+  const g = levelToGrid(level);
+  const pieces = g.rows * g.cols;
+  // estimate seconds = pieces * 5 (heuristic), min 30s max 1800s
+  let secs = Math.min(1800, Math.max(30, Math.round(pieces * 5)));
+  return secs;
+}
+
+function formatTime(s){
+  s = Math.max(0, Math.floor(s));
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return mm + ':' + ss;
+}
+
+function initForLevel(){
+  const lvl = Math.max(1, Math.min(40, parseInt(levelInput.value) || 1));
+  levelInput.value = lvl;
+  grid = levelToGrid(lvl);
+  tileW = Math.floor(canvas.width / grid.cols);
+  tileH = Math.floor(canvas.height / grid.rows);
+  piecesEl.textContent = grid.rows * grid.cols;
+  titleEl.textContent = `Nivel ${lvl} — ${grid.cols} × ${grid.rows}`;
+  estTimeEl.textContent = formatTime(estimateTimeFor(lvl));
+  gridInfoEl.textContent = `Grid: ${grid.cols}x${grid.rows} — tablero ${canvas.width}×${canvas.height}px`;
+  buildTiles();
+  resetState();
+  draw();
+}
+
+function buildTiles(){
+  tiles = [];
+  const imgAspect = image.width / image.height;
+  // We'll draw the image to fit canvas while preserving aspect (cover)
+  // Compute scaling to cover the canvas
+  const cw = canvas.width, ch = canvas.height;
+  let drawW = cw, drawH = ch, dx=0, dy=0;
+  if ((image.width / image.height) > (cw / ch)) {
+    // image is wider -> fit height
+    drawH = ch;
+    drawW = Math.round(image.width * (ch / image.height));
+    dx = Math.round((cw - drawW)/2);
+  } else {
+    drawW = cw;
+    drawH = Math.round(image.height * (cw / image.width));
+    dy = Math.round((ch - drawH)/2);
+  }
+  // For each tile, compute source coords from scaled image area
+  // We'll draw image into an offscreen canvas sized cw x ch with cover cropping
+  const off = document.createElement('canvas');
+  off.width = cw; off.height = ch;
+  const oc = off.getContext('2d');
+  oc.drawImage(image, dx, dy, drawW, drawH);
+  // Now each tile's source is a rectangle on off canvas
+  for(let r=0;r<grid.rows;r++){
+    for(let c=0;c<grid.cols;c++){
+      const sx = c * tileW;
+      const sy = r * tileH;
+      tiles.push({sx, sy, w: tileW, h: tileH, correctIndex: r*grid.cols + c});
+    }
+  }
+  emptyIndex = tiles.length - 1; // last tile will be empty
+  // create image data for each tile as canvas to speed drawing
+  tiles.forEach((t, idx) => {
+    const tileCanvas = document.createElement('canvas');
+    tileCanvas.width = t.w; tileCanvas.height = t.h;
+    const tc = tileCanvas.getContext('2d');
+    tc.drawImage(off, t.sx, t.sy, t.w, t.h, 0, 0, t.w, t.h);
+    t.canvas = tileCanvas;
+    t.currentIndex = idx;
+  });
+}
+
+function resetState(){
+  // Set currentIndex to correct order
+  tiles.forEach((t, idx)=> t.currentIndex = idx);
+  moves = 0;
+  movesEl.textContent = moves;
+  finished = false;
+  stopTimer();
+  startTime = null;
+  timeEl.textContent = "00:00";
+  // Shuffle by doing legal random moves
+  randomizeByMoves(Math.max(50, grid.rows * grid.cols * 5));
+}
+
+function getNeighbors(index){
+  const cols = grid.cols, rows = grid.rows;
+  const r = Math.floor(index / cols), c = index % cols;
+  const neighbors = [];
+  if (r>0) neighbors.push(index - cols);
+  if (r<rows-1) neighbors.push(index + cols);
+  if (c>0) neighbors.push(index - 1);
+  if (c<cols-1) neighbors.push(index + 1);
+  return neighbors;
+}
+
+function randomizeByMoves(n){
+  let empty = emptyIndex;
+  for(let i=0;i<n;i++){
+    const neighbors = getNeighbors(empty);
+    const choice = neighbors[Math.floor(Math.random()*neighbors.length)];
+    // swap tile at choice with empty
+    swapTiles(choice, empty, false);
+    empty = choice;
+  }
+  // Ensure not already solved; if solved, shuffle again
+  if (isSolved()) randomizeByMoves(n+10);
+}
+
+function swapTiles(i,j, recordMove=true){
+  const ti = tiles.find(t => t.currentIndex === i);
+  const tj = tiles.find(t => t.currentIndex === j);
+  if(!ti || !tj) return;
+  const tmp = ti.currentIndex;
+  ti.currentIndex = tj.currentIndex;
+  tj.currentIndex = tmp;
+  if(recordMove){
+    moves++;
+    movesEl.textContent = moves;
+    if(!startTime) startTimer();
+    if(isSolved()) onSolved();
+  }
+}
+
+function isSolved(){
+  return tiles.every(t => t.currentIndex === t.correctIndex);
+}
+
+function onSolved(){
+  finished = true;
+  stopTimer();
+  saveHistoryEntry();
+  setTimeout(()=>alert(`¡Felicidades! Rompecabezas resuelto en ${moves} movimientos y ${timeEl.textContent}.`) , 100);
+}
+
+function startTimer(){
+  if(timerInterval) return;
+  startTime = Date.now();
+  timerInterval = setInterval(()=>{
+    const elapsed = Math.floor((Date.now()-startTime)/1000);
+    timeEl.textContent = formatTime(elapsed);
+  }, 500);
+}
+
+function stopTimer(){
+  if(timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function draw(){
+  // clear
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+  // draw tiles based on currentIndex
+  const cols = grid.cols;
+  tiles.forEach(t => {
+    const pos = t.currentIndex;
+    const r = Math.floor(pos / cols), c = pos % cols;
+    const dx = c * tileW, dy = r * tileH;
+    // if tile is the empty tile (last correctIndex), don't draw
+    if (t.correctIndex === emptyIndex) return;
+    ctx.drawImage(t.canvas, dx, dy);
+    if (showGridInput.checked){
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(dx+0.5, dy+0.5, t.w-1, t.h-1);
+    }
+  });
+  // optionally draw a subtle empty rectangle
+  const emptyPos = tiles.find(t => t.correctIndex === emptyIndex).currentIndex;
+  const er = Math.floor(emptyPos / cols), ec = emptyPos % cols;
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.fillRect(ec*tileW+1, er*tileH+1, tileW-2, tileH-2);
+}
+
+canvas.addEventListener('click', (e)=>{
+  if (finished) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const c = Math.floor(x / tileW), r = Math.floor(y / tileH);
+  const idx = r * grid.cols + c;
+  const emptyTile = tiles.find(t => t.correctIndex === emptyIndex);
+  const emptyIdx = emptyTile.currentIndex;
+  const neighbors = getNeighbors(emptyIdx);
+  if (neighbors.includes(idx)){
+    swapTiles(idx, emptyIdx, true);
+    draw();
+  }
+});
+
+document.getElementById('shuffleBtn').addEventListener('click', ()=>{
+  initForLevel();
+  draw();
+});
+
+document.getElementById('useDefault').addEventListener('click', ()=>{
+  image.src = defaultImageURL;
+  imgNameEl.textContent = 'default';
+  image.onload = ()=> initForLevel();
+});
+
+document.getElementById('imgUpload').addEventListener('change', (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  imgNameEl.textContent = f.name;
+  image = new Image();
+  image.crossOrigin = "anonymous";
+  image.src = url;
+  image.onload = ()=> initForLevel();
+});
+
+levelInput.addEventListener('change', ()=>{
+  initForLevel();
+  draw();
+});
+
+boardWidthInput.addEventListener('change', ()=>{
+  boardW = Math.max(300, Math.min(1400, parseInt(boardWidthInput.value)||720));
+  boardWidthInput.value = boardW;
+  canvas.width = boardW;
+  boardContainer.style.width = boardW + 'px';
+  initForLevel(); draw();
+});
+boardHeightInput.addEventListener('change', ()=>{
+  boardH = Math.max(200, Math.min(1000, parseInt(boardHeightInput.value)||540));
+  boardHeightInput.value = boardH;
+  canvas.height = boardH;
+  boardContainer.style.height = boardH + 'px';
+  initForLevel(); draw();
+});
+
+showGridInput.addEventListener('change', draw);
+
+document.getElementById('solveBtn').addEventListener('click', ()=>{
+  // instantly solve: put tiles in correct positions
+  tiles.forEach(t => t.currentIndex = t.correctIndex);
+  moves = 0; movesEl.textContent = moves;
+  draw();
+  onSolved();
+});
+
+document.getElementById('saveImg').addEventListener('click', ()=>{
+  const link = document.createElement('a');
+  link.download = `puzzle_${Date.now()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+document.getElementById('clearHistory').addEventListener('click', ()=>{
+  if(confirm('Borrar historial?')) {
+    localStorage.removeItem('bm_puzzle_history');
+    renderHistory();
+  }
+});
+
+document.getElementById('hint').addEventListener('click', ()=>{
+  // simple hint: perform a couple random valid moves to help
+  if(finished) return;
+  let empty = tiles.find(t=>t.correctIndex===emptyIndex).currentIndex;
+  for(let i=0;i<3;i++){
+    const nbrs = getNeighbors(empty).filter(n=>n!==empty);
+    const choice = nbrs[Math.floor(Math.random()*nbrs.length)];
+    swapTiles(choice, empty, true);
+    empty = choice;
+  }
+  draw();
+});
+
+document.getElementById('pause').addEventListener('click', ()=>{
+  paused = !paused;
+  if(paused){ stopTimer(); document.getElementById('pause').textContent = 'Reanudar'; }
+  else { if(!finished) startTimer(); document.getElementById('pause').textContent = 'Pausar'; }
+});
+
+musicToggle.addEventListener('change', ()=>{
+  if(musicToggle.checked){
+    if(!bgm.src) {
+      // small embedded melody base64 could be loaded, but we'll use a simple tone via WebAudio if src empty
+      try{
+        playSimpleLoop();
+      } catch(e){}
+    } else {
+      bgm.play();
+    }
+  } else {
+    bgm.pause();
+  }
+});
+
+// Simple web audio loop if no audio file provided
+let audioCtx, oscGainNode;
+function playSimpleLoop(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  // create simple ambient tone chord
+  const master = audioCtx.createGain(); master.gain.value = 0.05; master.connect(audioCtx.destination);
+  const freqs = [220, 330, 440];
+  oscGainNode = [];
+  freqs.forEach((f, i)=>{
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.value = 0.02;
+    o.connect(g); g.connect(master);
+    o.start();
+    oscGainNode.push({osc:o,gain:g});
+  });
+}
+
+// History functions
+function saveHistoryEntry(){
+  const hist = JSON.parse(localStorage.getItem('bm_puzzle_history')||'[]');
+  hist.unshift({
+    date: new Date().toISOString(),
+    level: parseInt(levelInput.value),
+    grid: `${grid.cols}x${grid.rows}`,
+    moves,
+    time: timeEl.textContent,
+    image: imgNameEl.textContent
+  });
+  localStorage.setItem('bm_puzzle_history', JSON.stringify(hist.slice(0,50)));
+  renderHistory();
+}
+
+function renderHistory(){
+  const hist = JSON.parse(localStorage.getItem('bm_puzzle_history')||'[]');
+  historyEl.innerHTML = '';
+  if(hist.length===0){ historyEl.innerHTML = '<div class="small">Sin partidas guardadas.</div>'; return; }
+  hist.forEach(h=>{
+    const d = new Date(h.date);
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `<div><strong>${h.image}</strong> — Nivel ${h.level} (${h.grid})</div>
+      <div class="small">${d.toLocaleString()} · ${h.moves} mov · ${h.time}</div>`;
+    historyEl.appendChild(div);
+  });
+}
+
+function isElementInViewport(el){
+  const rect = el.getBoundingClientRect();
+  return rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+}
+
+// initialize
+renderHistory();
+
+// helper: detect device pixel ratio for crispness
+function adjustForDPR(){
+  const dpr = window.devicePixelRatio || 1;
+  // keep CSS size but adjust canvas backing store
+  const cssW = canvas.clientWidth || boardW;
+  const cssH = canvas.clientHeight || boardH;
+  canvas.width = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  canvas.style.width = cssW + "px";
+  canvas.style.height = cssH + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', ()=>{
+  // don't overdo; keep simple: set canvas to inputs
+  canvas.width = parseInt(boardWidthInput.value);
+  canvas.height = parseInt(boardHeightInput.value);
+  initForLevel(); draw();
+});
+
+// initial adjust
+canvas.width = boardW; canvas.height = boardH;
+initForLevel();
+draw();
+
+</script>
+</body>
+</html>
