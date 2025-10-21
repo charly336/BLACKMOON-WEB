@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memorama Promocional</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .game-container {
+      text-align: center;
+      padding: 20px;
+      max-width: 800px;
+      width: 90%;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    #game-board {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .card {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .card-front {
+      transform: rotateY(180deg);
+    }
+
+    .card-back {
+      background: #ccc;
+    }
+
+    .card-front img,
+    .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #next-level {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      display: none;
+    }
+
+    #next-level:hover {
+      background-color: #0056b3;
+    }
+
+    #level {
+      font-size: 1.2rem;
+      margin-top: 5px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Memorama Promocional</h1>
+    <p id="level">Nivel: 1</p>
+    <div id="game-board" class="board"></div>
+    <button id="next-level">Siguiente Nivel</button>
+  </div>
+
+  <script>
+    const board = document.getElementById('game-board');
+    const levelText = document.getElementById('level');
+    const nextLevelBtn = document.getElementById('next-level');
+
+    let level = 1;
+    const maxLevel = 10;
+
+    const frontImages = [
+      'https://via.placeholder.com/200/FF0000/FFFFFF?text=1',
+      'https://via.placeholder.com/200/00FF00/FFFFFF?text=2',
+      'https://via.placeholder.com/200/0000FF/FFFFFF?text=3',
+      'https://via.placeholder.com/200/FFFF00/FFFFFF?text=4',
+      'https://via.placeholder.com/200/FF00FF/FFFFFF?text=5',
+      'https://via.placeholder.com/200/00FFFF/FFFFFF?text=6',
+      'https://via.placeholder.com/200/FFA500/FFFFFF?text=7',
+      'https://via.placeholder.com/200/800080/FFFFFF?text=8',
+      'https://via.placeholder.com/200/008000/FFFFFF?text=9',
+      'https://via.placeholder.com/200/000000/FFFFFF?text=10',
+      'https://via.placeholder.com/200/999999/FFFFFF?text=11',
+      'https://via.placeholder.com/200/0033cc/FFFFFF?text=12',
+      'https://via.placeholder.com/200/cc3300/FFFFFF?text=13',
+      'https://via.placeholder.com/200/ff0066/FFFFFF?text=14',
+      'https://via.placeholder.com/200/33cc33/FFFFFF?text=15',
+      'https://via.placeholder.com/200/663300/FFFFFF?text=16',
+      'https://via.placeholder.com/200/cc3399/FFFFFF?text=17',
+      'https://via.placeholder.com/200/666699/FFFFFF?text=18',
+      'https://via.placeholder.com/200/99cc00/FFFFFF?text=19',
+      'https://via.placeholder.com/200/0099cc/FFFFFF?text=20'
+    ];
+
+    const backImage = 'https://via.placeholder.com/200x200/222222/FFFFFF?text=Tu+Marca';
+
+    let firstCard, secondCard, lockBoard = false;
+    let matchedPairs = 0;
+
+    function setupBoard() {
+      board.innerHTML = '';
+      const pairs = level + 1;
+      levelText.textContent = `Nivel: ${level}`;
+      matchedPairs = 0;
+
+      const selectedImages = frontImages.slice(0, pairs);
+      const gameImages = [...selectedImages, ...selectedImages];
+      shuffle(gameImages);
+
+      const cols = Math.ceil(Math.sqrt(gameImages.length));
+      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+      gameImages.forEach((src, i) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.image = src;
+
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-front"><img src="${src}" alt="front" /></div>
+            <div class="card-back"><img src="${GPO BKM 2.jpg}" alt="back" /></div>
+          </div>
+        `;
+
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+      });
+    }
+
+    function flipCard() {
+      if (lockBoard || this.classList.contains('flipped')) return;
+
+      this.classList.add('flipped');
+
+      if (!firstCard) {
+        firstCard = this;
+        return;
+      }
+
+      secondCard = this;
+      checkMatch();
+    }
+
+    function checkMatch() {
+      const isMatch = firstCard.dataset.image === secondCard.dataset.image;
+      if (isMatch) {
+        matchedPairs++;
+        disableCards();
+        if (matchedPairs === level + 1) {
+          if (level < maxLevel) {
+            nextLevelBtn.style.display = 'inline-block';
+          } else {
+            alert('🎉 ¡Felicidades! Has completado todos los niveles.');
+          }
+        }
+      } else {
+        lockBoard = true;
+        setTimeout(unflipCards, 1000);
+      }
+    }
+
+    function disableCards() {
+      firstCard.removeEventListener('click', flipCard);
+      secondCard.removeEventListener('click', flipCard);
+      resetBoard();
+    }
+
+    function unflipCards() {
+      firstCard.classList.remove('flipped');
+      secondCard.classList.remove('flipped');
+      resetBoard();
+    }
+
+    function resetBoard() {
+      [firstCard, secondCard, lockBoard] = [null, null, false];
+    }
+
+    function shuffle(array) {
+      array.sort(() => Math.random() - 0.5);
+    }
+
+    nextLevelBtn.addEventListener('click', () => {
+      level++;
+      nextLevelBtn.style.display = 'none';
+      setupBoard();
+    });
+
+    setupBoard();
+  </script>
+</body>
+</html>
