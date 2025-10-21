@@ -180,9 +180,16 @@ function loop(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   // fondo degradado (suave)
-  const bg = ctx.createLinearGradient(0,0,0,canvas.height);
-  bg.addColorStop(0,'#fff1fb'); bg.addColorStop(1,'#e6fbff');
-  ctx.fillStyle = bg; ctx.fillRect(0,0,canvas.width,canvas.height);
+// Crear una imagen de fondo
+const bgImage = new Image();
+bgImage.src = 'GPO BKM 2.jpg'; // 🔹 Cambia esta ruta por la de tu imagen
+
+bgImage.onload = function() {
+  // Dibujar la imagen de fondo en todo el canvas
+  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+  
+  // Aquí puedes agregar el resto del dibujo del juego
+};
 
   // telas
   for(let i = telas.length -1; i >= 0; i--){
