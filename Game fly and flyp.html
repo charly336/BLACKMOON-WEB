@@ -55,7 +55,7 @@ let running = false;
 let spawnInterval = 90; // frames
 
 // --- Gap configuration (cambia estos valores para separar más o menos los pilares/telas) ---
-const GAP_BASE = 220;       // tamaño inicial del hueco entre telas (mayor = más separación)
+const GAP_BASE = 240;       // tamaño inicial del hueco entre telas (mayor = más separación)
 const GAP_MIN = 150;        // gap mínimo que no se reducirá
 const GAP_REDUCE_PER_LEVEL = 2; // cuánto se reduce el gap por nivel
 
@@ -182,7 +182,7 @@ function loop(){
   // fondo degradado (suave)
 // Crear una nueva imagen
 const backgroundImage = new Image();
-backgroundImage.src = 'blackmoon group.jpg'; // Cambia esto por la ruta de tu imagen
+backgroundImage.src = 'GPO BKM 2.jpg'; // Cambia esto por la ruta de tu imagen
 
 backgroundImage.onload = function() {
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
@@ -241,20 +241,7 @@ simBrokenBtn.addEventListener('click', ()=>{
 });
 
 chooseBtn.addEventListener('click', ()=>{
-  // permitir que el usuario cargue imágenes locales usando input file
-  const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.multiple=true;
-  input.onchange = async (ev) => {
-    const files = ev.target.files;
-    if(files.length===0) return;
-    // Si el usuario carga 1 imagen: será la gimnasta; si 2: gimnasta + tela
-    const urls = [];
-    for(let i=0;i<Math.min(files.length,2);i++) urls.push(URL.createObjectURL(files[i]));
-    loadingEl.textContent = 'Cargando imágenes desde archivos...';
-    await preloadImages(urls[0]||DEFAULT_GIM, urls[1]||DEFAULT_TELA);
-    loadingEl.textContent = 'Imágenes cargadas desde archivos.'; startBtn.disabled = false;
-  };
-  input.click();
-});
+  
 
 // --- Iniciar preload automático al cargar la página ---
 preloadImages().then(()=>{
