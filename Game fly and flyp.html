@@ -180,9 +180,14 @@ function loop(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   // fondo degradado (suave)
-  const bg = ctx.createLinearGradient(0,0,0,canvas.height);
-  bg.addColorStop(0,'#fff1fb'); bg.addColorStop(1,'#e6fbff');
-  ctx.fillStyle = bg; ctx.fillRect(0,0,canvas.width,canvas.height);
+// Crear una nueva imagen
+const backgroundImage = new Image();
+backgroundImage.src = 'blackmoon group.jpg'; // Cambia esto por la ruta de tu imagen
+
+backgroundImage.onload = function() {
+  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+};
+
 
   // telas
   for(let i = telas.length -1; i >= 0; i--){
