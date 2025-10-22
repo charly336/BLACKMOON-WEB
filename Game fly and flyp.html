@@ -136,7 +136,7 @@ function drawTela(tela){
 
 // --- Lógica del juego ---
 function resetGame(){
-  gimnasta.y = 150; gimnasta.velocity = 0; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 2; spawnInterval = 90; running = false;
+  gimnasta.y = 100; gimnasta.velocity = -1; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 1; spawnInterval = 90; running = false;
 }
 
 function startGame(){
@@ -182,7 +182,7 @@ function loop(){
   // fondo degradado (suave)
 // Crear una imagen de fondo
 const bgImage = new Image();
-bgImage.src = 'GPO BKM 2.jpg'; // 🔹 Cambia esta ruta por la de tu imagen
+bgImage.src = ''; // 🔹 Cambia esta ruta por la de tu imagen
 
 bgImage.onload = function() {
   // Dibujar la imagen de fondo en todo el canvas
