@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>fly and flyp</title>
+  <link reel="icon" href="GPO BKM 2.jpg">
+  
   <style>
     :root{ --bg1:#11000a; --bg2:#89f7fe; --accent:#ff1493 }
     html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background: url("aerial black moon.jpg"))}
@@ -205,7 +207,7 @@ bgImage.onload = function() {
     if(t.x + t.width < 0) telas.splice(i,1);
     // puntuación cuando la pareja de telas pasa
     // cuando la tela inferior pasa el centro de la gimnasta
-    if(!t.passed && t.y > 0 && t.x + t.width < gimnasta.x){ t.passed = true; score++; if(score%5===0){ level++; gameSpeed += 0.5; }}
+    if(!t.passed && t.y > 0 && t.x + t.width < gimnasta.x){ t.passed = true; score++; if(score%5===0){ level++; gameSpeed += 0.01; }}
   }
 
   // dibujar gimnasta
