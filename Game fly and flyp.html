@@ -1,4 +1,4 @@
-<!doctype html>
+ <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -17,13 +17,172 @@
     #debug{font-size:13px;color:#222;background:#fff8;padding:6px 10px;border-radius:8px}
     .small{font-size:12px;color:#1116}
   </style>
-  <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Cuenta regresiva animada con sonidos</title>
-<style>
+html,body{
+  margin:0;
+  height:100%;
+  overflow:hidden;
+  font-family: 'Poppins', sans-serif;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#countdown-screen{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  color:#fff;
+  transition:opacity .6s ease;
+}
+.count-number{
+  font-size:clamp(80px, 15vw, 220px);
+  font-weight:900;
+  text-shadow:0 0 25px rgba(255,255,255,0.6);
+  transition:transform .4s ease, color .4s ease, opacity .4s ease;
+}
+.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+#game-area{
+  position:relative;
+  z-index:1;
+  color:white;
+  font-size:clamp(20px,3.5vw,36px);
+  text-align:center;
+}
+@keyframes fadeIn {
+  from{opacity:0; transform:scale(0.6);}
+  to{opacity:1; transform:scale(1);}
+}
+@keyframes pulse {
+  0%{transform:scale(1);}
+  50%{transform:scale(1.2);}
+  100%{transform:scale(1);}
+}
+@keyframes rotate {
+  0%{transform:rotate(0deg) scale(0.6);}
+  100%{transform:rotate(360deg) scale(1);}
+}
+@keyframes zoomOut {
+  0%{transform:scale(1.8); opacity:0;}
+  100%{transform:scale(1); opacity:1;}
+}
+</style>
+</head>
+<body>
+
+<div id="countdown-screen">
+  <div id="count-number" class="count-number">3</div>
+</div>
+
+<div id="game-area">
+  <div id="game-placeholder">El juego inicia después de START</div>
+</div>
+
+<script>
+/************* CONFIGURACIÓN *************/
+const countSequence = ['3','2','1','START'];
+const backgrounds = [
+  'linear-gradient(135deg, #01102f, #002b5c)', // para 3
+  'linear-gradient(135deg, #2b005c, #56004f)', // para 2
+  'linear-gradient(135deg, #5c001a, #8c002a)', // para 1
+  'linear-gradient(135deg, #00662f, #00b36b)'  // para START
+];
+const soundFiles = {
+  "3":"https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
+  "2":"https://actions.google.com/sounds/v1/cartoon/pop.ogg",
+  "1":"https://actions.google.com/sounds/v1/alarms/beep_short.ogg",
+  "START":"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+};
+const stepDuration = 1000; // milisegundos por paso
+
+const countdown = document.getElementById('countdown-screen');
+const numEl = document.getElementById('count-number');
+const gamePlaceholder = document.getElementById('game-placeholder');
+
+/************* FUNCIONES *************/
+
+// reproducir sonido según número
+function playSound(label){
+  const file = soundFiles[label];
+  if(file){
+    const audio = new Audio(file);
+    audio.play().catch(()=>{});
+  }
+}
+
+// animación diferente por número
+function animateStep(label){
+  numEl.style.animation = '';
+  void numEl.offsetWidth; // reiniciar animación
+  switch(label){
+    case '3':
+      numEl.style.animation = 'fadeIn .6s ease';
+      numEl.style.color = '#00ccff';
+      break;
+    case '2':
+      numEl.style.animation = 'rotate .6s ease';
+      numEl.style.color = '#ff0099';
+      break;
+    case '1':
+      numEl.style.animation = 'pulse .6s ease';
+      numEl.style.color = '#ffcc00';
+      break;
+    case 'START':
+      numEl.style.animation = 'zoomOut .8s ease';
+      numEl.style.color = '#00ff99';
+      break;
+  }
+}
+
+// cambiar fondo dinámicamente
+function setBackground(bg){
+  countdown.style.background = bg;
+  countdown.style.backgroundSize = 'cover';
+  countdown.style.backgroundPosition = 'center';
+}
+
+// cuenta regresiva
+function startCountdown(){
+  let i = 0;
+  showStep(i);
+
+  const interval = setInterval(()=>{
+    i++;
+    if(i < countSequence.length){
+      showStep(i);
+    }else{
+      clearInterval(interval);
+      countdown.classList.add('hidden');
+      setTimeout(startGame, 600);
+    }
+  }, stepDuration);
+}
+
+// mostrar paso actual
+function showStep(i){
+  const label = countSequence[i];
+  numEl.textContent = label;
+  setBackground(backgrounds[i]);
+  animateStep(label);
+  playSound(label);
+}
+
+// aquí comienza tu juego
+function startGame(){
+  gamePlaceholder.textContent = '🎮 ¡Juego iniciado! Aquí empieza tu lógica.';
+  gamePlaceholder.style.opacity = 0;
+  gamePlaceholder.style.transition = 'opacity 1s ease';
+  setTimeout(()=>gamePlaceholder.style.opacity=1,100);
+}
+
+/************* INICIO *************/
+document.addEventListener('DOMContentLoaded', startCountdown);
+</script>
 
 </head>
 <body>
@@ -282,172 +441,7 @@ preloadImages().then(()=>{
 // --- Nota: si quieres probar con imágenes públicas, sustituye DEFAULT_GIM y DEFAULT_TELA por URLs válidas ---
 // Ejemplo (no activo):
 // DEFAULT_GIM = 'https://example.com/mymi.png'; DEFAULT_TELA = 'https://example.com/tela.png';
-html,body{
-  margin:0;
-  height:100%;
-  overflow:hidden;
-  font-family: 'Poppins', sans-serif;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#countdown-screen{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  color:#fff;
-  transition:opacity .6s ease;
-}
-.count-number{
-  font-size:clamp(80px, 15vw, 220px);
-  font-weight:900;
-  text-shadow:0 0 25px rgba(255,255,255,0.6);
-  transition:transform .4s ease, color .4s ease, opacity .4s ease;
-}
-.hidden{
-  opacity:0;
-  pointer-events:none;
-}
-#game-area{
-  position:relative;
-  z-index:1;
-  color:white;
-  font-size:clamp(20px,3.5vw,36px);
-  text-align:center;
-}
-@keyframes fadeIn {
-  from{opacity:0; transform:scale(0.6);}
-  to{opacity:1; transform:scale(1);}
-}
-@keyframes pulse {
-  0%{transform:scale(1);}
-  50%{transform:scale(1.2);}
-  100%{transform:scale(1);}
-}
-@keyframes rotate {
-  0%{transform:rotate(0deg) scale(0.6);}
-  100%{transform:rotate(360deg) scale(1);}
-}
-@keyframes zoomOut {
-  0%{transform:scale(1.8); opacity:0;}
-  100%{transform:scale(1); opacity:1;}
-}
-</style>
-</head>
-<body>
 
-<div id="countdown-screen">
-  <div id="count-number" class="count-number">3</div>
-</div>
-
-<div id="game-area">
-  <div id="game-placeholder">El juego inicia después de START</div>
-</div>
-
-<script>
-/************* CONFIGURACIÓN *************/
-const countSequence = ['3','2','1','START'];
-const backgrounds = [
-  'linear-gradient(135deg, #01102f, #002b5c)', // para 3
-  'linear-gradient(135deg, #2b005c, #56004f)', // para 2
-  'linear-gradient(135deg, #5c001a, #8c002a)', // para 1
-  'linear-gradient(135deg, #00662f, #00b36b)'  // para START
-];
-const soundFiles = {
-  "3":"https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
-  "2":"https://actions.google.com/sounds/v1/cartoon/pop.ogg",
-  "1":"https://actions.google.com/sounds/v1/alarms/beep_short.ogg",
-  "START":"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-};
-const stepDuration = 1000; // milisegundos por paso
-
-const countdown = document.getElementById('countdown-screen');
-const numEl = document.getElementById('count-number');
-const gamePlaceholder = document.getElementById('game-placeholder');
-
-/************* FUNCIONES *************/
-
-// reproducir sonido según número
-function playSound(label){
-  const file = soundFiles[label];
-  if(file){
-    const audio = new Audio(file);
-    audio.play().catch(()=>{});
-  }
-}
-
-// animación diferente por número
-function animateStep(label){
-  numEl.style.animation = '';
-  void numEl.offsetWidth; // reiniciar animación
-  switch(label){
-    case '3':
-      numEl.style.animation = 'fadeIn .6s ease';
-      numEl.style.color = '#00ccff';
-      break;
-    case '2':
-      numEl.style.animation = 'rotate .6s ease';
-      numEl.style.color = '#ff0099';
-      break;
-    case '1':
-      numEl.style.animation = 'pulse .6s ease';
-      numEl.style.color = '#ffcc00';
-      break;
-    case 'START':
-      numEl.style.animation = 'zoomOut .8s ease';
-      numEl.style.color = '#00ff99';
-      break;
-  }
-}
-
-// cambiar fondo dinámicamente
-function setBackground(bg){
-  countdown.style.background = bg;
-  countdown.style.backgroundSize = 'cover';
-  countdown.style.backgroundPosition = 'center';
-}
-
-// cuenta regresiva
-function startCountdown(){
-  let i = 0;
-  showStep(i);
-
-  const interval = setInterval(()=>{
-    i++;
-    if(i < countSequence.length){
-      showStep(i);
-    }else{
-      clearInterval(interval);
-      countdown.classList.add('hidden');
-      setTimeout(startGame, 600);
-    }
-  }, stepDuration);
-}
-
-// mostrar paso actual
-function showStep(i){
-  const label = countSequence[i];
-  numEl.textContent = label;
-  setBackground(backgrounds[i]);
-  animateStep(label);
-  playSound(label);
-}
-
-// aquí comienza tu juego
-function startGame(){
-  gamePlaceholder.textContent = '🎮 ¡Juego iniciado! Aquí empieza tu lógica.';
-  gamePlaceholder.style.opacity = 0;
-  gamePlaceholder.style.transition = 'opacity 1s ease';
-  setTimeout(()=>gamePlaceholder.style.opacity=1,100);
-}
-
-/************* INICIO *************/
-document.addEventListener('DOMContentLoaded', startCountdown);
-</script>
 </script>
 </body>
 </html>
