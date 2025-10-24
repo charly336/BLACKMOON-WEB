@@ -1,446 +1,403 @@
- <!doctype html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>fly and flyp</title>
-  <link reel="icon" href="grupo blawckmoon.ico">
-  
-  <style>
-    :root{ --bg1:#11000a; --bg2:#89f7fe; --accent:#ff1493 }
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background: url("aerial black moon.jpg"))}
-    .center{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px}
-    canvas{background: lightblue; no-repeat center;border-radius:10px;border:6px solid rgba(0,0,0,0.06);width:400px;height:600px}
-    #ui{display:flex;gap:8px;align-items:center}
-    button{background:var(--accent);color:blue;border:black;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}
-    #loading{font-size:14px;color:#222;background:#ffffffcc;padding:6px 10px;border-radius:8px}
-    #debug{font-size:13px;color:#222;background:#fff8;padding:6px 10px;border-radius:8px}
-    .small{font-size:12px;color:#1116}
-  </style>
-html,body{
-  margin:0;
-  height:100%;
-  overflow:hidden;
-  font-family: 'Poppins', sans-serif;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#countdown-screen{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  color:#fff;
-  transition:opacity .6s ease;
-}
-.count-number{
-  font-size:clamp(80px, 15vw, 220px);
-  font-weight:900;
-  text-shadow:0 0 25px rgba(255,255,255,0.6);
-  transition:transform .4s ease, color .4s ease, opacity .4s ease;
-}
-.hidden{
-  opacity:0;
-  pointer-events:none;
-}
-#game-area{
-  position:relative;
-  z-index:1;
-  color:white;
-  font-size:clamp(20px,3.5vw,36px);
-  text-align:center;
-}
-@keyframes fadeIn {
-  from{opacity:0; transform:scale(0.6);}
-  to{opacity:1; transform:scale(1);}
-}
-@keyframes pulse {
-  0%{transform:scale(1);}
-  50%{transform:scale(1.2);}
-  100%{transform:scale(1);}
-}
-@keyframes rotate {
-  0%{transform:rotate(0deg) scale(0.6);}
-  100%{transform:rotate(360deg) scale(1);}
-}
-@keyframes zoomOut {
-  0%{transform:scale(1.8); opacity:0;}
-  100%{transform:scale(1); opacity:1;}
-}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flappy Aéreo - BlackMoon</title>
+<style>
+  html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:#000;}
+  #gameWrap{display:flex;align-items:center;justify-content:center;height:100vh;}
+  canvas{background:#70c5ce;display:block;border:4px solid #111;box-shadow:0 10px 30px rgba(0,0,0,.6);}
+  #ui{position:absolute;top:12px;left:12px;color:#fff;z-index:50;text-shadow:0 2px 4px rgba(0,0,0,.7);}
+  .score{font-size:26px;font-weight:700;}
+  .meta{font-size:14px;margin-top:6px;opacity:.9}
+  #centerOverlay{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:40}
+  .big{font-size:56px;color:#fff;margin:8px;text-shadow:0 4px 10px rgba(0,0,0,.75)}
+  .medium{font-size:20px;color:#fff;margin:6px;text-shadow:0 3px 6px rgba(0,0,0,.6)}
+  #startImg, #endImg{max-width:320px;pointer-events:auto;cursor:pointer;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.6)}
+  #records{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.45);color:#fff;padding:8px;border-radius:6px;font-size:13px}
+  #levelBadge{background:rgba(0,0,0,.6);padding:6px 10px;border-radius:8px;margin-left:8px;font-weight:700}
+  #controls{position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 13px; }
+  .mutebtn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:6px 10px;border-radius:6px;color:#fff;cursor:pointer}
 </style>
 </head>
 <body>
-
-<div id="countdown-screen">
-  <div id="count-number" class="count-number">3</div>
-</div>
-
-<div id="game-area">
-  <div id="game-placeholder">El juego inicia después de START</div>
-</div>
-
-<script>
-/************* CONFIGURACIÓN *************/
-const countSequence = ['3','2','1','START'];
-const backgrounds = [
-  'linear-gradient(135deg, #01102f, #002b5c)', // para 3
-  'linear-gradient(135deg, #2b005c, #56004f)', // para 2
-  'linear-gradient(135deg, #5c001a, #8c002a)', // para 1
-  'linear-gradient(135deg, #00662f, #00b36b)'  // para START
-];
-const soundFiles = {
-  "3":"https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg",
-  "2":"https://actions.google.com/sounds/v1/cartoon/pop.ogg",
-  "1":"https://actions.google.com/sounds/v1/alarms/beep_short.ogg",
-  "START":"https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
-};
-const stepDuration = 1000; // milisegundos por paso
-
-const countdown = document.getElementById('countdown-screen');
-const numEl = document.getElementById('count-number');
-const gamePlaceholder = document.getElementById('game-placeholder');
-
-/************* FUNCIONES *************/
-
-// reproducir sonido según número
-function playSound(label){
-  const file = soundFiles[label];
-  if(file){
-    const audio = new Audio(file);
-    audio.play().catch(()=>{});
-  }
-}
-
-// animación diferente por número
-function animateStep(label){
-  numEl.style.animation = '';
-  void numEl.offsetWidth; // reiniciar animación
-  switch(label){
-    case '3':
-      numEl.style.animation = 'fadeIn .6s ease';
-      numEl.style.color = '#00ccff';
-      break;
-    case '2':
-      numEl.style.animation = 'rotate .6s ease';
-      numEl.style.color = '#ff0099';
-      break;
-    case '1':
-      numEl.style.animation = 'pulse .6s ease';
-      numEl.style.color = '#ffcc00';
-      break;
-    case 'START':
-      numEl.style.animation = 'zoomOut .8s ease';
-      numEl.style.color = '#00ff99';
-      break;
-  }
-}
-
-// cambiar fondo dinámicamente
-function setBackground(bg){
-  countdown.style.background = bg;
-  countdown.style.backgroundSize = 'cover';
-  countdown.style.backgroundPosition = 'center';
-}
-
-// cuenta regresiva
-function startCountdown(){
-  let i = 0;
-  showStep(i);
-
-  const interval = setInterval(()=>{
-    i++;
-    if(i < countSequence.length){
-      showStep(i);
-    }else{
-      clearInterval(interval);
-      countdown.classList.add('hidden');
-      setTimeout(startGame, 600);
-    }
-  }, stepDuration);
-}
-
-// mostrar paso actual
-function showStep(i){
-  const label = countSequence[i];
-  numEl.textContent = label;
-  setBackground(backgrounds[i]);
-  animateStep(label);
-  playSound(label);
-}
-
-// aquí comienza tu juego
-function startGame(){
-  gamePlaceholder.textContent = '🎮 ¡Juego iniciado! Aquí empieza tu lógica.';
-  gamePlaceholder.style.opacity = 0;
-  gamePlaceholder.style.transition = 'opacity 1s ease';
-  setTimeout(()=>gamePlaceholder.style.opacity=1,100);
-}
-
-/************* INICIO *************/
-document.addEventListener('DOMContentLoaded', startCountdown);
-</script>
-
-</head>
-<body>
-  <div class="center">
-    <div id="loading">Cargando recursos... (esperando imágenes)</div>
-    <div id="ui">
-      <button id="startBtn" disabled>Empezar</button>
-      <button id="simBroken">Simular imagen rota</button>
-       <button id="chooseBtn">Elegir imágenes (opcional)</button>
+<div id="gameWrap">
+  <canvas id="c" width="480" height="640"></canvas>
+  <div id="ui">
+    <div style="display:flex;align-items:center">
+      <div class="score">Puntos: <span id="score">0</span></div>
+      <div id="levelBadge">Nivel: <span id="level">1</span></div>
     </div>
-
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    <div class="small">Controles: Barra espaciadora o tecla ↑ para saltar / tocar la pantalla para móviles.</div>
+    <div class="meta">Récord: <span id="best">0</span></div>
   </div>
 
-  <!-- Recomendación: reemplaza "gimnasta.png" y "tela.png" por tus archivos locales o URLs. -->
-  <audio id="bgMusic" loop>
-    <source src="15.-En el aire soy todo.m4a" type="audio/mpeg">
-  </audio>
+  <div id="records"></div>
+
+  <div id="centerOverlay" style="width:100%;height:100%;top:0;left:0;">
+    <!-- Start image (SOLO DESARROLLADOR): cambia la ruta abajo en JS -->
+    <img id="startImg" src="" alt="start" style="display:none;margin-bottom:14px;">
+    <div id="countdown" class="big" style="pointer-events:none;"></div>
+    <div id="message" class="medium" style="pointer-events:none;"></div>
+
+    <!-- End image (SOLO DESARROLLADOR): cambia la ruta abajo en JS -->
+    <img id="endImg" src="" alt="game over" style="display:none;margin-top:14px;">
+  </div>
+
+  <div id="controls">
+    <button class="mutebtn" id="muteBtn">Silenciar</button>
+  </div>
+</div>
 
 <script>
-// --- Variables DOM ---
-const canvas = document.getElementById('gameCanvas');
+/* ----------------------------
+   CONFIG - SOLO DESARROLLADOR
+   Cambia solo estas constantes si eres DEV.
+-------------------------------*/
+
+// IMÁGENES: pon rutas locales o URLs. Si prefieres usar archivos locales, reemplaza por "assets/pajaro.png", etc.
+const DEV_BIRD_IMG = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="90" height="64"><g><ellipse cx="30" cy="32" rx="20" ry="14" fill="%23ffdd57"/><circle cx="45" cy="20" r="8" fill="%23ff9f1c"/></g></svg>';
+const DEV_PIPE_IMG = null; // null -> se dibujan con color, si pones URL la usa como textura
+const DEV_BG_IMG = null;   // null -> color background, si pones URL se dibuja como imagen de fondo
+const DEV_START_IMG = '';  // ruta de imagen de inicio, por ejemplo 'start.png' o dejar '' para no mostrar
+const DEV_END_IMG = '';    // ruta de imagen final, por ejemplo 'end.png' o dejar '' para no mostrar
+
+// Sonidos (SOLO DESARROLLADOR): deja '' si no quieres sonido.
+// RECOMENDACIÓN: usa rutas relativas o URLs en servidor
+const SND_FLAP = ''; // 'sounds/flap.wav'
+const SND_POINT = ''; // 'sounds/point.wav'
+const SND_HIT = ''; // 'sounds/hit.wav'
+const MUSIC_BG = ''; // 'music/background.mp3'
+
+/* ----------------------------
+   FIN CONFIG
+-------------------------------*/
+
+/* ---------- Variables ---------- */
+const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const loadingEl = document.getElementById('loading');
-const simBrokenBtn = document.getElementById('simBroken');
-const chooseBtn = document.getElementById('chooseBtn');
-const bgMusic = document.getElementById('bgMusic');
+const W = canvas.width, H = canvas.height;
 
-// --- Game state ---
-let gimnasta = { x: 80, y: 150, width: 48, height: 48, gravity: 0.1, lift: -10, velocity: 0 };
-let telas = [];
-let frame = 0;
+let gameState = 'menu'; // menu, countdown, playing, over
 let score = 0;
+let bests = []; // array top 5
+const STORAGE_KEY = 'flappy_aereo_records_v1';
+
+let pipes = [];
+let frame = 0;
+let spawnTimer = 0;
+let pipeSpeedBase = 2.5; // base speed (px/frame)
+let pipeSpeed = pipeSpeedBase;
+let pipeGap = 160; // pixels
+const pipeWidth = 64;
+let gravity = 0.45;
+let bird = {
+  x: 96, y: H/2, w: 48, h: 36, vy:0, rotation:0
+};
+
 let level = 1;
-let gameSpeed = 2;
-let running = false;
-let spawnInterval = 90; // frames
+const MAX_LEVEL = 20;
+const POINTS_PER_LEVEL = 6; // cada cuantos puntos sube nivel (ajustable)
+const GAP_DECREASE_PER_LEVEL = 6; // pixels por nivel
+const SPEED_INCREASE_PER_LEVEL = 0.5; // px/frame por nivel
 
-// --- Gap configuration (cambia estos valores para separar más o menos los pilares/telas) ---
-const GAP_BASE = 220;       // tamaño inicial del hueco entre telas (mayor = más separación)
-const GAP_MIN = 150;        // gap mínimo que no se reducirá
-const GAP_REDUCE_PER_LEVEL = 1; // cuánto se reduce el gap por nivel
+// assets
+const birdImg = new Image();
+birdImg.src = DEV_BIRD_IMG;
+const pipeImg = new Image();
+if (DEV_PIPE_IMG) pipeImg.src = DEV_PIPE_IMG;
+const bgImg = new Image();
+if (DEV_BG_IMG) bgImg.src = DEV_BG_IMG;
+const startImgEl = document.getElementById('startImg');
+const endImgEl = document.getElementById('endImg');
+if (DEV_START_IMG) startImgEl.src = DEV_START_IMG;
+if (DEV_END_IMG) endImgEl.src = DEV_END_IMG;
 
-// --- Assets ---
-const gimnastaImg = new Image();
-const telaImg = new Image();
-let assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
+// sounds
+const audioFlap = SND_FLAP ? new Audio(SND_FLAP) : null;
+const audioPoint = SND_POINT ? new Audio(SND_POINT) : null;
+const audioHit = SND_HIT ? new Audio(SND_HIT) : null;
+const audioMusic = MUSIC_BG ? new Audio(MUSIC_BG) : null;
+if (audioMusic) { audioMusic.loop = true; audioMusic.volume = 0.45; }
 
-// Paths por defecto (cámbialas si quieres):
-let DEFAULT_GIM = 'ChatGPT Image 21 oct 2025, 12_41_43.png';
-let DEFAULT_TELA = 'AF17A969-72F8-413B-93EB-896019AEDF68.png';
+// UI refs
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+const levelEl = document.getElementById('level');
+const countdownEl = document.getElementById('countdown');
+const messageEl = document.getElementById('message');
+const recordsEl = document.getElementById('records');
+const muteBtn = document.getElementById('muteBtn');
 
-// Preload usando Promises
-function preloadImages(gimPath = DEFAULT_GIM, telaPath = DEFAULT_TELA){
-  gimnastaImg.src = '';
-  telaImg.src = '';
-  assets = { gimLoaded:false, telaLoaded:false, gimFailed:false, telaFailed:false };
-
-  return new Promise(resolve => {
-    let toFinish = 2;
-    function done(){ toFinish--; if(toFinish === 0) resolve(); }
-
-    gimnastaImg.onload = () => { assets.gimLoaded = true; done(); };
-    gimnastaImg.onerror = () => { assets.gimFailed = true; assets.gimLoaded = true; done(); };
-
-    telaImg.onload = () => { assets.telaLoaded = true; done(); };
-    telaImg.onerror = () => { assets.telaFailed = true; assets.telaLoaded = true; done(); };
-
-    // establecer src AL FINAL para que onload/onerror se disparen
-    gimnastaImg.src = gimPath;
-    telaImg.src = telaPath;
-  });
+/* ---------- Helpers ---------- */
+function loadRecords(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) bests = JSON.parse(raw);
+    else bests = [];
+  }catch(e){ bests = []; }
+}
+function saveRecords(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(bests)); }catch(e){}
+}
+function addRecord(scoreVal){
+  bests.push({score:scoreVal,date:(new Date()).toLocaleString()});
+  bests.sort((a,b)=>b.score-a.score);
+  if(bests.length>5) bests = bests.slice(0,5);
+  saveRecords();
+}
+function updateRecordsUI(){
+  recordsEl.innerHTML = '<strong>Récords</strong><br>';
+  if(!bests.length) recordsEl.innerHTML += '<em>sin récords</em>';
+  else bests.forEach((r,i)=> recordsEl.innerHTML += ${i+1}. ${r.score} pts — ${r.date}<br>);
+  bestEl.textContent = bests.length? bests[0].score : 0;
 }
 
-function canDraw(img){
-  // comprobar que la imagen está completamente cargada y no está rota
-  return img && img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+/* ---------- Game functions ---------- */
+function resetGame(){
+  score = 0;
+  frame = 0;
+  pipes = [];
+  bird.y = H/2; bird.vy = 0; bird.rotation = 0;
+  level = 1;
+  pipeSpeed = pipeSpeedBase;
+  pipeGap = 160;
+  updateUI();
 }
 
-// --- Fallbacks gráficos (si las imágenes fallan) ---
-function drawFallbackGimnasta(x,y,w,h){
-  const cx = x + w/2, cy = y + h/2;
-  const r = Math.min(w,h)/2;
-  const g = ctx.createRadialGradient(cx,cy, r*0.1, cx,cy, r);
-  g.addColorStop(0,'#fff'); g.addColorStop(1,'#ff1493');
-  ctx.fillStyle = g;
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
-  // cuerda
-  ctx.strokeStyle = '#ff1493'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx,cy-r); ctx.lineTo(cx,cy-r-28); ctx.stroke();
+function startCountdown(){
+  gameState = 'countdown';
+  countdownEl.style.display = 'block';
+  messageEl.textContent = '';
+  let count = 3;
+  countdownEl.textContent = count;
+  startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
+  let t = setInterval(()=>{
+    count--;
+    if(count>0) countdownEl.textContent = count;
+    else { clearInterval(t); countdownEl.textContent = 'START'; setTimeout(()=>{ countdownEl.textContent=''; startPlay(); }, 700); }
+  }, 900);
 }
 
-function drawFallbackTela(x,y,w,h){
-  // tela con rayas diagonales
-  ctx.fillStyle = '#ff8acb'; ctx.fillRect(x,y,w,h);
-  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 6;
-  for(let i=-h;i<w;i+=24){ ctx.beginPath(); ctx.moveTo(x+i,y); ctx.lineTo(x+i+h,y+h); ctx.stroke(); }
+function startPlay(){
+  startImgEl.style.display = 'none';
+  gameState = 'playing';
+  if(audioMusic && !audioMusic.playing) { try{ audioMusic.currentTime = 0; audioMusic.play(); }catch(e){} }
+}
+
+function gameOver(){
+  gameState = 'over';
+  addRecord(score);
+  updateRecordsUI();
+  messageEl.textContent = 'GAME OVER';
+  endImgEl.style.display = DEV_END_IMG ? 'block' : 'none';
+  if(audioMusic){ try{ audioMusic.pause(); audioMusic.currentTime = 0; }catch(e){} }
+  if(audioHit) try{ audioHit.play(); }catch(e){}
+}
+
+/* spawn pipe pair */
+function spawnPipe(){
+  const topH = Math.floor(Math.random()*(H - pipeGap - 160)) + 40;
+  const bottomY = topH + pipeGap;
+  pipes.push({x:W+20, topH, bottomY, passed:false});
+}
+
+/* collision detection rect/rect */
+function collides(a,b){ return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h); }
+
+/* update level based on score */
+function updateLevelByScore(){
+  const newLevel = Math.min(MAX_LEVEL, Math.floor(score/POINTS_PER_LEVEL) + 1);
+  if(newLevel !== level){
+    level = newLevel;
+    // apply difficulty change each level (except level 1 baseline)
+    pipeGap = Math.max(48, 160 - (level-1)*GAP_DECREASE_PER_LEVEL);
+    pipeSpeed = pipeSpeedBase + (level-1)*SPEED_INCREASE_PER_LEVEL;
+  }
+  levelEl.textContent = level;
+}
+
+/* update UI score */
+function updateUI(){
+  scoreEl.textContent = score;
+  levelEl.textContent = level;
+}
+
+/* ---------- Input ---------- */
+function flap(){
+  bird.vy = -8.5;
+  if(audioFlap) try{ audioFlap.currentTime = 0; audioFlap.play(); }catch(e){}
+}
+window.addEventListener('keydown', (e)=>{
+  if(e.code==='Space'){ e.preventDefault(); if(gameState==='menu') startCountdown(); else if(gameState==='countdown'){} else if(gameState==='playing') flap(); else if(gameState==='over'){ resetGame(); startCountdown(); } }
+});
+canvas.addEventListener('mousedown', (e)=>{ 
+  if(gameState==='menu') startCountdown();
+  else if(gameState==='countdown'){}
+  else if(gameState==='playing') flap();
+  else if(gameState==='over'){ resetGame(); startCountdown(); }
+});
+canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(gameState==='menu') startCountdown(); else if(gameState==='playing') flap(); else if(gameState==='over'){ resetGame(); startCountdown(); } }, {passive:false});
+
+muteBtn.addEventListener('click', ()=>{
+  const isMuted = audioMusic ? audioMusic.muted : false;
+  if(audioMusic) audioMusic.muted = !audioMusic.muted;
+  if(audioFlap) audioFlap.muted = !audioFlap.muted;
+  if(audioPoint) audioPoint.muted = !audioPoint.muted;
+  if(audioHit) audioHit.muted = !audioHit.muted;
+  muteBtn.textContent = (audioMusic && audioMusic.muted) ? 'Sonido ON' : 'Silenciar';
+});
+
+/* ---------- Draw ---------- */
+function drawBackground(){
+  if(DEV_BG_IMG && bgImg.complete) {
+    ctx.drawImage(bgImg,0,0,W,H);
+  } else {
+    // simple gradient bg
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#042A2B'); g.addColorStop(1,'#08323C');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+    // moon or lights
+    ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.arc(W-80,80,60,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawBird(){
+  ctx.save();
+  ctx.translate(bird.x + bird.w/2, bird.y + bird.h/2);
+  ctx.rotate(bird.rotation);
+  if(birdImg && birdImg.complete){
+    ctx.drawImage(birdImg, -bird.w/2, -bird.h/2, bird.w, bird.h);
+  } else {
+    ctx.fillStyle = '#ffd54a';
+    ctx.beginPath(); ctx.ellipse(0,0,bird.w/2,bird.h/2,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff9f1c'; ctx.beginPath(); ctx.arc(8,-10,8,0,Math.PI*2); ctx.fill();
+  }
   ctx.restore();
 }
 
-// --- Dibujado seguro que evita drawImage sobre imágenes rotas ---
-function drawGimnasta(){
-  if(canDraw(gimnastaImg) && !assets.gimFailed){
-    ctx.drawImage(gimnastaImg, gimnasta.x, gimnasta.y, gimnasta.width, gimnasta.height);
-  } else {
-    drawFallbackGimnasta(gimnasta.x, gimnasta.y, gimnasta.width, gimnasta.height);
-  }
+function drawPipes(){
+  ctx.fillStyle = '#1e824c';
+  pipes.forEach(p=>{
+    if(pipeImg && pipeImg.complete){
+      // top
+      ctx.drawImage(pipeImg, p.x, 0, pipeWidth, p.topH);
+      // bottom
+      ctx.drawImage(pipeImg, p.x, p.bottomY, pipeWidth, H - p.bottomY);
+    } else {
+      // simple rectangles with shadow
+      ctx.fillStyle = '#2d6a4f';
+      ctx.fillRect(p.x,0,pipeWidth,p.topH);
+      ctx.fillRect(p.x,p.bottomY,pipeWidth,H - p.bottomY);
+      ctx.fillStyle = '#184a37';
+      ctx.fillRect(p.x+pipeWidth-8,0,8,p.topH);
+      ctx.fillRect(p.x+pipeWidth-8,p.bottomY,8,H - p.bottomY);
+    }
+  });
 }
 
-function drawTela(tela){
-  if(canDraw(telaImg) && !assets.telaFailed){
-    // cuando se usa una sola imagen para una tela, la estiramos para cubrir la pieza
-    ctx.drawImage(telaImg, tela.x, tela.y, tela.width, tela.height);
-  } else {
-    drawFallbackTela(tela.x, tela.y, tela.width, tela.height);
-  }
-}
-
-// --- Lógica del juego ---
-function resetGame(){
-  gimnasta.y = 100; gimnasta.velocity = -1; telas = []; frame = 0; score = 0; level = 1; gameSpeed = 1; spawnInterval = 90; running = false;
-}
-
-function startGame(){
-  // Asegurarse que los assets han terminado (cargaron o fallaron)
-  if(!(assets.gimLoaded && assets.telaLoaded)){
-    loadingEl.textContent = 'Esperando a que terminen de cargarse las imágenes...';
-    return;
-  }
-  loadingEl.style.display = 'none';
-  startBtn.disabled = true;
-  running = true;
-  // reproducir música (al iniciar, interacción del usuario permite autoplay)
-  bgMusic.play().catch(()=>{});
-  requestAnimationFrame(loop);
-}
-
-function spawnTelas(){
-  // Usamos la configuración de gap definida arriba. Increase GAP_BASE para separar más.
-  const gap = Math.max(GAP_MIN, GAP_BASE - level * GAP_REDUCE_PER_LEVEL);
-  const top = Math.floor(Math.random() * (canvas.height - gap - 120)) + 60; // evita bordes
-  telas.push({ x: canvas.width, y: 0, width: 64, height: top });
-  telas.push({ x: canvas.width, y: top + gap, width: 64, height: canvas.height - top - gap });
-}
-
-function loop(){
-  if(!running) return;
+/* ---------- Main loop ---------- */
+function update(){
   frame++;
 
-  // física gimnasta
-  gimnasta.velocity += gimnasta.gravity;
-  gimnasta.y += gimnasta.velocity;
-  if(gimnasta.y + gimnasta.height > canvas.height){
-    gimnasta.y = canvas.height - gimnasta.height; gimnasta.velocity = 0; endGame(); return;
-  }
-  if(gimnasta.y < 0) gimnasta.y = 0;
+  if(gameState === 'playing'){
+    // physics
+    bird.vy += gravity;
+    bird.y += bird.vy;
+    bird.rotation = Math.max(-0.6, Math.min(1.2, bird.vy/12));
 
-  // spawn
-  if(frame % Math.max(40,spawnInterval - Math.floor(level*3)) === 0) spawnTelas();
-
-  // mover y dibujar
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // fondo degradado (suave)
-// Crear una imagen de fondo
-const bgImage = new Image();
-bgImage.src = ''; // 🔹 Cambia esta ruta por la de tu imagen
-
-bgImage.onload = function() {
-  // Dibujar la imagen de fondo en todo el canvas
-  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-  
-  // Aquí puedes agregar el resto del dibujo del juego
-};
-
-  // telas
-  for(let i = telas.length -1; i >= 0; i--){
-    const t = telas[i];
-    t.x -= gameSpeed;
-    drawTela(t);
-
-    // colisión AABB simple
-    if(gimnasta.x < t.x + t.width && gimnasta.x + gimnasta.width > t.x && gimnasta.y < t.y + t.height && gimnasta.y + gimnasta.height > t.y){
-      endGame(); return;
+    // spawn logic
+    spawnTimer++;
+    const spawnInterval = Math.max(70, 120 - level*3); // faster spawns at higher levels
+    if(spawnTimer > spawnInterval){
+      spawnTimer = 0;
+      spawnPipe();
     }
 
-    if(t.x + t.width < 0) telas.splice(i,1);
-    // puntuación cuando la pareja de telas pasa
-    // cuando la tela inferior pasa el centro de la gimnasta
-    if(!t.passed && t.y > 0 && t.x + t.width < gimnasta.x){ t.passed = true; score++; if(score%5===0){ level++; gameSpeed += 0.01; }}
+    // pipes move
+    for(let i=pipes.length-1;i>=0;i--){
+      const p = pipes[i];
+      p.x -= pipeSpeed;
+      // score detection (when bird passes pipe)
+      if(!p.passed && p.x + pipeWidth < bird.x){
+        p.passed = true;
+        score++;
+        updateLevelByScore();
+        updateUI();
+        if(audioPoint) try{ audioPoint.currentTime = 0; audioPoint.play(); }catch(e){}
+      }
+      // remove offscreen
+      if(p.x + pipeWidth < -20) pipes.splice(i,1);
+      // collisions
+      const birdRect = {x:bird.x, y:bird.y, w:bird.w, h:bird.h};
+      const topRect = {x:p.x, y:0, w:pipeWidth, h:p.topH};
+      const bottomRect = {x:p.x, y:p.bottomY, w:pipeWidth, h: H - p.bottomY};
+      if(collides(birdRect, topRect) || collides(birdRect, bottomRect)) {
+        gameOver();
+      }
+    }
+
+    // ground/ceiling collisions
+    if(bird.y + bird.h > H || bird.y < -20){
+      gameOver();
+    }
   }
 
-  // dibujar gimnasta
-  drawGimnasta();
-
-  // HUD
-  ctx.fillStyle = '#111'; ctx.font = '16px sans-serif'; ctx.fillText('Puntos: ' + score, 10, 22);
-  ctx.fillText('Nivel: ' + level, canvas.width - 90, 22);
-
-  requestAnimationFrame(loop);
+  draw();
+  requestAnimationFrame(update);
 }
 
-function endGame(){
-  running = false; startBtn.disabled = false; startBtn.textContent = 'Reiniciar'; loadingEl.style.display = 'block'; loadingEl.textContent = 'Juego terminado. Presiona Reiniciar.';
-  bgMusic.pause();
+function draw(){
+  // background
+  drawBackground();
+
+  // pipes
+  drawPipes();
+
+  // bird
+  drawBird();
+
+  // overlay messages
+  if(gameState === 'menu'){
+    countdownEl.textContent = '';
+    messageEl.textContent = 'Toca / Espacio para iniciar';
+    startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
+  } else if(gameState === 'countdown'){
+    startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
+  } else if(gameState === 'playing'){
+    countdownEl.textContent = '';
+    messageEl.textContent = '';
+    startImgEl.style.display = 'none';
+    endImgEl.style.display = 'none';
+  } else if(gameState === 'over'){
+    endImgEl.style.display = DEV_END_IMG ? 'block' : 'none';
+  }
 }
 
-// --- Interacción: controles y selección de imágenes ---
-document.addEventListener('keydown', e => { if(e.code === 'Space' || e.code === 'ArrowUp'){ gimnasta.velocity = gimnasta.lift; } });
-canvas.addEventListener('touchstart', e=>{ gimnasta.velocity = gimnasta.lift; e.preventDefault(); }, {passive:false});
+/* ---------- Init ---------- */
+loadRecords();
+updateRecordsUI();
+updateUI();
+resetGame();
+messageEl.textContent = 'Presiona Espacio o Tocar para jugar';
+// show start image only if configured
+startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
+endImgEl.style.display = 'none';
 
-startBtn.addEventListener('click', ()=>{
-  // si assets no terminaron, espera y luego inicia
-  if(!(assets.gimLoaded && assets.telaLoaded)){
-    loadingEl.textContent = 'Cargando imágenes — espere...';
-    return;
-  }
-  // reiniciar estado y comenzar
-  resetGame(); startGame();
-});
+// kick loop
+requestAnimationFrame(update);
 
-simBrokenBtn.addEventListener('click', ()=>{
-  // herramienta de pruebas: fuerza que las imágenes fallen para ver el fallback
-  assets.gimFailed = true; assets.telaFailed = true; loadingEl.textContent = 'Modo prueba: imágenes simuladas como rotas (fallback activado).'; startBtn.disabled = false;
-});
+/* ---------- Expose small dev helpers in console ----------
+  Puedes, como desarrollador, cambiar rutas y reiniciar:
+  birdImg.src = 'ruta'; pipeImg.src = 'ruta'; bgImg.src = 'ruta';
+  Para reproducir música desde consola: audioMusic.play()
+  (estos objetos existen en window)
+---------------------------------------------------------*/
+window.__flappyDev = { birdImg, pipeImg, bgImg, audioMusic, audioFlap, audioPoint, audioHit, resetGame };
 
-chooseBtn.addEventListener('click', ()=>{
-  // permitir que el usuario cargue imágenes locales usando input file
-  const input = document.createElement('input'); input.type='file'; input.accept='image/*'; input.multiple=true;
-  input.onchange = async (ev) => {
-    const files = ev.target.files;
-    if(files.length===0) return;
-    // Si el usuario carga 1 imagen: será la gimnasta; si 2: gimnasta + tela
-    const urls = [];
-    for(let i=0;i<Math.min(files.length,2);i++) urls.push(URL.createObjectURL(files[i]));
-    loadingEl.textContent = 'Cargando imágenes desde archivos...';
-    await preloadImages(urls[0]||DEFAULT_GIM, urls[1]||DEFAULT_TELA);
-    loadingEl.textContent = 'Imágenes cargadas desde archivos.'; startBtn.disabled = false;
-  };
-  input.click();
-});
-
-// --- Iniciar preload automático al cargar la página ---
-preloadImages().then(()=>{
-  // mostrar estado (cargadas o fallback)
-  if(assets.gimFailed || assets.telaFailed){
-    loadingEl.textContent = 'Imágenes no disponibles — se usará fallback gráfico.';
-  } else {
-    loadingEl.textContent = 'Listo — pulsa Iniciar para comenzar.';
-  }
-  startBtn.disabled = false;
-});
-
-// --- Nota: si quieres probar con imágenes públicas, sustituye DEFAULT_GIM y DEFAULT_TELA por URLs válidas ---
-// Ejemplo (no activo):
-// DEFAULT_GIM = 'https://example.com/mymi.png'; DEFAULT_TELA = 'https://example.com/tela.png';
+/* ---------- Start state (menu) ---------- */
+gameState = 'menu';
 
 </script>
 </body>
