@@ -84,6 +84,21 @@
     from { background-color: #000; }
     to { background-color: #2b2b2b; }
   }
+    /* ==== REVERSO DE LAS CARTAS ==== */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background-image: url('GPO BKM 2.jpg'); /* Imagen del reverso */
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s;
+  backface-visibility: hidden;
+}
 
 </style>
 </head>
@@ -122,21 +137,7 @@
     '06 the hirophant.jpg', '07 the moon.jpg', '08 the sun.jpg',
     '09 wheel of fortune.jpg'
   ];
-  /* ==== REVERSO DE LAS CARTAS ==== */
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background-image: url('GPO BKM 2.jpg'); /* Imagen del reverso */
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.4s;
-  backface-visibility: hidden;
-}
+
 
 /* Oculta el reverso cuando la carta está volteada */
 .card.flipped::before {
