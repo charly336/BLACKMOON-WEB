@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Memorama de Danza Aérea</title>
+<title>Memoria - Danza Aérea</title>
+
 <style>
   body {
     font-family: 'Poppins', sans-serif;
@@ -26,33 +27,54 @@
     justify-content: center;
     margin: 40px auto;
     gap: 10px;
+    perspective: 1000px;
   }
 
+  /* ======== CARTA ======== */
   .card {
-    width: 80px;
-    height: 80px;
-    background: #222;
-    border-radius: 10px;
-    cursor: pointer;
-    transform: scale(1);
-    transition: transform 0.2s;
+    width: 90px;
+    height: 90px;
     position: relative;
-    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
   }
 
-  .card:hover {
-    transform: scale(1.05);
+  .card.flipped {
+    transform: rotateY(180deg);
   }
 
-  .card img {
+  /* ==== FRENTE DE CARTA ==== */
+  .card .front,
+  .card .back {
+    position: absolute;
     width: 100%;
     height: 100%;
     border-radius: 10px;
-    display: none;
+    backface-visibility: hidden;
   }
 
-  .card.flipped img {
-    display: block;
+  .card .front {
+    background-color: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .card .front img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  /* ==== REVERSO DE CARTA ==== */
+  .card .back {
+    background-image: url('imagenes/reverso.jpg');
+    background-size: cover;
+    background-position: center;
+    transform: rotateY(180deg);
   }
 
   #nivel, #mensaje {
@@ -79,18 +101,12 @@
   audio {
     display: none;
   }
-
-  @keyframes win {
-    from { background-color: #000; }
-    to { background-color: #2b2b2b; }
-  }
-
-
 </style>
 </head>
+
 <body>
 
-<h1> Memorama de Danza Aérea</h1>
+<h1>🎭 Memoria Danza Aérea</h1>
 <p id="nivel">Nivel 1</p>
 <div id="game-container"></div>
 <p id="mensaje"></p>
@@ -98,8 +114,8 @@
 <button id="mute-btn" style="display:none;">🔊 Silenciar</button>
 
 <audio id="bg-music" loop>
-  <!-- El desarrollador puede cambiar el archivo aquí -->
-  <source src="15.-En el aire soy todo.m4a" type="audio/mpeg">
+  <!-- Solo el desarrollador puede reemplazar esta música -->
+  <source src="musica/musica_fondo.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -116,16 +132,15 @@
   let cartas;
   let sonidosActivos = true;
 
-  // Lista de imágenes protegidas (solo el desarrollador puede cambiarlas)
+  // ==== IMÁGENES PROTEGIDAS (solo modificables por el desarrollador) ====
   const imagenes = [
-    '00 the aerealist.jpg', '01 ace of pentacles.jpg', '02 kinigth of pentacles.jpg',
-    '03 the devil.jpg', '04 the hanged man.jpg', '05 the hermit.jpg',
-    '06 the hirophant.jpg', '07 the moon.jpg', '08 the sun.jpg',
-    '09 wheel of fortune.jpg'
+    'imagenes/pose1.jpg', 'imagenes/pose2.jpg', 'imagenes/pose3.jpg',
+    'imagenes/pose4.jpg', 'imagenes/pose5.jpg', 'imagenes/pose6.jpg',
+    'imagenes/pose7.jpg', 'imagenes/pose8.jpg', 'imagenes/pose9.jpg',
+    'imagenes/pose10.jpg'
   ];
 
-
-  // Inicia el juego
+  // ==== BOTÓN INICIAR ====
   startBtn.addEventListener('click', () => {
     startBtn.style.display = 'none';
     muteBtn.style.display = 'inline-block';
@@ -133,7 +148,7 @@
     iniciarNivel();
   });
 
-  // Botón de silenciar música
+  // ==== BOTÓN SILENCIAR ====
   muteBtn.addEventListener('click', () => {
     if (musica.paused) {
       musica.play();
@@ -144,6 +159,7 @@
     }
   });
 
+  // ==== INICIAR NIVEL ====
   function iniciarNivel() {
     mensaje.textContent = '';
     contenedor.innerHTML = '';
@@ -154,20 +170,27 @@
     const seleccion = imagenes.slice(0, pares);
     const baraja = [...seleccion, ...seleccion].sort(() => 0.5 - Math.random());
 
-    // Tamaño de la cuadrícula según el nivel
     const columnas = Math.ceil(Math.sqrt(baraja.length));
-    contenedor.style.gridTemplateColumns = `repeat(${columnas}, 80px)`;
+    contenedor.style.gridTemplateColumns = `repeat(${columnas}, 90px)`;
 
-    baraja.forEach((src, index) => {
+    baraja.forEach(src => {
       const card = document.createElement('div');
       card.classList.add('card');
       card.dataset.imagen = src;
 
+      const front = document.createElement('div');
+      front.classList.add('front');
       const img = document.createElement('img');
       img.src = src;
       img.alt = "Carta Danza Aérea";
+      front.appendChild(img);
 
-      card.appendChild(img);
+      const back = document.createElement('div');
+      back.classList.add('back');
+
+      card.appendChild(front);
+      card.appendChild(back);
+
       card.addEventListener('click', () => voltearCarta(card));
       contenedor.appendChild(card);
     });
@@ -176,6 +199,7 @@
     nivelTxt.textContent = `Nivel ${nivel}`;
   }
 
+  // ==== VOLTEAR CARTA ====
   function voltearCarta(card) {
     if (card.classList.contains('flipped') || cartasSeleccionadas.length === 2) return;
 
@@ -187,7 +211,7 @@
       if (c1.dataset.imagen === c2.dataset.imagen) {
         paresEncontrados++;
         cartasSeleccionadas = [];
-        if (paresEncontrados === (Math.min(2 + nivel, imagenes.length))) {
+        if (paresEncontrados === Math.min(2 + nivel, imagenes.length)) {
           setTimeout(() => {
             mensaje.textContent = "🎉 ¡Nivel completado!";
             nivel++;
@@ -198,15 +222,22 @@
               return;
             }
             setTimeout(iniciarNivel, 1500);
-          }, 500);
+          }, 700);
         }
       } else {
         setTimeout(() => {
           c1.classList.remove('flipped');
           c2.classList.remove('flipped');
           cartasSeleccionadas = [];
-        }, 800);
+        }, 1000);
       }
+    }
+  }
+</script>
+
+</body>
+</html>
+
     }
   }
 </script>
