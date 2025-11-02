@@ -1,404 +1,213 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Flappy Aéreo - BlackMoon</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memoria - Danza Aérea</title>
 <style>
-  html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:#000;}
-  #gameWrap{display:flex;align-items:center;justify-content:center;height:100vh;}
-  canvas{background:#70c5ce;display:block;border:4px solid #111;box-shadow:0 10px 30px rgba(0,0,0,.6);}
-  #ui{position:absolute;top:12px;left:12px;color:#fff;z-index:50;text-shadow:0 2px 4px rgba(0,0,0,.7);}
-  .score{font-size:26px;font-weight:700;}
-  .meta{font-size:14px;margin-top:6px;opacity:.9}
-  #centerOverlay{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:40}
-  .big{font-size:56px;color:#fff;margin:8px;text-shadow:0 4px 10px rgba(0,0,0,.75)}
-  .medium{font-size:20px;color:#fff;margin:6px;text-shadow:0 3px 6px rgba(0,0,0,.6)}
-  #startImg, #endImg{max-width:320px;pointer-events:auto;cursor:pointer;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.6)}
-  #records{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.45);color:#fff;padding:8px;border-radius:6px;font-size:13px}
-  #levelBadge{background:rgba(0,0,0,.6);padding:6px 10px;border-radius:8px;margin-left:8px;font-weight:700}
-  #controls{position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 13px; }
-  .mutebtn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:6px 10px;border-radius:6px;color:#fff;cursor:pointer}
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #2b2b2b, #1a1a1a);
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    margin-top: 20px;
+    color: #ffaad4;
+    text-shadow: 0 0 10px #ff88cc;
+  }
+
+  #game-container {
+    display: grid;
+    justify-content: center;
+    margin: 40px auto;
+    gap: 10px;
+  }
+
+  .card {
+    width: 80px;
+    height: 80px;
+    background: #222;
+    border-radius: 10px;
+    cursor: pointer;
+    transform: scale(1);
+    transition: transform 0.2s;
+    position: relative;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+  }
+
+  .card img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    display: none;
+  }
+
+  .card.flipped img {
+    display: block;
+  }
+
+  #nivel, #mensaje {
+    font-size: 1.2em;
+    margin-top: 10px;
+  }
+
+  button {
+    background: #ff66b3;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: #ff3385;
+  }
+
+  audio {
+    display: none;
+  }
+
+  @keyframes win {
+    from { background-color: #000; }
+    to { background-color: #2b2b2b; }
+  }
+
 </style>
 </head>
 <body>
-<div id="gameWrap">
-  <canvas id="c" width="480" height="640"></canvas>
-  <div id="ui">
-    <div style="display:flex;align-items:center">
-      <div class="score">Puntos: <span id="score">0</span></div>
-      <div id="levelBadge">Nivel: <span id="level">1</span></div>
-    </div>
-    <div class="meta">Récord: <span id="best">0</span></div>
-  </div>
 
-  <div id="records"></div>
+<h1>🎭 Memoria Danza Aérea</h1>
+<p id="nivel">Nivel 1</p>
+<div id="game-container"></div>
+<p id="mensaje"></p>
+<button id="start-btn">Iniciar Juego</button>
+<button id="mute-btn" style="display:none;">🔊 Silenciar</button>
 
-  <div id="centerOverlay" style="width:100%;height:100%;top:0;left:0;">
-    <!-- Start image (SOLO DESARROLLADOR): cambia la ruta abajo en JS -->
-    <img id="startImg" src="" alt="start" style="display:none;margin-bottom:14px;">
-    <div id="countdown" class="big" style="pointer-events:none;"></div>
-    <div id="message" class="medium" style="pointer-events:none;"></div>
-
-    <!-- End image (SOLO DESARROLLADOR): cambia la ruta abajo en JS -->
-    <img id="endImg" src="" alt="game over" style="display:none;margin-top:14px;">
-  </div>
-
-  <div id="controls">
-    <button class="mutebtn" id="muteBtn">Silenciar</button>
-  </div>
-</div>
+<audio id="bg-music" loop>
+  <!-- El desarrollador puede cambiar el archivo aquí -->
+  <source src="musica/musica_fondo.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-/* ----------------------------
-   CONFIG - SOLO DESARROLLADOR
-   Cambia solo estas constantes si eres DEV.
--------------------------------*/
+  const contenedor = document.getElementById('game-container');
+  const nivelTxt = document.getElementById('nivel');
+  const mensaje = document.getElementById('mensaje');
+  const startBtn = document.getElementById('start-btn');
+  const muteBtn = document.getElementById('mute-btn');
+  const musica = document.getElementById('bg-music');
 
-// IMÁGENES: pon rutas locales o URLs. Si prefieres usar archivos locales, reemplaza por "assets/pajaro.png", etc.
-const DEV_BIRD_IMG = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="90" height="64"><g><ellipse cx="30" cy="32" rx="20" ry="14" fill="%23ffdd57"/><circle cx="45" cy="20" r="8" fill="%23ff9f1c"/></g></svg>';
-const DEV_PIPE_IMG = null; // null -> se dibujan con color, si pones URL la usa como textura
-const DEV_BG_IMG = null;   // null -> color background, si pones URL se dibuja como imagen de fondo
-const DEV_START_IMG = '';  // ruta de imagen de inicio, por ejemplo 'start.png' o dejar '' para no mostrar
-const DEV_END_IMG = '';    // ruta de imagen final, por ejemplo 'end.png' o dejar '' para no mostrar
+  let nivel = 1;
+  let paresEncontrados = 0;
+  let cartasSeleccionadas = [];
+  let cartas;
+  let sonidosActivos = true;
 
-// Sonidos (SOLO DESARROLLADOR): deja '' si no quieres sonido.
-// RECOMENDACIÓN: usa rutas relativas o URLs en servidor
-const SND_FLAP = ''; // 'sounds/flap.wav'
-const SND_POINT = ''; // 'sounds/point.wav'
-const SND_HIT = ''; // 'sounds/hit.wav'
-const MUSIC_BG = ''; // 'music/background.mp3'
+  // Lista de imágenes protegidas (solo el desarrollador puede cambiarlas)
+  const imagenes = [
+    'imagenes/pose1.jpg', 'imagenes/pose2.jpg', 'imagenes/pose3.jpg',
+    'imagenes/pose4.jpg', 'imagenes/pose5.jpg', 'imagenes/pose6.jpg',
+    'imagenes/pose7.jpg', 'imagenes/pose8.jpg', 'imagenes/pose9.jpg',
+    'imagenes/pose10.jpg'
+  ];
 
-/* ----------------------------
-   FIN CONFIG
--------------------------------*/
+  // Inicia el juego
+  startBtn.addEventListener('click', () => {
+    startBtn.style.display = 'none';
+    muteBtn.style.display = 'inline-block';
+    musica.play().catch(() => {});
+    iniciarNivel();
+  });
 
-/* ---------- Variables ---------- */
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
-
-let gameState = 'menu'; // menu, countdown, playing, over
-let score = 0;
-let bests = []; // array top 5
-const STORAGE_KEY = 'flappy_aereo_records_v1';
-
-let pipes = [];
-let frame = 0;
-let spawnTimer = 0;
-let pipeSpeedBase = 2.5; // base speed (px/frame)
-let pipeSpeed = pipeSpeedBase;
-let pipeGap = 160; // pixels
-const pipeWidth = 64;
-let gravity = 0.45;
-let bird = {
-  x: 96, y: H/2, w: 48, h: 36, vy:0, rotation:0
-};
-
-let level = 1;
-const MAX_LEVEL = 20;
-const POINTS_PER_LEVEL = 6; // cada cuantos puntos sube nivel (ajustable)
-const GAP_DECREASE_PER_LEVEL = 6; // pixels por nivel
-const SPEED_INCREASE_PER_LEVEL = 0.5; // px/frame por nivel
-
-// assets
-const birdImg = new Image();
-birdImg.src = DEV_BIRD_IMG;
-const pipeImg = new Image();
-if (DEV_PIPE_IMG) pipeImg.src = DEV_PIPE_IMG;
-const bgImg = new Image();
-if (DEV_BG_IMG) bgImg.src = DEV_BG_IMG;
-const startImgEl = document.getElementById('startImg');
-const endImgEl = document.getElementById('endImg');
-if (DEV_START_IMG) startImgEl.src = DEV_START_IMG;
-if (DEV_END_IMG) endImgEl.src = DEV_END_IMG;
-
-// sounds
-const audioFlap = SND_FLAP ? new Audio(SND_FLAP) : null;
-const audioPoint = SND_POINT ? new Audio(SND_POINT) : null;
-const audioHit = SND_HIT ? new Audio(SND_HIT) : null;
-const audioMusic = MUSIC_BG ? new Audio(MUSIC_BG) : null;
-if (audioMusic) { audioMusic.loop = true; audioMusic.volume = 0.45; }
-
-// UI refs
-const scoreEl = document.getElementById('score');
-const bestEl = document.getElementById('best');
-const levelEl = document.getElementById('level');
-const countdownEl = document.getElementById('countdown');
-const messageEl = document.getElementById('message');
-const recordsEl = document.getElementById('records');
-const muteBtn = document.getElementById('muteBtn');
-
-/* ---------- Helpers ---------- */
-function loadRecords(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) bests = JSON.parse(raw);
-    else bests = [];
-  }catch(e){ bests = []; }
-}
-function saveRecords(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(bests)); }catch(e){}
-}
-function addRecord(scoreVal){
-  bests.push({score:scoreVal,date:(new Date()).toLocaleString()});
-  bests.sort((a,b)=>b.score-a.score);
-  if(bests.length>5) bests = bests.slice(0,5);
-  saveRecords();
-}
-function updateRecordsUI(){
-  recordsEl.innerHTML = '<strong>Récords</strong><br>';
-  if(!bests.length) recordsEl.innerHTML += '<em>sin récords</em>';
-  else bests.forEach((r,i)=> recordsEl.innerHTML += ${i+1}. ${r.score} pts — ${r.date}<br>);
-  bestEl.textContent = bests.length? bests[0].score : 0;
-}
-
-/* ---------- Game functions ---------- */
-function resetGame(){
-  score = 0;
-  frame = 0;
-  pipes = [];
-  bird.y = H/2; bird.vy = 0; bird.rotation = 0;
-  level = 1;
-  pipeSpeed = pipeSpeedBase;
-  pipeGap = 160;
-  updateUI();
-}
-
-function startCountdown(){
-  gameState = 'countdown';
-  countdownEl.style.display = 'block';
-  messageEl.textContent = '';
-  let count = 3;
-  countdownEl.textContent = count;
-  startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
-  let t = setInterval(()=>{
-    count--;
-    if(count>0) countdownEl.textContent = count;
-    else { clearInterval(t); countdownEl.textContent = 'START'; setTimeout(()=>{ countdownEl.textContent=''; startPlay(); }, 700); }
-  }, 900);
-}
-
-function startPlay(){
-  startImgEl.style.display = 'none';
-  gameState = 'playing';
-  if(audioMusic && !audioMusic.playing) { try{ audioMusic.currentTime = 0; audioMusic.play(); }catch(e){} }
-}
-
-function gameOver(){
-  gameState = 'over';
-  addRecord(score);
-  updateRecordsUI();
-  messageEl.textContent = 'GAME OVER';
-  endImgEl.style.display = DEV_END_IMG ? 'block' : 'none';
-  if(audioMusic){ try{ audioMusic.pause(); audioMusic.currentTime = 0; }catch(e){} }
-  if(audioHit) try{ audioHit.play(); }catch(e){}
-}
-
-/* spawn pipe pair */
-function spawnPipe(){
-  const topH = Math.floor(Math.random()*(H - pipeGap - 160)) + 40;
-  const bottomY = topH + pipeGap;
-  pipes.push({x:W+20, topH, bottomY, passed:false});
-}
-
-/* collision detection rect/rect */
-function collides(a,b){ return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h); }
-
-/* update level based on score */
-function updateLevelByScore(){
-  const newLevel = Math.min(MAX_LEVEL, Math.floor(score/POINTS_PER_LEVEL) + 1);
-  if(newLevel !== level){
-    level = newLevel;
-    // apply difficulty change each level (except level 1 baseline)
-    pipeGap = Math.max(48, 160 - (level-1)*GAP_DECREASE_PER_LEVEL);
-    pipeSpeed = pipeSpeedBase + (level-1)*SPEED_INCREASE_PER_LEVEL;
-  }
-  levelEl.textContent = level;
-}
-
-/* update UI score */
-function updateUI(){
-  scoreEl.textContent = score;
-  levelEl.textContent = level;
-}
-
-/* ---------- Input ---------- */
-function flap(){
-  bird.vy = -8.5;
-  if(audioFlap) try{ audioFlap.currentTime = 0; audioFlap.play(); }catch(e){}
-}
-window.addEventListener('keydown', (e)=>{
-  if(e.code==='Space'){ e.preventDefault(); if(gameState==='menu') startCountdown(); else if(gameState==='countdown'){} else if(gameState==='playing') flap(); else if(gameState==='over'){ resetGame(); startCountdown(); } }
-});
-canvas.addEventListener('mousedown', (e)=>{ 
-  if(gameState==='menu') startCountdown();
-  else if(gameState==='countdown'){}
-  else if(gameState==='playing') flap();
-  else if(gameState==='over'){ resetGame(); startCountdown(); }
-});
-canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(gameState==='menu') startCountdown(); else if(gameState==='playing') flap(); else if(gameState==='over'){ resetGame(); startCountdown(); } }, {passive:false});
-
-muteBtn.addEventListener('click', ()=>{
-  const isMuted = audioMusic ? audioMusic.muted : false;
-  if(audioMusic) audioMusic.muted = !audioMusic.muted;
-  if(audioFlap) audioFlap.muted = !audioFlap.muted;
-  if(audioPoint) audioPoint.muted = !audioPoint.muted;
-  if(audioHit) audioHit.muted = !audioHit.muted;
-  muteBtn.textContent = (audioMusic && audioMusic.muted) ? 'Sonido ON' : 'Silenciar';
-});
-
-/* ---------- Draw ---------- */
-function drawBackground(){
-  if(DEV_BG_IMG && bgImg.complete) {
-    ctx.drawImage(bgImg,0,0,W,H);
-  } else {
-    // simple gradient bg
-    const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,'#042A2B'); g.addColorStop(1,'#08323C');
-    ctx.fillStyle = g;
-    ctx.fillRect(0,0,W,H);
-    // moon or lights
-    ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.arc(W-80,80,60,0,Math.PI*2); ctx.fill();
-  }
-}
-
-function drawBird(){
-  ctx.save();
-  ctx.translate(bird.x + bird.w/2, bird.y + bird.h/2);
-  ctx.rotate(bird.rotation);
-  if(birdImg && birdImg.complete){
-    ctx.drawImage(birdImg, -bird.w/2, -bird.h/2, bird.w, bird.h);
-  } else {
-    ctx.fillStyle = '#ffd54a';
-    ctx.beginPath(); ctx.ellipse(0,0,bird.w/2,bird.h/2,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff9f1c'; ctx.beginPath(); ctx.arc(8,-10,8,0,Math.PI*2); ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawPipes(){
-  ctx.fillStyle = '#1e824c';
-  pipes.forEach(p=>{
-    if(pipeImg && pipeImg.complete){
-      // top
-      ctx.drawImage(pipeImg, p.x, 0, pipeWidth, p.topH);
-      // bottom
-      ctx.drawImage(pipeImg, p.x, p.bottomY, pipeWidth, H - p.bottomY);
+  // Botón de silenciar música
+  muteBtn.addEventListener('click', () => {
+    if (musica.paused) {
+      musica.play();
+      muteBtn.textContent = "🔊 Silenciar";
     } else {
-      // simple rectangles with shadow
-      ctx.fillStyle = '#2d6a4f';
-      ctx.fillRect(p.x,0,pipeWidth,p.topH);
-      ctx.fillRect(p.x,p.bottomY,pipeWidth,H - p.bottomY);
-      ctx.fillStyle = '#184a37';
-      ctx.fillRect(p.x+pipeWidth-8,0,8,p.topH);
-      ctx.fillRect(p.x+pipeWidth-8,p.bottomY,8,H - p.bottomY);
+      musica.pause();
+      muteBtn.textContent = "🔈 Activar";
     }
   });
-}
 
-/* ---------- Main loop ---------- */
-function update(){
-  frame++;
+  function iniciarNivel() {
+    mensaje.textContent = '';
+    contenedor.innerHTML = '';
+    paresEncontrados = 0;
+    cartasSeleccionadas = [];
 
-  if(gameState === 'playing'){
-    // physics
-    bird.vy += gravity;
-    bird.y += bird.vy;
-    bird.rotation = Math.max(-0.6, Math.min(1.2, bird.vy/12));
+    const pares = Math.min(2 + nivel, imagenes.length);
+    const seleccion = imagenes.slice(0, pares);
+    const baraja = [...seleccion, ...seleccion].sort(() => 0.5 - Math.random());
 
-    // spawn logic
-    spawnTimer++;
-    const spawnInterval = Math.max(70, 120 - level*3); // faster spawns at higher levels
-    if(spawnTimer > spawnInterval){
-      spawnTimer = 0;
-      spawnPipe();
-    }
+    // Tamaño de la cuadrícula según el nivel
+    const columnas = Math.ceil(Math.sqrt(baraja.length));
+    contenedor.style.gridTemplateColumns = `repeat(${columnas}, 80px)`;
 
-    // pipes move
-    for(let i=pipes.length-1;i>=0;i--){
-      const p = pipes[i];
-      p.x -= pipeSpeed;
-      // score detection (when bird passes pipe)
-      if(!p.passed && p.x + pipeWidth < bird.x){
-        p.passed = true;
-        score++;
-        updateLevelByScore();
-        updateUI();
-        if(audioPoint) try{ audioPoint.currentTime = 0; audioPoint.play(); }catch(e){}
-      }
-      // remove offscreen
-      if(p.x + pipeWidth < -20) pipes.splice(i,1);
-      // collisions
-      const birdRect = {x:bird.x, y:bird.y, w:bird.w, h:bird.h};
-      const topRect = {x:p.x, y:0, w:pipeWidth, h:p.topH};
-      const bottomRect = {x:p.x, y:p.bottomY, w:pipeWidth, h: H - p.bottomY};
-      if(collides(birdRect, topRect) || collides(birdRect, bottomRect)) {
-        gameOver();
-      }
-    }
+    baraja.forEach((src, index) => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.dataset.imagen = src;
 
-    // ground/ceiling collisions
-    if(bird.y + bird.h > H || bird.y < -20){
-      gameOver();
-    }
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = "Carta Danza Aérea";
+
+      card.appendChild(img);
+      card.addEventListener('click', () => voltearCarta(card));
+      contenedor.appendChild(card);
+    });
+
+    cartas = document.querySelectorAll('.card');
+    nivelTxt.textContent = `Nivel ${nivel}`;
   }
 
-  draw();
-  requestAnimationFrame(update);
-}
+  function voltearCarta(card) {
+    if (card.classList.contains('flipped') || cartasSeleccionadas.length === 2) return;
 
-function draw(){
-  // background
-  drawBackground();
+    card.classList.add('flipped');
+    cartasSeleccionadas.push(card);
 
-  // pipes
-  drawPipes();
-
-  // bird
-  drawBird();
-
-  // overlay messages
-  if(gameState === 'menu'){
-    countdownEl.textContent = '';
-    messageEl.textContent = 'Toca / Espacio para iniciar';
-    startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
-  } else if(gameState === 'countdown'){
-    startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
-  } else if(gameState === 'playing'){
-    countdownEl.textContent = '';
-    messageEl.textContent = '';
-    startImgEl.style.display = 'none';
-    endImgEl.style.display = 'none';
-  } else if(gameState === 'over'){
-    endImgEl.style.display = DEV_END_IMG ? 'block' : 'none';
+    if (cartasSeleccionadas.length === 2) {
+      const [c1, c2] = cartasSeleccionadas;
+      if (c1.dataset.imagen === c2.dataset.imagen) {
+        paresEncontrados++;
+        cartasSeleccionadas = [];
+        if (paresEncontrados === (Math.min(2 + nivel, imagenes.length))) {
+          setTimeout(() => {
+            mensaje.textContent = "🎉 ¡Nivel completado!";
+            nivel++;
+            if (nivel > 20) {
+              mensaje.textContent = "🏆 ¡Has completado los 20 niveles de Danza Aérea!";
+              contenedor.innerHTML = '';
+              nivelTxt.textContent = '';
+              return;
+            }
+            setTimeout(iniciarNivel, 1500);
+          }, 500);
+        }
+      } else {
+        setTimeout(() => {
+          c1.classList.remove('flipped');
+          c2.classList.remove('flipped');
+          cartasSeleccionadas = [];
+        }, 800);
+      }
+    }
   }
-}
-
-/* ---------- Init ---------- */
-loadRecords();
-updateRecordsUI();
-updateUI();
-resetGame();
-messageEl.textContent = 'Presiona Espacio o Tocar para jugar';
-// show start image only if configured
-startImgEl.style.display = DEV_START_IMG ? 'block' : 'none';
-endImgEl.style.display = 'none';
-
-// kick loop
-requestAnimationFrame(update);
-
-/* ---------- Expose small dev helpers in console ----------
-  Puedes, como desarrollador, cambiar rutas y reiniciar:
-  birdImg.src = 'ruta'; pipeImg.src = 'ruta'; bgImg.src = 'ruta';
-  Para reproducir música desde consola: audioMusic.play()
-  (estos objetos existen en window)
----------------------------------------------------------*/
-window.__flappyDev = { birdImg, pipeImg, bgImg, audioMusic, audioFlap, audioPoint, audioHit, resetGame };
-
-/* ---------- Start state (menu) ---------- */
-gameState = 'menu';
-
 </script>
+
 </body>
 </html>
