@@ -71,7 +71,7 @@
 
   /* ==== REVERSO DE CARTA ==== */
   .card .back {
-    background-image: url('imagenes/reverso.jpg');
+    background-image: url('GPO BKM 2.jpg');
     background-size: cover;
     background-position: center;
     transform: rotateY(180deg);
@@ -106,7 +106,7 @@
 
 <body>
 
-<h1>🎭 Memoria Danza Aérea</h1>
+<h1> Memorama de Danza Aérea</h1>
 <p id="nivel">Nivel 1</p>
 <div id="game-container"></div>
 <p id="mensaje"></p>
@@ -115,7 +115,7 @@
 
 <audio id="bg-music" loop>
   <!-- Solo el desarrollador puede reemplazar esta música -->
-  <source src="musica/musica_fondo.mp3" type="audio/mpeg">
+  <source src="15.-En el aire soy todo.m4a" type="audio/mpeg">
 </audio>
 
 <script>
@@ -134,10 +134,10 @@
 
   // ==== IMÁGENES PROTEGIDAS (solo modificables por el desarrollador) ====
   const imagenes = [
-    'imagenes/pose1.jpg', 'imagenes/pose2.jpg', 'imagenes/pose3.jpg',
-    'imagenes/pose4.jpg', 'imagenes/pose5.jpg', 'imagenes/pose6.jpg',
-    'imagenes/pose7.jpg', 'imagenes/pose8.jpg', 'imagenes/pose9.jpg',
-    'imagenes/pose10.jpg'
+    '00 the aerealist.jpg', '01 ace of pentacles.jpg', '02 kinigth of pentacles.jpg',
+    '03 the devil.jpg', '04 the hanged man.jpg', '05 the hermit.jpg',
+    '06 the hirophant.jpg', '07 the moon.jpg', '08 the sun.jpg',
+    '09 wheel of fortune.jpg'
   ];
 
   // ==== BOTÓN INICIAR ====
@@ -156,8 +156,7 @@
     } else {
       musica.pause();
       muteBtn.textContent = "🔈 Activar";
-    }
-  });
+    });
 
   // ==== INICIAR NIVEL ====
   function iniciarNivel() {
