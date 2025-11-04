@@ -1,243 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Memorama Promocional</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flappy BlackMoon - Juego</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .game-container {
-      text-align: center;
-      padding: 20px;
-      max-width: 800px;
-      width: 90%;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    #game-board {
-      display: grid;
-      gap: 10px;
-      justify-content: center;
-      margin: 20px 0;
-    }
-
-    .card {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      perspective: 1000px;
-      cursor: pointer;
-    }
-
-    .card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-    }
-
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .card-front,
-    .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .card-front {
-      transform: rotateY(180deg);
-    }
-
-    .card-back {
-      background: #ccc;
-    }
-
-    .card-front img,
-    .card-back img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    #next-level {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      display: none;
-    }
-
-    #next-level:hover {
-      background-color: #0056b3;
-    }
-
-    #level {
-      font-size: 1.2rem;
-      margin-top: 5px;
-      color: #444;
-    }
+    :root{--ui-bg:#0b1220;--panel:#0f1724;--accent:#7dd3fc}
+    html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--ui-bg);color:#e6eef8}
+    .page-bg{position:fixed;inset:0;z-index:-2;background-size:cover;background-position:center}
+    .overlay{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#87ceeb 0%, #87ceeb 60%, #0b1220 100%)}
+    .wrap{display:flex;gap:16px;padding:18px}
+    .game-card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:12px}
+    canvas{display:block;background:#87CEEB;border-radius:10px}
+    .hud{display:flex;justify-content:space-between;align-items:center;padding:8px 4px}
+    .hud .left, .hud .right{display:flex;gap:8px;align-items:center}
+    button,input,select{background:transparent;border:1px solid rgba(255,255,255,0.07);color:inherit;padding:6px 8px;border-radius:8px}
+    .dev-panel{width:420px;max-height:85vh;overflow:auto;padding:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6);border-radius:12px}
+    h3{margin:6px 0 10px}
+    label{display:block;font-size:13px;margin-top:8px}
+    small{color:#9fb7d7}
+    .row{display:flex;gap:8px}
+    .muted{opacity:0.75;font-size:13px}
+    .countdown{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-size:48px;font-weight:700}
   </style>
 </head>
 <body>
-  <div class="game-container">
-    <h1>Memorama Promocional</h1>
-    <p id="level">Nivel: 1</p>
-    <div id="game-board" class="board"></div>
-    <button id="next-level">Siguiente Nivel</button>
+  <div id="pageBg" class="page-bg"></div>
+  <div id="dayOverlay" class="overlay"></div>
+  <div class="wrap">
+    <div class="game-card">
+      <div class="hud">
+        <div class="left">
+          <div>Jugador: <input id="playerName" placeholder="Tu nombre" style="width:120px"/></div>
+          <div>Score: <strong id="score">0</strong></div>
+          <div>Record: <strong id="best">0</strong></div>
+        </div>
+        <div class="right">
+          <button id="startBtn">Iniciar</button>
+          <button id="flapBtn">Saltar (espacio)</button>
+          <div class="muted">Nivel: <span id="level">1</span></div>
+        </div>
+      </div>
+      <div style="position:relative">
+        <canvas id="game" width="720" height="480"></canvas>
+        <div id="countdown" class="countdown"></div>
+      </div>
+      <div style="padding:10px 4px;font-size:13px;color:#bcd6eb">Controles: click en canvas o botón 'Saltar' o tecla Espacio. Panel de desarrollador protegido para cambiar imágenes y música.</div>
+    </div>
+
+    <div class="dev-panel" id="devPanel">
+      <h3>Panel desarrollador (protección)</h3>
+      <div class="row"><input id="devPass" placeholder="Ingresa contraseña de dev" type="password"/><button id="unlockDev">Desbloquear</button></div>
+      <div id="devContent" style="display:none">
+        <small class="muted">*** Solo el desarrollador debe modificar los campos abajo. ***</small>
+
+        <label>Imágenes de pilares (separar por coma, URLs o data URLs)</label>
+        <textarea id="pipeImgs" style="width:100%;height:60px">data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='600'%3E%3Crect width='160' height='600' rx='12' fill='%23333'/%3E%3C/svg%3E</textarea>
+
+        <label>Imagen del pájaro (URL o data URL)</label>
+        <input id="birdImg" style="width:100%" value="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60'%3E%3Ccircle cx='30' cy='30' r='20' fill='%23ffcc00'/%3E%3Cpath d='M35 20 q20 -8 30 0' stroke='%23000' stroke-width='3' fill='none'/%3E%3C/svg%3E" />
+
+        <label>Fondo del juego (URL o css gradient)</label>
+        <input id="gameBg" value="linear-gradient(180deg,#87ceeb 0%, #87ceeb 60%, #0b1220 100%)" style="width:100%" />
+        <label>Fondo de la página (URL o css)</label>
+        <input id="pageBackground" value="" style="width:100%" placeholder="dejar vacío para color sólido" />
+
+        <label>Musica (poner 2 o 3 URLs separadas por coma)</label>
+        <textarea id="musicList" style="width:100%;height:60px"># deja en blanco para desactivar</textarea>
+
+        <label>Parámetros del juego</label>
+        <div class="row">
+          <div>Gravedad <input id="gravity" type="number" step="0.1" value="0.45" style="width:90px"/></div>
+          <div>Velocidad tubos <input id="pipeSpeed" type="number" step="0.5" value="2.5" style="width:90px"/></div>
+          <div>Fuerza salto <input id="jump" type="number" step="0.5" value="-8.5" style="width:90px"/></div>
+        </div>
+
+        <label>Puntos para aumentar nivel (por defecto 5)</label>
+        <input id="pointsPerLevel" type="number" value="5" style="width:100px"/>
+
+        <div style="margin-top:10px" class="row">
+          <button id="applyDev">Aplicar cambios</button>
+          <button id="resetRecord">Reset record</button>
+        </div>
+
+        <div style="margin-top:12px;font-size:13px;color:#c8deff">Tip: Para usar imágenes locales en pruebas, arrastra una imagen al navegador y copia la URL del archivo (o usa data URL).</div>
+      </div>
+    </div>
   </div>
 
-  <script>
-    const board = document.getElementById('game-board');
-    const levelText = document.getElementById('level');
-    const nextLevelBtn = document.getElementById('next-level');
+<script>
+// ---------------- CONFIG - CAMBIAR SOLO EN PANEL DE DESARROLLADOR ----------------
+const DEV_PASSWORD = 'blackmoon123'; // cambiar solo si eres el dev
+// ---------------------------------------------------------------------------------
 
-    let level = 1;
-    const maxLevel = 10;
+// Variables y estado
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W = canvas.width, H = canvas.height;
+let bird = {x:120,y:220,w:46,h:36,vy:0,rot:0};
+let pipes = [];
+let frame = 0; let score = 0; let best = 0; let playerName='';
+let playing = false; let paused = true; let countdownEl = document.getElementById('countdown');
 
-    const frontImages = [
-      'https://via.placeholder.com/200/FF0000/FFFFFF?text=1',
-      'https://via.placeholder.com/200/00FF00/FFFFFF?text=2',
-      'https://via.placeholder.com/200/0000FF/FFFFFF?text=3',
-      'https://via.placeholder.com/200/FFFF00/FFFFFF?text=4',
-      'https://via.placeholder.com/200/FF00FF/FFFFFF?text=5',
-      'https://via.placeholder.com/200/00FFFF/FFFFFF?text=6',
-      'https://via.placeholder.com/200/FFA500/FFFFFF?text=7',
-      'https://via.placeholder.com/200/800080/FFFFFF?text=8',
-      'https://via.placeholder.com/200/008000/FFFFFF?text=9',
-      'https://via.placeholder.com/200/000000/FFFFFF?text=10',
-      'https://via.placeholder.com/200/999999/FFFFFF?text=11',
-      'https://via.placeholder.com/200/0033cc/FFFFFF?text=12',
-      'https://via.placeholder.com/200/cc3300/FFFFFF?text=13',
-      'https://via.placeholder.com/200/ff0066/FFFFFF?text=14',
-      'https://via.placeholder.com/200/33cc33/FFFFFF?text=15',
-      'https://via.placeholder.com/200/663300/FFFFFF?text=16',
-      'https://via.placeholder.com/200/cc3399/FFFFFF?text=17',
-      'https://via.placeholder.com/200/666699/FFFFFF?text=18',
-      'https://via.placeholder.com/200/99cc00/FFFFFF?text=19',
-      'https://via.placeholder.com/200/0099cc/FFFFFF?text=20'
-    ];
+// Default dev-config (editable desde panel protegido)
+let devConfig = {
+  pipeImgs: [document.getElementById('pipeImgs').value],
+  birdImg: document.getElementById('birdImg').value,
+  gameBg: document.getElementById('gameBg').value,
+  pageBg: document.getElementById('pageBackground').value,
+  music: [],
+  gravity: parseFloat(document.getElementById('gravity').value),
+  pipeSpeed: parseFloat(document.getElementById('pipeSpeed').value),
+  jump: parseFloat(document.getElementById('jump').value),
+  pointsPerLevel: parseInt(document.getElementById('pointsPerLevel').value,10) || 5
+};
 
-    const backImage = 'https://via.placeholder.com/200x200/222222/FFFFFF?text=Tu+Marca';
+// Load best from localStorage
+const STORAGE_KEY = 'flappy_blackmoon_record';
+let recordObj = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+if(recordObj){ best = recordObj.score || 0; document.getElementById('best').innerText = best; document.getElementById('playerName').value = recordObj.name || ''; }
 
-    let firstCard, secondCard, lockBoard = false;
-    let matchedPairs = 0;
+// audio handling (developer will set URLs)
+let audioList = [];
+let audioIndex = 0; let musicAudio = null;
 
-    function setupBoard() {
-      board.innerHTML = '';
-      const pairs = level + 1;
-      levelText.textContent = `Nivel: ${level}`;
-      matchedPairs = 0;
+function applyDevConfig(){
+  // parse pipe images
+  const pipesRaw = document.getElementById('pipeImgs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  devConfig.pipeImgs = pipesRaw.length?pipesRaw:devConfig.pipeImgs;
+  devConfig.birdImg = document.getElementById('birdImg').value || devConfig.birdImg;
+  devConfig.gameBg = document.getElementById('gameBg').value || devConfig.gameBg;
+  devConfig.pageBg = document.getElementById('pageBackground').value || devConfig.pageBg;
+  devConfig.music = document.getElementById('musicList').value.split(',').map(s=>s.trim()).filter(Boolean);
+  devConfig.gravity = parseFloat(document.getElementById('gravity').value);
+  devConfig.pipeSpeed = parseFloat(document.getElementById('pipeSpeed').value);
+  devConfig.jump = parseFloat(document.getElementById('jump').value);
+  devConfig.pointsPerLevel = parseInt(document.getElementById('pointsPerLevel').value,10) || 5;
 
-      const selectedImages = frontImages.slice(0, pairs);
-      const gameImages = [...selectedImages, ...selectedImages];
-      shuffle(gameImages);
+  // apply page bg
+  const page = document.getElementById('pageBg');
+  if(devConfig.pageBg) page.style.background = devConfig.pageBg; else page.style.background = '';
 
-      const cols = Math.ceil(Math.sqrt(gameImages.length));
-      board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  // apply game bg as overlay gradient
+  document.getElementById('dayOverlay').style.background = devConfig.gameBg;
 
-      gameImages.forEach((src, i) => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.dataset.image = src;
+  // setup audio
+  audioList = devConfig.music.slice();
+  if(musicAudio){ musicAudio.pause(); musicAudio=null; }
+  if(audioList.length){ musicAudio = new Audio(); musicAudio.src = audioList[0]; musicAudio.loop = true; musicAudio.volume = 0.45; musicAudio.play().catch(()=>{}); }
+}
 
-        card.innerHTML = `
-          <div class="card-inner">
-            <div class="card-front"><img src="${src}" alt="front" /></div>
-            <div class="card-back"><img src="${GPO BKM 2.jpg}" alt="back" /></div>
-          </div>
-        `;
+// Dev panel unlock
+document.getElementById('unlockDev').onclick = ()=>{
+  const p = document.getElementById('devPass').value;
+  if(p===DEV_PASSWORD){ document.getElementById('devContent').style.display='block'; document.getElementById('devPass').value=''; applyDevConfig(); alert('Panel de desarrollador desbloqueado.'); }
+  else alert('Contraseña incorrecta.');
+}
 
-        card.addEventListener('click', flipCard);
-        board.appendChild(card);
-      });
+document.getElementById('applyDev').onclick = ()=>{ applyDevConfig(); }
+
+document.getElementById('resetRecord').onclick = ()=>{ if(confirm('Resetear record?')){ localStorage.removeItem(STORAGE_KEY); best=0; document.getElementById('best').innerText = 0; }}
+
+// Helpers: load image from URL or dataURL with caching
+const imageCache = {};
+function loadImage(src){
+  return new Promise((res,rej)=>{
+    if(imageCache[src]) return res(imageCache[src]);
+    const img=new Image(); img.crossOrigin='anonymous'; img.onload=()=>{ imageCache[src]=img; res(img); }; img.onerror=()=>{ console.warn('error loading',src); res(null); }; img.src=src;
+  });
+}
+
+// Create pipe
+async function createPipe(){
+  const gap = 140; // espacio
+  const minH = 60; const maxH = H - 220;
+  const topH = Math.floor(Math.random()*(maxH-minH))+minH;
+  const pipeImgSrc = devConfig.pipeImgs[Math.floor(Math.random()*devConfig.pipeImgs.length)];
+  const img = await loadImage(pipeImgSrc);
+  pipes.push({x:W+40,topH, img});
+}
+
+// Reset game
+function resetGame(){
+  bird.y = H/2; bird.vy=0; pipes=[]; frame=0; score=0; document.getElementById('score').innerText=0; document.getElementById('level').innerText=1;
+}
+
+// Start with a countdown
+function startWithCountdown(){
+  countdownEl.innerText='3'; countdownEl.style.display='block';
+  let c=3;
+  const t = setInterval(()=>{ c--; if(c>0) countdownEl.innerText = c; else { clearInterval(t); countdownEl.innerText=''; countdownEl.style.display='none'; startGame(); } }, 700);
+}
+
+function startGame(){ resetGame(); playing=true; paused=false; }
+
+function gameOver(){ playing=false; paused=true; // check record
+  if(score>best){ best=score; const name = document.getElementById('playerName').value || 'Anon'; localStorage.setItem(STORAGE_KEY, JSON.stringify({name,score})); document.getElementById('best').innerText = best; alert('Nuevo record: '+score+' por '+name); }
+}
+
+// Collision helper
+function rectsIntersect(a,b){ return !(a.x+b.w < b.x || a.x > b.x+b.w || a.y+b.h < b.y || a.y > b.y+b.h); }
+
+// Draw loop
+async function loop(){
+  frame++;
+  // physics
+  if(playing){
+    bird.vy += devConfig.gravity; bird.y += bird.vy; bird.rot = Math.max(-0.6, Math.min(1.2, bird.vy/10));
+    // move pipes
+    for(let p of pipes){ p.x -= devConfig.pipeSpeed; }
+    // spawn pipes
+    if(frame % 110 === 0) await createPipe();
+    // remove pipes and count score
+    if(pipes.length && pipes[0].x < -80){ pipes.shift(); score++; document.getElementById('score').innerText = score; // level calc
+      const level = Math.min(20, 1 + Math.floor(score / devConfig.pointsPerLevel));
+      document.getElementById('level').innerText = level; // adjust overlay darkness
+      document.getElementById('dayOverlay').style.opacity = Math.min(0.85, (level-1)/19);
     }
-
-    function flipCard() {
-      if (lockBoard || this.classList.contains('flipped')) return;
-
-      this.classList.add('flipped');
-
-      if (!firstCard) {
-        firstCard = this;
-        return;
-      }
-
-      secondCard = this;
-      checkMatch();
+    // collisions
+    for(let p of pipes){ const pw=80; const phTop = p.topH; const gap = 140; const topRect={x:p.x,y:0,w:pw,h:phTop}; const botRect={x:p.x,y:phTop+gap,w:pw,h:H-(phTop+gap)};
+      const birdRect={x:bird.x-12,y:bird.y-12,w:bird.w,h:bird.h};
+      if(bird.y > H || bird.y < -20) { gameOver(); }
+      if(rectsIntersect(birdRect, topRect) || rectsIntersect(birdRect, botRect)) { gameOver(); }
     }
+  }
 
-    function checkMatch() {
-      const isMatch = firstCard.dataset.image === secondCard.dataset.image;
-      if (isMatch) {
-        matchedPairs++;
-        disableCards();
-        if (matchedPairs === level + 1) {
-          if (level < maxLevel) {
-            nextLevelBtn.style.display = 'inline-block';
-          } else {
-            alert('🎉 ¡Felicidades! Has completado todos los niveles.');
-          }
-        }
-      } else {
-        lockBoard = true;
-        setTimeout(unflipCards, 1000);
-      }
+  // rendering
+  // clear
+  ctx.clearRect(0,0,W,H);
+  // background (simple gradient) - dayOverlay handles complex
+  // draw pipes
+  for(let p of pipes){ const px=Math.floor(p.x); const pw=80; const img = p.img;
+    // bottom
+    const topH = p.topH; const gap = 140;
+    if(img){ // draw using image stretched vertically
+      // top pipe (flip vertically)
+      ctx.save(); ctx.translate(px, topH); ctx.scale(1,-1);
+      ctx.drawImage(img, 0, - (topH+20), pw, topH+20);
+      ctx.restore();
+      // bottom pipe
+      ctx.drawImage(img, px, topH+gap-20, pw, H-(topH+gap)+20);
+    } else {
+      ctx.fillStyle='#2e3440'; ctx.fillRect(px,0,pw,topH); ctx.fillRect(px,topH+gap,pw,H-(topH+gap));
     }
+  }
 
-    function disableCards() {
-      firstCard.removeEventListener('click', flipCard);
-      secondCard.removeEventListener('click', flipCard);
-      resetBoard();
-    }
+  // draw bird
+  const bimg = await loadImage(devConfig.birdImg).catch(()=>null);
+  if(bimg){ ctx.save(); ctx.translate(bird.x, bird.y); ctx.rotate(bird.rot); ctx.drawImage(bimg, -bird.w/2, -bird.h/2, bird.w, bird.h); ctx.restore(); }
+  else { ctx.fillStyle='#ffdd57'; ctx.beginPath(); ctx.arc(bird.x,bird.y,16,0,Math.PI*2); ctx.fill(); }
 
-    function unflipCards() {
-      firstCard.classList.remove('flipped');
-      secondCard.classList.remove('flipped');
-      resetBoard();
-    }
+  // UI over canvas handled outside
+  requestAnimationFrame(loop);
+}
 
-    function resetBoard() {
-      [firstCard, secondCard, lockBoard] = [null, null, false];
-    }
+// Input
+canvas.onclick = () => { if(!playing){ startWithCountdown(); } flap(); };
+document.getElementById('startBtn').onclick = ()=>{ if(!playing) startWithCountdown(); };
+function flap(){ if(!playing) return; bird.vy = devConfig.jump; }
+document.getElementById('flapBtn').onclick = flap;
+document.addEventListener('keydown', e=>{ if(e.code==='Space'){ e.preventDefault(); if(!playing) startWithCountdown(); else flap(); } });
 
-    function shuffle(array) {
-      array.sort(() => Math.random() - 0.5);
-    }
+// Resize handling to adapt to screen - scales canvas while keeping internal resolution
+function adaptToScreen(){ const maxW = Math.min(window.innerWidth-340, 900); const scale = Math.min(1, maxW / 720); canvas.style.width = (720*scale)+'px'; canvas.style.height = (480*scale)+'px'; }
+window.addEventListener('resize', adaptToScreen);
+adaptToScreen();
 
-    nextLevelBtn.addEventListener('click', () => {
-      level++;
-      nextLevelBtn.style.display = 'none';
-      setupBoard();
-    });
+// initial apply config
+applyDevConfig();
 
-    setupBoard();
-  </script>
+// Start loop
+loop();
+
+// update devConfig variables when developer changes applied values
+setInterval(()=>{
+  // reflect some values to devConfig so physics uses them live
+  devConfig.gravity = parseFloat(document.getElementById('gravity').value) || devConfig.gravity;
+  devConfig.pipeSpeed = parseFloat(document.getElementById('pipeSpeed').value) || devConfig.pipeSpeed;
+  devConfig.jump = parseFloat(document.getElementById('jump').value) || devConfig.jump;
+},500);
+
+// Save player name input into local display
+document.getElementById('playerName').addEventListener('input',()=>{ playerName=document.getElementById('playerName').value; });
+
+// Save best when window unloads
+window.addEventListener('beforeunload', ()=>{ const name = document.getElementById('playerName').value || ''; localStorage.setItem(STORAGE_KEY, JSON.stringify({name,score:best})); });
+
+</script>
 </body>
 </html>
