@@ -233,6 +233,21 @@
     }
   }
 </script>
+  <script>
+  // 🔧 Ajusta dinámicamente el número de columnas según el número de cartas
+  const container = document.getElementById('game-container');
+  const totalCards = 44; // cámbialo según tu nivel actual
+
+  function ajustarTablero(total) {
+    let columnas;
+    if (total <= 16) columnas = 4;
+    else if (total <= 36) columnas = 6;
+    else columnas = 8;
+    container.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
+  }
+
+  ajustarTablero(totalCards);
+</script>
 
 </body>
 </html>
