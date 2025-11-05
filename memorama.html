@@ -5,323 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escalada Aérea Infinita</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  /* === Fondo general de la página === */
   body {
-    background: url("fondo_pagina.jpg") no-repeat center center fixed; /* ← editable */
-    background-size: cover;
+    margin: 0;
+    background: #000;
     overflow: hidden;
   }
-
-  /* === Canvas del juego === */
-  canvas {
+  #gameCanvas {
     display: block;
-    margin: auto;
-    background: linear-gradient(to bottom, #87ceeb, #ffffff);
-    background-size: cover;
-    border: 3px solid white;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    margin: 0 auto;
+    background: url('fondo1.jpg') no-repeat center/cover;
+    border: 3px solid #fff;
   }
-
-  /* === Interfaz === */
-  #ui {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 20px;
-    z-index: 10;
-    text-shadow: 1px 1px 3px #000;
-  }
-
-  #gameOver {
-    display: none;
-    position: fixed;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.8);
-    padding: 20px 40px;
-    border-radius: 10px;
+  #menu {
     text-align: center;
     color: white;
-    font-size: 22px;
-  }
-
-  button {
+    font-family: sans-serif;
     margin-top: 10px;
+  }
+  #menu button {
+    margin: 5px;
     padding: 10px 20px;
-    background: #444;
-    color: white;
+    font-size: 16px;
+    border-radius: 10px;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
   }
-
-  button:hover { background: #666; }
 </style>
 </head>
 <body>
-<div id="ui">
-  <div>Puntuación: <span id="score">0</span></div>
-  <div>Récord: <span id="record">0</span></div>
-</div>
+
 <canvas id="gameCanvas" width="400" height="600"></canvas>
-
-<div id="gameOver">
-  <div>Fin de partida</div>
-  <div>Tu puntuación: <span id="finalScore"></span></div>
-  <button onclick="restartGame()">Reiniciar</button>
+<div id="menu">
+  <p>Puntuación: <span id="score">0</span> | Récord: <span id="record">0</span></p>
+  <button onclick="reiniciarJuego()">Reiniciar</button>
+  <audio id="musicaFondo" src="musica.mp3" loop></audio>
 </div>
-
-<!-- === MÚSICA: día / noche === -->
-<audio id="musicDay" loop>
-  <source src="musica_dia.mp3" type="audio/mpeg"> <!-- ← Música de día -->
-</audio>
-<audio id="musicNight" loop>
-  <source src="musica_noche.mp3" type="audio/mpeg"> <!-- ← Música de noche -->
-</audio>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// === IMÁGENES PERSONALIZABLES ===
-let playerImg = new Image();
-playerImg.src = "bailarina.png"; // ← Cambia aquí la bailarina
+let bailarinaImg = new Image();
+bailarinaImg.src = "bailarina.png"; // Cambia aquí la imagen de la bailarina
 
-let sunImg = new Image();
-sunImg.src = "sol.png"; // ← Imagen del sol
-
-let moonImg = new Image();
-moonImg.src = "luna.png"; // ← Imagen de la luna
-
-let cloudImg = new Image();
-cloudImg.src = "nube.png"; // ← Imagen de la nube
-
-// === CONFIGURACIÓN GENERAL ===
-let stones = [];
-let traps = [];
-let player = { x: 180, y: 500, width: 40, height: 60, dy: 0 };
+// Logos personalizables
+let logos = ["logo1.png", "logo2.png", "logo3.png", "logo4.png"];
+let piedras = [];
 let score = 0;
-let record = localStorage.getItem("recordAerea") || 0;
-let gameOver = false;
-let level = 1;
-let gravity = 0.3;
-let jumpStrength = -6;
-let backgroundColor = "#87ceeb";
+let record = localStorage.getItem("recordEscalada") || 0;
+let nivel = 1;
+let jugando = true;
 
-document.getElementById("record").textContent = record;
+document.getElementById("record").innerText = record;
 
-const musicDay = document.getElementById("musicDay");
-const musicNight = document.getElementById("musicNight");
-let currentMusic = "day";
+let musica = document.getElementById("musicaFondo");
+musica.volume = 0.5;
+musica.play();
 
-// === CREAR ELEMENTOS INICIALES ===
-for (let i = 0; i < 8; i++) {
-  stones.push({
-    x: Math.random() * 350,
-    y: 600 - i * 80,
-    width: 80,
-    height: 15,
-    color: "white"
-  });
-}
+// Configuración inicial
+let player = {
+  x: 200,
+  y: 500,
+  width: 40,
+  height: 60,
+  dy: 0,
+  gravedad: 0.6,
+  salto: -10
+};
 
-for (let i = 0; i < 3; i++) {
-  traps.push({
-    x: Math.random() * 350,
-    y: Math.random() * 600,
+// Crear piedras iniciales
+for (let i = 0; i < 6; i++) {
+  piedras.push({
+    x: Math.random() * 360,
+    y: i * 100,
     width: 60,
-    height: 10,
-    color: "red"
+    height: 20,
+    img: logos[Math.floor(Math.random() * logos.length)]
   });
 }
 
-// === FONDO DINÁMICO DÍA / NOCHE ===
-function drawSky() {
-  if (score < 50) {
-    backgroundColor = "#87ceeb"; // Día
-    if (currentMusic !== "day") switchToDay();
-  } else if (score < 100) {
-    backgroundColor = "#ffb347"; // Atardecer
-    if (currentMusic !== "day") switchToDay();
-  } else {
-    backgroundColor = "#0a0a2a"; // Noche
-    if (currentMusic !== "night") switchToNight();
-  }
-
-  ctx.fillStyle = backgroundColor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  if (score < 100) ctx.drawImage(sunImg, 50, 50, 80, 80);
-  else ctx.drawImage(moonImg, 50, 50, 80, 80);
-
-  for (let i = 0; i < 3; i++) {
-    let x = (Date.now() / 50 + i * 120) % 500 - 100;
-    ctx.drawImage(cloudImg, x, 100 + i * 80, 120, 60);
-  }
-}
-
-// === CAMBIO DE MÚSICA ===
-function switchToDay() {
-  musicNight.pause();
-  musicDay.currentTime = 0;
-  musicDay.play();
-  currentMusic = "day";
-}
-
-function switchToNight() {
-  musicDay.pause();
-  musicNight.currentTime = 0;
-  musicNight.play();
-  currentMusic = "night";
-}
-
-// === DIBUJOS ===
-function drawPlayer() {
-  ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-}
-
-function drawStones() {
-  for (let s of stones) {
-    ctx.fillStyle = s.color;
-    ctx.fillRect(s.x, s.y, s.width, s.height);
-  }
-}
-
-function drawTraps() {
-  for (let t of traps) {
-    ctx.fillStyle = t.color;
-    ctx.fillRect(t.x, t.y, t.width, t.height);
-  }
-}
-
-// === ACTUALIZACIÓN DEL JUEGO ===
-function update() {
-  if (gameOver) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawSky();
-
-  player.dy += gravity;
-  player.y += player.dy;
-
-  for (let s of stones) {
-    s.y += 2;
-    if (s.y > 600) {
-      s.y = -20;
-      s.x = Math.random() * 350;
-      score++;
-      if (score % 10 === 0 && level < 30) {
-        level++;
-        gravity += 0.02;
-      }
-    }
-
-    if (
-      player.x < s.x + s.width &&
-      player.x + player.width > s.x &&
-      player.y + player.height > s.y &&
-      player.y + player.height < s.y + s.height + 10 &&
-      player.dy > 0
-    ) {
-      player.dy = jumpStrength;
-    }
-  }
-
-  for (let t of traps) {
-    t.y += 3;
-    if (t.y > 600) {
-      t.y = -20;
-      t.x = Math.random() * 350;
-    }
-
-    if (
-      player.x < t.x + t.width &&
-      player.x + player.width > t.x &&
-      player.y + player.height > t.y &&
-      player.y < t.y + t.height
-    ) {
-      endGame();
-      return;
-    }
-  }
-
-  if (player.y > 600) {
-    endGame();
-  }
-
-  drawStones();
-  drawTraps();
-  drawPlayer();
-
-  document.getElementById("score").textContent = score;
-  requestAnimationFrame(update);
-}
-
-// === FIN DEL JUEGO ===
-function endGame() {
-  gameOver = true;
-  document.getElementById("finalScore").textContent = score;
-  document.getElementById("gameOver").style.display = "block";
-  musicDay.pause();
-  musicNight.pause();
-
-  if (score > record) {
-    record = score;
-    localStorage.setItem("recordAerea", record);
-  }
-}
-
-// === REINICIO ===
-function restartGame() {
-  player.y = 500;
-  player.dy = 0;
-  score = 0;
-  level = 1;
-  gravity = 0.3;
-  stones = [];
-  traps = [];
-
-  for (let i = 0; i < 8; i++) {
-    stones.push({
-      x: Math.random() * 350,
-      y: 600 - i * 80,
-      width: 80,
-      height: 15,
-      color: "white"
-    });
-  }
-
-  for (let i = 0; i < 3; i++) {
-    traps.push({
-      x: Math.random() * 350,
-      y: Math.random() * 600,
-      width: 60,
-      height: 10,
-      color: "red"
-    });
-  }
-
-  document.getElementById("gameOver").style.display = "none";
-  gameOver = false;
-  switchToDay();
-  update();
-}
-
-// === CONTROLES ===
-document.addEventListener("keydown", (e) => {
-  if (e.code === "ArrowLeft") player.x -= 30;
-  if (e.code === "ArrowRight") player.x += 30;
+// Control del jugador
+document.addEventListener("keydown", e => {
+  if (e.code === "ArrowLeft") player.x -= 40;
+  if (e.code === "ArrowRight") player.x += 40;
 });
 
-// === INICIO ===
-switchToDay();
-update();
-</script>
-</body>
-</html>
+function actualizar() {
+  if (!jugando) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Dibujar piedras
+  for (let piedra of piedras) {
+    let img = new Image();
+    img.src = piedra.img;
+    ctx.drawImage(img, piedra.x, piedra.y, piedra.width, piedra.height);
+    piedra.y -= 2 + nivel * 0.2;
+    if (piedra.y < -20) {
+      piedra.
