@@ -2,283 +2,195 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escalada Aérea Infinita</title>
+<title>Escalada Infinita - BlackMoon Games</title>
 <style>
   body {
     margin: 0;
-    background: #000;
     overflow: hidden;
-    font-family: 'Arial', sans-serif;
+    background: linear-gradient(#aee1ff, #ffffff);
   }
 
-  #gameCanvas {
+  canvas {
     display: block;
-    margin: 0 auto;
-    background: url('fondo1.jpg') no-repeat center/cover;
-    border: 3px solid #fff;
+    background: url('fondo_dia.jpg');
+    background-size: cover;
+    margin: auto;
+    border: 3px solid #222;
   }
 
-  #menu, #inicio {
-    text-align: center;
-    color: white;
-    font-family: sans-serif;
-    margin-top: 10px;
-  }
-
-  #menu button, #inicio button {
-    margin: 5px;
-    padding: 10px 20px;
-    font-size: 18px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    background-color: #6200ea;
-    color: white;
-    transition: 0.3s;
-  }
-
-  #menu button:hover, #inicio button:hover {
-    background-color: #3700b3;
-  }
-
-  /* Pantalla de inicio */
-  #inicio {
+  #ui {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, rgba(0,0,0,0.8), #000);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #titulo {
-    font-size: 40px;
-    margin-bottom: 20px;
-    color: #fff;
-    text-shadow: 0 0 15px #a855f7;
-  }
-
-  #subtitulo {
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
     font-size: 20px;
-    margin-bottom: 30px;
-    color: #ccc;
   }
 
-  /* Intro de Blackmoon */
-  #intro {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    animation: fadeOut 1s ease forwards;
-    animation-delay: 4s;
-    z-index: 10;
+  button {
+    background: #222;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 4px;
+    cursor: pointer;
   }
 
-  #intro img {
-    width: 180px;
-    opacity: 0;
-    animation: logoFade 4s ease forwards;
-  }
-
-  #intro h2 {
-    color: white;
-    font-size: 24px;
-    opacity: 0;
-    animation: textFade 4s ease forwards;
-  }
-
-  @keyframes logoFade {
-    0% { opacity: 0; transform: scale(0.5) rotate(0deg); filter: brightness(0); }
-    50% { opacity: 1; transform: scale(1.1) rotate(360deg); filter: brightness(1.5); }
-    100% { opacity: 1; transform: scale(1) rotate(360deg); filter: brightness(1); }
-  }
-
-  @keyframes textFade {
-    0% { opacity: 0; }
-    50% { opacity: 1; text-shadow: 0 0 20px #a855f7; }
-    100% { opacity: 1; }
-  }
-
-  @keyframes fadeOut {
-    to { opacity: 0; visibility: hidden; }
+  button:hover {
+    background: #444;
   }
 </style>
 </head>
 <body>
-
-<!-- Intro animada de Blackmoon Games -->
-<div id="intro">
-  <img src="logo_blackmoon.png" alt="Blackmoon Games Logo">
-  <h2>Blackmoon Games</h2>
-  <audio id="introSound" src="intro.mp3"></audio>
+<div id="ui">
+  <div>Puntaje: <span id="score">0</span></div>
+  <div>Récord: <span id="record">0</span></div>
+  <button id="pauseBtn">Pausar Juego</button>
+  <button id="musicBtn">Pausar Música</button>
 </div>
-
-<!-- Pantalla de inicio -->
-<div id="inicio">
-  <div id="titulo">Escalada Aérea Infinita</div>
-  <div id="subtitulo">Un juego de <b>Blackmoon Games</b></div>
-  <button onclick="iniciarJuego()">🎮 Jugar</button>
-</div>
-
-<!-- Juego principal -->
 <canvas id="gameCanvas" width="400" height="600"></canvas>
-<div id="menu" style="display:none;">
-  <p>Puntuación: <span id="score">0</span> | Récord: <span id="record">0</span></p>
-  <button onclick="reiniciarJuego()">Reiniciar</button>
-  <audio id="musicaFondo" src="musica.mp3" loop></audio>
-</div>
+<audio id="musicaFondo" src="musica.mp3" loop autoplay></audio>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let bailarinaImg = new Image();
-bailarinaImg.src = "bailarina.png"; // Imagen personalizable
+const musica = document.getElementById("musicaFondo");
+let juegoPausado = false;
+let musicaPausada = false;
 
-// Logos personalizables
-let logos = ["logo1.png", "logo2.png", "logo3.png", "logo4.png"];
-let piedras = [];
-let score = 0;
-let record = localStorage.getItem("recordEscalada") || 0;
-let nivel = 1;
-let jugando = false;
-
-document.getElementById("record").innerText = record;
-
-let musica = document.getElementById("musicaFondo");
-musica.volume = 0.5;
-
-let player = {
-  x: 200,
-  y: 500,
-  width: 40,
-  height: 60,
-  dy: 0,
-  gravedad: 0.6,
-  salto: -10
+document.getElementById("pauseBtn").onclick = () => {
+  juegoPausado = !juegoPausado;
+  document.getElementById("pauseBtn").innerText = juegoPausado ? "Reanudar Juego" : "Pausar Juego";
 };
 
-// Crear piedras iniciales
-for (let i = 0; i < 6; i++) {
-  piedras.push({
-    x: Math.random() * 360,
-    y: i * 100,
-    width: 60,
-    height: 20,
-    img: logos[Math.floor(Math.random() * logos.length)]
+document.getElementById("musicBtn").onclick = () => {
+  if (musicaPausada) {
+    musica.play();
+  } else {
+    musica.pause();
+  }
+  musicaPausada = !musicaPausada;
+  document.getElementById("musicBtn").innerText = musicaPausada ? "Reanudar Música" : "Pausar Música";
+};
+
+let jugadora = {
+  x: 180,
+  y: 500,
+  ancho: 40,
+  alto: 60,
+  velocidadY: 0,
+  gravedad: 0.3, // Caída más lenta
+  salto: -7,
+  imagen: new Image()
+};
+jugadora.imagen.src = "bailarina.png";
+
+let plataformas = [];
+let trampas = [];
+let puntuacion = 0;
+let record = localStorage.getItem("recordEscalada") || 0;
+
+function crearPlataforma(x, y, ancho, alto, color = "gray") {
+  plataformas.push({x, y, ancho, alto, color});
+}
+
+function crearTrampa(x, y, ancho, alto) {
+  trampas.push({x, y, ancho, alto, color: "red"});
+}
+
+for (let i = 0; i < 8; i++) {
+  crearPlataforma(Math.random() * 300, i * 80, 100, 15);
+}
+
+function saltar() {
+  if (!juegoPausado) jugadora.velocidadY = jugadora.salto;
+}
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space") saltar();
+});
+
+function actualizar() {
+  if (juegoPausado) return;
+
+  jugadora.y += jugadora.velocidadY;
+  jugadora.velocidadY += jugadora.gravedad;
+
+  if (jugadora.y > canvas.height - jugadora.alto) {
+    jugadora.y = canvas.height - jugadora.alto;
+    jugadora.velocidadY = 0;
+  }
+
+  plataformas.forEach(p => {
+    p.y -= 2;
+    if (
+      jugadora.x < p.x + p.ancho &&
+      jugadora.x + jugadora.ancho > p.x &&
+      jugadora.y + jugadora.alto > p.y &&
+      jugadora.y + jugadora.alto < p.y + 15
+    ) {
+      jugadora.velocidadY = jugadora.salto;
+      puntuacion++;
+      document.getElementById("score").innerText = puntuacion;
+      if (puntuacion > record) {
+        record = puntuacion;
+        localStorage.setItem("recordEscalada", record);
+        document.getElementById("record").innerText = record;
+      }
+    }
+  });
+
+  trampas.forEach(t => {
+    t.y -= 2;
+    if (
+      jugadora.x < t.x + t.ancho &&
+      jugadora.x + jugadora.ancho > t.x &&
+      jugadora.y + jugadora.alto > t.y &&
+      jugadora.y < t.y + t.alto
+    ) {
+      finJuego();
+    }
+  });
+
+  plataformas = plataformas.filter(p => p.y > -20);
+  trampas = trampas.filter(t => t.y > -20);
+
+  while (plataformas.length < 8) {
+    if (Math.random() < 0.2) {
+      crearTrampa(Math.random() * 300, canvas.height + 10, 80, 15);
+    } else {
+      crearPlataforma(Math.random() * 300, canvas.height + 10, 100, 15);
+    }
+  }
+}
+
+function finJuego() {
+  alert("¡Caiste en una trampa! Fin del juego.\nPuntaje: " + puntuacion);
+  location.reload();
+}
+
+function dibujar() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(jugadora.imagen, jugadora.x, jugadora.y, jugadora.ancho, jugadora.alto);
+  plataformas.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.ancho, p.alto);
+  });
+  trampas.forEach(t => {
+    ctx.fillStyle = "red";
+    ctx.fillRect(t.x, t.y, t.ancho, t.alto);
   });
 }
 
-// Control del jugador
-document.addEventListener("keydown", e => {
-  if (!jugando) return;
-  if (e.code === "ArrowLeft") player.x -= 40;
-  if (e.code === "ArrowRight") player.x += 40;
-});
-
-// Mostrar pantalla de inicio tras intro
-window.onload = () => {
-  const introSound = document.getElementById("introSound");
-  introSound.volume = 0.6;
-  introSound.play();
-
-  setTimeout(() => {
-    document.getElementById("intro").style.display = "none";
-    document.getElementById("inicio").style.display = "flex";
-  }, 5000);
-};
-
-function iniciarJuego() {
-  document.getElementById("inicio").style.display = "none";
-  document.getElementById("menu").style.display = "block";
-  jugando = true;
-  musica.play();
+function loop() {
   actualizar();
+  dibujar();
+  requestAnimationFrame(loop);
 }
 
-function actualizar() {
-  if (!jugando) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // Dibujar piedras
-  for (let piedra of piedras) {
-    let img = new Image();
-    img.src = piedra.img;
-    ctx.drawImage(img, piedra.x, piedra.y, piedra.width, piedra.height);
-    piedra.y -= 2 + nivel * 0.2;
-    if (piedra.y < -20) {
-      piedra.y = 620;
-      piedra.x = Math.random() * 340;
-      piedra.img = logos[Math.floor(Math.random() * logos.length)];
-      score++;
-      if (score % 20 === 0 && nivel < 30) nivel++;
-    }
-  }
-
-  // Movimiento de la bailarina
-  player.dy += player.gravedad;
-  player.y += player.dy;
-  if (player.y > 580) gameOver();
-
-  // Detección de colisiones
-  for (let piedra of piedras) {
-    if (
-      player.x < piedra.x + piedra.width &&
-      player.x + player.width > piedra.x &&
-      player.y < piedra.y + piedra.height &&
-      player.y + player.height > piedra.y &&
-      player.dy > 0
-    ) {
-      player.dy = player.salto;
-    }
-  }
-
-  ctx.drawImage(bailarinaImg, player.x, player.y, player.width, player.height);
-  document.getElementById("score").innerText = score;
-
-  requestAnimationFrame(actualizar);
-}
-
-function gameOver() {
-  jugando = false;
-  musica.pause();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#fff";
-  ctx.font = "30px Arial";
-  ctx.fillText("Fin del juego", 120, 300);
-  ctx.font = "20px Arial";
-  ctx.fillText("Puntuación: " + score, 140, 340);
-
-  if (score > record) {
-    localStorage.setItem("recordEscalada", score);
-    document.getElementById("record").innerText = score;
-    ctx.fillText("¡Nuevo récord!", 130, 380);
-  }
-}
-
-function reiniciarJuego() {
-  score = 0;
-  nivel = 1;
-  player.y = 500;
-  player.dy = 0;
-  jugando = true;
-  musica.currentTime = 0;
-  musica.play();
-  actualizar();
-}
+document.getElementById("record").innerText = record;
+loop();
 </script>
 </body>
 </html>
