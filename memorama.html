@@ -1,653 +1,300 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Escalada Aérea Infinita — Black Moon</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escalada Aérea Infinita</title>
 <style>
-  :root{
-    --bg:#0b1220;
-    --panel: rgba(0,0,0,0.5);
-    --text:#fff;
-    --accent:#7ce7ff;
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(#87ceeb, #fff);
+    overflow: hidden;
   }
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#071023 0%, #0b1220 100%);}
-  #game-container{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px;}
-  canvas{background:transparent;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);max-width:100%;height:auto;}
-  .hud{display:flex;gap:8px;align-items:center;color:var(--text);background:var(--panel);padding:8px;border-radius:8px;width:100%;max-width:900px;box-sizing:border-box;justify-content:space-between;}
-  .left, .center, .right{display:flex;gap:8px;align-items:center;}
-  button{background:var(--accent);border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;}
-  button.secondary{background:transparent;border:2px solid var(--accent);color:var(--text);}
-  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);visibility:hidden;opacity:0;transition:opacity .2s;}
-  #overlay.show{visibility:visible;opacity:1;}
-  .panel{background:#06101a;padding:20px;border-radius:12px;color:var(--text);width:90%;max-width:520px;box-shadow:0 10px 50px rgba(0,0,0,0.7);}
-  h2{margin:0 0 8px 0;}
-  .small{font-size:0.9rem;opacity:0.9;}
-  label{display:block;margin-top:8px;font-size:0.9rem;}
-  input[type="text"]{width:100%;padding:8px;border-radius:8px;border:1px solid #234;}
-  .muted{opacity:0.8;font-size:0.9rem;}
-  footer{margin-top:8px;color:#9fb6c6;font-size:0.9rem;}
-  @media (max-width:520px){
-    .hud{flex-direction:column;align-items:flex-start}
+
+  canvas {
+    display: block;
+    margin: auto;
+    background: linear-gradient(to bottom, #87ceeb, #ffffff);
+    background-size: cover;
   }
+
+  #ui {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    z-index: 10;
+    text-shadow: 1px 1px 3px #000;
+  }
+
+  #gameOver {
+    display: none;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    padding: 20px 40px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    font-size: 22px;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover { background: #666; }
 </style>
 </head>
 <body>
-<div id="game-container">
-  <div class="hud" role="status" aria-live="polite">
-    <div class="left">
-      <div><strong>Puntos:</strong> <span id="score">0</span></div>
-      <div style="margin-left:8px"><strong>Nivel:</strong> <span id="level">1</span></div>
-    </div>
-    <div class="center">
-      <button id="startBtn">Iniciar</button>
-      <button id="pauseBtn" class="secondary">Pausa</button>
-      <button id="restartBtn" class="secondary">Reiniciar</button>
-    </div>
-    <div class="right">
-      <div><strong>Récord:</strong> <span id="highscore">0</span></div>
-      <button id="toggleMusic" class="secondary">Musica: ON</button>
-    </div>
-  </div>
-
-  <canvas id="gameCanvas" width="480" height="800" aria-label="Canvas del juego de escalada aérea"></canvas>
-
-  <div style="max-width:900px;width:100%;display:flex;gap:8px;justify-content:space-between;align-items:center;">
-    <div class="muted">Usa ← → o touch para moverte. Salta tocando la pantalla o tecla espacio.</div>
-    <div style="text-align:right" class="muted">Desarrollador: edita la sección CONFIG en el código.</div>
-  </div>
+<div id="ui">
+  <div>Puntuación: <span id="score">0</span></div>
+  <div>Récord: <span id="record">0</span></div>
+</div>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<div id="gameOver">
+  <div>Fin de partida</div>
+  <div>Tu puntuación: <span id="finalScore"></span></div>
+  <button onclick="restartGame()">Reiniciar</button>
 </div>
 
-<!-- Overlay pantalla de fin / inicio -->
-<div id="overlay">
-  <div class="panel" id="panelContent">
-    <h2 id="panelTitle">Escalada Aérea</h2>
-    <div id="panelBody" class="small">
-      <p>Sube lo más alto que puedas. Tu récord se guardará.</p>
-    </div>
-    <div style="margin-top:12px;">
-      <label>Nombre para el récord (opcional):</label>
-      <input id="playerName" type="text" placeholder="Tu nombre" />
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
-      <button id="panelPlay">Jugar</button>
-      <button id="panelClose" class="secondary">Cerrar</button>
-    </div>
-    <footer>Black Moon — Escalada Aérea</footer>
-  </div>
-</div>
+<audio id="bgMusic" loop autoplay>
+  <source src="musica.mp3" type="audio/mpeg"> <!-- ← Cambia aquí tu música -->
+</audio>
 
 <script>
-/* ==========================================================
-   ESCALADA AÉREA - JUEGO HTML EN UN SOLO ARCHIVO
-   CONFIG — EDITAR AQUÍ (SOLO EL DESARROLLADOR)
-   ==========================================================*/
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-const CONFIG = {
-  // Rutas de recursos (si dejas vacías se usarán recursos dibujados por canvas)
-  developerOnly: true, // indicador: solo el dev debe cambiar estas rutas en el código fuente
-  avatarImage: '', // e.g. 'assets/avatar_woman.png' (dejar '' para dibujo por defecto)
-  wallLogoPaths: [ '', '', '', '' ], // hasta 4 logos para poner en la pared (dejar '' para none)
-  gripImages: [ '', '', '', '' ], // imágenes para los agarres/piedras (opcional)
-  musicUrl: '', // e.g. 'assets/music.mp3' (dejar '' para sin música)
-  musicVolume: 0.5, // 0.0 - 1.0
+// ===== IMÁGENES PERSONALIZABLES =====
+let playerImg = new Image();
+playerImg.src = "bailarina.png"; // ← Cambia aquí la imagen de la bailarina
 
-  // Gameplay params
-  canvasWidth: 480,
-  canvasHeight: 800,
-  maxLevels: 30,
-  pointsPerPlatform: 10,
-  levelUpEveryPoints: 1000, // cada X puntos sube 1 nivel (hasta maxLevels)
-  baseScrollSpeed: 0.9,  // velocidad vertical inicial (px per frame)
-  scrollSpeedIncrement: 0.12, // incremento de velocidad por nivel
-  platformSpawnInterval: 1200, // ms base entre plataformas (se reduce con nivel)
-  platformSpawnReductionPerLevel: 30, // ms menos por nivel
-  platformMinGap: 90, // distancia mínima entre plataformas verticalmente
-  platformMaxGap: 180,
-  gravity: 0.6,
-  jumpStrength: -12,
-  horizontalSpeed: 6,
-  showDebug: false
-};
+let sunImg = new Image();
+sunImg.src = "sol.png"; // ← Imagen del sol personalizada
 
-/* ==========================================================
-   FIN CONFIG
-   ==========================================================*/
+let moonImg = new Image();
+moonImg.src = "luna.png"; // ← Imagen de la luna personalizada
 
-/* UTILIDADES */
-function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+let cloudImg = new Image();
+cloudImg.src = "nube.png"; // ← Imagen de nube personalizada
 
-/* Canvas & contexto */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = CONFIG.canvasWidth;
-canvas.height = CONFIG.canvasHeight;
+// ====================================
+const wallImages = ["pared1.png", "pared2.png", "pared3.png", "pared4.png"];
+let stones = [];
+let traps = [];
 
-/* HUD */
-const scoreEl = document.getElementById('score');
-const levelEl = document.getElementById('level');
-const highscoreEl = document.getElementById('highscore');
-const startBtn = document.getElementById('startBtn');
-const restartBtn = document.getElementById('restartBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const toggleMusicBtn = document.getElementById('toggleMusic');
-
-const overlay = document.getElementById('overlay');
-const panelTitle = document.getElementById('panelTitle');
-const panelBody = document.getElementById('panelBody');
-const panelPlay = document.getElementById('panelPlay');
-const panelClose = document.getElementById('panelClose');
-const playerNameInput = document.getElementById('playerName');
-
-let audio = null;
-if (CONFIG.musicUrl) {
-  audio = new Audio(CONFIG.musicUrl);
-  audio.loop = true;
-  audio.volume = CONFIG.musicVolume;
-}
-let musicOn = !!audio;
-
-/* Estado del juego */
-let running = false;
-let paused = false;
+let player = { x: 180, y: 500, width: 40, height: 60, dy: 0 };
 let score = 0;
-let highscore = 0;
+let record = localStorage.getItem("recordAerea") || 0;
+let gameOver = false;
 let level = 1;
-let platforms = [];
-let lastSpawn = 0;
-let scrollOffset = 0;
-let scrollSpeed = CONFIG.baseScrollSpeed;
-let keys = {};
-let pointerActive = false;
-let lastTime = performance.now();
-let player = {
-  x: canvas.width/2,
-  y: canvas.height - 120,
-  w: 40,
-  h: 56,
-  vx: 0,
-  vy: 0,
-  onGround: false
-};
+let gravity = 0.3;
+let jumpStrength = -6;
+let timeOfDay = 0; // 0 día, 1 tarde, 2 noche
+let backgroundColor = "#87ceeb"; // azul cielo
 
-/* Load highscore from localStorage */
-const STORAGE_KEY = 'escalada_aerea_highscore_v1';
-const STORAGE_NAME_KEY = 'escalada_aerea_highscore_name_v1';
-function loadHighscore(){
-  const hs = parseInt(localStorage.getItem(STORAGE_KEY) || '0',10);
-  highscore = isNaN(hs) ? 0 : hs;
-  highscoreEl.textContent = highscore;
-}
-loadHighscore();
+document.getElementById("record").textContent = record;
 
-/* Recursos: logos y agarres */
-const logos = [];
-const gripImgs = [];
-function loadImages(){
-  CONFIG.wallLogoPaths.forEach((p, i) => {
-    if (!p) { logos[i] = null; return; }
-    const img = new Image();
-    img.src = p;
-    logos[i] = img;
-  });
-  CONFIG.gripImages.forEach((p,i)=>{
-    if (!p){ gripImgs[i]=null; return; }
-    const g = new Image();
-    g.src = p;
-    gripImgs[i]=g;
+// Crear piedras iniciales
+for (let i = 0; i < 8; i++) {
+  stones.push({
+    x: Math.random() * 350,
+    y: 600 - i * 80,
+    width: 80,
+    height: 15,
+    color: "white"
   });
 }
-loadImages();
 
-/* Helper: spawn initial platforms */
-function spawnInitialPlatforms(){
-  platforms = [];
-  const baseY = canvas.height - 40;
-  let y = baseY;
-  for(let i=0;i<8;i++){
-    const px = Math.random()*(canvas.width-120)+60;
-    platforms.push(makePlatform(px,y));
-    y -= clamp(randomRange(CONFIG.platformMinGap, CONFIG.platformMaxGap), CONFIG.platformMinGap, CONFIG.platformMaxGap);
-  }
+// Crear trampas iniciales
+for (let i = 0; i < 3; i++) {
+  traps.push({
+    x: Math.random() * 350,
+    y: Math.random() * 600,
+    width: 60,
+    height: 10,
+    color: "red"
+  });
 }
 
-/* Platform factory */
-function makePlatform(x, y){
-  const width = randomRange(80, 140);
-  const type = Math.random() < 0.12 ? 'moving' : 'static';
-  const colorIndex = Math.floor(Math.random()*4);
-  return { x: x - width/2, y, w: width, h: 18, type, colorIndex, dir: Math.random()<0.5?1:-1, speed: (Math.random()*0.8+0.4) };
-}
-
-/* Random util */
-function randomRange(a,b){ return Math.random()*(b-a)+a; }
-
-/* Reset game */
-function resetGame(){
-  score = 0;
-  level = 1;
-  scrollSpeed = CONFIG.baseScrollSpeed;
-  lastSpawn = performance.now();
-  player.x = canvas.width/2;
-  player.y = canvas.height - 120;
-  player.vx = 0; player.vy = 0;
-  spawnInitialPlatforms();
-  scoreEl.textContent = score;
-  levelEl.textContent = level;
-  running = false;
-  paused = false;
-  updateMusicButton();
-}
-
-/* Start */
-function startGame(){
-  resetGame();
-  running = true;
-  overlay.classList.remove('show');
-  if (audio && musicOn) audio.play().catch(()=>{});
-}
-
-/* Game over */
-function gameOver(){
-  running = false;
-  paused = false;
-  // show panel with score and ask name for record
-  panelTitle.textContent = '¡Fin de la partida!';
-  panelBody.innerHTML = `<p>Tu puntaje: <strong>${score}</strong></p><p>Récord actual: <strong>${highscore}</strong></p>`;
-  playerNameInput.value = '';
-  overlay.classList.add('show');
-
-  // check record
-  if (score > highscore){
-    panelBody.innerHTML += '<p style="color:var(--accent)">¡Nuevo récord! Escribe tu nombre y guarda.</p>';
-    panelPlay.textContent = 'Guardar y jugar';
+function drawSky() {
+  // Transición de color día → tarde → noche según puntaje
+  if (score < 50) {
+    backgroundColor = "#87ceeb"; // Día
+  } else if (score < 100) {
+    backgroundColor = "#ffb347"; // Atardecer
   } else {
-    panelPlay.textContent = 'Jugar de nuevo';
+    backgroundColor = "#0a0a2a"; // Noche
   }
-  if (audio) audio.pause();
-}
 
-/* Save record */
-function saveRecord(name){
-  if (score > highscore){
-    localStorage.setItem(STORAGE_KEY, String(score));
-    localStorage.setItem(STORAGE_NAME_KEY, name || '—');
-    highscore = score;
-    highscoreEl.textContent = highscore;
+  ctx.fillStyle = backgroundColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Dibujar elementos del cielo
+  if (score < 100) {
+    // Día o atardecer
+    ctx.drawImage(sunImg, 50, 50, 80, 80);
+  } else {
+    // Noche
+    ctx.drawImage(moonImg, 50, 50, 80, 80);
   }
-}
 
-/* Controls */
-window.addEventListener('keydown', (e)=>{
-  keys[e.code] = true;
-  // space para saltar
-  if (e.code === 'Space') {
-    if (!running) { startGame(); return; }
-    doJump();
-  }
-});
-window.addEventListener('keyup', (e)=>{ keys[e.code] = false; });
-canvas.addEventListener('touchstart', (e)=>{
-  e.preventDefault();
-  pointerActive = true;
-  if (!running) { startGame(); return; }
-  doJump();
-});
-canvas.addEventListener('touchend',(e)=>{ pointerActive=false; });
-
-/* Mouse for desktop: click to jump */
-canvas.addEventListener('mousedown',(e)=>{
-  if (!running){ startGame(); return; }
-  doJump();
-});
-
-/* Movement helpers */
-function doJump(){
-  // small buffer: if on platform or near top, jump
-  if (player.onGround || player.vy > -3){
-    player.vy = CONFIG.jumpStrength;
-    player.onGround = false;
+  // Dibujar nubes (3 nubes flotantes)
+  for (let i = 0; i < 3; i++) {
+    let x = (Date.now() / 50 + i * 120) % 500 - 100;
+    ctx.drawImage(cloudImg, x, 100 + i * 80, 120, 60);
   }
 }
 
-/* Buttons */
-startBtn.addEventListener('click', ()=>{ if (!running) startGame(); else { /* nada */ }});
-restartBtn.addEventListener('click', ()=>{ resetGame(); startGame(); });
-pauseBtn.addEventListener('click', ()=>{
-  if (!running) return;
-  paused = !paused;
-  pauseBtn.textContent = paused ? 'Reanudar' : 'Pausa';
-  if (audio) { if (paused) audio.pause(); else if (musicOn) audio.play(); }
-});
-toggleMusicBtn.addEventListener('click', ()=>{
-  musicOn = !musicOn;
-  updateMusicButton();
-  if (audio) {
-    if (musicOn && running && !paused) audio.play().catch(()=>{});
-    else audio.pause();
-  }
-});
-function updateMusicButton(){ toggleMusicBtn.textContent = `Musica: ${musicOn ? 'ON' : 'OFF'}`; }
-
-/* Overlay buttons */
-panelPlay.addEventListener('click', ()=>{
-  const name = playerNameInput.value.trim();
-  saveRecord(name);
-  startGame();
-});
-panelClose.addEventListener('click', ()=>{ overlay.classList.remove('show'); if (audio && running && musicOn) audio.play(); });
-
-/* Main loop */
-resetGame();
-let lastFrameTime = performance.now();
-
-function gameLoop(now){
-  const dt = now - lastFrameTime;
-  lastFrameTime = now;
-  if (running && !paused){
-    update(dt);
-  }
-  render();
-  requestAnimationFrame(gameLoop);
+function drawPlayer() {
+  ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 }
-requestAnimationFrame(gameLoop);
 
-/* Update logic */
-function update(dt){
-  // Update level based on score
-  const computedLevel = clamp(1 + Math.floor(score / CONFIG.levelUpEveryPoints), 1, CONFIG.maxLevels);
-  if (computedLevel !== level){
-    level = computedLevel;
-    levelEl.textContent = level;
-    // increase speed
-    scrollSpeed = CONFIG.baseScrollSpeed + (level-1)*CONFIG.scrollSpeedIncrement;
+function drawStones() {
+  for (let s of stones) {
+    ctx.fillStyle = s.color;
+    ctx.fillRect(s.x, s.y, s.width, s.height);
   }
+}
 
-  // Spawn platforms over time
-  const spawnInterval = Math.max(380, CONFIG.platformSpawnInterval - (level-1)*CONFIG.platformSpawnReductionPerLevel);
-  if (performance.now() - lastSpawn > spawnInterval){
-    // spawn a new platform above the view
-    const gap = clamp(randomRange(CONFIG.platformMinGap, CONFIG.platformMaxGap), CONFIG.platformMinGap, CONFIG.platformMaxGap);
-    const newY = - gap;
-    const px = Math.random()*(canvas.width-120)+60;
-    platforms.push(makePlatform(px, newY));
-    lastSpawn = performance.now();
+function drawTraps() {
+  for (let t of traps) {
+    ctx.fillStyle = t.color;
+    ctx.fillRect(t.x, t.y, t.width, t.height);
   }
+}
 
-  // Player input horizontal
-  const moveLeft = keys['ArrowLeft'] || keys['KeyA'];
-  const moveRight = keys['ArrowRight'] || keys['KeyD'];
-  player.vx = 0;
-  if (moveLeft) player.vx = -CONFIG.horizontalSpeed;
-  if (moveRight) player.vx = CONFIG.horizontalSpeed;
+function update() {
+  if (gameOver) return;
 
-  // physics
-  player.vy += CONFIG.gravity;
-  player.x += player.vx;
-  player.y += player.vy;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawSky();
 
-  // horizontal wrap / clamp
-  if (player.x < 0) player.x = 0;
-  if (player.x + player.w > canvas.width) player.x = canvas.width - player.w;
+  player.dy += gravity;
+  player.y += player.dy;
 
-  // Move platforms down to simulate player climbing
-  for(let p of platforms){
-    p.y += scrollSpeed;
-    if (p.type === 'moving'){
-      p.x += p.dir * p.speed * Math.sin(performance.now()/500) * 0.9;
-      // clamp x
-      p.x = clamp(p.x, 10, canvas.width - p.w - 10);
-    }
-  }
-
-  // Collision: check if player lands on platform
-  player.onGround = false;
-  for(let p of platforms){
-    if (player.vy > 0){ // falling
-      const px = player.x + player.w/2;
-      if (px > p.x - 8 && px < p.x + p.w + 8){
-        const platformTop = p.y;
-        const playerBottom = player.y + player.h;
-        if (playerBottom > platformTop && playerBottom < platformTop + 20 && (player.y + player.h - player.vy) <= platformTop + 6){
-          // land
-          player.y = platformTop - player.h;
-          player.vy = 0;
-          player.onGround = true;
-          // score reward
-          if (!p.claimed){
-            score += CONFIG.pointsPerPlatform;
-            p.claimed = true;
-            scoreEl.textContent = score;
-          }
-        }
+  // Movimiento de las piedras
+  for (let s of stones) {
+    s.y += 2;
+    if (s.y > 600) {
+      s.y = -20;
+      s.x = Math.random() * 350;
+      score++;
+      if (score % 10 === 0 && level < 30) {
+        level++;
+        gravity += 0.02;
       }
     }
-  }
 
-  // Remove platforms that go off bottom
-  platforms = platforms.filter(p => p.y < canvas.height + 200);
-
-  // If player goes above some threshold, move world down to keep player visible (simulate climbing)
-  const climbThreshold = canvas.height * 0.35;
-  if (player.y < climbThreshold){
-    // push platforms down and increase offset
-    const dy = (climbThreshold - player.y);
-    player.y = climbThreshold;
-    for(let p of platforms) p.y += dy;
-    scrollOffset += dy;
-  }
-
-  // If player falls below bottom -> game over
-  if (player.y > canvas.height + 40){
-    gameOver();
-  }
-}
-
-/* Render */
-function render(){
-  // background gradient
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  // draw wall gradient
-  const g = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  g.addColorStop(0, '#071421');
-  g.addColorStop(1, '#05202b');
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // draw logos on left/right edges (developer logos)
-  const logoMargin = 18;
-  const logoSize = 64;
-  for(let i=0;i<4;i++){
-    const img = logos[i];
-    const x = (i%2===0) ? logoMargin : canvas.width - logoSize - logoMargin;
-    const y = 80 + Math.floor(i/2)*120;
-    ctx.save();
-    ctx.globalAlpha = img ? 1 : 0.25;
-    if (img && img.complete){
-      ctx.drawImage(img, x, y, logoSize, logoSize);
-    } else {
-      // placeholder box
-      ctx.fillStyle = 'rgba(255,255,255,0.03)';
-      ctx.fillRect(x,y,logoSize,logoSize);
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-      ctx.strokeRect(x,y,logoSize,logoSize);
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.font = '10px sans-serif';
-      ctx.fillText('logo', x+10, y+36);
+    // Colisión con piedra
+    if (
+      player.x < s.x + s.width &&
+      player.x + player.width > s.x &&
+      player.y + player.height > s.y &&
+      player.y + player.height < s.y + s.height + 10 &&
+      player.dy > 0
+    ) {
+      player.dy = jumpStrength;
     }
-    ctx.restore();
   }
 
-  // Draw platforms (agarres)
-  for(let p of platforms){
-    // platform body
-    ctx.save();
-    // color by index (or image)
-    const colors = ['#f36b6b','#ffd166','#a7f3d0','#90cdf4'];
-    const fill = colors[p.colorIndex % colors.length];
-    ctx.fillStyle = fill;
-    // platform base
-    roundRect(ctx, p.x, p.y, p.w, p.h, 8);
-    ctx.fill();
-    // draw grip image if provided
-    const gimg = gripImgs[p.colorIndex % gripImgs.length];
-    if (gimg && gimg.complete){
-      ctx.drawImage(gimg, p.x + p.w/2 - 18, p.y - 30, 36, 36);
-    } else {
-      // small circle to represent grip
-      ctx.beginPath();
-      ctx.arc(p.x + p.w/2, p.y - 4, 10, 0, Math.PI*2);
-      ctx.fillStyle = '#111';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-      ctx.stroke();
+  // Movimiento de trampas
+  for (let t of traps) {
+    t.y += 3;
+    if (t.y > 600) {
+      t.y = -20;
+      t.x = Math.random() * 350;
     }
-    // claimed overlay
-    if (p.claimed){
-      ctx.fillStyle = 'rgba(0,0,0,0.15)';
-      ctx.fillRect(p.x, p.y, p.w, p.h);
+
+    // Colisión con trampa
+    if (
+      player.x < t.x + t.width &&
+      player.x + player.width > t.x &&
+      player.y + player.height > t.y &&
+      player.y < t.y + t.height
+    ) {
+      endGame();
+      return;
     }
-    ctx.restore();
   }
 
-  // Draw rope/telas on sides (decorative)
-  ctx.save();
-  const ropeX = 20;
-  ctx.globalAlpha = 0.12;
-  for(let i=0;i<6;i++){
-    ctx.beginPath();
-    ctx.moveTo(ropeX, i*140 - (scrollOffset%140));
-    ctx.quadraticCurveTo(ropeX+40, i*140+60 - (scrollOffset%140), ropeX, i*140+120 - (scrollOffset%140));
-    ctx.lineWidth = 8;
-    ctx.strokeStyle = '#06242d';
-    ctx.stroke();
-    // right side
-    ctx.beginPath();
-    ctx.moveTo(canvas.width - ropeX, i*140+30 - (scrollOffset%140));
-    ctx.quadraticCurveTo(canvas.width - ropeX - 40, i*140+80 - (scrollOffset%140), canvas.width - ropeX, i*140+130 - (scrollOffset%140));
-    ctx.lineWidth = 8;
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // Draw player (avatar)
-  if (CONFIG.avatarImage){
-    // if dev provided an image
-    // (image loading not implemented explicitly; dev can set avatarImage to a loaded URL)
-    const img = new Image();
-    img.src = CONFIG.avatarImage;
-    if (img.complete){
-      ctx.drawImage(img, player.x, player.y, player.w, player.h);
-    } else {
-      // fallback small rectangle
-      ctx.fillStyle = '#fff';
-      roundRect(ctx, player.x, player.y, player.w, player.h, 8);
-      ctx.fill();
-    }
-  } else {
-    // draw a stylized female climber / aerialist
-    drawAerialist(ctx, player.x + player.w/2, player.y + player.h/2, player.w, player.h);
+  // Si cae fuera del canvas
+  if (player.y > 600) {
+    endGame();
   }
 
-  // Score & debug overlay
-  if (CONFIG.showDebug){
-    ctx.fillStyle = 'white';
-    ctx.font = '12px monospace';
-    ctx.fillText(`plat:${platforms.length}`,10,20);
-    ctx.fillText(`scroll:${scrollSpeed.toFixed(2)}`,10,36);
+  drawStones();
+  drawTraps();
+  drawPlayer();
+  document.getElementById("score").textContent = score;
+  requestAnimationFrame(update);
+}
+
+function endGame() {
+  gameOver = true;
+  document.getElementById("finalScore").textContent = score;
+  document.getElementById("gameOver").style.display = "block";
+
+  if (score > record) {
+    record = score;
+    localStorage.setItem("recordAerea", record);
   }
 }
 
-/* Draw a simple stylized aerialist */
-function drawAerialist(ctx, cx, cy, w, h){
-  ctx.save();
-  // shadow
-  ctx.beginPath();
-  ctx.ellipse(cx+4, cy+16, w*0.55, h*0.2, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(0,0,0,0.12)';
-  ctx.fill();
-
-  // body
-  ctx.fillStyle = '#ffd9e0';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy - 8, w*0.35, h*0.45, 0, 0, Math.PI*2); // torso
-  ctx.fill();
-
-  // head
-  ctx.beginPath();
-  ctx.arc(cx, cy - h*0.7, w*0.18, 0, Math.PI*2);
-  ctx.fill();
-
-  // costume
-  ctx.fillStyle = '#1f8b9a';
-  ctx.beginPath();
-  ctx.moveTo(cx - w*0.25, cy - 8);
-  ctx.quadraticCurveTo(cx, cy + 10, cx + w*0.25, cy - 8);
-  ctx.fill();
-
-  // legs
-  ctx.strokeStyle = '#ffd9e0';
-  ctx.lineWidth = 6;
-  ctx.beginPath();
-  ctx.moveTo(cx - 6, cy + 10);
-  ctx.lineTo(cx - 12, cy + 26);
-  ctx.moveTo(cx + 6, cy + 10);
-  ctx.lineTo(cx + 12, cy + 26);
-  ctx.stroke();
-
-  // hair
-  ctx.fillStyle = '#2b2b2b';
-  ctx.beginPath();
-  ctx.ellipse(cx + 6, cy - h*0.75, w*0.2, w*0.15, 0, 0, Math.PI*2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-/* roundRect helper */
-function roundRect(ctx, x, y, w, h, r){
-  const radius = Math.min(r, w/2, h/2);
-  ctx.beginPath();
-  ctx.moveTo(x+radius,y);
-  ctx.arcTo(x+w,y,x+w,y+h,radius);
-  ctx.arcTo(x+w,y+h,x,y+h,radius);
-  ctx.arcTo(x,y+h,x,y,radius);
-  ctx.arcTo(x,y,x+w,y,radius);
-  ctx.closePath();
-}
-
-/* Utility: update highscore display on load */
-(function showStoredInfo(){
-  const storedName = localStorage.getItem(STORAGE_NAME_KEY) || '—';
-  const storedScore = parseInt(localStorage.getItem(STORAGE_KEY) || '0',10);
-  if (!isNaN(storedScore) && storedScore>0){
-    highscoreEl.textContent = storedScore;
-  } else {
-    highscoreEl.textContent = 0;
+function restartGame() {
+  player.y = 500;
+  player.dy = 0;
+  score = 0;
+  level = 1;
+  gravity = 0.3;
+  stones = [];
+  traps = [];
+  for (let i = 0; i < 8; i++) {
+    stones.push({
+      x: Math.random() * 350,
+      y: 600 - i * 80,
+      width: 80,
+      height: 15,
+      color: "white"
+    });
   }
-})();
-
-/* Responsive: scale canvas to fit container while preserving resolution */
-function fitCanvas(){
-  const containerWidth = Math.min(window.innerWidth - 24, 900);
-  const scale = containerWidth / CONFIG.canvasWidth;
-  canvas.style.width = (CONFIG.canvasWidth * scale) + 'px';
-  canvas.style.height = (CONFIG.canvasHeight * scale) + 'px';
+  for (let i = 0; i < 3; i++) {
+    traps.push({
+      x: Math.random() * 350,
+      y: Math.random() * 600,
+      width: 60,
+      height: 10,
+      color: "red"
+    });
+  }
+  document.getElementById("gameOver").style.display = "none";
+  gameOver = false;
+  update();
 }
-window.addEventListener('resize', fitCanvas);
-fitCanvas();
 
-/* Small UX: show overlay on load */
-setTimeout(()=>{
-  panelTitle.textContent = 'Escalada Aérea — Black Moon';
-  panelBody.innerHTML = `<p>Bienvenido. Presiona <strong>Jugar</strong> para comenzar. Objetivo: escalar lo más alto posible. Controles: flechas ← → o toque para moverte, espacio/tap para saltar.</p><p class="muted">Puedes cambiar imágenes y música editando la sección CONFIG al inicio del archivo.</p>`;
-  overlay.classList.add('show');
-}, 300);
+document.addEventListener("keydown", (e) => {
+  if (e.code === "ArrowLeft") player.x -= 30;
+  if (e.code === "ArrowRight") player.x += 30;
+});
 
-/* Optional: debug key to toggle debug */
-window.addEventListener('keydown', (e)=>{ if (e.key === '`') CONFIG.showDebug = !CONFIG.showDebug; });
+// Cambia la pared cada 5000 puntos (opcional)
+setInterval(() => {
+  let randomWall = wallImages[Math.floor(Math.random() * wallImages.length)];
+  canvas.style.backgroundImage = `url(${randomWall})`;
+}, 5000);
 
-/* End of file */
+update();
 </script>
 </body>
 </html>
