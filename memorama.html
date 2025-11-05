@@ -13,7 +13,6 @@
   }
   canvas {
     display: block;
-    background: linear-gradient(to top, #001, #334);
   }
   #info {
     position: absolute;
@@ -23,11 +22,14 @@
     font-family: Arial, sans-serif;
     font-size: 18px;
     z-index: 10;
+    text-shadow: 0 0 8px #0ff;
   }
 </style>
 </head>
 <body>
-<div id="info">Puntuación: <span id="score">0</span></div>
+<div id="info">
+  Puntuación: <span id="score">0</span> | Récord: <span id="record">0</span>
+</div>
 <canvas id="gameCanvas"></canvas>
 <script>
 // ===============================
@@ -36,13 +38,12 @@
 const CONFIG = {
   playerImage: 'https://i.imgur.com/COYcE7l.png', // Imagen de la bailarina
   obstacleImage: 'https://i.imgur.com/dvP4Q6M.png', // Obstáculo (aro/tela)
-  backgroundColor: '#0a0011', // Fondo general
-  gravity: 0.6,     // Gravedad
-  jumpForce: -10,   // Fuerza de salto
-  speed: 5,         // Velocidad del juego
-  obstacleGap: 250, // Distancia entre obstáculos
-  musicSrc: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_ee3ff4f694.mp3?filename=retro-game-music-117056.mp3', // Música
-  developerMode: true // Mostrar configuración en consola
+  gravity: 0.6,
+  jumpForce: -10,
+  speed: 5,
+  obstacleGap: 250,
+  musicSrc: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_ee3ff4f694.mp3?filename=retro-game-music-117056.mp3',
+  developerMode: false
 };
 // ===============================
 // FIN CONFIGURACIÓN
@@ -65,9 +66,12 @@ let player = {
 player.image.src = CONFIG.playerImage;
 
 let obstacles = [];
+let stars = [];
 let score = 0;
+let record = localStorage.getItem('blackmoon_record') || 0;
 let gameOver = false;
-let bgColor = CONFIG.backgroundColor;
+
+// Cargar recursos
 let obstacleImg = new Image();
 obstacleImg.src = CONFIG.obstacleImage;
 
@@ -75,8 +79,26 @@ obstacleImg.src = CONFIG.obstacleImage;
 const music = new Audio(CONFIG.musicSrc);
 music.loop = true;
 music.volume = 0.5;
-music.play().catch(()=>{}); // Evita bloqueo por autoplay
+music.play().catch(()=>{});
 
+// Crear estrellas
+for (let i = 0; i < 100; i++) {
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2,
+    speed: Math.random() * 0.5 + 0.2
+  });
+}
+
+// Crear luna
+const moon = {
+  x: canvas.width - 200,
+  y: 150,
+  radius: 80
+};
+
+// Funciones
 function createObstacle() {
   const height = 80 + Math.random() * 150;
   const y = canvas.height - height;
@@ -84,8 +106,38 @@ function createObstacle() {
     x: canvas.width,
     y,
     width: 60,
-    height,
+    height
   });
+}
+
+function drawNightSky() {
+  // Fondo degradado noche
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0, '#010010');
+  grad.addColorStop(1, '#001');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Estrellas
+  ctx.fillStyle = '#fff';
+  for (let s of stars) {
+    ctx.globalAlpha = 0.5 + Math.random() * 0.5;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fill();
+    s.x -= s.speed;
+    if (s.x < 0) s.x = canvas.width + Math.random() * 50;
+  }
+  ctx.globalAlpha = 1;
+
+  // Luna
+  ctx.beginPath();
+  ctx.arc(moon.x, moon.y, moon.radius, 0, Math.PI * 2);
+  ctx.fillStyle = '#fdfde7';
+  ctx.shadowColor = '#fff';
+  ctx.shadowBlur = 30;
+  ctx.fill();
+  ctx.shadowBlur = 0;
 }
 
 function drawPlayer() {
@@ -101,8 +153,7 @@ function drawObstacles() {
 function update() {
   if (gameOver) return;
 
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawNightSky();
 
   player.vy += CONFIG.gravity;
   player.y += player.vy;
@@ -128,6 +179,7 @@ function update() {
     ) {
       gameOver = true;
       music.pause();
+      saveRecord();
       showGameOver();
     }
   });
@@ -136,6 +188,7 @@ function update() {
   drawObstacles();
   score++;
   document.getElementById('score').innerText = score;
+  document.getElementById('record').innerText = record;
   requestAnimationFrame(update);
 }
 
@@ -156,6 +209,13 @@ function showGameOver() {
   ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 30);
   ctx.font = '24px Arial';
   ctx.fillText('Haz click o toca para reiniciar', canvas.width/2, canvas.height/2 + 20);
+}
+
+function saveRecord() {
+  if (score > record) {
+    record = score;
+    localStorage.setItem('blackmoon_record', record);
+  }
 }
 
 function restart() {
@@ -179,7 +239,8 @@ window.addEventListener('keydown', e => {
 });
 canvas.addEventListener('click', jump);
 
-// Inicia el juego
+// Iniciar
+document.getElementById('record').innerText = record;
 if (CONFIG.developerMode) console.log('CONFIG:', CONFIG);
 update();
 </script>
