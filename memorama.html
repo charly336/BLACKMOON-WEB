@@ -9,33 +9,76 @@
     margin: 0;
     background: #000;
     overflow: hidden;
+    font-family: 'Arial', sans-serif;
   }
+
   #gameCanvas {
     display: block;
     margin: 0 auto;
     background: url('fondo1.jpg') no-repeat center/cover;
     border: 3px solid #fff;
   }
-  #menu {
+
+  #menu, #inicio {
     text-align: center;
     color: white;
     font-family: sans-serif;
     margin-top: 10px;
   }
-  #menu button {
+
+  #menu button, #inicio button {
     margin: 5px;
     padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 10px;
+    font-size: 18px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
+    background-color: #6200ea;
+    color: white;
+    transition: 0.3s;
+  }
+
+  #menu button:hover, #inicio button:hover {
+    background-color: #3700b3;
+  }
+
+  #inicio {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.8), #000);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #titulo {
+    font-size: 40px;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 0 0 15px #a855f7;
+  }
+
+  #subtitulo {
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: #ccc;
   }
 </style>
 </head>
 <body>
 
+<div id="inicio">
+  <div id="titulo">Escalada Aérea Infinita</div>
+  <div id="subtitulo">Un juego de <b>Blackmoon Games</b></div>
+  <button onclick="iniciarJuego()">🎮 Jugar</button>
+</div>
+
 <canvas id="gameCanvas" width="400" height="600"></canvas>
-<div id="menu">
+<div id="menu" style="display:none;">
   <p>Puntuación: <span id="score">0</span> | Récord: <span id="record">0</span></p>
   <button onclick="reiniciarJuego()">Reiniciar</button>
   <audio id="musicaFondo" src="musica.mp3" loop></audio>
@@ -46,7 +89,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 let bailarinaImg = new Image();
-bailarinaImg.src = "bailarina.png"; // Cambia aquí la imagen de la bailarina
+bailarinaImg.src = "bailarina.png"; // Imagen personalizable de la bailarina
 
 // Logos personalizables
 let logos = ["logo1.png", "logo2.png", "logo3.png", "logo4.png"];
@@ -54,15 +97,13 @@ let piedras = [];
 let score = 0;
 let record = localStorage.getItem("recordEscalada") || 0;
 let nivel = 1;
-let jugando = true;
+let jugando = false;
 
 document.getElementById("record").innerText = record;
 
 let musica = document.getElementById("musicaFondo");
 musica.volume = 0.5;
-musica.play();
 
-// Configuración inicial
 let player = {
   x: 200,
   y: 500,
@@ -86,9 +127,18 @@ for (let i = 0; i < 6; i++) {
 
 // Control del jugador
 document.addEventListener("keydown", e => {
+  if (!jugando) return;
   if (e.code === "ArrowLeft") player.x -= 40;
   if (e.code === "ArrowRight") player.x += 40;
 });
+
+function iniciarJuego() {
+  document.getElementById("inicio").style.display = "none";
+  document.getElementById("menu").style.display = "block";
+  jugando = true;
+  musica.play();
+  actualizar();
+}
 
 function actualizar() {
   if (!jugando) return;
@@ -101,4 +151,66 @@ function actualizar() {
     ctx.drawImage(img, piedra.x, piedra.y, piedra.width, piedra.height);
     piedra.y -= 2 + nivel * 0.2;
     if (piedra.y < -20) {
-      piedra.
+      piedra.y = 620;
+      piedra.x = Math.random() * 340;
+      piedra.img = logos[Math.floor(Math.random() * logos.length)];
+      score++;
+      if (score % 20 === 0 && nivel < 30) nivel++;
+    }
+  }
+
+  // Movimiento de la bailarina
+  player.dy += player.gravedad;
+  player.y += player.dy;
+  if (player.y > 580) gameOver();
+
+  // Detección de colisiones
+  for (let piedra of piedras) {
+    if (
+      player.x < piedra.x + piedra.width &&
+      player.x + player.width > piedra.x &&
+      player.y < piedra.y + piedra.height &&
+      player.y + player.height > piedra.y &&
+      player.dy > 0
+    ) {
+      player.dy = player.salto;
+    }
+  }
+
+  ctx.drawImage(bailarinaImg, player.x, player.y, player.width, player.height);
+  document.getElementById("score").innerText = score;
+
+  requestAnimationFrame(actualizar);
+}
+
+function gameOver() {
+  jugando = false;
+  musica.pause();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#fff";
+  ctx.font = "30px Arial";
+  ctx.fillText("Fin del juego", 120, 300);
+  ctx.font = "20px Arial";
+  ctx.fillText("Puntuación: " + score, 140, 340);
+
+  if (score > record) {
+    localStorage.setItem("recordEscalada", score);
+    document.getElementById("record").innerText = score;
+    ctx.fillText("¡Nuevo récord!", 130, 380);
+  }
+}
+
+function reiniciarJuego() {
+  score = 0;
+  nivel = 1;
+  player.y = 500;
+  player.dy = 0;
+  jugando = true;
+  musica.currentTime = 0;
+  musica.play();
+  actualizar();
+}
+</script>
+</body>
+</html>
