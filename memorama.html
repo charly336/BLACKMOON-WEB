@@ -1,197 +1,731 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Escalada Infinita - BlackMoon Games</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Blackmoon Games - Caída Libre Aérea</title>
 <style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: linear-gradient(#aee1ff, #ffffff);
+  :root{
+    --ui-bg: #0b0b12;
+    --panel-bg: rgba(0,0,0,0.6);
+    --accent: #a78bfa;
+    --text: #ffffff;
   }
-
-  canvas {
-    display: block;
-    background: url('fondo_dia.jpg');
-    background-size: cover;
-    margin: auto;
-    border: 3px solid #222;
-  }
-
-  #ui {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 20px;
-  }
-
-  button {
-    background: #222;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin: 4px;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background: #444;
-  }
+  html,body{height:100%;margin:0;background:#000;color:var(--text);font-family:Inter, system-ui, sans-serif}
+  #gamewrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
+  canvas{background:linear-gradient(#7ec0ee,#3b82f6);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+  .ui{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .panel{background:var(--panel-bg);padding:10px;border-radius:10px;display:flex;gap:8px;align-items:center}
+  button{background:#111;border:1px solid rgba(255,255,255,0.08);color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+  button:active{transform:translateY(1px)}
+  input[type=range]{width:120px}
+  #footer{display:flex;align-items:center;gap:12px;margin-top:6px;opacity:0.95}
+  #footer img{height:36px;width:36px;border-radius:6px;object-fit:cover}
+  #logoIntro{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:9999;flex-direction:column;color:#fff}
+  #logoIntro img{width:220px;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.7)) ;}
+  #countdown{font-size:56px;margin-top:16px}
+  #scoreboard{max-height:220px;overflow:auto;padding:8px;border-radius:6px;background:rgba(255,255,255,0.02)}
+  .small{font-size:12px;color:rgba(255,255,255,0.7)}
+  @media (max-width:700px){ canvas{width:95vw;height:70vh} }
 </style>
 </head>
 <body>
-<div id="ui">
-  <div>Puntaje: <span id="score">0</span></div>
-  <div>Récord: <span id="record">0</span></div>
-  <button id="pauseBtn">Pausar Juego</button>
-  <button id="musicBtn">Pausar Música</button>
+<div id="logoIntro">
+  <!-- Intro tipo película: se oculta automáticamente al iniciar el juego -->
+  <img id="introLogo" alt="Blackmoon Games Logo" src="assets/blackmoon_logo.png" />
+  <div class="small">A production by Grupo Blackmoon</div>
+  <div id="countdown" style="display:none">3</div>
+  <div style="margin-top:18px">
+    <button id="skipIntro">Saltar intro</button>
+  </div>
 </div>
-<canvas id="gameCanvas" width="400" height="600"></canvas>
-<audio id="musicaFondo" src="musica.mp3" loop autoplay></audio>
+
+<div id="gamewrap">
+  <canvas id="gameCanvas" width="540" height="800"></canvas>
+
+  <div class="ui">
+    <div class="panel">
+      <button id="startBtn">Iniciar</button>
+      <button id="pauseBtn">Pausar</button>
+      <button id="restartBtn">Reiniciar</button>
+    </div>
+
+    <div class="panel">
+      <button id="musicToggle">Música: ON</button>
+      <button id="volDown">Vol -</button>
+      <input id="volRange" type="range" min="0" max="1" step="0.01" value="0.6">
+      <button id="volUp">Vol +</button>
+    </div>
+
+    <div class="panel">
+      <div>Score: <strong id="score">0</strong></div>
+      <div style="margin-left:8px">Record personal: <strong id="personalBest">0</strong></div>
+      <div style="margin-left:8px">Record global: <strong id="globalBest">0</strong></div>
+    </div>
+
+    <div class="panel">
+      <button id="saveScoreBtn">Guardar Score</button>
+      <button id="showBoard">Ver scoreboard</button>
+    </div>
+  </div>
+
+  <div id="scoreboard" style="display:none;width:540px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong>Leaderboard (Global simulado - local)</strong>
+      <button id="closeBoard">Cerrar</button>
+    </div>
+    <div id="leaderList"></div>
+  </div>
+
+  <div id="footer" style="width:540px;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div>Grupo Blackmoon</div>
+      <img id="footerImg" alt="footer image" src="assets/group_blackmoon.png" />
+    </div>
+    <div class="small">Desarrollador: puede cambiar assets y parámetros en la sección CONFIG al inicio del archivo.</div>
+  </div>
+</div>
 
 <script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+/* =========================================================
+   CONFIG: Solo el DESARROLLADOR debería modificar aquí.
+   Cambia rutas de imágenes, audios y parámetros del juego.
+   ========================================================= */
 
-const musica = document.getElementById("musicaFondo");
-let juegoPausado = false;
-let musicaPausada = false;
+const CONFIG = {
+  // Tamaño del canvas (si quieres que sea responsive, ajusta CSS)
+  canvasWidth: 540,
+  canvasHeight: 800,
 
-document.getElementById("pauseBtn").onclick = () => {
-  juegoPausado = !juegoPausado;
-  document.getElementById("pauseBtn").innerText = juegoPausado ? "Reanudar Juego" : "Pausar Juego";
+  // Assets (rutas locales o URLs). Reemplazar por tus imágenes.
+  assets: {
+    // Logo de intro (se usa en la pantalla de intro)
+    introLogo: 'assets/blackmoon_logo.png', // reemplazar
+    footerImg: 'assets/group_blackmoon.png', // imagen en footer
+
+    // Fondos (puedes usar .png o .jpg). Sobreponen de abajo hacia arriba.
+    mountains: 'assets/mountains.png',
+    sun: 'assets/sun.png',
+    moon: 'assets/moon.png',
+    cloud: 'assets/cloud.png',
+
+    // Personaje (sprite opcional; aquí es una imagen simple)
+    player: 'assets/dancer.png',
+
+    // Plataforma o "tela" (donde el bailarín puede tocar para frenar la caída)
+    platform: 'assets/silk.png'
+  },
+
+  // Música: 4 canciones (reemplazar por URL o archivo local)
+  songs: [
+    'assets/song1.mp3',
+    'assets/song2.mp3',
+    'assets/song3.mp3',
+    'assets/song4.mp3'
+  ],
+
+  // Niveles -> define a qué score cambia el "momento del día"
+  levelThresholds: {
+    morning: 0,     // niveles iniciales
+    afternoon: 6,   // a partir del nivel 6 (ejemplo) pasa a tarde
+    night: 12       // a partir del nivel 12 pasa a noche
+  },
+
+  // Velocidades y física (ajustar si se desea)
+  gravity: 0.5,
+  airDrag: 0.995,
+  playerSpeed: 3.5,
+  flapBoost: -10, // impulso al rebotar/usar una "tela"
+  platformCount: 7, // cuantas plataformas en pantalla
+  platformSpacingY: 120,
+
+  // Guardado en localStorage: claves
+  storageKeys: {
+    personalBest: 'bm_personal_best',
+    personalNamePrefix: 'bm_personal_name_',
+    globalList: 'bm_global_scores' // array de {name,score}
+  },
+
+  // Limit leaderboard
+  leaderboardMax: 20
 };
 
-document.getElementById("musicBtn").onclick = () => {
-  if (musicaPausada) {
-    musica.play();
-  } else {
-    musica.pause();
-  }
-  musicaPausada = !musicaPausada;
-  document.getElementById("musicBtn").innerText = musicaPausada ? "Reanudar Música" : "Pausar Música";
-};
+/* =========================================================
+   NO CAMBIAR A PARTIR DE AQUÍ si no sabes JS.
+   ========================================================= */
 
-let jugadora = {
-  x: 180,
-  y: 500,
-  ancho: 40,
-  alto: 60,
-  velocidadY: 0,
-  gravedad: 0.3, // Caída más lenta
-  salto: -7,
-  imagen: new Image()
-};
-jugadora.imagen.src = "bailarina.png";
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = CONFIG.canvasWidth;
+canvas.height = CONFIG.canvasHeight;
 
-let plataformas = [];
-let trampas = [];
-let puntuacion = 0;
-let record = localStorage.getItem("recordEscalada") || 0;
+const introDiv = document.getElementById('logoIntro');
+const introLogoImg = document.getElementById('introLogo');
+const countdownEl = document.getElementById('countdown');
+const skipIntroBtn = document.getElementById('skipIntro');
 
-function crearPlataforma(x, y, ancho, alto, color = "gray") {
-  plataformas.push({x, y, ancho, alto, color});
-}
+introLogoImg.src = CONFIG.assets.introLogo;
+document.getElementById('footerImg').src = CONFIG.assets.footerImg;
 
-function crearTrampa(x, y, ancho, alto) {
-  trampas.push({x, y, ancho, alto, color: "red"});
-}
+// UI elements
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const restartBtn = document.getElementById('restartBtn');
+const musicToggle = document.getElementById('musicToggle');
+const volRange = document.getElementById('volRange');
+const volUp = document.getElementById('volUp');
+const volDown = document.getElementById('volDown');
+const scoreEl = document.getElementById('score');
+const personalBestEl = document.getElementById('personalBest');
+const globalBestEl = document.getElementById('globalBest');
+const saveScoreBtn = document.getElementById('saveScoreBtn');
+const showBoardBtn = document.getElementById('showBoard');
+const scoreboardDiv = document.getElementById('scoreboard');
+const leaderListDiv = document.getElementById('leaderList');
+const closeBoardBtn = document.getElementById('closeBoard');
 
-for (let i = 0; i < 8; i++) {
-  crearPlataforma(Math.random() * 300, i * 80, 100, 15);
-}
-
-function saltar() {
-  if (!juegoPausado) jugadora.velocidadY = jugadora.salto;
-}
-window.addEventListener("keydown", (e) => {
-  if (e.code === "Space") saltar();
+let audioCtx = null;
+const songs = CONFIG.songs.map(src => {
+  const a = new Audio(src);
+  a.loop = true;
+  a.volume = parseFloat(volRange.value);
+  return a;
 });
+let currentSongIndex = 0;
+let musicOn = true;
 
-function actualizar() {
-  if (juegoPausado) return;
+// Load images
+const imgs = {};
+const loadImage = (key, src) => {
+  return new Promise((res) => {
+    const i = new Image();
+    i.src = src;
+    i.onload = ()=> { imgs[key]=i; res(i); };
+    i.onerror = ()=> { console.warn('No se pudo cargar', src); imgs[key]=null; res(null); };
+  });
+};
 
-  jugadora.y += jugadora.velocidadY;
-  jugadora.velocidadY += jugadora.gravedad;
+// Game state
+let lastTime = 0;
+let running = false;
+let paused = false;
+let gameStarted = false;
+let score = 0;
+let level = 1;
+let player = null;
+let platforms = [];
+let clouds = [];
+let keys = {left:false,right:false,up:false,down:false};
+let frameCount = 0;
 
-  if (jugadora.y > canvas.height - jugadora.alto) {
-    jugadora.y = canvas.height - jugadora.alto;
-    jugadora.velocidadY = 0;
+// Player object
+class Player {
+  constructor(x,y){
+    this.x = x;
+    this.y = y;
+    this.vx = 0;
+    this.vy = 2;
+    this.w = 64;
+    this.h = 88;
+    this.rotation = 0;
   }
+  update(dt){
+    // controls
+    if(keys.left) this.vx = -CONFIG.playerSpeed;
+    else if(keys.right) this.vx = CONFIG.playerSpeed;
+    else this.vx *= 0.9;
 
-  plataformas.forEach(p => {
-    p.y -= 2;
-    if (
-      jugadora.x < p.x + p.ancho &&
-      jugadora.x + jugadora.ancho > p.x &&
-      jugadora.y + jugadora.alto > p.y &&
-      jugadora.y + jugadora.alto < p.y + 15
-    ) {
-      jugadora.velocidadY = jugadora.salto;
-      puntuacion++;
-      document.getElementById("score").innerText = puntuacion;
-      if (puntuacion > record) {
-        record = puntuacion;
-        localStorage.setItem("recordEscalada", record);
-        document.getElementById("record").innerText = record;
+    // physics
+    this.vy += CONFIG.gravity;
+    this.vx *= CONFIG.airDrag;
+    this.vy *= CONFIG.airDrag;
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // world wrap horizontally
+    if(this.x < -this.w) this.x = canvas.width;
+    if(this.x > canvas.width + this.w) this.x = -this.w;
+
+    // limits top/bottom
+    if(this.y < -2000) this.y = -2000;
+    // falling off bottom ends the run
+    if(this.y > canvas.height + 300) {
+      running = false;
+      gameOver();
+    }
+  }
+  draw(ctx){
+    const img = imgs.player;
+    if(img){
+      ctx.save();
+      ctx.translate(this.x + this.w/2, this.y + this.h/2);
+      ctx.rotate(this.vy/80);
+      ctx.drawImage(img, -this.w/2, -this.h/2, this.w, this.h);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+    }
+  }
+}
+
+// Platform
+class Platform {
+  constructor(x,y,w=120,h=24){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.used = false;
+  }
+  draw(ctx){
+    const img = imgs.platform;
+    if(img){
+      ctx.drawImage(img, this.x, this.y, this.w, this.h);
+    } else {
+      ctx.fillStyle = '#8844ff';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+    }
+  }
+}
+
+// Cloud background element
+class Cloud {
+  constructor(x,y,scale=1,vel=0.2,imgKey='cloud'){
+    this.x=x;this.y=y;this.s=scale;this.v=vel;this.key=imgKey;
+  }
+  update(){ this.x += this.v; if(this.x > canvas.width+200) this.x = -200; }
+  draw(ctx){
+    const i = imgs[this.key];
+    if(i) ctx.drawImage(i,this.x,this.y, i.width*this.s*0.4, i.height*this.s*0.4);
+  }
+}
+
+function resetGame(){
+  score = 0;
+  level = 1;
+  player = new Player(canvas.width/2 - 32, 60);
+  platforms = [];
+  clouds = [];
+  frameCount = 0;
+  // create initial platforms (spaced downwards, since player will fall)
+  for(let i=0;i<CONFIG.platformCount;i++){
+    let x = Math.random() * (canvas.width - 120);
+    let y = 150 + i * CONFIG.platformSpacingY;
+    platforms.push(new Platform(x,y,120,24));
+  }
+  // clouds
+  for(let i=0;i<6;i++){
+    clouds.push(new Cloud(Math.random()*canvas.width, Math.random()*100, 0.8 + Math.random()*1.2, 0.2 + Math.random()*0.6));
+  }
+  updateUI();
+}
+
+function updateUI(){
+  scoreEl.textContent = Math.floor(score);
+  personalBestEl.textContent = getPersonalBest();
+  globalBestEl.textContent = getGlobalBest();
+}
+
+// Physics: detect landing on platforms (from above)
+function checkPlatformCollision(){
+  for(let p of platforms){
+    if(player.vy > 0){ // moving down
+      const px = player.x + player.w/2;
+      if(px > p.x && px < p.x + p.w){
+        if(player.y + player.h > p.y && player.y + player.h < p.y + p.h + 20){
+          // collide: simulate "tela" catch - reduce vy and give boost upward slightly
+          player.vy = CONFIG.flapBoost * 0.5; // less strong so still falls over time
+          // mark used for visual effect maybe
+          p.used = true;
+          score += 10;
+        }
       }
     }
-  });
+  }
+}
 
-  trampas.forEach(t => {
-    t.y -= 2;
-    if (
-      jugadora.x < t.x + t.ancho &&
-      jugadora.x + jugadora.ancho > t.x &&
-      jugadora.y + jugadora.alto > t.y &&
-      jugadora.y < t.y + t.alto
-    ) {
-      finJuego();
-    }
-  });
+// Level/day cycle handling
+function getTimeOfDay(){
+  if(level >= CONFIG.levelThresholds.night) return 'night';
+  if(level >= CONFIG.levelThresholds.afternoon) return 'afternoon';
+  return 'morning';
+}
 
-  plataformas = plataformas.filter(p => p.y > -20);
-  trampas = trampas.filter(t => t.y > -20);
+// Draw background based on time of day
+function drawBackground(ctx){
+  const tod = getTimeOfDay();
+  // gradient sky
+  let g = ctx.createLinearGradient(0,0,0,canvas.height);
+  if(tod === 'morning'){
+    g.addColorStop(0,'#b3e5ff');
+    g.addColorStop(1,'#7ec0ee');
+  } else if(tod === 'afternoon'){
+    g.addColorStop(0,'#ffd38a');
+    g.addColorStop(1,'#ff8a65');
+  } else {
+    g.addColorStop(0,'#0b2545');
+    g.addColorStop(1,'#07122a');
+  }
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  while (plataformas.length < 8) {
-    if (Math.random() < 0.2) {
-      crearTrampa(Math.random() * 300, canvas.height + 10, 80, 15);
-    } else {
-      crearPlataforma(Math.random() * 300, canvas.height + 10, 100, 15);
+  // mountains
+  const m = imgs.mountains;
+  if(m){
+    ctx.drawImage(m, -50, canvas.height - m.height*0.4 - 40, m.width*0.7, m.height*0.7);
+  } else {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, canvas.height-120, canvas.width, 120);
+  }
+
+  // sun or moon
+  if(tod === 'night'){
+    const moon = imgs.moon;
+    if(moon) ctx.drawImage(moon, canvas.width - 140, 40, 100, 100);
+    else { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(canvas.width-90,90,36,0,Math.PI*2); ctx.fill(); }
+  } else {
+    const sun = imgs.sun;
+    if(sun) ctx.drawImage(sun, canvas.width - 140, 40, 100, 100);
+    else { ctx.fillStyle = 'yellow'; ctx.beginPath(); ctx.arc(canvas.width-90,90,36,0,Math.PI*2); ctx.fill(); }
+  }
+
+  // clouds
+  for(let c of clouds) c.draw(ctx);
+}
+
+// Platform recycling as player falls: move platforms down/up to simulate infinite fall
+function recyclePlatforms(){
+  // when player goes down, we move platforms upward slightly, and spawn new ones below...
+  // But since player falls, we want platforms further down.
+  // We'll shift platforms positions based on player's vy to create a scrolling effect.
+  const fallSpeed = Math.max(1, Math.abs(player.vy)*0.6);
+  for(let p of platforms){
+    p.y -= player.vy * 0.2; // parallax
+  }
+  // If a platform goes off top, move it to bottom (simulate infinite)
+  for(let p of platforms){
+    if(p.y < -200){
+      p.x = Math.random() * (canvas.width - p.w);
+      p.y = canvas.height + Math.random() * 200;
+      p.used = false;
+      // increase level a bit when new platforms created (as difficulty)
+      level = Math.floor(score / 50) + 1;
     }
   }
 }
 
-function finJuego() {
-  alert("¡Caiste en una trampa! Fin del juego.\nPuntaje: " + puntuacion);
-  location.reload();
+// Main draw loop
+function draw(dt){
+  // update clouds
+  for(let c of clouds) c.update();
+
+  // background
+  drawBackground(ctx);
+
+  // platforms
+  for(let p of platforms) p.draw(ctx);
+
+  // player
+  player.draw(ctx);
+
+  // HUD on canvas - small
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(6,6,150,46);
+  ctx.fillStyle = '#fff';
+  ctx.font = '14px sans-serif';
+  ctx.fillText('Score: ' + Math.floor(score), 14, 26);
+  ctx.fillText('Nivel: ' + level, 14, 44);
 }
 
-function dibujar() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(jugadora.imagen, jugadora.x, jugadora.y, jugadora.ancho, jugadora.alto);
-  plataformas.forEach(p => {
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x, p.y, p.ancho, p.alto);
+// Update loop
+function update(ts){
+  if(!running || paused) { lastTime = ts; requestAnimationFrame(update); return; }
+  const dt = (ts - lastTime) / 16.666;
+  lastTime = ts;
+  frameCount++;
+
+  // update player
+  player.update(dt);
+  checkPlatformCollision();
+  recyclePlatforms();
+
+  // increment score by how far the player falls (vy)
+  if(player.vy > 0) score += player.vy * 0.02;
+  updateUI();
+
+  // draw
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  draw(dt);
+
+  requestAnimationFrame(update);
+}
+
+// Start intro countdown then start run
+function startIntroCountdown(){
+  introDiv.style.display = 'flex';
+  countdownEl.style.display = 'block';
+  let c = 3;
+  countdownEl.textContent = c;
+  introLogoImg.style.filter = 'brightness(1)';
+  skipIntroBtn.style.display = 'inline-block';
+
+  const tick = ()=> {
+    if(c > 0){
+      countdownEl.textContent = c;
+      c--;
+      setTimeout(tick, 800);
+    } else {
+      countdownEl.textContent = 'START';
+      setTimeout(()=> {
+        introDiv.style.display = 'none';
+        countdownEl.style.display = 'none';
+        beginGame();
+      }, 700);
+    }
+  };
+  tick();
+}
+
+// Begin the actual gameplay
+function beginGame(){
+  // start music
+  playCurrentSong();
+  running = true;
+  paused = false;
+  gameStarted = true;
+  lastTime = performance.now();
+  requestAnimationFrame(update);
+}
+
+// Game over behavior
+function gameOver(){
+  pauseAllMusic();
+  // display modal-like scoreboard prompt
+  const name = prompt('Juego terminado. Guarda tu score con un nombre:', 'Jugador');
+  if(name){
+    saveScore(name, Math.floor(score));
+    alert('Score guardado.');
+  }
+  // show leaderboard
+  showLeaderboard();
+  // reset flags
+  running = false;
+  gameStarted = false;
+  // keep current scores displayed
+  updateUI();
+}
+
+// Storage helpers
+function getPersonalBest(){
+  const val = localStorage.getItem(CONFIG.storageKeys.personalBest);
+  return val ? parseInt(val) : 0;
+}
+function setPersonalBest(val){
+  localStorage.setItem(CONFIG.storageKeys.personalBest, String(val));
+}
+function getGlobalList(){
+  try{
+    const raw = localStorage.getItem(CONFIG.storageKeys.globalList);
+    if(!raw) return [];
+    return JSON.parse(raw);
+  } catch(e){ return []; }
+}
+function saveGlobalList(list){
+  localStorage.setItem(CONFIG.storageKeys.globalList, JSON.stringify(list.slice(0, CONFIG.leaderboardMax)));
+}
+function getGlobalBest(){
+  const list = getGlobalList();
+  if(list.length === 0) return 0;
+  return Math.max(...list.map(x=>x.score));
+}
+function saveScore(name, scoreValue){
+  // personal
+  const currentPersonal = getPersonalBest();
+  if(scoreValue > currentPersonal) setPersonalBest(scoreValue);
+
+  // global (simulado local)
+  const list = getGlobalList();
+  list.push({name: name, score: scoreValue, ts: Date.now()});
+  list.sort((a,b)=>b.score - a.score);
+  saveGlobalList(list);
+  updateUI();
+}
+
+// Leaderboard UI
+function showLeaderboard(){
+  scoreboardDiv.style.display = 'block';
+  const list = getGlobalList();
+  leaderListDiv.innerHTML = '';
+  if(list.length === 0){
+    leaderListDiv.innerHTML = '<div class="small">Sin scores aún.</div>';
+    return;
+  }
+  const ul = document.createElement('ol');
+  for(let i=0;i<list.length;i++){
+    const it = list[i];
+    const li = document.createElement('div');
+    li.style.padding = '6px 4px';
+    li.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+    li.innerHTML = `<strong>#${i+1} ${escapeHtml(it.name)}</strong> — ${it.score} <span class="small" style="margin-left:8px">${new Date(it.ts).toLocaleString()}</span>`;
+    leaderListDiv.appendChild(li);
+  }
+}
+closeBoardBtn.addEventListener('click', ()=> scoreboardDiv.style.display='none');
+showBoardBtn.addEventListener('click', showLeaderboard);
+
+// Escape helper
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// Music controls
+function stopAllSongs(){
+  songs.forEach(s => { try{ s.pause(); s.currentTime = 0; } catch(e){} });
+}
+function playCurrentSong(){
+  if(!musicOn) return;
+  stopAllSongs();
+  const s = songs[currentSongIndex];
+  try { s.volume = parseFloat(volRange.value); s.loop = true; s.play(); } catch(e){ console.warn('audio play failed',e); }
+}
+function pauseAllMusic(){ songs.forEach(s=>s.pause()); }
+musicToggle.addEventListener('click', ()=>{
+  musicOn = !musicOn;
+  musicToggle.textContent = 'Música: ' + (musicOn ? 'ON' : 'OFF');
+  if(musicOn) playCurrentSong(); else pauseAllMusic();
+});
+volRange.addEventListener('input', ()=> {
+  songs.forEach(s=>s.volume = parseFloat(volRange.value));
+});
+volUp.addEventListener('click', ()=> { volRange.value = Math.min(1, parseFloat(volRange.value)+0.05); volRange.dispatchEvent(new Event('input'));});
+volDown.addEventListener('click', ()=> { volRange.value = Math.max(0, parseFloat(volRange.value)-0.05); volRange.dispatchEvent(new Event('input'));});
+
+// Buttons
+startBtn.addEventListener('click', ()=>{
+  if(!gameStarted){
+    // show intro animation then countdown
+    introDiv.style.display = 'flex';
+    countdownEl.style.display = 'block';
+    startIntroCountdown();
+    resetGame();
+  } else {
+    // if already started but paused
+    if(paused){
+      paused = false;
+      lastTime = performance.now();
+      requestAnimationFrame(update);
+    }
+  }
+});
+pauseBtn.addEventListener('click', ()=>{
+  paused = !paused;
+  pauseBtn.textContent = paused ? 'Reanudar' : 'Pausar';
+  if(paused) pauseAllMusic(); else playCurrentSong();
+});
+restartBtn.addEventListener('click', ()=>{
+  resetGame();
+  running = true;
+  paused = false;
+  playCurrentSong();
+});
+
+// save score button
+saveScoreBtn.addEventListener('click', ()=>{
+  const name = prompt('Nombre para guardar tu score (personal):', 'Jugador');
+  if(!name) return;
+  saveScore(name, Math.floor(score));
+  alert('Score guardado.');
+});
+
+// skip intro
+skipIntroBtn.addEventListener('click', ()=> {
+  introDiv.style.display = 'none';
+  countdownEl.style.display = 'none';
+  resetGame();
+});
+
+// keyboard
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+  if(e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+  if(e.key === ' ') keys.up = true;
+  if(e.key === 'p') { paused = !paused; }
+});
+window.addEventListener('keyup', (e)=>{
+  if(e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+  if(e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+  if(e.key === ' ') keys.up = false;
+});
+
+// Touch controls (left/right halves)
+canvas.addEventListener('touchstart', (ev)=>{
+  ev.preventDefault();
+  const t = ev.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const x = t.clientX - rect.left;
+  if(x < rect.width/2) keys.left = true; else keys.right = true;
+});
+canvas.addEventListener('touchend', (ev)=> { keys.left = false; keys.right = false; });
+
+// simple collision for "up" key to simulate an aerial move
+setInterval(()=> {
+  if(keys.up){
+    // small upward control (like gripping a silk)
+    player.vy -= 0.9;
+  }
+}, 60);
+
+// Game over prompt when stopping run from UI
+function endRun(){
+  running = false;
+  paused = true;
+}
+
+// Load all assets then show ready state
+(async function init(){
+  // load images
+  await Promise.all([
+    loadImage('mountains', CONFIG.assets.mountains),
+    loadImage('sun', CONFIG.assets.sun),
+    loadImage('moon', CONFIG.assets.moon),
+    loadImage('cloud', CONFIG.assets.cloud),
+    loadImage('player', CONFIG.assets.player),
+    loadImage('platform', CONFIG.assets.platform)
+  ]);
+  // set footer image
+  document.getElementById('footerImg').src = CONFIG.assets.footerImg;
+
+  // set song index rotation per level progression: cycle songs every X levels
+  // We'll switch song every (CONFIG.levelThresholds.afternoon) levels for demo
+  setInterval(()=>{
+    // set currentSong based on level
+    const idx = Math.min(songs.length-1, Math.floor((level-1) / Math.max(1, CONFIG.levelThresholds.afternoon)));
+    if(idx !== currentSongIndex){
+      currentSongIndex = idx;
+      if(musicOn) playCurrentSong();
+    }
+  }, 1000);
+
+  // basic auto start intro hidden until user presses start
+  introDiv.style.display = 'flex';
+  countdownEl.style.display = 'none';
+  // allow clicking canvas to start if desired
+  canvas.addEventListener('click', ()=>{
+    if(!gameStarted){
+      startBtn.click();
+    }
   });
-  trampas.forEach(t => {
-    ctx.fillStyle = "red";
-    ctx.fillRect(t.x, t.y, t.ancho, t.alto);
-  });
-}
 
-function loop() {
-  actualizar();
-  dibujar();
-  requestAnimationFrame(loop);
-}
+  // load personal best if any
+  updateUI();
+})();
 
-document.getElementById("record").innerText = record;
-loop();
+/* =========================================================
+   Nota importante sobre "Global Score":
+   - En este ejemplo el "global" leaderboard se guarda en localStorage (CONFIG.storageKeys.globalList).
+   - Para un leaderboard real compartido entre jugadores hace falta un backend y endpoints que reciban y devuelvan scores.
+   - Si quieres que lo prepare con un servicio real (Firebase, Supabase, servidor propio), dímelo y te doy el backend + cliente.
+   ========================================================= */
 </script>
 </body>
 </html>
-
