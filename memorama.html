@@ -7,7 +7,7 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: black; color: white; font-family: Arial, sans-serif; }
-  canvas { display: block; margin: 0 auto; border: 3px solid #fff; }
+  canvas { display: block; margin: 0 auto; border: 3px solid #fff; background: black; }
   #ui {
     text-align: center;
     margin-top: 10px;
@@ -33,36 +33,41 @@
 // ====================== 🎨 CONFIGURACIÓN PERSONALIZABLE ======================
 
 // 🎵 MÚSICA PERSONALIZABLE
-// 👉 Cambia las rutas de las canciones aquí:
 let tracks = [
-  "1.- Volando con Black Moon.m4a", // Canción 1
-  "6.-Silencio de la Noche.m4a", // Canción 2
-  "8.-Soy un Quetzal en el Viento.m4a", // Canción 3
-  "15.-En el aire soy todo.m4a"  // Canción 4
+  "musica1.mp3", // Canción 1
+  "musica2.mp3", // Canción 2
+  "musica3.mp3", // Canción 3
+  "musica4.mp3"  // Canción 4
 ];
 
-// 🌄 IMÁGENES PERSONALIZABLES DEL ESCENARIO
-// 👉 Cambia las rutas por tus propias imágenes (PNG, JPG, etc.)
+// 🌄 ESCENARIO PERSONALIZABLE
 const imgMontañas = new Image();
-imgMontañas.src = "montaña 2.png"; // Montañas personalizables
+imgMontañas.src = "montanas.png"; // Montañas
 
 const imgNubes = new Image();
-imgNubes.src = "nube.png"; // Nubes personalizables
+imgNubes.src = "nubes.png"; // Nubes
 
-// ☀️🌙 IMÁGENES DEL SOL Y LA LUNA
 const imgSol = new Image();
-imgSol.src = "sol.png"; // Sol personalizable
+imgSol.src = "sol.png"; // Sol
 
 const imgLuna = new Image();
-imgLuna.src = "luna.png"; // Luna personalizable
+imgLuna.src = "luna.png"; // Luna
+
+// 💃 BAILARINA PERSONALIZABLE
+const imgBailarina = new Image();
+imgBailarina.src = "bailarina.png"; // Jugadora
+
+// 🪨 OBSTÁCULOS PERSONALIZABLES
+const imgObstaculo = new Image();
+imgObstaculo.src = "obstaculo.png"; // Obstáculo
 
 // ============================================================================
 
-// VARIABLES DE JUEGO
+// VARIABLES DEL JUEGO
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let player = { x: 100, y: 300, size: 40, vy: 0, gravity: 0.5, jump: -10 };
+let player = { x: 100, y: 300, width: 60, height: 60, vy: 0, gravity: 0.5, jump: -10 };
 let obstacles = [];
 let score = 0;
 let record = localStorage.getItem("recordAerea") || 0;
@@ -88,7 +93,7 @@ function changeTrack() {
   audio.play();
 }
 
-// FONDO
+// 🌌 CIELO Y ELEMENTOS
 const bgStars = [];
 for (let i = 0; i < 80; i++) {
   bgStars.push({ x: Math.random() * canvas.width, y: Math.random() * 200, size: Math.random() * 2 });
@@ -96,16 +101,13 @@ for (let i = 0; i < 80; i++) {
 let clouds = Array(3).fill().map(() => ({ x: Math.random() * canvas.width, y: Math.random() * 100 }));
 
 function drawBackground() {
-  // Día o noche según el estado
   if (isDay) {
-    // 🌞 DÍA
+    // ☀️ DÍA
     let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
     grad.addColorStop(0, "#66ccff");
     grad.addColorStop(1, "#f0e68c");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Sol
     ctx.drawImage(imgSol, 650, 50, 80, 80);
   } else {
     // 🌙 NOCHE
@@ -114,68 +116,60 @@ function drawBackground() {
     grad.addColorStop(1, "#2b0033");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Estrellas
     ctx.fillStyle = "white";
     bgStars.forEach(s => ctx.fillRect(s.x, s.y, s.size, s.size));
-
-    // Luna
     ctx.drawImage(imgLuna, 650, 50, 70, 70);
   }
 
-  // Nubes personalizables
+  // ☁️ NUBES
   clouds.forEach(cloud => {
     ctx.drawImage(imgNubes, cloud.x, cloud.y, 120, 60);
     cloud.x -= 0.3;
     if (cloud.x < -120) cloud.x = canvas.width + Math.random() * 100;
   });
 
-  // Montañas personalizables
+  // 🏔️ MONTAÑAS
   ctx.drawImage(imgMontañas, 0, 250, canvas.width, 150);
 }
 
-// JUGADORA
+// 💃 JUGADORA
 function drawPlayer() {
-  ctx.fillStyle = "#f5a9e1";
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.drawImage(imgBailarina, player.x, player.y - player.height, player.width, player.height);
 }
 
-// OBSTÁCULOS
+// 🪨 OBSTÁCULOS
 function createObstacle() {
   let height = Math.random() * 100 + 50;
-  obstacles.push({ x: canvas.width, y: canvas.height - height, width: 40, height });
+  obstacles.push({ x: canvas.width, y: canvas.height - height, width: 50, height });
 }
 
 function drawObstacles() {
-  ctx.fillStyle = "#d2b48c";
   obstacles.forEach(obs => {
-    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+    ctx.drawImage(imgObstaculo, obs.x, obs.y, obs.width, obs.height);
     obs.x -= gameSpeed;
   });
   obstacles = obstacles.filter(o => o.x + o.width > 0);
 }
 
-// CONTROL
+// 🎮 CONTROL
 document.addEventListener("keydown", e => {
   if (e.code === "Space" && player.y >= 300) player.vy = player.jump;
 });
 
-// COLISIÓN
+// 💥 COLISIÓN
 function detectCollision() {
   for (let obs of obstacles) {
     if (
-      player.x + player.size / 2 > obs.x &&
-      player.x - player.size / 2 < obs.x + obs.width &&
-      player.y + player.size / 2 > obs.y
+      player.x < obs.x + obs.width &&
+      player.x + player.width > obs.x &&
+      player.y > obs.y - player.height
     ) {
       gameOver = true;
     }
   }
 }
 
-// PUNTOS Y CICLOS DE MÚSICA / DÍA-NOCHE
+// 🧮 PUNTUACIÓN
 function updateScore() {
   score++;
   document.getElementById("score").textContent = score;
@@ -184,7 +178,7 @@ function updateScore() {
   if (score % 6000 === 0) isDay = !isDay;
 }
 
-// LOOP PRINCIPAL
+// 🔁 LOOP PRINCIPAL
 let frame = 0;
 function gameLoop() {
   if (gameOver) {
