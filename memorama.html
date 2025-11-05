@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BlackMoon Runner</title>
+<title>BlackMoon Runner - Noche en el Desierto</title>
 <style>
   html, body {
     margin: 0;
@@ -54,24 +54,19 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Variables de juego
-let player = {
-  x: 100,
-  y: canvas.height / 2,
-  width: 80,
-  height: 80,
-  vy: 0,
-  image: new Image()
-};
+// Variables
+let player = { x: 100, y: canvas.height / 2, width: 80, height: 80, vy: 0, image: new Image() };
 player.image.src = CONFIG.playerImage;
 
 let obstacles = [];
 let stars = [];
+let clouds = [];
+let mountains = [];
 let score = 0;
 let record = localStorage.getItem('blackmoon_record') || 0;
 let gameOver = false;
 
-// Cargar recursos
+// Recursos
 let obstacleImg = new Image();
 obstacleImg.src = CONFIG.obstacleImage;
 
@@ -83,38 +78,35 @@ music.play().catch(()=>{});
 
 // Crear estrellas
 for (let i = 0; i < 100; i++) {
-  stars.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 2,
-    speed: Math.random() * 0.5 + 0.2
+  stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height / 2, size: Math.random() * 2, speed: Math.random() * 0.3 + 0.1 });
+}
+
+// Crear nubes
+for (let i = 0; i < 6; i++) {
+  clouds.push({ x: Math.random() * canvas.width, y: 50 + Math.random() * 150, width: 150 + Math.random() * 100, height: 60, speed: 0.3 + Math.random() * 0.2 });
+}
+
+// Crear montañas
+for (let i = 0; i < 5; i++) {
+  mountains.push({
+    x: i * (canvas.width / 4),
+    y: canvas.height - 200 + Math.random() * 50,
+    width: 400,
+    height: 200 + Math.random() * 50,
+    color: `hsl(${Math.random() * 20 + 25}, 40%, 25%)`,
+    speed: 0.5
   });
 }
 
-// Crear luna
-const moon = {
-  x: canvas.width - 200,
-  y: 150,
-  radius: 80
-};
+// Luna
+const moon = { x: canvas.width - 200, y: 150, radius: 80 };
 
-// Funciones
-function createObstacle() {
-  const height = 80 + Math.random() * 150;
-  const y = canvas.height - height;
-  obstacles.push({
-    x: canvas.width,
-    y,
-    width: 60,
-    height
-  });
-}
-
-function drawNightSky() {
-  // Fondo degradado noche
+// Dibujar fondo desértico
+function drawDesertBackground() {
+  // Cielo degradado
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   grad.addColorStop(0, '#010010');
-  grad.addColorStop(1, '#001');
+  grad.addColorStop(1, '#160808');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -135,9 +127,42 @@ function drawNightSky() {
   ctx.arc(moon.x, moon.y, moon.radius, 0, Math.PI * 2);
   ctx.fillStyle = '#fdfde7';
   ctx.shadowColor = '#fff';
-  ctx.shadowBlur = 30;
+  ctx.shadowBlur = 25;
   ctx.fill();
   ctx.shadowBlur = 0;
+
+  // Montañas
+  for (let m of mountains) {
+    ctx.fillStyle = m.color;
+    ctx.beginPath();
+    ctx.moveTo(m.x, canvas.height);
+    ctx.lineTo(m.x + m.width / 2, m.y);
+    ctx.lineTo(m.x + m.width, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    m.x -= m.speed;
+    if (m.x + m.width < 0) m.x = canvas.width + Math.random() * 200;
+  }
+
+  // Nubes
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  for (let c of clouds) {
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y, c.width / 2, c.height / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    c.x -= c.speed;
+    if (c.x + c.width < 0) c.x = canvas.width + Math.random() * 300;
+  }
+
+  // Arena del desierto
+  ctx.fillStyle = '#4a3524';
+  ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+}
+
+function createObstacle() {
+  const height = 80 + Math.random() * 150;
+  const y = canvas.height - height - 80;
+  obstacles.push({ x: canvas.width, y, width: 60, height });
 }
 
 function drawPlayer() {
@@ -153,12 +178,12 @@ function drawObstacles() {
 function update() {
   if (gameOver) return;
 
-  drawNightSky();
+  drawDesertBackground();
 
   player.vy += CONFIG.gravity;
   player.y += player.vy;
-  if (player.y + player.height > canvas.height) {
-    player.y = canvas.height - player.height;
+  if (player.y + player.height > canvas.height - 80) {
+    player.y = canvas.height - 80 - player.height;
     player.vy = 0;
   }
   if (player.y < 0) {
