@@ -42,6 +42,7 @@
     background-color: #3700b3;
   }
 
+  /* Pantalla de inicio */
   #inicio {
     position: absolute;
     top: 0;
@@ -49,7 +50,7 @@
     width: 100%;
     height: 100%;
     background: radial-gradient(circle at center, rgba(0,0,0,0.8), #000);
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -67,16 +68,71 @@
     margin-bottom: 30px;
     color: #ccc;
   }
+
+  /* Intro de Blackmoon */
+  #intro {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    animation: fadeOut 1s ease forwards;
+    animation-delay: 4s;
+    z-index: 10;
+  }
+
+  #intro img {
+    width: 180px;
+    opacity: 0;
+    animation: logoFade 4s ease forwards;
+  }
+
+  #intro h2 {
+    color: white;
+    font-size: 24px;
+    opacity: 0;
+    animation: textFade 4s ease forwards;
+  }
+
+  @keyframes logoFade {
+    0% { opacity: 0; transform: scale(0.5) rotate(0deg); filter: brightness(0); }
+    50% { opacity: 1; transform: scale(1.1) rotate(360deg); filter: brightness(1.5); }
+    100% { opacity: 1; transform: scale(1) rotate(360deg); filter: brightness(1); }
+  }
+
+  @keyframes textFade {
+    0% { opacity: 0; }
+    50% { opacity: 1; text-shadow: 0 0 20px #a855f7; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    to { opacity: 0; visibility: hidden; }
+  }
 </style>
 </head>
 <body>
 
+<!-- Intro animada de Blackmoon Games -->
+<div id="intro">
+  <img src="logo_blackmoon.png" alt="Blackmoon Games Logo">
+  <h2>Blackmoon Games</h2>
+  <audio id="introSound" src="intro.mp3"></audio>
+</div>
+
+<!-- Pantalla de inicio -->
 <div id="inicio">
   <div id="titulo">Escalada Aérea Infinita</div>
   <div id="subtitulo">Un juego de <b>Blackmoon Games</b></div>
   <button onclick="iniciarJuego()">🎮 Jugar</button>
 </div>
 
+<!-- Juego principal -->
 <canvas id="gameCanvas" width="400" height="600"></canvas>
 <div id="menu" style="display:none;">
   <p>Puntuación: <span id="score">0</span> | Récord: <span id="record">0</span></p>
@@ -89,7 +145,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 let bailarinaImg = new Image();
-bailarinaImg.src = "bailarina.png"; // Imagen personalizable de la bailarina
+bailarinaImg.src = "bailarina.png"; // Imagen personalizable
 
 // Logos personalizables
 let logos = ["logo1.png", "logo2.png", "logo3.png", "logo4.png"];
@@ -131,6 +187,18 @@ document.addEventListener("keydown", e => {
   if (e.code === "ArrowLeft") player.x -= 40;
   if (e.code === "ArrowRight") player.x += 40;
 });
+
+// Mostrar pantalla de inicio tras intro
+window.onload = () => {
+  const introSound = document.getElementById("introSound");
+  introSound.volume = 0.6;
+  introSound.play();
+
+  setTimeout(() => {
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("inicio").style.display = "flex";
+  }, 5000);
+};
 
 function iniciarJuego() {
   document.getElementById("inicio").style.display = "none";
