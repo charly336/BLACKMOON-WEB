@@ -1,731 +1,368 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Blackmoon Games - Caída Libre Aérea</title>
-<style>
-  :root{
-    --ui-bg: #0b0b12;
-    --panel-bg: rgba(0,0,0,0.6);
-    --accent: #a78bfa;
-    --text: #ffffff;
-  }
-  html,body{height:100%;margin:0;background:#000;color:var(--text);font-family:Inter, system-ui, sans-serif}
-  #gamewrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px}
-  canvas{background:linear-gradient(#7ec0ee,#3b82f6);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
-  .ui{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
-  .panel{background:var(--panel-bg);padding:10px;border-radius:10px;display:flex;gap:8px;align-items:center}
-  button{background:#111;border:1px solid rgba(255,255,255,0.08);color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
-  button:active{transform:translateY(1px)}
-  input[type=range]{width:120px}
-  #footer{display:flex;align-items:center;gap:12px;margin-top:6px;opacity:0.95}
-  #footer img{height:36px;width:36px;border-radius:6px;object-fit:cover}
-  #logoIntro{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:9999;flex-direction:column;color:#fff}
-  #logoIntro img{width:220px;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.7)) ;}
-  #countdown{font-size:56px;margin-top:16px}
-  #scoreboard{max-height:220px;overflow:auto;padding:8px;border-radius:6px;background:rgba(255,255,255,0.02)}
-  .small{font-size:12px;color:rgba(255,255,255,0.7)}
-  @media (max-width:700px){ canvas{width:95vw;height:70vh} }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rompecabezas - BlackMoon Games</title>
+  <style>
+    :root{ --frame-padding:18px; --gap:6px; }
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, Arial;background:#111;color:#eee}
+    /* Pantalla de inicio */
+    #splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#000;z-index:50}
+    #splash img{max-width:60vw;max-height:40vh;object-fit:contain;border-radius:8px}
+    #splash h1{margin:18px 0 0;font-size:20px;letter-spacing:2px}
+
+    /* Contenedor del juego */
+    .app{display:flex;flex-direction:column;min-height:100vh}
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+    .left-controls{display:flex;gap:8px;align-items:center}
+    .level-indicator{font-weight:700}
+
+    main{flex:1;display:flex;gap:16px;padding:20px;box-sizing:border-box}
+    /* Zona juego + marco madera */
+    .game-wrap{flex:1;display:flex;align-items:center;justify-content:center}
+    .frame{
+      background:var(--frame-bg,linear-gradient(180deg,#6b4a2f,#4a2b18)); /* fallback madera */
+      padding:var(--frame-padding);
+      border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+    }
+    /* tablero responsivo: ocupa máximo de la pantalla sin pisar los controles */
+    #board{display:grid;gap:var(--gap);background:#000;padding:6px;border-radius:6px;box-sizing:border-box}
+    .tile{background-size:cover;background-position:center;border-radius:4px;cursor:pointer;user-select:none}
+    .tile.empty{background:transparent;cursor:default}
+
+    /* Panel lateral para enlaces e imagenes editables (solo desarrollador) */
+    .side{width:320px;max-width:40vw;display:flex;flex-direction:column;gap:10px}
+    .card{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px}
+    .links img{width:100%;height:90px;object-fit:cover;border-radius:6px}
+
+    footer{padding:12px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,0.3),transparent)}
+    footer img{height:36px}
+
+    /* Controls */
+    .controls button{padding:8px 10px;border-radius:6px;border:0;background:#222;color:#fff;cursor:pointer}
+    .controls input[type=range]{width:120px}
+
+    /* Responsive adjustments */
+    @media (max-width:900px){main{flex-direction:column}.side{width:100%;max-width:100%}}
+  </style>
 </head>
 <body>
-<div id="logoIntro">
-  <!-- Intro tipo película: se oculta automáticamente al iniciar el juego -->
-  <img id="introLogo" alt="Blackmoon Games Logo" src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" />
-  <div class="small">A production by Grupo Blackmoon</div>
-  <div id="countdown" style="display:none">3</div>
-  <div style="margin-top:18px">
-    <button id="skipIntro">Saltar intro</button>
-  </div>
-</div>
-
-<div id="gamewrap">
-  <canvas id="gameCanvas" width="540" height="800"></canvas>
-
-  <div class="ui">
-    <div class="panel">
-      <button id="startBtn">Iniciar</button>
-      <button id="pauseBtn">Pausar</button>
-      <button id="restartBtn">Reiniciar</button>
-    </div>
-
-    <div class="panel">
-      <button id="musicToggle">Música: ON</button>
-      <button id="volDown">Vol -</button>
-      <input id="volRange" type="range" min="0" max="1" step="0.01" value="0.6">
-      <button id="volUp">Vol +</button>
-    </div>
-
-    <div class="panel">
-      <div>Score: <strong id="score">0</strong></div>
-      <div style="margin-left:8px">Record personal: <strong id="personalBest">0</strong></div>
-      <div style="margin-left:8px">Record global: <strong id="globalBest">0</strong></div>
-    </div>
-
-    <div class="panel">
-      <button id="saveScoreBtn">Guardar Score</button>
-      <button id="showBoard">Ver scoreboard</button>
-    </div>
+  <!-- ====== PANTALLA DE INICIO (negra) ====== -->
+  <div id="splash">
+    <img id="splash-img" src="assets/splash.jpg" alt="Splash (reemplazar por desarrollador)"/>
+    <h1>blackmoon games</h1>
+    <div style="height:18px"></div>
+    <button id="startBtn" style="padding:10px 16px;border-radius:8px;border:0;background:#fff;color:#000;cursor:pointer">Iniciar</button>
   </div>
 
-  <div id="scoreboard" style="display:none;width:540px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <strong>Leaderboard (Global simulado - local)</strong>
-      <button id="closeBoard">Cerrar</button>
-    </div>
-    <div id="leaderList"></div>
+  <div class="app" id="app" style="display:none">
+    <header>
+      <div class="left-controls">
+        <div class="level-indicator">Nivel <span id="levelNum">1</span>/20</div>
+        <div class="controls" style="display:flex;gap:8px;align-items:center;margin-left:10px">
+          <button id="prevLevel">◀</button>
+          <button id="nextLevel">▶</button>
+          <button id="shuffleBtn">Barajar</button>
+          <button id="restartBtn">Reiniciar</button>
+        </div>
+      </div>
+      <div class="music-controls">
+        <button id="musicToggle">ON</button>
+        <button id="volDown">-</button>
+        <input id="volRange" type="range" min="0" max="1" step="0.01" value="0.7">
+        <button id="volUp">+</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="game-wrap">
+        <div class="frame" id="frame">
+          <div id="board"></div>
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="card">
+          <strong>Enlaces (área vacía)</strong>
+          <div class="links" style="display:flex;gap:8px;margin-top:8px">
+            <a id="link1" href="#" target="_blank"><img id="link1img" src="assets/link1.jpg" alt="Link 1 (editar por dev)"></a>
+            <a id="link2" href="#" target="_blank"><img id="link2img" src="assets/link2.jpg" alt="Link 2 (editar por dev)"></a>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Fondo fuera del juego</strong>
+          <p style="font-size:13px;margin:8px 0">(reemplazar imagen en assets or modificar variable <code>OUTER_BG</code>)</p>
+          <div style="height:8px"></div>
+          <strong>Frame (madera)</strong>
+          <p style="font-size:13px;margin:8px 0">(reemplazar <code>FRAME_IMAGE</code> en sección de desarrollador)</p>
+        </div>
+
+        <div class="card">
+          <strong>Información</strong>
+          <p style="font-size:13px;margin:8px 0">Haz clic en las piezas para intercambiar. Para niveles más altos habrá más piezas.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div>grupo blackmoon</div>
+      <img id="footerImg" src="assets/footer-logo.png" alt="Footer (reemplazar)">
+    </footer>
+
+    <!-- Audio (20 niveles -> 5 canciones, cada 4 niveles una canción) -->
+    <audio id="bgAudio" loop></audio>
   </div>
 
-  <div id="footer" style="width:540px;justify-content:space-between">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div>Grupo Blackmoon</div>
-      <img id="footerImg" alt="footer image" src="assets/group_blackmoon.png" />
-    </div>
-    <div class="small">Desarrollador: puede cambiar assets y parámetros en la sección CONFIG al inicio del archivo.</div>
-  </div>
-</div>
+  <script>
+    /* =========================
+       *  SECCIÓN PARA DESARROLLADOR (editar SOLO aquí)
+       *  Cambia rutas de imágenes y audios aquí. El juego asume que SOLO el desarrollador
+       *  modificará estas variables. No modifiques lógica debajo si no eres desarrollador.
+       * ========================= */
 
-<script>
-/* =========================================================
-   CONFIG: Solo el DESARROLLADOR debería modificar aquí.
-   Cambia rutas de imágenes, audios y parámetros del juego.
-   ========================================================= */
+    const ASSETS = {
+      // Imagen que se usará como puzzle (puedes preparar 20 imágenes o usar la misma),
+      // formato: ["path/to/img1.jpg", ...] length >= 1. El juego selecciona por nivel índice.
+      PUZZLE_IMAGES: [
+        'assets/puzzle1.jpg',
+        'assets/puzzle2.jpg',
+        'assets/puzzle3.jpg',
+        'assets/puzzle4.jpg',
+        'assets/puzzle5.jpg',
+        'assets/puzzle6.jpg',
+        'assets/puzzle7.jpg',
+        'assets/puzzle8.jpg',
+        'assets/puzzle9.jpg',
+        'assets/puzzle10.jpg',
+        'assets/puzzle11.jpg',
+        'assets/puzzle12.jpg',
+        'assets/puzzle13.jpg',
+        'assets/puzzle14.jpg',
+        'assets/puzzle15.jpg',
+        'assets/puzzle16.jpg',
+        'assets/puzzle17.jpg',
+        'assets/puzzle18.jpg',
+        'assets/puzzle19.jpg',
+        'assets/puzzle20.jpg'
+      ],
 
-const CONFIG = {
-  // Tamaño del canvas (si quieres que sea responsive, ajusta CSS)
-  canvasWidth: 540,
-  canvasHeight: 800,
+      // Imagen de pantalla inicial (negra con imagen centrada)
+      SPLASH_IMAGE: 'assets/splash.jpg',
 
-  // Assets (rutas locales o URLs). Reemplazar por tus imágenes.
-  assets: {
-    // Logo de intro (se usa en la pantalla de intro)
-    introLogo: 'Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg', // reemplazar
-    footerImg: 'GPO BKM 2.jpg', // imagen en footer
+      // Imagen para el marco madera (border-image) - si dejas vacío, usa fondo CSS
+      FRAME_IMAGE: '', // e.g. 'assets/frame-wood.png'
 
-    // Fondos (puedes usar .png o .jpg). Sobreponen de abajo hacia arriba.
-    mountains: 'mountain 2.png',
-    sun: 'sol 2.png',
-    moon: 'luna.png',
-    cloud: 'nube.png',
+      // Footer logo
+      FOOTER_LOGO: 'assets/footer-logo.png',
 
-    // Personaje (sprite opcional; aquí es una imagen simple)
-    player: 'assets/dancer.png',
+      // Link images
+      LINK1: 'assets/link1.jpg',
+      LINK2: 'assets/link2.jpg',
 
-    // Plataforma o "tela" (donde el bailarín puede tocar para frenar la caída)
-    platform: 'tela 2.png'
-  },
+      // Fondo fuera de la zona de juego
+      OUTER_BG: 'assets/outer-bg.jpg',
 
-  // Música: 4 canciones (reemplazar por URL o archivo local)
-  songs: [
-    '15.-En el aire soy todo.m4a',
-    '6.-Silencio de la Noche.m4a',
-    '1.- Volando con Black Moon.m4a',
-    '9.-Soy un fénix en el aire.m4a'
-  ],
+      // Audios (5 canciones, una por cada bloque de 4 niveles)
+      AUDIO_TRACKS: [
+        'assets/track1.mp3',
+        'assets/track2.mp3',
+        'assets/track3.mp3',
+        'assets/track4.mp3',
+        'assets/track5.mp3'
+      ]
+    };
 
-  // Niveles -> define a qué score cambia el "momento del día"
-  levelThresholds: {
-    morning: 0,     // niveles iniciales
-    afternoon: 6,   // a partir del nivel 6 (ejemplo) pasa a tarde
-    night: 12       // a partir del nivel 12 pasa a noche
-  },
+    /* =========================
+       *  LÓGICA DEL JUEGO (no hace falta tocar)
+       * ========================= */
 
-  // Velocidades y física (ajustar si se desea)
-  gravity: 0.5,
-  airDrag: 0.995,
-  playerSpeed: 3.5,
-  flapBoost: -10, // impulso al rebotar/usar una "tela"
-  platformCount: 7, // cuantas plataformas en pantalla
-  platformSpacingY: 120,
+    // Nivel -> grid size mapping
+    const LEVEL_MAP = (lvl)=>{
+      if(lvl<=4) return 2;
+      if(lvl<=8) return 3;
+      if(lvl<=12) return 4;
+      if(lvl<=16) return 5;
+      return 6; // 17-20
+    };
 
-  // Guardado en localStorage: claves
-  storageKeys: {
-    personalBest: 'bm_personal_best',
-    personalNamePrefix: 'bm_personal_name_',
-    globalList: 'bm_global_scores' // array de {name,score}
-  },
+    // Estado
+    let level = 1;
+    let gridSize = LEVEL_MAP(level);
+    let tiles = []; // array of tile indices
+    let emptyIndex = null;
+    let selectedTile = null;
 
-  // Limit leaderboard
-  leaderboardMax: 20
-};
+    // DOM
+    const splash = document.getElementById('splash');
+    const startBtn = document.getElementById('startBtn');
+    const app = document.getElementById('app');
+    const levelNum = document.getElementById('levelNum');
+    const board = document.getElementById('board');
+    const bgAudio = document.getElementById('bgAudio');
+    const musicToggle = document.getElementById('musicToggle');
+    const volRange = document.getElementById('volRange');
+    const volUp = document.getElementById('volUp');
+    const volDown = document.getElementById('volDown');
+    const prevLevel = document.getElementById('prevLevel');
+    const nextLevel = document.getElementById('nextLevel');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const restartBtn = document.getElementById('restartBtn');
 
-/* =========================================================
-   NO CAMBIAR A PARTIR DE AQUÍ si no sabes JS.
-   ========================================================= */
+    // links and images
+    document.getElementById('splash-img').src = ASSETS.SPLASH_IMAGE;
+    document.getElementById('footerImg').src = ASSETS.FOOTER_LOGO;
+    document.getElementById('link1img').src = ASSETS.LINK1;
+    document.getElementById('link2img').src = ASSETS.LINK2;
+    document.getElementById('link1').href = '#';
+    document.getElementById('link2').href = '#';
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = CONFIG.canvasWidth;
-canvas.height = CONFIG.canvasHeight;
+    // Outer background
+    document.body.style.background = ASSETS.OUTER_BG ? `url(${ASSETS.OUTER_BG}) center/cover fixed` : '#111';
 
-const introDiv = document.getElementById('logoIntro');
-const introLogoImg = document.getElementById('introLogo');
-const countdownEl = document.getElementById('countdown');
-const skipIntroBtn = document.getElementById('skipIntro');
-
-introLogoImg.src = CONFIG.assets.introLogo;
-document.getElementById('footerImg').src = CONFIG.assets.footerImg;
-
-// UI elements
-const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const restartBtn = document.getElementById('restartBtn');
-const musicToggle = document.getElementById('musicToggle');
-const volRange = document.getElementById('volRange');
-const volUp = document.getElementById('volUp');
-const volDown = document.getElementById('volDown');
-const scoreEl = document.getElementById('score');
-const personalBestEl = document.getElementById('personalBest');
-const globalBestEl = document.getElementById('globalBest');
-const saveScoreBtn = document.getElementById('saveScoreBtn');
-const showBoardBtn = document.getElementById('showBoard');
-const scoreboardDiv = document.getElementById('scoreboard');
-const leaderListDiv = document.getElementById('leaderList');
-const closeBoardBtn = document.getElementById('closeBoard');
-
-let audioCtx = null;
-const songs = CONFIG.songs.map(src => {
-  const a = new Audio(src);
-  a.loop = true;
-  a.volume = parseFloat(volRange.value);
-  return a;
-});
-let currentSongIndex = 0;
-let musicOn = true;
-
-// Load images
-const imgs = {};
-const loadImage = (key, src) => {
-  return new Promise((res) => {
-    const i = new Image();
-    i.src = src;
-    i.onload = ()=> { imgs[key]=i; res(i); };
-    i.onerror = ()=> { console.warn('No se pudo cargar', src); imgs[key]=null; res(null); };
-  });
-};
-
-// Game state
-let lastTime = 0;
-let running = false;
-let paused = false;
-let gameStarted = false;
-let score = 0;
-let level = 1;
-let player = null;
-let platforms = [];
-let clouds = [];
-let keys = {left:false,right:false,up:false,down:false};
-let frameCount = 0;
-
-// Player object
-class Player {
-  constructor(x,y){
-    this.x = x;
-    this.y = y;
-    this.vx = 0;
-    this.vy = 2;
-    this.w = 64;
-    this.h = 88;
-    this.rotation = 0;
-  }
-  update(dt){
-    // controls
-    if(keys.left) this.vx = -CONFIG.playerSpeed;
-    else if(keys.right) this.vx = CONFIG.playerSpeed;
-    else this.vx *= 0.9;
-
-    // physics
-    this.vy += CONFIG.gravity;
-    this.vx *= CONFIG.airDrag;
-    this.vy *= CONFIG.airDrag;
-
-    this.x += this.vx;
-    this.y += this.vy;
-
-    // world wrap horizontally
-    if(this.x < -this.w) this.x = canvas.width;
-    if(this.x > canvas.width + this.w) this.x = -this.w;
-
-    // limits top/bottom
-    if(this.y < -2000) this.y = -2000;
-    // falling off bottom ends the run
-    if(this.y > canvas.height + 300) {
-      running = false;
-      gameOver();
+    // Frame image
+    if(ASSETS.FRAME_IMAGE){
+      document.getElementById('frame').style.background = `url(${ASSETS.FRAME_IMAGE}) center/cover`;
+      document.documentElement.style.setProperty('--frame-padding','24px');
     }
-  }
-  draw(ctx){
-    const img = imgs.player;
-    if(img){
-      ctx.save();
-      ctx.translate(this.x + this.w/2, this.y + this.h/2);
-      ctx.rotate(this.vy/80);
-      ctx.drawImage(img, -this.w/2, -this.h/2, this.w, this.h);
-      ctx.restore();
-    } else {
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(this.x, this.y, this.w, this.h);
+
+    // music initial
+    bgAudio.volume = parseFloat(volRange.value);
+    function setMusicForLevel(lvl){
+      const idx = Math.min(Math.floor((lvl-1)/4), ASSETS.AUDIO_TRACKS.length-1);
+      bgAudio.src = ASSETS.AUDIO_TRACKS[idx] || '';
+      if(musicToggle.dataset.state==='on') bgAudio.play().catch(()=>{});
     }
-  }
-}
 
-// Platform
-class Platform {
-  constructor(x,y,w=120,h=24){
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.used = false;
-  }
-  draw(ctx){
-    const img = imgs.platform;
-    if(img){
-      ctx.drawImage(img, this.x, this.y, this.w, this.h);
-    } else {
-      ctx.fillStyle = '#8844ff';
-      ctx.fillRect(this.x, this.y, this.w, this.h);
+    musicToggle.dataset.state = 'on';
+    musicToggle.addEventListener('click',()=>{
+      if(musicToggle.dataset.state==='on'){
+        musicToggle.dataset.state='off'; musicToggle.textContent='OFF'; bgAudio.pause();
+      }else{musicToggle.dataset.state='on'; musicToggle.textContent='ON'; bgAudio.play().catch(()=>{});}    
+    });
+    volRange.addEventListener('input',()=>{bgAudio.volume = parseFloat(volRange.value);});
+    volUp.addEventListener('click',()=>{volRange.value = Math.min(1, +volRange.value+0.1); volRange.dispatchEvent(new Event('input'));});
+    volDown.addEventListener('click',()=>{volRange.value = Math.max(0, +volRange.value-0.1); volRange.dispatchEvent(new Event('input'));});
+
+    // level nav
+    prevLevel.addEventListener('click', ()=>{ level=Math.max(1,level-1); loadLevel(); });
+    nextLevel.addEventListener('click', ()=>{ level=Math.min(20,level+1); loadLevel(); });
+    shuffleBtn.addEventListener('click',()=>{ shuffleTiles(); renderBoard(); });
+    restartBtn.addEventListener('click',()=>{ startLevel(); });
+
+    startBtn.addEventListener('click', ()=>{ splash.style.display='none'; app.style.display='block'; setMusicForLevel(level); if(musicToggle.dataset.state==='on') bgAudio.play().catch(()=>{}); loadLevel(); });
+
+    // Build board responsively
+    function calculateBoardSize(){
+      // leave some padding for side panel; choose min(window height * 0.65, window width minus side)
+      const sideWidth = Math.min(320, window.innerWidth*0.35);
+      const maxW = Math.min(window.innerWidth - sideWidth - 80, window.innerHeight - 200);
+      return Math.max(200, maxW);
     }
-  }
-}
 
-// Cloud background element
-class Cloud {
-  constructor(x,y,scale=1,vel=0.2,imgKey='cloud'){
-    this.x=x;this.y=y;this.s=scale;this.v=vel;this.key=imgKey;
-  }
-  update(){ this.x += this.v; if(this.x > canvas.width+200) this.x = -200; }
-  draw(ctx){
-    const i = imgs[this.key];
-    if(i) ctx.drawImage(i,this.x,this.y, i.width*this.s*0.4, i.height*this.s*0.4);
-  }
-}
+    function createTilesFromImage(imgSrc, grid){
+      const count = grid*grid;
+      tiles = Array.from({length:count},(_,i)=>i);
+      emptyIndex = tiles.length-1; // last tile is empty
+    }
 
-function resetGame(){
-  score = 0;
-  level = 1;
-  player = new Player(canvas.width/2 - 32, 60);
-  platforms = [];
-  clouds = [];
-  frameCount = 0;
-  // create initial platforms (spaced downwards, since player will fall)
-  for(let i=0;i<CONFIG.platformCount;i++){
-    let x = Math.random() * (canvas.width - 120);
-    let y = 150 + i * CONFIG.platformSpacingY;
-    platforms.push(new Platform(x,y,120,24));
-  }
-  // clouds
-  for(let i=0;i<6;i++){
-    clouds.push(new Cloud(Math.random()*canvas.width, Math.random()*100, 0.8 + Math.random()*1.2, 0.2 + Math.random()*0.6));
-  }
-  updateUI();
-}
+    function startLevel(){
+      gridSize = LEVEL_MAP(level);
+      createTilesFromImage(getImageForLevel(level), gridSize);
+      shuffleTiles();
+      renderBoard();
+      levelNum.textContent = level;
+      setMusicForLevel(level);
+    }
 
-function updateUI(){
-  scoreEl.textContent = Math.floor(score);
-  personalBestEl.textContent = getPersonalBest();
-  globalBestEl.textContent = getGlobalBest();
-}
+    function getImageForLevel(lvl){
+      const idx = Math.min(lvl-1, ASSETS.PUZZLE_IMAGES.length-1);
+      return ASSETS.PUZZLE_IMAGES[idx] || ASSETS.PUZZLE_IMAGES[0];
+    }
 
-// Physics: detect landing on platforms (from above)
-function checkPlatformCollision(){
-  for(let p of platforms){
-    if(player.vy > 0){ // moving down
-      const px = player.x + player.w/2;
-      if(px > p.x && px < p.x + p.w){
-        if(player.y + player.h > p.y && player.y + player.h < p.y + p.h + 20){
-          // collide: simulate "tela" catch - reduce vy and give boost upward slightly
-          player.vy = CONFIG.flapBoost * 0.5; // less strong so still falls over time
-          // mark used for visual effect maybe
-          p.used = true;
-          score += 10;
+    function shuffleTiles(){
+      // Fisher-Yates shuffle until not-solved
+      do{
+        for(let i=tiles.length-1;i>0;i--){
+          const j = Math.floor(Math.random()*(i+1));
+          [tiles[i],tiles[j]]=[tiles[j],tiles[i]];
+        }
+      }while(isSolved());
+      emptyIndex = tiles.indexOf(tiles.length-1);
+    }
+
+    function isSolved(){
+      for(let i=0;i<tiles.length;i++) if(tiles[i]!==i) return false; return true;
+    }
+
+    function renderBoard(){
+      const size = calculateBoardSize();
+      board.style.width = size + 'px';
+      board.style.height = size + 'px';
+      board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+      board.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+      board.innerHTML='';
+
+      const img = getImageForLevel(level);
+      const tileSize = 100 / gridSize;
+
+      tiles.forEach((tileIndex, idx)=>{
+        const el = document.createElement('div');
+        el.className = 'tile';
+        if(tileIndex === tiles.length-1){ el.classList.add('empty'); }
+        else {
+          // show portion of image via background-position
+          const row = Math.floor(tileIndex / gridSize);
+          const col = tileIndex % gridSize;
+          el.style.backgroundImage = `url(${img})`;
+          el.style.backgroundSize = `${gridSize*100}% ${gridSize*100}%`;
+          el.style.backgroundPosition = `${col * tileSize}% ${row * tileSize}%`;
+        }
+        el.dataset.index = idx;
+        el.addEventListener('click', onTileClick);
+        board.appendChild(el);
+      });
+
+      // apply wooden frame look (subtle)
+      board.style.border = '8px solid rgba(0,0,0,0.5)';
+      board.style.borderRadius = '6px';
+    }
+
+    function onTileClick(e){
+      const idx = parseInt(e.currentTarget.dataset.index);
+      if(tiles[idx] === tiles.length-1) return; // clicked empty
+
+      if(selectedTile===null){ selectedTile = idx; e.currentTarget.style.outline='3px solid rgba(255,255,255,0.2)'; }
+      else{
+        // swap
+        [tiles[selectedTile], tiles[idx]] = [tiles[idx], tiles[selectedTile]];
+        selectedTile = null;
+        renderBoard();
+        if(isSolved()){
+          setTimeout(()=>{ alert('¡Nivel completado!'); if(level<20) { level++; startLevel(); } },200);
         }
       }
     }
-  }
-}
 
-// Level/day cycle handling
-function getTimeOfDay(){
-  if(level >= CONFIG.levelThresholds.night) return 'night';
-  if(level >= CONFIG.levelThresholds.afternoon) return 'afternoon';
-  return 'morning';
-}
+    function loadLevel(){ startLevel(); }
 
-// Draw background based on time of day
-function drawBackground(ctx){
-  const tod = getTimeOfDay();
-  // gradient sky
-  let g = ctx.createLinearGradient(0,0,0,canvas.height);
-  if(tod === 'morning'){
-    g.addColorStop(0,'#b3e5ff');
-    g.addColorStop(1,'#7ec0ee');
-  } else if(tod === 'afternoon'){
-    g.addColorStop(0,'#ffd38a');
-    g.addColorStop(1,'#ff8a65');
-  } else {
-    g.addColorStop(0,'#0b2545');
-    g.addColorStop(1,'#07122a');
-  }
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+    // Resize handling
+    window.addEventListener('resize', ()=>{ renderBoard(); });
 
-  // mountains
-  const m = imgs.mountains;
-  if(m){
-    ctx.drawImage(m, -50, canvas.height - m.height*0.4 - 40, m.width*0.7, m.height*0.7);
-  } else {
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(0, canvas.height-120, canvas.width, 120);
-  }
+    // initialize
+    (function init(){
+      // set UI images
+      document.getElementById('splash-img').src = ASSETS.SPLASH_IMAGE;
+      document.getElementById('footerImg').src = ASSETS.FOOTER_LOGO;
+      document.getElementById('link1img').src = ASSETS.LINK1;
+      document.getElementById('link2img').src = ASSETS.LINK2;
+      // initial board config
+      levelNum.textContent = level;
+      setMusicForLevel(level);
+    })();
 
-  // sun or moon
-  if(tod === 'night'){
-    const moon = imgs.moon;
-    if(moon) ctx.drawImage(moon, canvas.width - 140, 40, 100, 100);
-    else { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(canvas.width-90,90,36,0,Math.PI*2); ctx.fill(); }
-  } else {
-    const sun = imgs.sun;
-    if(sun) ctx.drawImage(sun, canvas.width - 140, 40, 100, 100);
-    else { ctx.fillStyle = 'yellow'; ctx.beginPath(); ctx.arc(canvas.width-90,90,36,0,Math.PI*2); ctx.fill(); }
-  }
-
-  // clouds
-  for(let c of clouds) c.draw(ctx);
-}
-
-// Platform recycling as player falls: move platforms down/up to simulate infinite fall
-function recyclePlatforms(){
-  // when player goes down, we move platforms upward slightly, and spawn new ones below...
-  // But since player falls, we want platforms further down.
-  // We'll shift platforms positions based on player's vy to create a scrolling effect.
-  const fallSpeed = Math.max(1, Math.abs(player.vy)*0.6);
-  for(let p of platforms){
-    p.y -= player.vy * 0.2; // parallax
-  }
-  // If a platform goes off top, move it to bottom (simulate infinite)
-  for(let p of platforms){
-    if(p.y < -200){
-      p.x = Math.random() * (canvas.width - p.w);
-      p.y = canvas.height + Math.random() * 200;
-      p.used = false;
-      // increase level a bit when new platforms created (as difficulty)
-      level = Math.floor(score / 50) + 1;
-    }
-  }
-}
-
-// Main draw loop
-function draw(dt){
-  // update clouds
-  for(let c of clouds) c.update();
-
-  // background
-  drawBackground(ctx);
-
-  // platforms
-  for(let p of platforms) p.draw(ctx);
-
-  // player
-  player.draw(ctx);
-
-  // HUD on canvas - small
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.fillRect(6,6,150,46);
-  ctx.fillStyle = '#fff';
-  ctx.font = '14px sans-serif';
-  ctx.fillText('Score: ' + Math.floor(score), 14, 26);
-  ctx.fillText('Nivel: ' + level, 14, 44);
-}
-
-// Update loop
-function update(ts){
-  if(!running || paused) { lastTime = ts; requestAnimationFrame(update); return; }
-  const dt = (ts - lastTime) / 16.666;
-  lastTime = ts;
-  frameCount++;
-
-  // update player
-  player.update(dt);
-  checkPlatformCollision();
-  recyclePlatforms();
-
-  // increment score by how far the player falls (vy)
-  if(player.vy > 0) score += player.vy * 0.02;
-  updateUI();
-
-  // draw
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  draw(dt);
-
-  requestAnimationFrame(update);
-}
-
-// Start intro countdown then start run
-function startIntroCountdown(){
-  introDiv.style.display = 'flex';
-  countdownEl.style.display = 'block';
-  let c = 3;
-  countdownEl.textContent = c;
-  introLogoImg.style.filter = 'brightness(1)';
-  skipIntroBtn.style.display = 'inline-block';
-
-  const tick = ()=> {
-    if(c > 0){
-      countdownEl.textContent = c;
-      c--;
-      setTimeout(tick, 800);
-    } else {
-      countdownEl.textContent = 'START';
-      setTimeout(()=> {
-        introDiv.style.display = 'none';
-        countdownEl.style.display = 'none';
-        beginGame();
-      }, 700);
-    }
-  };
-  tick();
-}
-
-// Begin the actual gameplay
-function beginGame(){
-  // start music
-  playCurrentSong();
-  running = true;
-  paused = false;
-  gameStarted = true;
-  lastTime = performance.now();
-  requestAnimationFrame(update);
-}
-
-// Game over behavior
-function gameOver(){
-  pauseAllMusic();
-  // display modal-like scoreboard prompt
-  const name = prompt('Juego terminado. Guarda tu score con un nombre:', 'Jugador');
-  if(name){
-    saveScore(name, Math.floor(score));
-    alert('Score guardado.');
-  }
-  // show leaderboard
-  showLeaderboard();
-  // reset flags
-  running = false;
-  gameStarted = false;
-  // keep current scores displayed
-  updateUI();
-}
-
-// Storage helpers
-function getPersonalBest(){
-  const val = localStorage.getItem(CONFIG.storageKeys.personalBest);
-  return val ? parseInt(val) : 0;
-}
-function setPersonalBest(val){
-  localStorage.setItem(CONFIG.storageKeys.personalBest, String(val));
-}
-function getGlobalList(){
-  try{
-    const raw = localStorage.getItem(CONFIG.storageKeys.globalList);
-    if(!raw) return [];
-    return JSON.parse(raw);
-  } catch(e){ return []; }
-}
-function saveGlobalList(list){
-  localStorage.setItem(CONFIG.storageKeys.globalList, JSON.stringify(list.slice(0, CONFIG.leaderboardMax)));
-}
-function getGlobalBest(){
-  const list = getGlobalList();
-  if(list.length === 0) return 0;
-  return Math.max(...list.map(x=>x.score));
-}
-function saveScore(name, scoreValue){
-  // personal
-  const currentPersonal = getPersonalBest();
-  if(scoreValue > currentPersonal) setPersonalBest(scoreValue);
-
-  // global (simulado local)
-  const list = getGlobalList();
-  list.push({name: name, score: scoreValue, ts: Date.now()});
-  list.sort((a,b)=>b.score - a.score);
-  saveGlobalList(list);
-  updateUI();
-}
-
-// Leaderboard UI
-function showLeaderboard(){
-  scoreboardDiv.style.display = 'block';
-  const list = getGlobalList();
-  leaderListDiv.innerHTML = '';
-  if(list.length === 0){
-    leaderListDiv.innerHTML = '<div class="small">Sin scores aún.</div>';
-    return;
-  }
-  const ul = document.createElement('ol');
-  for(let i=0;i<list.length;i++){
-    const it = list[i];
-    const li = document.createElement('div');
-    li.style.padding = '6px 4px';
-    li.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
-    li.innerHTML = `<strong>#${i+1} ${escapeHtml(it.name)}</strong> — ${it.score} <span class="small" style="margin-left:8px">${new Date(it.ts).toLocaleString()}</span>`;
-    leaderListDiv.appendChild(li);
-  }
-}
-closeBoardBtn.addEventListener('click', ()=> scoreboardDiv.style.display='none');
-showBoardBtn.addEventListener('click', showLeaderboard);
-
-// Escape helper
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
-// Music controls
-function stopAllSongs(){
-  songs.forEach(s => { try{ s.pause(); s.currentTime = 0; } catch(e){} });
-}
-function playCurrentSong(){
-  if(!musicOn) return;
-  stopAllSongs();
-  const s = songs[currentSongIndex];
-  try { s.volume = parseFloat(volRange.value); s.loop = true; s.play(); } catch(e){ console.warn('audio play failed',e); }
-}
-function pauseAllMusic(){ songs.forEach(s=>s.pause()); }
-musicToggle.addEventListener('click', ()=>{
-  musicOn = !musicOn;
-  musicToggle.textContent = 'Música: ' + (musicOn ? 'ON' : 'OFF');
-  if(musicOn) playCurrentSong(); else pauseAllMusic();
-});
-volRange.addEventListener('input', ()=> {
-  songs.forEach(s=>s.volume = parseFloat(volRange.value));
-});
-volUp.addEventListener('click', ()=> { volRange.value = Math.min(1, parseFloat(volRange.value)+0.05); volRange.dispatchEvent(new Event('input'));});
-volDown.addEventListener('click', ()=> { volRange.value = Math.max(0, parseFloat(volRange.value)-0.05); volRange.dispatchEvent(new Event('input'));});
-
-// Buttons
-startBtn.addEventListener('click', ()=>{
-  if(!gameStarted){
-    // show intro animation then countdown
-    introDiv.style.display = 'flex';
-    countdownEl.style.display = 'block';
-    startIntroCountdown();
-    resetGame();
-  } else {
-    // if already started but paused
-    if(paused){
-      paused = false;
-      lastTime = performance.now();
-      requestAnimationFrame(update);
-    }
-  }
-});
-pauseBtn.addEventListener('click', ()=>{
-  paused = !paused;
-  pauseBtn.textContent = paused ? 'Reanudar' : 'Pausar';
-  if(paused) pauseAllMusic(); else playCurrentSong();
-});
-restartBtn.addEventListener('click', ()=>{
-  resetGame();
-  running = true;
-  paused = false;
-  playCurrentSong();
-});
-
-// save score button
-saveScoreBtn.addEventListener('click', ()=>{
-  const name = prompt('Nombre para guardar tu score (personal):', 'Jugador');
-  if(!name) return;
-  saveScore(name, Math.floor(score));
-  alert('Score guardado.');
-});
-
-// skip intro
-skipIntroBtn.addEventListener('click', ()=> {
-  introDiv.style.display = 'none';
-  countdownEl.style.display = 'none';
-  resetGame();
-});
-
-// keyboard
-window.addEventListener('keydown', (e)=>{
-  if(e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
-  if(e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
-  if(e.key === ' ') keys.up = true;
-  if(e.key === 'p') { paused = !paused; }
-});
-window.addEventListener('keyup', (e)=>{
-  if(e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
-  if(e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
-  if(e.key === ' ') keys.up = false;
-});
-
-// Touch controls (left/right halves)
-canvas.addEventListener('touchstart', (ev)=>{
-  ev.preventDefault();
-  const t = ev.touches[0];
-  const rect = canvas.getBoundingClientRect();
-  const x = t.clientX - rect.left;
-  if(x < rect.width/2) keys.left = true; else keys.right = true;
-});
-canvas.addEventListener('touchend', (ev)=> { keys.left = false; keys.right = false; });
-
-// simple collision for "up" key to simulate an aerial move
-setInterval(()=> {
-  if(keys.up){
-    // small upward control (like gripping a silk)
-    player.vy -= 0.9;
-  }
-}, 60);
-
-// Game over prompt when stopping run from UI
-function endRun(){
-  running = false;
-  paused = true;
-}
-
-// Load all assets then show ready state
-(async function init(){
-  // load images
-  await Promise.all([
-    loadImage('mountains', CONFIG.assets.mountains),
-    loadImage('sun', CONFIG.assets.sun),
-    loadImage('moon', CONFIG.assets.moon),
-    loadImage('cloud', CONFIG.assets.cloud),
-    loadImage('player', CONFIG.assets.player),
-    loadImage('platform', CONFIG.assets.platform)
-  ]);
-  // set footer image
-  document.getElementById('footerImg').src = CONFIG.assets.footerImg;
-
-  // set song index rotation per level progression: cycle songs every X levels
-  // We'll switch song every (CONFIG.levelThresholds.afternoon) levels for demo
-  setInterval(()=>{
-    // set currentSong based on level
-    const idx = Math.min(songs.length-1, Math.floor((level-1) / Math.max(1, CONFIG.levelThresholds.afternoon)));
-    if(idx !== currentSongIndex){
-      currentSongIndex = idx;
-      if(musicOn) playCurrentSong();
-    }
-  }, 1000);
-
-  // basic auto start intro hidden until user presses start
-  introDiv.style.display = 'flex';
-  countdownEl.style.display = 'none';
-  // allow clicking canvas to start if desired
-  canvas.addEventListener('click', ()=>{
-    if(!gameStarted){
-      startBtn.click();
-    }
-  });
-
-  // load personal best if any
-  updateUI();
-})();
-
-/* =========================================================
-   Nota importante sobre "Global Score":
-   - En este ejemplo el "global" leaderboard se guarda en localStorage (CONFIG.storageKeys.globalList).
-   - Para un leaderboard real compartido entre jugadores hace falta un backend y endpoints que reciban y devuelvan scores.
-   - Si quieres que lo prepare con un servicio real (Firebase, Supabase, servidor propio), dímelo y te doy el backend + cliente.
-   ========================================================= */
-</script>
+  </script>
 </body>
 </html>
+
