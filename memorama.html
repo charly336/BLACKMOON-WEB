@@ -1,1 +1,505 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Motocross Night→Day - BlackMoon</title>
+<style>
+  :root{--ui-bg:rgba(0,0,0,0.6);--btn-bg:#222;--btn-txt:#fff}
+  html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff}
+  #gameWrap{display:flex;flex-direction:column;height:100vh;align-items:center;justify-content:flex-start}
+  canvas{background:transparent;display:block;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.6);max-width:100%;height:auto}
+  #hud{width:100%;max-width:1200px;display:flex;justify-content:space-between;align-items:center;padding:10px;box-sizing:border-box}
+  .scoreBox{font-size:20px;padding:6px 10px;border-radius:8px;background:var(--ui-bg)}
+  .controls{display:flex;gap:10px;align-items:center}
+  .control-btn{background:var(--btn-bg);color:var(--btn-txt);border:none;padding:12px 16px;border-radius:10px;font-size:16px;touch-action:none}
+  .control-btn:active{transform:translateY(2px);opacity:0.9}
+  .tiny{padding:8px 10px;font-size:14px}
+  #footer{width:100%;max-width:1200px;padding:8px;text-align:center;color:#bbb;font-size:12px}
+  /* Mobile layout: big overlay buttons bottom */
+  #mobileControls{position:fixed;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:12px;pointer-events:none}
+  .mobileBtn{pointer-events:auto;background:rgba(0,0,0,0.5);color:#fff;border-radius:12px;padding:14px 18px;border:2px solid rgba(255,255,255,0.06);font-size:18px}
+  @media(min-width:800px){ #mobileControls{display:none} }
+</style>
+</head>
+<body>
+<div id="gameWrap">
+  <div id="hud">
+    <div class="scoreBox" id="score">Puntaje: 0</div>
+    <div class="controls">
+      <button class="control-btn tiny" id="btnBack">◀ Atrás</button>
+      <button class="control-btn tiny" id="btnForward">▶ Adelante</button>
+      <button class="control-btn" id="btnAccel">Acelerar ⬆ (mantener)</button>
+      <button class="control-btn tiny" id="btnPause">Pausa</button>
+    </div>
+  </div>
 
+  <canvas id="game" width="1200" height="600"></canvas>
+
+  <div id="footer">Grupo BlackMoon</div>
+</div>
+
+<!-- Mobile overlay buttons -->
+<div id="mobileControls">
+  <button class="mobileBtn" id="mBack">◀</button>
+  <button class="mobileBtn" id="mAccel">▲</button>
+  <button class="mobileBtn" id="mForward">▶</button>
+</div>
+
+<script>
+/*
+  Juego: Motocicleta (noche → día)
+  Controles: botones y teclado
+  - Flecha derecha / 'D' / Adelante button
+  - Flecha izquierda / 'A' / Atrás button
+  - Flecha arriba / 'W' / Acelerar (mantener) / botón acelerar
+  Comentarios en español. Cambia valores más abajo para ajustes.
+*/
+
+// --- Configuraciones que el desarrollador puede cambiar fácilmente ---
+const CONFIG = {
+  canvasWidth: 1200,
+  canvasHeight: 600,
+  gravity: 0.9,
+  baseSpeed: 3,         // velocidad base de desplazamiento
+  accelPower: 0.18,     // aceleración por frame mientras se mantiene acelerar
+  maxSpeed: 12,
+  wheelRadius: 14,
+  terrainSegmentWidth: 40,
+  dayDistanceForFullDay: 3000, // distancia en px para que pase de noche a día
+  obstacleChance: 0.12, // chance de tope/vado en segmento (aprox)
+  bumpHeight: 30,
+  vadoDepth: 18
+};
+
+// --- Canvas y contexto ---
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+canvas.width = CONFIG.canvasWidth;
+canvas.height = CONFIG.canvasHeight;
+
+// --- Estado del juego ---
+let running = true;
+let score = 0;
+let totalDistance = 0; // usado para day-night
+let lastTimestamp = 0;
+let keys = {left:false,right:false,up:false};
+let mobileTouch = {back:false,forward:false,accel:false};
+const scoreEl = document.getElementById('score');
+
+// --- Moto / jugador ---
+const bike = {
+  x: 220,
+  y: canvas.height/2 - 60,
+  vx: 0,
+  vy: 0,
+  angle: 0,
+  onGround: false
+};
+
+// --- Terreno: array de segmentos con height y type ---
+let terrain = [];
+function generateTerrain(initialSegments=80){
+  terrain = [];
+  let baseY = canvas.height*0.75;
+  for(let i=0;i<initialSegments;i++){
+    let h = baseY + (Math.sin(i/6) * 40) + (Math.random()*30 - 15);
+    let seg = {height:h, type:'plain'}; // types: plain, bump, vado, mountain
+    if(Math.random() < CONFIG.obstacleChance){
+      seg.type = Math.random()<0.5 ? 'bump' : 'vado';
+    }
+    // occasional mountain (background)
+    if(Math.random() < 0.07) seg.type = 'mountain';
+    terrain.push(seg);
+  }
+}
+generateTerrain(200);
+
+// ensure terrain extends as we go
+function ensureTerrainLength(pxNeeded=3000){
+  const segCountNeeded = Math.ceil((pxNeeded) / CONFIG.terrainSegmentWidth);
+  while(terrain.length < segCountNeeded){
+    const i = terrain.length;
+    const baseY = canvas.height*0.75;
+    let h = baseY + (Math.sin(i/6) * 40) + (Math.random()*30 - 15);
+    let type = 'plain';
+    if(Math.random() < CONFIG.obstacleChance) type = Math.random()<0.5 ? 'bump' : 'vado';
+    if(Math.random() < 0.06) type = 'mountain';
+    terrain.push({height:h, type});
+  }
+}
+
+// convert world x to terrain index and offset
+function heightAt(worldX){
+  const idx = Math.floor(worldX / CONFIG.terrainSegmentWidth);
+  const frac = (worldX % CONFIG.terrainSegmentWidth) / CONFIG.terrainSegmentWidth;
+  const a = terrain[idx] ? terrain[idx].height : canvas.height*0.75;
+  const b = terrain[idx+1] ? terrain[idx+1].height : a;
+  return a*(1-frac) + b*frac;
+}
+
+// day-night blend: 0 = night, 1 = day
+function dayProgress(){
+  const p = Math.min(1, totalDistance / CONFIG.dayDistanceForFullDay);
+  return p;
+}
+
+// draw background gradient based on dayProgress
+function drawBackground(){
+  const p = dayProgress();
+  // night color -> day color
+  const nightTop = [6,8,35];       // dark blue
+  const dayTop = [135,206,235];    // skyblue
+  const top = nightTop.map((v,i)=> Math.round(v*(1-p) + dayTop[i]*p));
+  const nightBottom = [10,12,40];
+  const dayBottom = [255,255,255];
+  const bottom = nightBottom.map((v,i)=> Math.round(v*(1-p) + dayBottom[i]*p));
+  const grad = ctx.createLinearGradient(0,0,0,canvas.height);
+  grad.addColorStop(0, `rgb(${top.join(',')})`);
+  grad.addColorStop(1, `rgb(${bottom.join(',')})`);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // stars fade out as day comes
+  const starAlpha = Math.max(0, 1 - p*1.4);
+  if(starAlpha > 0.02){
+    ctx.fillStyle = `rgba(255,255,255,${0.6*starAlpha})`;
+    for(let i=0;i<60;i++){
+      const x = (i*47 % canvas.width) + (Math.sin(totalDistance/100+i)*3);
+      const y = (i*73 % (canvas.height*0.5)) + 20;
+      ctx.fillRect(x%canvas.width,y, Math.random()*1.8, Math.random()*1.8);
+    }
+  }
+
+  // Moon / Sun
+  if(p < 0.95){
+    // draw moon (glowing) while p small
+    const moonX = canvas.width*0.85;
+    const moonY = canvas.height*0.22;
+    ctx.beginPath();
+    const moonRadius = 36;
+    ctx.fillStyle = `rgba(245,245,255,${Math.max(0,0.9 - p)})`;
+    ctx.shadowColor = 'rgba(255,255,220,0.45)';
+    ctx.shadowBlur = 24;
+    ctx.arc(moonX, moonY, moonRadius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // small craters
+    ctx.fillStyle = `rgba(220,220,230,${Math.max(0,0.6-p)})`;
+    ctx.fillRect(moonX-10, moonY-6, 6, 4);
+    ctx.fillRect(moonX+6, moonY+8, 8, 5);
+  }
+  if(p > 0.15){
+    // draw sun rising (blend)
+    const sunX = canvas.width*0.15;
+    const sunY = canvas.height*0.2;
+    const sunRad = 50;
+    const sunAlpha = Math.max(0, (p-0.15)/(1-0.15));
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(255,235,160,${sunAlpha})`;
+    ctx.shadowColor = 'rgba(255,210,120,0.3)';
+    ctx.shadowBlur = 40 * sunAlpha;
+    ctx.arc(sunX, sunY, sunRad, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+// draw mountains and background elements
+function drawMountains(){
+  const p = dayProgress();
+  // background mountain shapes repeat
+  for(let m=0;m<6;m++){
+    const base = canvas.height*0.6 + Math.sin(m*1.4 + totalDistance/800)*20;
+    const height = 120 + (m%2)*30;
+    const x = (m*260 - (totalDistance*0.2)%600);
+    ctx.beginPath();
+    ctx.moveTo(x-200, canvas.height);
+    ctx.lineTo(x+60, base-height);
+    ctx.lineTo(x+160, canvas.height);
+    const shade = Math.round(40*(1-p) + 120*p);
+    ctx.fillStyle = `rgb(${shade},${shade},${shade+20})`;
+    ctx.fill();
+  }
+}
+
+// draw terrain ground (top)
+function drawTerrain(){
+  ctx.beginPath();
+  ctx.moveTo(0, canvas.height);
+  // draw across screen width sampling world positions
+  const viewLeftWorldX = totalDistance - bike.x + 0;
+  const step = 6;
+  for(let sx=0; sx<=canvas.width+step; sx+=step){
+    const worldX = viewLeftWorldX + sx;
+    const h = heightAt(Math.max(0,worldX));
+    ctx.lineTo(sx, h);
+  }
+  ctx.lineTo(canvas.width, canvas.height);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(40,30,20,1)';
+  ctx.fill();
+
+  // draw obstacles: bumps and vados
+  const viewSegStart = Math.floor(viewLeftWorldX / CONFIG.terrainSegmentWidth) - 2;
+  const viewSegEnd = Math.floor((viewLeftWorldX + canvas.width) / CONFIG.terrainSegmentWidth) + 4;
+  for(let i=viewSegStart;i<=viewSegEnd;i++){
+    const seg = terrain[i];
+    if(!seg) continue;
+    const segX = (i*CONFIG.terrainSegmentWidth) - viewLeftWorldX;
+    if(seg.type === 'bump'){
+      ctx.beginPath();
+      const bw = CONFIG.terrainSegmentWidth;
+      const top = seg.height - CONFIG.bumpHeight;
+      ctx.moveTo(segX, seg.height);
+      ctx.quadraticCurveTo(segX + bw/2, top - 6, segX + bw, seg.height);
+      ctx.fillStyle = '#2a1f14';
+      ctx.fill();
+    } else if(seg.type === 'vado'){
+      // vado is a shallow dip (like small water puddle)
+      ctx.beginPath();
+      const bw = CONFIG.terrainSegmentWidth;
+      const top = seg.height + CONFIG.vadoDepth;
+      ctx.moveTo(segX, seg.height);
+      ctx.quadraticCurveTo(segX + bw/2, top + 6, segX + bw, seg.height);
+      ctx.fillStyle = '#231b14';
+      ctx.fill();
+
+      // water hint
+      ctx.fillStyle = 'rgba(20,60,120,0.25)';
+      ctx.fillRect(segX + bw*0.2, seg.height + 2, bw*0.6, CONFIG.vadoDepth);
+    }
+  }
+}
+
+// draw motorcycle (simple stylized)
+function drawBike(){
+  const viewLeftWorldX = totalDistance - bike.x;
+  const bikeScreenX = bike.x;
+  const groundY = heightAt(totalDistance) || canvas.height*0.75; // current ground directly under bike
+  // adjust y toward ground a bit (so it rides)
+  ctx.save();
+  ctx.translate(bikeScreenX, bike.y);
+
+  // body
+  ctx.rotate(bike.angle);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(-28, -12, 56, 18);
+  // seat / rider silhouette
+  ctx.fillStyle = '#222';
+  ctx.fillRect(-8, -28, 16, 20);
+  // wheels
+  ctx.beginPath();
+  ctx.fillStyle = '#111';
+  ctx.arc(-18, 6, CONFIG.wheelRadius, 0, Math.PI*2);
+  ctx.arc(18, 6, CONFIG.wheelRadius, 0, Math.PI*2);
+  ctx.fill();
+  // hub
+  ctx.fillStyle = '#666';
+  ctx.fillRect(-20,3,40,4);
+  ctx.restore();
+
+  // small shadow
+  ctx.beginPath();
+  ctx.ellipse(bikeScreenX, groundY+8, 44, 10, 0, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fill();
+}
+
+// physics & collision with terrain features
+function updatePhysics(dt){
+  // determine if accel pressed
+  const accel = keys.up || mobileTouch.accel;
+  if(accel){
+    bike.vx += CONFIG.accelPower * dt;
+  } else if(keys.right || mobileTouch.forward){
+    bike.vx += 0.02 * dt;
+  } else if(keys.left || mobileTouch.back){
+    bike.vx -= 0.06 * dt;
+  } else {
+    // natural friction
+    bike.vx *= 0.995;
+  }
+  // clamp
+  bike.vx = Math.max(-2, Math.min(CONFIG.maxSpeed, bike.vx));
+
+  // vertical physics (simple)
+  bike.vy += CONFIG.gravity * dt * 0.016;
+  bike.y += bike.vy * dt * 0.6;
+
+  // compute ground under bike (world)
+  const worldXUnderBike = totalDistance;
+  const groundY = heightAt(worldXUnderBike);
+  const desiredY = groundY - 36; // bike rides slightly above ground
+  // if below ground => collision
+  if(bike.y > desiredY){
+    bike.y = desiredY;
+    bike.vy = 0;
+    bike.onGround = true;
+  } else {
+    bike.onGround = false;
+  }
+
+  // angle lean by velocity and slope
+  const slope = (heightAt(worldXUnderBike+20) - heightAt(worldXUnderBike-20)) / 40;
+  bike.angle = Math.atan2(-slope, 1) * 0.6 + bike.vy* -0.02;
+
+  // if going over a bump or vado: apply impact
+  const segIndex = Math.floor(worldXUnderBike / CONFIG.terrainSegmentWidth);
+  const seg = terrain[segIndex];
+  if(seg){
+    if(seg.type === 'bump'){
+      // if bike enters bump quickly, pop up
+      if(bike.onGround && bike.vx > 2 && Math.random() < Math.min(0.08, bike.vx/80)){
+        bike.vy = -6 - bike.vx*0.4;
+      }
+    } else if(seg.type === 'vado'){
+      // small slowdown
+      if(bike.onGround){
+        bike.vx *= 0.985 - Math.min(0.05, CONFIG.vadoDepth/300);
+      }
+    }
+  }
+
+  // update positions: moving world to left equals increasing totalDistance by bike.vx
+  const movement = Math.max(0, bike.vx) * dt;
+  totalDistance += movement;
+  score += Math.floor(movement*0.1); // score grows with distance
+  // small penalty if going backward
+  if(bike.vx < -0.8){
+    score -= Math.floor(Math.abs(bike.vx)*0.2*dt);
+  }
+  if(score < 0) score = 0;
+
+  // ensure terrain exists ahead
+  ensureTerrainLength(totalDistance + canvas.width*1.2);
+}
+
+// draw HUD and score
+function drawHUD(){
+  scoreEl.textContent = 'Puntaje: ' + Math.max(0, Math.floor(score));
+}
+
+// main loop
+function gameLoop(timestamp){
+  if(!lastTimestamp) lastTimestamp = timestamp;
+  const dt = Math.min(40, timestamp - lastTimestamp) / 16.666; // normalized to ~60fps
+  lastTimestamp = timestamp;
+  if(running){
+    // update physics using dt
+    updatePhysics(dt);
+
+    // draw
+    drawBackground();
+    drawMountains();
+    drawTerrain();
+    drawBike();
+
+    // top UI drawn in DOM, but we can draw small distance indicator
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillRect(0,0,canvas.width,36);
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '14px Arial';
+    ctx.fillText('Distancia: ' + Math.floor(totalDistance) + ' px', 12, 22);
+  } else {
+    // paused overlay
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.font = '28px Arial';
+    ctx.fillText('Pausa - Presiona Pausa para continuar', 60, canvas.height/2);
+  }
+
+  drawHUD();
+  requestAnimationFrame(gameLoop);
+}
+
+// --- Input handlers ---
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight' || e.key.toLowerCase() === 'd'){ keys.right = true; }
+  if(e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a'){ keys.left = true; }
+  if(e.key === 'ArrowUp' || e.key.toLowerCase() === 'w'){ keys.up = true; }
+  if(e.key === ' '){ // space: quick jump (if on ground)
+    if(bike.onGround){ bike.vy = -8; bike.onGround = false; }
+  }
+  if(e.key.toLowerCase() === 'p'){ togglePause(); }
+});
+window.addEventListener('keyup', (e)=>{
+  if(e.key === 'ArrowRight' || e.key.toLowerCase() === 'd'){ keys.right = false; }
+  if(e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a'){ keys.left = false; }
+  if(e.key === 'ArrowUp' || e.key.toLowerCase() === 'w'){ keys.up = false; }
+});
+
+// Buttons
+const btnBack = document.getElementById('btnBack');
+const btnForward = document.getElementById('btnForward');
+const btnAccel = document.getElementById('btnAccel');
+const btnPause = document.getElementById('btnPause');
+
+btnBack.addEventListener('pointerdown', ()=>{ keys.left = true; });
+btnBack.addEventListener('pointerup', ()=>{ keys.left = false; });
+btnBack.addEventListener('pointercancel', ()=>{ keys.left = false; });
+
+btnForward.addEventListener('pointerdown', ()=>{ keys.right = true; });
+btnForward.addEventListener('pointerup', ()=>{ keys.right = false; });
+btnForward.addEventListener('pointercancel', ()=>{ keys.right = false; });
+
+btnAccel.addEventListener('pointerdown', ()=>{ keys.up = true; });
+btnAccel.addEventListener('pointerup', ()=>{ keys.up = false; });
+btnAccel.addEventListener('pointercancel', ()=>{ keys.up = false; });
+
+btnPause.addEventListener('click', togglePause);
+
+document.getElementById('mBack').addEventListener('pointerdown', ()=>{ mobileTouch.back=true; });
+document.getElementById('mBack').addEventListener('pointerup', ()=>{ mobileTouch.back=false; });
+document.getElementById('mForward').addEventListener('pointerdown', ()=>{ mobileTouch.forward=true; });
+document.getElementById('mForward').addEventListener('pointerup', ()=>{ mobileTouch.forward=false; });
+document.getElementById('mAccel').addEventListener('pointerdown', ()=>{ mobileTouch.accel=true; });
+document.getElementById('mAccel').addEventListener('pointerup', ()=>{ mobileTouch.accel=false; });
+
+// support touch cancel
+['pointercancel','pointerleave'].forEach(ev=>{
+  document.getElementById('mAccel').addEventListener(ev, ()=>{ mobileTouch.accel=false; });
+  document.getElementById('mBack').addEventListener(ev, ()=>{ mobileTouch.back=false; });
+  document.getElementById('mForward').addEventListener(ev, ()=>{ mobileTouch.forward=false; });
+});
+
+// Pause toggle
+function togglePause(){
+  running = !running;
+  if(running){
+    lastTimestamp = performance.now();
+  }
+}
+
+// Resize handler (canvas responsive)
+function resizeCanvas(){
+  // keep internal resolution fixed but scale visually using CSS for responsiveness
+  const wrap = document.getElementById('gameWrap');
+  const maxW = Math.min(window.innerWidth - 20, 1200);
+  const scale = maxW / CONFIG.canvasWidth;
+  canvas.style.width = (CONFIG.canvasWidth * scale) + 'px';
+  canvas.style.height = (CONFIG.canvasHeight * scale) + 'px';
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// initialize bike Y to first ground
+bike.y = heightAt(0) - 36;
+
+// start loop
+requestAnimationFrame(gameLoop);
+
+/* ---------- Notas para el desarrollador ----------
+- Cambiar imágenes/colores: ahora el juego usa dibujo por código. Para usar sprites:
+  reemplaza drawBike() con dibujo de imagen y carga Image() arriba.
+- Ajustes fáciles:
+  - CONFIG.dayDistanceForFullDay: mayor => tarda más en pasar a día.
+  - CONFIG.obstacleChance: más => más topes/vados.
+  - CONFIG.maxSpeed y accelPower: ajustan rendimiento.
+- Pistas para añadir sonidos: crea Audio() y reprodúcelos en eventos (acelerar, bump, etc.)
+- Guardado de récord: usa localStorage.setItem('bm_record', score)
+-------------------------------------------------- */
+</script>
+</body>
+</html>
