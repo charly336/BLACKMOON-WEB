@@ -3,43 +3,44 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Motocross Night→Day - BlackMoon</title>
+<title>BlackMoon Bike — Motocross Noche→Día (20 niveles)</title>
 <style>
-  :root{--ui-bg:rgba(0,0,0,0.6);--btn-bg:#222;--btn-txt:#fff}
-  html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff}
-  #gameWrap{display:flex;flex-direction:column;height:100vh;align-items:center;justify-content:flex-start}
-  canvas{background:transparent;display:block;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.6);max-width:100%;height:auto}
-  #hud{width:100%;max-width:1200px;display:flex;justify-content:space-between;align-items:center;padding:10px;box-sizing:border-box}
-  .scoreBox{font-size:20px;padding:6px 10px;border-radius:8px;background:var(--ui-bg)}
-  .controls{display:flex;gap:10px;align-items:center}
-  .control-btn{background:var(--btn-bg);color:var(--btn-txt);border:none;padding:12px 16px;border-radius:10px;font-size:16px;touch-action:none}
-  .control-btn:active{transform:translateY(2px);opacity:0.9}
-  .tiny{padding:8px 10px;font-size:14px}
-  #footer{width:100%;max-width:1200px;padding:8px;text-align:center;color:#bbb;font-size:12px}
-  /* Mobile layout: big overlay buttons bottom */
+  :root{--ui-bg:rgba(0,0,0,0.5)}
+  html,body{height:100%;margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:#000;color:#fff}
+  #wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px}
+  canvas{background:transparent;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.6);max-width:100%}
+  #hud{width:100%;max-width:1200px;display:flex;justify-content:space-between;align-items:center;padding:6px;box-sizing:border-box}
+  .scoreBox{padding:6px 10px;border-radius:8px;background:var(--ui-bg);font-size:16px}
+  .controls{display:flex;gap:8px;align-items:center}
+  .control-btn{background:#111;border:none;padding:10px 14px;border-radius:8px;color:#fff;font-size:15px;touch-action:none}
+  .control-btn:active{transform:translateY(2px)}
+  #footer{color:#bbb;font-size:12px}
   #mobileControls{position:fixed;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:12px;pointer-events:none}
-  .mobileBtn{pointer-events:auto;background:rgba(0,0,0,0.5);color:#fff;border-radius:12px;padding:14px 18px;border:2px solid rgba(255,255,255,0.06);font-size:18px}
-  @media(min-width:800px){ #mobileControls{display:none} }
+  .mobileBtn{pointer-events:auto;background:rgba(0,0,0,0.45);color:#fff;border-radius:12px;padding:14px 18px;border:2px solid rgba(255,255,255,0.06);font-size:18px}
+  @media(min-width:900px){#mobileControls{display:none}}
+  #levelInfo{font-size:14px;color:#ddd}
+  .small{font-size:13px;padding:6px 8px}
 </style>
 </head>
 <body>
-<div id="gameWrap">
+<div id="wrap">
   <div id="hud">
     <div class="scoreBox" id="score">Puntaje: 0</div>
+    <div id="levelInfo" class="scoreBox">Nivel: 1 / 20 — Récord: 0</div>
     <div class="controls">
-      <button class="control-btn tiny" id="btnBack">◀ Atrás</button>
-      <button class="control-btn tiny" id="btnForward">▶ Adelante</button>
-      <button class="control-btn" id="btnAccel">Acelerar ⬆ (mantener)</button>
-      <button class="control-btn tiny" id="btnPause">Pausa</button>
+      <button class="control-btn small" id="btnBack">◀</button>
+      <button class="control-btn small" id="btnForward">▶</button>
+      <button class="control-btn" id="btnAccel">Acelerar ▲</button>
+      <button class="control-btn small" id="btnMute">Mute</button>
+      <button class="control-btn small" id="btnPause">Pausa</button>
     </div>
   </div>
 
   <canvas id="game" width="1200" height="600"></canvas>
 
-  <div id="footer">Grupo BlackMoon</div>
+  <div id="footer">Grupo BlackMoon — BlackMoon Games</div>
 </div>
 
-<!-- Mobile overlay buttons -->
 <div id="mobileControls">
   <button class="mobileBtn" id="mBack">◀</button>
   <button class="mobileBtn" id="mAccel">▲</button>
@@ -47,112 +48,217 @@
 </div>
 
 <script>
-/*
-  Juego: Motocicleta (noche → día)
-  Controles: botones y teclado
-  - Flecha derecha / 'D' / Adelante button
-  - Flecha izquierda / 'A' / Atrás button
-  - Flecha arriba / 'W' / Acelerar (mantener) / botón acelerar
-  Comentarios en español. Cambia valores más abajo para ajustes.
-*/
+/* =====================================================
+   BlackMoon Bike — Juego completo en un archivo
+   - 20 niveles fijos (se avanzan por distancia)
+   - Sprites configurables (cambia URLs abajo)
+   - 4 pistas de fondo (configurables)
+   - Efectos de sonido (configurables)
+   - Guarda récord en localStorage (key: bm_best_score)
+   - Todos los controles: botones, touch, teclado
+   ===================================================== */
 
-// --- Configuraciones que el desarrollador puede cambiar fácilmente ---
-const CONFIG = {
-  canvasWidth: 1200,
-  canvasHeight: 600,
-  gravity: 0.9,
-  baseSpeed: 3,         // velocidad base de desplazamiento
-  accelPower: 0.18,     // aceleración por frame mientras se mantiene acelerar
-  maxSpeed: 12,
-  wheelRadius: 14,
-  terrainSegmentWidth: 40,
-  dayDistanceForFullDay: 3000, // distancia en px para que pase de noche a día
-  obstacleChance: 0.12, // chance de tope/vado en segmento (aprox)
-  bumpHeight: 30,
-  vadoDepth: 18
+/* ====================== ZONA DE CUSTOMIZACIÓN ======================
+   Sustituye las rutas por tus imágenes y audios.
+   Puedes usar URLs externas o archivos en la misma carpeta.
+   - bikeSprite: imagen PNG de la motocicleta (sprite single)
+   - bgMountainSprite: imagen para montañas (opcional)
+   - groundTileSprite: imagen para ground (opcional)
+   - musicTracks: arreglo de 4 pistas (se rotan por nivel por defecto)
+   - sfx: sonidos (acelerar, bump, jump, levelUp)
+==================================================================== */
+const ASSETS = {
+  bikeSprite: 'assets/bike.png',           // <-- CAMBIAR por ruta válida (PNG)
+  bgMountainSprite: 'assets/mountains.png',// <-- opcional
+  groundTileSprite: '',                    // <-- opcional (si vacío se dibuja por código)
+  musicTracks: [
+    'audio/track1.mp3', // nivel 1-5
+    'audio/track2.mp3', // nivel 6-10
+    'audio/track3.mp3', // nivel 11-15
+    'audio/track4.mp3'  // nivel 16-20
+  ],
+  sfx: {
+    accel: 'audio/accel.mp3',
+    bump: 'audio/bump.mp3',
+    jump: 'audio/jump.mp3',
+    levelUp: 'audio/levelup.mp3'
+  }
 };
+/* ================================================================== */
 
-// --- Canvas y contexto ---
+/* ====================== OTRAS CONFIGURACIONES ====================== */
+const CONFIG = {
+  canvasW: 1200,
+  canvasH: 600,
+  terrainSegW: 40,
+  wheelRadius: 14,
+  gravity: 0.9,
+  accelPower: 0.18,
+  maxSpeed: 14,
+  dayDistanceFull: 3000, // px para pasar de noche->día
+  levels: 20,
+  levelDistance: 1400,   // distancia por nivel (puedes ajustar)
+  bumpHeight: 36,
+  vadoDepth: 20
+};
+/* ================================================================== */
+
+/* =================== Setup canvas & estado =================== */
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-canvas.width = CONFIG.canvasWidth;
-canvas.height = CONFIG.canvasHeight;
+canvas.width = CONFIG.canvasW;
+canvas.height = CONFIG.canvasH;
 
-// --- Estado del juego ---
 let running = true;
+let muted = false;
 let score = 0;
-let totalDistance = 0; // usado para day-night
-let lastTimestamp = 0;
+let totalDistance = 0;
+let lastTs = 0;
 let keys = {left:false,right:false,up:false};
 let mobileTouch = {back:false,forward:false,accel:false};
+let currentLevel = 1;
 const scoreEl = document.getElementById('score');
+const levelInfoEl = document.getElementById('levelInfo');
+const BEST_KEY = 'bm_best_score';
+let bestScore = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
 
-// --- Moto / jugador ---
-const bike = {
-  x: 220,
-  y: canvas.height/2 - 60,
-  vx: 0,
-  vy: 0,
-  angle: 0,
-  onGround: false
-};
+/* =================== Cargar imágenes y audios =================== */
+const IMGS = {};
+const AUD = {music: null, sfx: {}};
 
-// --- Terreno: array de segmentos con height y type ---
+function loadImage(key, src){
+  return new Promise((res)=>{
+    if(!src){ res(null); return; }
+    const img = new Image();
+    img.src = src;
+    img.onload = ()=>{ IMGS[key] = img; res(img) };
+    img.onerror = ()=>{ console.warn('No cargó imagen', src); res(null); };
+  });
+}
+function loadAudio(src, loop=false){
+  return new Promise((res)=>{
+    if(!src){ res(null); return; }
+    const a = new Audio(src);
+    a.loop = loop;
+    a.preload = 'auto';
+    a.volume = 0.75;
+    a.oncanplaythrough = ()=> res(a);
+    a.onerror = ()=> { console.warn('No cargó audio', src); res(null); };
+  });
+}
+
+/* Load assets (non-blocking visual — si faltan, fallback gráfico) */
+Promise.all([
+  loadImage('bike', ASSETS.bikeSprite),
+  loadImage('mount', ASSETS.bgMountainSprite),
+  loadImage('ground', ASSETS.groundTileSprite),
+  // sfx
+  loadAudio(ASSETS.sfx.accel),
+  loadAudio(ASSETS.sfx.bump),
+  loadAudio(ASSETS.sfx.jump),
+  loadAudio(ASSETS.sfx.levelUp)
+]).then(results=>{
+  // map results to AUD/IMGS
+  IMGS.bike = results[0];
+  IMGS.mountain = results[1];
+  IMGS.ground = results[2];
+  AUD.sfx.accel = results[3];
+  AUD.sfx.bump = results[4];
+  AUD.sfx.jump = results[5];
+  AUD.sfx.levelUp = results[6];
+  // prepare music (select track depending on level)
+  AUD.music = new Audio();
+  AUD.music.loop = true;
+  setMusicForLevel(currentLevel);
+}).catch(err=>{
+  console.warn('Error cargando assets', err);
+});
+
+/* =================== Terrenos por nivel (fijos) ===================
+   Creamos 20 niveles. Cada nivel tiene un patrón simple que determina
+   la cadena de 'plain','bump','vado','mountain' para los segmentos.
+   Puedes editar el array 'levelPatterns' para ajustar cada nivel.
+================================================================== */
+const levelPatterns = [];
+// generator helper
+function genPattern(typeSequence, repeats){
+  const arr = [];
+  for(let r=0;r<repeats;r++){
+    for(const t of typeSequence) arr.push(t);
+  }
+  return arr;
+}
+// Build 20 level patterns (puedes personalizarlos)
+for(let L=1; L<=CONFIG.levels; L++){
+  if(L <= 3) levelPatterns.push(genPattern(['plain','plain','bump','plain'], 40));
+  else if(L <= 6) levelPatterns.push(genPattern(['plain','bump','plain','vado'], 42));
+  else if(L <= 9) levelPatterns.push(genPattern(['plain','bump','bump','vado','plain'], 40));
+  else if(L <= 12) levelPatterns.push(genPattern(['bump','plain','vado','plain','plain','bump'], 36));
+  else if(L <= 15) levelPatterns.push(genPattern(['plain','mountain','bump','vado','bump'], 34));
+  else if(L <= 18) levelPatterns.push(genPattern(['bump','vado','bump','plain','mountain'], 34));
+  else levelPatterns.push(genPattern(['vado','bump','bump','mountain','plain'],36));
+}
+
+// Generate global terrain from patterns concatenated
 let terrain = [];
-function generateTerrain(initialSegments=80){
+function buildTerrain(){
   terrain = [];
-  let baseY = canvas.height*0.75;
-  for(let i=0;i<initialSegments;i++){
-    let h = baseY + (Math.sin(i/6) * 40) + (Math.random()*30 - 15);
-    let seg = {height:h, type:'plain'}; // types: plain, bump, vado, mountain
-    if(Math.random() < CONFIG.obstacleChance){
-      seg.type = Math.random()<0.5 ? 'bump' : 'vado';
+  for(let i=0;i<CONFIG.levels;i++){
+    const pat = levelPatterns[i];
+    for(let j=0;j<pat.length;j++){
+      // set base height with small variation
+      const base = canvas.height*0.75 + (Math.sin((i*7+j)/6)*28) + (Math.random()*20-10);
+      terrain.push({height: base, type: pat[j]});
     }
-    // occasional mountain (background)
-    if(Math.random() < 0.07) seg.type = 'mountain';
-    terrain.push(seg);
   }
 }
-generateTerrain(200);
+buildTerrain();
 
-// ensure terrain extends as we go
-function ensureTerrainLength(pxNeeded=3000){
-  const segCountNeeded = Math.ceil((pxNeeded) / CONFIG.terrainSegmentWidth);
-  while(terrain.length < segCountNeeded){
-    const i = terrain.length;
-    const baseY = canvas.height*0.75;
-    let h = baseY + (Math.sin(i/6) * 40) + (Math.random()*30 - 15);
-    let type = 'plain';
-    if(Math.random() < CONFIG.obstacleChance) type = Math.random()<0.5 ? 'bump' : 'vado';
-    if(Math.random() < 0.06) type = 'mountain';
-    terrain.push({height:h, type});
-  }
+function ensureTerrainLength(pxNeeded){
+  // here terrain is prebuilt large; no dynamic extension needed
+  return;
 }
 
-// convert world x to terrain index and offset
+/* =================== Funciones de utilidad de terreno =================== */
 function heightAt(worldX){
-  const idx = Math.floor(worldX / CONFIG.terrainSegmentWidth);
-  const frac = (worldX % CONFIG.terrainSegmentWidth) / CONFIG.terrainSegmentWidth;
+  const idx = Math.floor(worldX / CONFIG.terrainSegW);
+  const frac = (worldX % CONFIG.terrainSegW) / CONFIG.terrainSegW;
   const a = terrain[idx] ? terrain[idx].height : canvas.height*0.75;
   const b = terrain[idx+1] ? terrain[idx+1].height : a;
   return a*(1-frac) + b*frac;
 }
 
-// day-night blend: 0 = night, 1 = day
+/* =================== Estado de la moto/jugador =================== */
+const bike = { x: 220, y: canvas.height/2 - 60, vx: 0, vy: 0, angle:0, onGround:false };
+
+/* =================== DAY / NIGHT =================== */
 function dayProgress(){
-  const p = Math.min(1, totalDistance / CONFIG.dayDistanceForFullDay);
+  const p = Math.min(1, totalDistance / CONFIG.dayDistanceFull);
   return p;
 }
 
-// draw background gradient based on dayProgress
+/* =================== MUSIC control =================== */
+function setMusicForLevel(level){
+  const idx = Math.floor(((level-1) / CONFIG.levels) * ASSETS.musicTracks.length);
+  const track = ASSETS.musicTracks[Math.min(idx, ASSETS.musicTracks.length-1)];
+  if(AUD.music){
+    AUD.music.pause();
+    AUD.music.src = track || '';
+    if(!muted) AUD.music.play().catch(()=>{/*autoplay may be blocked until user gesture*/});
+  } else {
+    AUD.music = new Audio(track || '');
+    AUD.music.loop = true;
+    AUD.music.volume = 0.6;
+    if(!muted) AUD.music.play().catch(()=>{});
+  }
+}
+
+/* =================== DIBUJADO =================== */
 function drawBackground(){
   const p = dayProgress();
-  // night color -> day color
-  const nightTop = [6,8,35];       // dark blue
-  const dayTop = [135,206,235];    // skyblue
+  const nightTop = [6,8,35], dayTop = [135,206,235];
   const top = nightTop.map((v,i)=> Math.round(v*(1-p) + dayTop[i]*p));
-  const nightBottom = [10,12,40];
-  const dayBottom = [255,255,255];
+  const nightBottom = [10,12,40], dayBottom=[255,255,255];
   const bottom = nightBottom.map((v,i)=> Math.round(v*(1-p) + dayBottom[i]*p));
   const grad = ctx.createLinearGradient(0,0,0,canvas.height);
   grad.addColorStop(0, `rgb(${top.join(',')})`);
@@ -160,7 +266,7 @@ function drawBackground(){
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // stars fade out as day comes
+  // stars
   const starAlpha = Math.max(0, 1 - p*1.4);
   if(starAlpha > 0.02){
     ctx.fillStyle = `rgba(255,255,255,${0.6*starAlpha})`;
@@ -171,28 +277,22 @@ function drawBackground(){
     }
   }
 
-  // Moon / Sun
+  // moon/sun
   if(p < 0.95){
-    // draw moon (glowing) while p small
     const moonX = canvas.width*0.85;
     const moonY = canvas.height*0.22;
-    ctx.beginPath();
     const moonRadius = 36;
+    ctx.beginPath();
     ctx.fillStyle = `rgba(245,245,255,${Math.max(0,0.9 - p)})`;
     ctx.shadowColor = 'rgba(255,255,220,0.45)';
     ctx.shadowBlur = 24;
     ctx.arc(moonX, moonY, moonRadius, 0, Math.PI*2);
     ctx.fill();
     ctx.shadowBlur = 0;
-    // small craters
-    ctx.fillStyle = `rgba(220,220,230,${Math.max(0,0.6-p)})`;
-    ctx.fillRect(moonX-10, moonY-6, 6, 4);
-    ctx.fillRect(moonX+6, moonY+8, 8, 5);
   }
   if(p > 0.15){
-    // draw sun rising (blend)
     const sunX = canvas.width*0.15;
-    const sunY = canvas.height*0.2;
+    const sunY = canvas.height*0.22;
     const sunRad = 50;
     const sunAlpha = Math.max(0, (p-0.15)/(1-0.15));
     ctx.beginPath();
@@ -205,10 +305,16 @@ function drawBackground(){
   }
 }
 
-// draw mountains and background elements
 function drawMountains(){
+  if(IMGS.mountain){
+    // draw tiled mountain image slower than foreground for parallax
+    const offset = - (totalDistance * 0.15) % canvas.width;
+    for(let x=offset-200; x<canvas.width+200; x+=IMGS.mountain.width){
+      ctx.drawImage(IMGS.mountain, x, canvas.height*0.35, IMGS.mountain.width, IMGS.mountain.height*0.45);
+    }
+    return;
+  }
   const p = dayProgress();
-  // background mountain shapes repeat
   for(let m=0;m<6;m++){
     const base = canvas.height*0.6 + Math.sin(m*1.4 + totalDistance/800)*20;
     const height = 120 + (m%2)*30;
@@ -223,115 +329,120 @@ function drawMountains(){
   }
 }
 
-// draw terrain ground (top)
 function drawTerrain(){
+  // ground silhouette
   ctx.beginPath();
   ctx.moveTo(0, canvas.height);
-  // draw across screen width sampling world positions
-  const viewLeftWorldX = totalDistance - bike.x + 0;
+  const viewLeft = totalDistance - bike.x;
   const step = 6;
   for(let sx=0; sx<=canvas.width+step; sx+=step){
-    const worldX = viewLeftWorldX + sx;
-    const h = heightAt(Math.max(0,worldX));
+    const worldX = Math.max(0, viewLeft + sx);
+    const h = heightAt(worldX);
     ctx.lineTo(sx, h);
   }
   ctx.lineTo(canvas.width, canvas.height);
   ctx.closePath();
-  ctx.fillStyle = 'rgba(40,30,20,1)';
+  // fill ground (darker near night)
+  const p = dayProgress();
+  ctx.fillStyle = `rgb(${40*(1-p)+100*p|0}, ${30*(1-p)+110*p|0}, ${20*(1-p)+120*p|0})`;
   ctx.fill();
 
-  // draw obstacles: bumps and vados
-  const viewSegStart = Math.floor(viewLeftWorldX / CONFIG.terrainSegmentWidth) - 2;
-  const viewSegEnd = Math.floor((viewLeftWorldX + canvas.width) / CONFIG.terrainSegmentWidth) + 4;
-  for(let i=viewSegStart;i<=viewSegEnd;i++){
+  // obstacles draw
+  const segStart = Math.floor(viewLeft / CONFIG.terrainSegW) - 2;
+  const segEnd = Math.floor((viewLeft + canvas.width) / CONFIG.terrainSegW) + 4;
+  for(let i=segStart;i<=segEnd;i++){
     const seg = terrain[i];
     if(!seg) continue;
-    const segX = (i*CONFIG.terrainSegmentWidth) - viewLeftWorldX;
+    const segX = (i*CONFIG.terrainSegW) - viewLeft;
     if(seg.type === 'bump'){
       ctx.beginPath();
-      const bw = CONFIG.terrainSegmentWidth;
+      const bw = CONFIG.terrainSegW;
       const top = seg.height - CONFIG.bumpHeight;
       ctx.moveTo(segX, seg.height);
       ctx.quadraticCurveTo(segX + bw/2, top - 6, segX + bw, seg.height);
       ctx.fillStyle = '#2a1f14';
       ctx.fill();
     } else if(seg.type === 'vado'){
-      // vado is a shallow dip (like small water puddle)
-      ctx.beginPath();
-      const bw = CONFIG.terrainSegmentWidth;
+      const bw = CONFIG.terrainSegW;
       const top = seg.height + CONFIG.vadoDepth;
+      ctx.beginPath();
       ctx.moveTo(segX, seg.height);
       ctx.quadraticCurveTo(segX + bw/2, top + 6, segX + bw, seg.height);
       ctx.fillStyle = '#231b14';
       ctx.fill();
-
       // water hint
       ctx.fillStyle = 'rgba(20,60,120,0.25)';
-      ctx.fillRect(segX + bw*0.2, seg.height + 2, bw*0.6, CONFIG.vadoDepth);
+      ctx.fillRect(segX + bw*0.18, seg.height + 2, bw*0.64, CONFIG.vadoDepth);
+    } else if(seg.type === 'mountain'){
+      ctx.beginPath();
+      ctx.moveTo(segX, seg.height);
+      ctx.lineTo(segX + CONFIG.terrainSegW/2, seg.height - 120);
+      ctx.lineTo(segX + CONFIG.terrainSegW, seg.height);
+      ctx.closePath();
+      ctx.fillStyle = '#333';
+      ctx.fill();
     }
   }
 }
 
-// draw motorcycle (simple stylized)
 function drawBike(){
-  const viewLeftWorldX = totalDistance - bike.x;
-  const bikeScreenX = bike.x;
-  const groundY = heightAt(totalDistance) || canvas.height*0.75; // current ground directly under bike
-  // adjust y toward ground a bit (so it rides)
+  const viewLeft = totalDistance - bike.x;
+  const bikeX = bike.x;
+  const groundY = heightAt(totalDistance);
+  // auto-adjust bike y to ground if on ground
   ctx.save();
-  ctx.translate(bikeScreenX, bike.y);
-
-  // body
+  ctx.translate(bikeX, bike.y);
   ctx.rotate(bike.angle);
-  ctx.fillStyle = '#ef4444';
-  ctx.fillRect(-28, -12, 56, 18);
-  // seat / rider silhouette
-  ctx.fillStyle = '#222';
-  ctx.fillRect(-8, -28, 16, 20);
-  // wheels
-  ctx.beginPath();
-  ctx.fillStyle = '#111';
-  ctx.arc(-18, 6, CONFIG.wheelRadius, 0, Math.PI*2);
-  ctx.arc(18, 6, CONFIG.wheelRadius, 0, Math.PI*2);
-  ctx.fill();
-  // hub
-  ctx.fillStyle = '#666';
-  ctx.fillRect(-20,3,40,4);
+
+  if(IMGS.bike){
+    // draw sprite centered
+    const h = 56;
+    const w = (IMGS.bike.width / IMGS.bike.height) * h;
+    ctx.drawImage(IMGS.bike, -w/2, -h/2, w, h);
+  } else {
+    // fallback vector bike
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-28, -12, 56, 18);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(-8, -28, 16, 20);
+    ctx.beginPath();
+    ctx.fillStyle = '#111';
+    ctx.arc(-18, 6, CONFIG.wheelRadius, 0, Math.PI*2);
+    ctx.arc(18, 6, CONFIG.wheelRadius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#666';
+    ctx.fillRect(-20,3,40,4);
+  }
   ctx.restore();
 
-  // small shadow
+  // shadow
   ctx.beginPath();
-  ctx.ellipse(bikeScreenX, groundY+8, 44, 10, 0, 0, Math.PI*2);
+  ctx.ellipse(bikeX, groundY+8, 44, 10, 0, 0, Math.PI*2);
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
   ctx.fill();
 }
 
-// physics & collision with terrain features
+/* =================== FÍSICA y LÓGICA =================== */
 function updatePhysics(dt){
-  // determine if accel pressed
   const accel = keys.up || mobileTouch.accel;
   if(accel){
     bike.vx += CONFIG.accelPower * dt;
+    if(AUD.sfx.accel && !muted){ AUD.sfx.accel.currentTime = 0; AUD.sfx.accel.volume = 0.25; AUD.sfx.accel.play().catch(()=>{}); }
   } else if(keys.right || mobileTouch.forward){
     bike.vx += 0.02 * dt;
   } else if(keys.left || mobileTouch.back){
     bike.vx -= 0.06 * dt;
   } else {
-    // natural friction
     bike.vx *= 0.995;
   }
-  // clamp
-  bike.vx = Math.max(-2, Math.min(CONFIG.maxSpeed, bike.vx));
+  bike.vx = Math.max(-3, Math.min(CONFIG.maxSpeed, bike.vx));
 
-  // vertical physics (simple)
   bike.vy += CONFIG.gravity * dt * 0.016;
   bike.y += bike.vy * dt * 0.6;
 
-  // compute ground under bike (world)
-  const worldXUnderBike = totalDistance;
-  const groundY = heightAt(worldXUnderBike);
-  const desiredY = groundY - 36; // bike rides slightly above ground
-  // if below ground => collision
+  const worldX = totalDistance;
+  const groundY = heightAt(worldX);
+  const desiredY = groundY - 36;
   if(bike.y > desiredY){
     bike.y = desiredY;
     bike.vy = 0;
@@ -340,166 +451,168 @@ function updatePhysics(dt){
     bike.onGround = false;
   }
 
-  // angle lean by velocity and slope
-  const slope = (heightAt(worldXUnderBike+20) - heightAt(worldXUnderBike-20)) / 40;
+  const slope = (heightAt(worldX+20) - heightAt(worldX-20)) / 40;
   bike.angle = Math.atan2(-slope, 1) * 0.6 + bike.vy* -0.02;
 
-  // if going over a bump or vado: apply impact
-  const segIndex = Math.floor(worldXUnderBike / CONFIG.terrainSegmentWidth);
-  const seg = terrain[segIndex];
+  // obstacles interactions (based on current segment)
+  const segIdx = Math.floor(worldX / CONFIG.terrainSegW);
+  const seg = terrain[segIdx];
   if(seg){
     if(seg.type === 'bump'){
-      // if bike enters bump quickly, pop up
-      if(bike.onGround && bike.vx > 2 && Math.random() < Math.min(0.08, bike.vx/80)){
-        bike.vy = -6 - bike.vx*0.4;
+      if(bike.onGround && bike.vx > 3 && Math.random() < Math.min(0.12, bike.vx/60)){
+        bike.vy = -6 - bike.vx*0.25;
+        if(AUD.sfx.bump && !muted){ AUD.sfx.bump.currentTime = 0; AUD.sfx.bump.play().catch(()=>{}); }
       }
     } else if(seg.type === 'vado'){
-      // small slowdown
       if(bike.onGround){
-        bike.vx *= 0.985 - Math.min(0.05, CONFIG.vadoDepth/300);
+        bike.vx *= 0.985;
       }
     }
   }
 
-  // update positions: moving world to left equals increasing totalDistance by bike.vx
+  // movement -> increase distance & score
   const movement = Math.max(0, bike.vx) * dt;
   totalDistance += movement;
-  score += Math.floor(movement*0.1); // score grows with distance
-  // small penalty if going backward
-  if(bike.vx < -0.8){
-    score -= Math.floor(Math.abs(bike.vx)*0.2*dt);
-  }
+  score += Math.floor(movement*0.12);
+  if(bike.vx < -0.8) score -= Math.floor(Math.abs(bike.vx)*0.2*dt);
   if(score < 0) score = 0;
 
-  // ensure terrain exists ahead
+  // level progression
+  const newLevel = Math.min(CONFIG.levels, Math.floor(totalDistance / CONFIG.levelDistance) + 1);
+  if(newLevel !== currentLevel){
+    currentLevel = newLevel;
+    setMusicForLevel(currentLevel);
+    if(AUD.sfx.levelUp && !muted){ AUD.sfx.levelUp.currentTime = 0; AUD.sfx.levelUp.play().catch(()=>{}); }
+  }
+
   ensureTerrainLength(totalDistance + canvas.width*1.2);
 }
 
-// draw HUD and score
+/* =================== HUD & GUARDADO =================== */
 function drawHUD(){
   scoreEl.textContent = 'Puntaje: ' + Math.max(0, Math.floor(score));
+  levelInfoEl.textContent = `Nivel: ${currentLevel} / ${CONFIG.levels} — Récord: ${bestScore}`;
+  // update best if broken (optimize: only save on game end, but we save live for safety)
+  if(Math.floor(score) > bestScore){
+    bestScore = Math.floor(score);
+    localStorage.setItem(BEST_KEY, String(bestScore));
+  }
 }
 
-// main loop
-function gameLoop(timestamp){
-  if(!lastTimestamp) lastTimestamp = timestamp;
-  const dt = Math.min(40, timestamp - lastTimestamp) / 16.666; // normalized to ~60fps
-  lastTimestamp = timestamp;
+/* =================== LOOP principal =================== */
+function gameLoop(ts){
+  if(!lastTs) lastTs = ts;
+  const dt = Math.min(40, ts - lastTs) / 16.666;
+  lastTs = ts;
   if(running){
-    // update physics using dt
     updatePhysics(dt);
-
-    // draw
     drawBackground();
     drawMountains();
     drawTerrain();
     drawBike();
-
-    // top UI drawn in DOM, but we can draw small distance indicator
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    // small overlay bar
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.fillRect(0,0,canvas.width,36);
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = '14px Arial';
+    ctx.font = '14px Inter, Arial';
     ctx.fillText('Distancia: ' + Math.floor(totalDistance) + ' px', 12, 22);
   } else {
-    // paused overlay
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle = '#fff';
-    ctx.font = '28px Arial';
-    ctx.fillText('Pausa - Presiona Pausa para continuar', 60, canvas.height/2);
+    ctx.font = '28px Inter, Arial';
+    ctx.fillText('Pausa — Presiona Pausa para continuar', 60, canvas.height/2);
   }
-
   drawHUD();
   requestAnimationFrame(gameLoop);
 }
+requestAnimationFrame(gameLoop);
 
-// --- Input handlers ---
+/* =================== INPUTS (teclado, botones, touch) =================== */
 window.addEventListener('keydown', (e)=>{
   if(e.key === 'ArrowRight' || e.key.toLowerCase() === 'd'){ keys.right = true; }
   if(e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a'){ keys.left = true; }
   if(e.key === 'ArrowUp' || e.key.toLowerCase() === 'w'){ keys.up = true; }
-  if(e.key === ' '){ // space: quick jump (if on ground)
-    if(bike.onGround){ bike.vy = -8; bike.onGround = false; }
-  }
+  if(e.key === ' '){ if(bike.onGround){ bike.vy = -8; bike.onGround=false; if(AUD.sfx.jump && !muted){ AUD.sfx.jump.currentTime=0; AUD.sfx.jump.play().catch(()=>{}); } } }
   if(e.key.toLowerCase() === 'p'){ togglePause(); }
 });
+
 window.addEventListener('keyup', (e)=>{
   if(e.key === 'ArrowRight' || e.key.toLowerCase() === 'd'){ keys.right = false; }
   if(e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a'){ keys.left = false; }
   if(e.key === 'ArrowUp' || e.key.toLowerCase() === 'w'){ keys.up = false; }
 });
 
-// Buttons
 const btnBack = document.getElementById('btnBack');
 const btnForward = document.getElementById('btnForward');
 const btnAccel = document.getElementById('btnAccel');
 const btnPause = document.getElementById('btnPause');
+const btnMute = document.getElementById('btnMute');
 
 btnBack.addEventListener('pointerdown', ()=>{ keys.left = true; });
 btnBack.addEventListener('pointerup', ()=>{ keys.left = false; });
-btnBack.addEventListener('pointercancel', ()=>{ keys.left = false; });
-
 btnForward.addEventListener('pointerdown', ()=>{ keys.right = true; });
 btnForward.addEventListener('pointerup', ()=>{ keys.right = false; });
-btnForward.addEventListener('pointercancel', ()=>{ keys.right = false; });
-
-btnAccel.addEventListener('pointerdown', ()=>{ keys.up = true; });
+btnAccel.addEventListener('pointerdown', ()=>{ keys.up = true; if(AUD.sfx.accel && !muted){ AUD.sfx.accel.currentTime = 0; AUD.sfx.accel.play().catch(()=>{});} });
 btnAccel.addEventListener('pointerup', ()=>{ keys.up = false; });
-btnAccel.addEventListener('pointercancel', ()=>{ keys.up = false; });
-
-btnPause.addEventListener('click', togglePause);
 
 document.getElementById('mBack').addEventListener('pointerdown', ()=>{ mobileTouch.back=true; });
 document.getElementById('mBack').addEventListener('pointerup', ()=>{ mobileTouch.back=false; });
 document.getElementById('mForward').addEventListener('pointerdown', ()=>{ mobileTouch.forward=true; });
 document.getElementById('mForward').addEventListener('pointerup', ()=>{ mobileTouch.forward=false; });
-document.getElementById('mAccel').addEventListener('pointerdown', ()=>{ mobileTouch.accel=true; });
+document.getElementById('mAccel').addEventListener('pointerdown', ()=>{ mobileTouch.accel=true; if(AUD.sfx.accel && !muted){ AUD.sfx.accel.currentTime = 0; AUD.sfx.accel.play().catch(()=>{});} });
 document.getElementById('mAccel').addEventListener('pointerup', ()=>{ mobileTouch.accel=false; });
 
-// support touch cancel
+btnPause.addEventListener('click', togglePause);
+btnMute.addEventListener('click', ()=>{ muted = !muted; if(muted){ AUD.music && AUD.music.pause(); btnMute.textContent='Unmute'; } else { setMusicForLevel(currentLevel); btnMute.textContent='Mute'; } });
+
 ['pointercancel','pointerleave'].forEach(ev=>{
   document.getElementById('mAccel').addEventListener(ev, ()=>{ mobileTouch.accel=false; });
   document.getElementById('mBack').addEventListener(ev, ()=>{ mobileTouch.back=false; });
   document.getElementById('mForward').addEventListener(ev, ()=>{ mobileTouch.forward=false; });
 });
 
-// Pause toggle
 function togglePause(){
   running = !running;
   if(running){
-    lastTimestamp = performance.now();
+    lastTs = performance.now();
+  } else {
+    // save best on pause
+    localStorage.setItem(BEST_KEY, String(bestScore));
   }
 }
 
-// Resize handler (canvas responsive)
+/* =================== Responsive canvas scaling =================== */
 function resizeCanvas(){
-  // keep internal resolution fixed but scale visually using CSS for responsiveness
-  const wrap = document.getElementById('gameWrap');
-  const maxW = Math.min(window.innerWidth - 20, 1200);
-  const scale = maxW / CONFIG.canvasWidth;
-  canvas.style.width = (CONFIG.canvasWidth * scale) + 'px';
-  canvas.style.height = (CONFIG.canvasHeight * scale) + 'px';
+  const maxW = Math.min(window.innerWidth - 20, CONFIG.canvasW);
+  const scale = maxW / CONFIG.canvasW;
+  canvas.style.width = (CONFIG.canvasW * scale) + 'px';
+  canvas.style.height = (CONFIG.canvasH * scale) + 'px';
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// initialize bike Y to first ground
-bike.y = heightAt(0) - 36;
+/* =================== Opcional: Reiniciar nivel / juego =================== */
+function restartGame(){
+  score = 0;
+  totalDistance = 0;
+  bike.x = 220;
+  bike.y = heightAt(0) - 36;
+  bike.vx = 0; bike.vy = 0;
+  currentLevel = 1;
+  setMusicForLevel(currentLevel);
+}
 
-// start loop
-requestAnimationFrame(gameLoop);
+/* =================== Notas al desarrollador ===================
+  - Cambia ASSETS.* por tus rutas. Si no hay imagen, se usan formas.
+  - Las pistas se asignan por rango de niveles; ajusta setMusicForLevel si quieres otra lógica.
+  - Para añadir más SFX crea más entradas en ASSETS.sfx y úsalas.
+  - Para ajustar duración del nivel cambia CONFIG.levelDistance.
+  - Guardado: localStorage key 'bm_best_score'.
+  - Para exportar como PWA o empaquetar en WebView, coloca las rutas de assets correctamente.
+================================================================== */
 
-/* ---------- Notas para el desarrollador ----------
-- Cambiar imágenes/colores: ahora el juego usa dibujo por código. Para usar sprites:
-  reemplaza drawBike() con dibujo de imagen y carga Image() arriba.
-- Ajustes fáciles:
-  - CONFIG.dayDistanceForFullDay: mayor => tarda más en pasar a día.
-  - CONFIG.obstacleChance: más => más topes/vados.
-  - CONFIG.maxSpeed y accelPower: ajustan rendimiento.
-- Pistas para añadir sonidos: crea Audio() y reprodúcelos en eventos (acelerar, bump, etc.)
-- Guardado de récord: usa localStorage.setItem('bm_record', score)
--------------------------------------------------- */
 </script>
 </body>
 </html>
+
