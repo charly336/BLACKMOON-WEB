@@ -99,7 +99,7 @@
 <p id="nivel">Nivel 1 😜</p>
 <div id="game-container"></div>
 <p id="mensaje"></p>
-<button id="start-btn">Iniciar Juego</button>
+<button id="start-btn">👾 START GAME 👾</button>
 <button id="mute-btn" style="display:none;">🔊 Silenciar</button>
 
 <audio id="bg-music" loop>
@@ -246,6 +246,49 @@
   }
 
  ajustarTablero(totalCards);
+
+  <h2>🏁 ¡Juego terminado!</h2>
+<input type="text" id="player-name" placeholder="Escribe tu nombre">
+<button id="save-score-btn">Guardar</button>
+
+<h3>🎮 Jugadores que completaron el juego:</h3>
+<ul id="player-list"></ul>
+
+<script>
+// Cargar lista existente desde LocalStorage
+const playerList = JSON.parse(localStorage.getItem('playersCompleted')) || [];
+const listElement = document.getElementById('player-list');
+const input = document.getElementById('player-name');
+const saveBtn = document.getElementById('save-score-btn');
+
+// Mostrar los jugadores guardados
+function updateList() {
+  listElement.innerHTML = '';
+  playerList.forEach((player, i) => {
+    const li = document.createElement('li');
+    li.textContent = `${i + 1}. ${player}`;
+    listElement.appendChild(li);
+  });
+}
+
+// Guardar nuevo jugador
+saveBtn.addEventListener('click', () => {
+  const name = input.value.trim();
+  if (name) {
+    playerList.push(name);
+    localStorage.setItem('playersCompleted', JSON.stringify(playerList));
+    updateList();
+    input.value = '';
+    alert('✅ ¡Nombre guardado!');
+  } else {
+    alert('⚠️ Escribe un nombre antes de guardar.');
+  }
+});
+
+// Inicializar lista al cargar
+updateList();
+</script>
+
 
 </script>
 
