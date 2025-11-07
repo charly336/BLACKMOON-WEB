@@ -254,7 +254,6 @@
 <h3>🎮 Jugadores que completaron el juego:</h3>
 <ul id="player-list"></ul>
 
-<script>
 // Cargar lista existente desde LocalStorage
 const playerList = JSON.parse(localStorage.getItem('playersCompleted')) || [];
 const listElement = document.getElementById('player-list');
@@ -287,7 +286,6 @@ saveBtn.addEventListener('click', () => {
 
 // Inicializar lista al cargar
 updateList();
-</script>
 
 
 </script>
