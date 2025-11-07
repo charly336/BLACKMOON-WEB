@@ -109,33 +109,7 @@
   <!-- El desarrollador puede cambiar el archivo aquí -->
  <audio id="musica" controls autoplay loop>
   <source src="8.-Soy un Quetzal en el Viento.m4a" type="audio/mpeg">
-</audio>
-
-<script>
-let nivel = 1; // ejemplo de inicio de nivel
-const musica = document.getElementById('musica');
-const source = musica.querySelector('source');
-
-function siguienteNivel() {
-  nivel++;
-  
-  // Cada 5 niveles cambia la música
-  if (nivel % 5 === 0) {
-    const nuevoIndice = nivel / 5;
-    source.src = `musica${nuevoIndice}.m4a`; // ejemplo: musica1.m4a, musica2.m4a...
-    musica.load();
-    musica.play();
-  }
-15.-En el aire soy todo.m4a  
-6.-Silencio de la Noche.m4a  
-1.- Volando con Black Moon.m4a
-9.-Soy un fénix en el aire.m4a
-...
-
-}
-</script>
-
-</audio>
+</audio
 
 <script>
   const contenedor = document.getElementById('game-container');
