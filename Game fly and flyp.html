@@ -28,27 +28,12 @@
   }
 
  #game-container {
-  width: 100vw;     /* Ocupa todo el ancho disponible */
-  height: 100vh;    /* Ocupa todo el alto disponible */
-  max-width: 100%;
-  max-height: 100%;
-  margin: 0 auto;   /* Centrado */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; /* Evita barras de scroll si algo sale */
-  background: #000; /* Fondo por si hay espacios libres */
+    display: grid;
+    justify-content: space-between;
+    margin: 40px auto;
+    gap: 20px;
 }
-
-/* Hace que el lienzo se escale correctamente */
-#game-container canvas {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Mantiene proporciones del juego */
-}
-
-  }
-
+    
   .card {
     width: 100px;
     height: 180px;
