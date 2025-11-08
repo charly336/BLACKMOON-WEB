@@ -28,12 +28,6 @@
   cursor: zoom-in;
   border-radius: 50px;
   }
-       
-      
-        
-        a:hover {
-            text-decoration: underline;
-        }
         .espacio {
             margin: 20px;
         }
@@ -56,6 +50,34 @@
             font-family: Arial Black;
             font-size: 100px;
         }
+	   .logos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px; /* espacio entre logos */
+    justify-items: center;
+  }
+
+  .logos-container img {
+    width: 130px;
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .logos-container img:hover {
+    transform: scale(1.05);
+  }
+
+  a {
+    color: #ffcc00; /* color de los enlaces */
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  a:hover {
+    color: #ffffff; /* color al pasar el cursor */
+  }
+
     </style>
    </head>
   <body>
