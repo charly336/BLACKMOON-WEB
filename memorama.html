@@ -1,304 +1,281 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Bird Personalizado</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            overflow: hidden;
-            background-color: #70c5ce;
-        }
-
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        canvas {
-            border: 1px solid #000;
-            background-color: #4ec0ca;
-        }
-
-        .ui {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #333;
-            color: white;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-
-        footer img {
-            max-width: 100px;
-            height: auto;
-        }
-
-        .night-mode {
-            background-color: #222;
-            color: #eee;
-        }
-
-        .night-mode canvas {
-            background-color: #333;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flappy Aire — BlackMoon Games</title>
+  <style>
+    :root{--bg-day:#87CEEB;--bg-night:#0b1630;--ground:#2b2b2b}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial}
+    #game-wrap{display:flex;flex-direction:column;height:100vh}
+    header{padding:10px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,0.05),transparent)}
+    header .controls{display:flex;gap:8px;align-items:center}
+    button{padding:8px 12px;border-radius:8px;border:0;background:#111;color:#fff;cursor:pointer}
+    button.secondary{background:#444}
+    #canvas-container{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg-day);transition:background 1s}
+    canvas{max-width:100%;height:auto;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.25)}
+    footer{display:flex;align-items:center;gap:12px;padding:8px 12px;background:#0f0f10;color:#eee}
+    footer img{height:40px}
+    .hud{position:absolute;left:14px;top:12px;color:#fff;font-weight:700;text-shadow:0 2px 6px rgba(0,0,0,0.5)}
+    .vol-controls{display:flex;gap:6px;align-items:center}
+    @media (max-width:600px){button{padding:6px 8px;border-radius:6px;font-size:14px}}
+  </style>
 </head>
 <body>
-    <div class="game-container">
-        <canvas id="gameCanvas" width="480" height="640"></canvas>
-        <div class="ui">
-            <button id="startButton">Empezar Juego</button>
-            <button id="pauseButton">Pausar Juego</button>
-            <div class="music-controls">
-                <button id="volumeUp">Subir Volumen</button>
-                <button id="volumeDown">Bajar Volumen</button>
-            </div>
+  <div id="game-wrap">
+    <header>
+      <div>
+        <strong>Flappy Aire — BlackMoon Games</strong>
+      </div>
+      <div class="controls">
+        <button id="startBtn">Empezar</button>
+        <button id="pauseBtn" class="secondary">Pausar</button>
+        <div class="vol-controls">
+          <button id="volDown">-</button>
+          <span id="volLabel">Vol: 100%</span>
+          <button id="volUp">+</button>
         </div>
+      </div>
+    </header>
+
+    <div id="canvas-container">
+      <div style="position:relative;max-width:1000px;width:95%">
+        <div class="hud" id="scoreHUD">Puntos: 0</div>
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+      </div>
     </div>
+
     <footer>
-        <p>Mensaje personalizado aquí</p>
-        <img src="assets/imagen_footer.png" alt="Imagen Footer">
+      <img id="footerImg" src="https://images.unsplash.com/photo-1517817748495-95981a7a1e9d?w=800&q=80" alt="Footer image">
+      <div id="footerText">Tu mensaje personalizado aquí — Grupo Black Moon</div>
     </footer>
+  </div>
 
-    <script>
-        // Configuración del juego
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let gameSpeed = 2;
-        let gameRunning = false;
-        let score = 0;
+  <script>
+  /***************************************************************************
+   * CONFIGURACIÓN EDITABLE (cambia estas URLs/textos para personalizar)
+   ***************************************************************************/
+  const CONFIG = {
+    // Personaje (imagen PNG con fondo transparente recomendado)
+    character: {
+      url: 'https://i.imgur.com/Oj1QZfK.png', // reemplaza por tu imagen del personaje
+      width: 72, height: 52
+    },
 
-        // Cargar imágenes y sonidos
-        const characterImg = new Image();
-        characterImg.src = 'png-transparent-acrobatics-aerial-silk-circus-pole-dance-gymnastics-circus-miscellaneous-physical-fitness-sport.png';
-        const obstacleTopImg = new Image();
-        obstacleTopImg.src = 'tela 2.png';
-        const obstacleBottomImg = new Image();
-        obstacleBottomImg.src = 'assets/obstacle_bottom.png';
-        const backgroundImg = new Image();
-        backgroundImg.src = 'assets/background.png';
-        const sunImg = new Image();
-        sunImg.src = 'sol 2.png';
-        const moonImg = new Image();
-        moonImg.src = 'luna.png';
+    // Obstáculos: dos arrays (top y bottom) con imágenes. Pueden tener longitudes distintas.
+    obstaclesTop: [
+      'https://i.imgur.com/8wKQZ3w.png',
+      'https://i.imgur.com/3Z6bQ9K.png'
+    ],
+    obstaclesBottom: [
+      'https://i.imgur.com/6YQw2gP.png',
+      'https://i.imgur.com/4pJ1s9a.png'
+    ],
 
-        const music1 = new Audio('9.-Soy un fénix en el aire.m4a');
-        const music2 = new Audio('8.-Soy un Quetzal en el Viento.m4a');
-        let currentMusic = music1;
-        currentMusic.loop = true;
+    // Escenario: sol, luna, montañas, estrella
+    sunUrl: 'https://i.imgur.com/7b4h0zQ.png',
+    moonUrl: 'https://i.imgur.com/0nYpXgk.png',
+    mountainUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80',
+    starUrl: 'https://i.imgur.com/9q5mH0x.png',
 
-        // Variables del juego
-        let characterX = 50;
-        let characterY = canvas.height / 2;
-        let characterVelocity = 0;
-        const gravity = 0.5;
-        const jumpStrength = -10;
+    // Música (2 ó 3 pistas). Puedes usar mp3/ogg URLs públicos.
+    music: [
+      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+    ],
 
-        let obstacles = [];
+    // Footer: texto e imagen
+    footerText: 'Diseñado por Grupo Black Moon — Cambia este texto en CONFIG',
+    footerImage: 'https://images.unsplash.com/photo-1517817748495-95981a7a1e9d?w=800&q=80',
 
-        // Botones
-        const startButton = document.getElementById('startButton');
-        const pauseButton = document.getElementById('pauseButton');
-        const volumeUpButton = document.getElementById('volumeUp');
-        const volumeDownButton = document.getElementById('volumeDown');
+    // gameplay tuning
+    gravity: 0.45,
+    flapPower: -8.5,
+    obstacleGap: 170,
+    obstacleWidth: 90,
+    obstacleSpacing: 320,
+    speed: 2.6
+  };
+  /***************************************************************************
+   * FIN CONFIG
+   ***************************************************************************/
 
-        // Funciones de control
-        startButton.addEventListener('click', startGame);
-        pauseButton.addEventListener('click', pauseGame);
-        volumeUpButton.addEventListener('click', () => changeVolume(0.1));
-        volumeDownButton.addEventListener('click', () => changeVolume(-0.1));
+  // Set footer content from config
+  document.getElementById('footerText').textContent = CONFIG.footerText;
+  document.getElementById('footerImg').src = CONFIG.footerImage;
 
-        function startGame() {
-            gameRunning = true;
-            score = 0;
-            obstacles = [];
-            characterY = canvas.height / 2;
-            characterVelocity = 0;
-            currentMusic.play();
-            loop();
-        }
+  // CANVAS & CONTEXT
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  let cw = canvas.width, ch = canvas.height;
 
-        function pauseGame() {
-            gameRunning = !gameRunning;
-            if (gameRunning) {
-                currentMusic.play();
-                loop();
-            } else {
-                currentMusic.pause();
-            }
-        }
+  // Responsive canvas scaling
+  function fitCanvas(){
+    const container = canvas.parentElement.getBoundingClientRect();
+    const ratio = cw / ch;
+    let w = container.width;
+    let h = Math.min(window.innerHeight - 140, w / ratio);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+  }
+  window.addEventListener('resize', fitCanvas);
+  fitCanvas();
 
-        function changeVolume(amount) {
-            currentMusic.volume = Math.max(0, Math.min(1, currentMusic.volume + amount));
-        }
+  // Load images utility
+  function loadImage(src){
+    return new Promise(res=>{const i=new Image();i.src=src;i.onload=()=>res(i);i.onerror=()=>res(i)});
+  }
 
-        // Lógica del juego
-        function createObstacle() {
-            const obstacleHeight = 100 + Math.random() * 200;
-            const topObstacleHeight = obstacleHeight;
-            const bottomObstacleHeight = canvas.height - obstacleHeight - 150;
-            const obstacleX = canvas.width;
+  // Asset holders
+  const ASSETS = {character:null, sun:null, moon:null, mountain:null, star:null, obsTop:[], obsBottom:[]};
 
-            obstacles.push({
-                x: obstacleX,
-                topHeight: topObstacleHeight,
-                bottomHeight: bottomObstacleHeight,
-                width: 50
-            });
-        }
+  async function loadAllAssets(){
+    ASSETS.character = await loadImage(CONFIG.character.url);
+    ASSETS.sun = await loadImage(CONFIG.sunUrl);
+    ASSETS.moon = await loadImage(CONFIG.moonUrl);
+    ASSETS.mountain = await loadImage(CONFIG.mountainUrl);
+    ASSETS.star = await loadImage(CONFIG.starUrl);
+    for(let u of CONFIG.obstaclesTop) ASSETS.obsTop.push(await loadImage(u));
+    for(let u of CONFIG.obstaclesBottom) ASSETS.obsBottom.push(await loadImage(u));
+  }
 
-        function updateObstacles() {
-            if (obstacles.length > 0 && obstacles[0].x < -obstacles[0].width) {
-                obstacles.shift();
-            }
+  // Audio
+  const audioElements = CONFIG.music.map(src=>{const a=new Audio(src);a.loop=true;return a});
+  let currentAudioIndex = 0;
+  let masterVolume = 1.0;
+  function setVolume(v){masterVolume = Math.max(0,Math.min(1,v)); audioElements.forEach(a=>a.volume=masterVolume); document.getElementById('volLabel').textContent = 'Vol: '+Math.round(masterVolume*100)+'%';}
+  setVolume(1.0);
 
-            if (obstacles.length < 3 && Math.random() < 0.02) {
-                createObstacle();
-            }
+  // Game state
+  let bird = {x:160,y:ch/2,vy:0,w:CONFIG.character.width,h:CONFIG.character.height};
+  let obstacles = []; // each: {x, topHeight, bottomY, topImg, bottomImg}
+  let frames = 0; let score = 0; let running=false; let paused=false; let dayFactor=0; // 0 day -> 1 night
 
-            for (let i = 0; i < obstacles.length; i++) {
-                obstacles[i].x -= gameSpeed;
-            }
-        }
+  // Create initial obstacles
+  function resetGame(){
+    bird.y = ch/2; bird.vy = 0;
+    obstacles = [];
+    frames = 0; score = 0; running = false; paused=false; dayFactor=0;
+    spawnInitialObstacles(); updateHUD();
+  }
 
-        function updateCharacter() {
-            characterVelocity += gravity;
-            characterY += characterVelocity;
+  function spawnInitialObstacles(){
+    let startX = cw + 120;
+    for(let i=0;i<4;i++) spawnObstacle(startX + i*CONFIG.obstacleSpacing);
+  }
 
-            if (characterY < 0) {
-                characterY = 0;
-                characterVelocity = 0;
-            }
+  function spawnObstacle(x){
+    // random gap position
+    const minTop = 40; const maxTop = ch - CONFIG.obstacleGap - 120;
+    const top = Math.floor(minTop + Math.random()*(Math.max(0,maxTop-minTop)));
+    // choose images cycling
+    const topImg = ASSETS.obsTop[ obstacles.length % ASSETS.obsTop.length ] || null;
+    const bottomImg = ASSETS.obsBottom[ obstacles.length % ASSETS.obsBottom.length ] || null;
+    obstacles.push({x, topHeight:top, bottomY: top + CONFIG.obstacleGap, topImg, bottomImg});
+  }
 
-            if (characterY > canvas.height - characterImg.height) {
-                characterY = canvas.height - characterImg.height;
-                characterVelocity = 0;
-                gameOver();
-            }
-        }
+  function updateHUD(){ document.getElementById('scoreHUD').textContent = 'Puntos: '+score }
 
-        function checkCollisions() {
-            for (let i = 0; i < obstacles.length; i++) {
-                const obstacle = obstacles[i];
-                if (characterX < obstacle.x + obstacle.width &&
-                    characterX + characterImg.width > obstacle.x &&
-                    (characterY < obstacle.topHeight ||
-                     characterY + characterImg.height > canvas.height - obstacle.bottomHeight)) {
-                    gameOver();
-                }
-            }
-        }
+  // Input: flap by space/arrow up or click/tap
+  function flap(){ bird.vy = CONFIG.flapPower }
+  window.addEventListener('keydown', e=>{ if(e.code==='Space' || e.key==='ArrowUp') flap(); });
+  canvas.addEventListener('pointerdown', ()=>flap());
 
-        function updateScore() {
-            for (let i = 0; i < obstacles.length; i++) {
-                const obstacle = obstacles[i];
-                if (obstacle.x + obstacle.width < characterX && !obstacle.passed) {
-                    obstacle.passed = true;
-                    score++;
-                }
-            }
-        }
+  // Start / Pause / Volume buttons
+  document.getElementById('startBtn').addEventListener('click', ()=>{
+    if(!running){ startGame(); } else { // restart if already running
+      resetGame(); startGame();
+    }
+  });
+  document.getElementById('pauseBtn').addEventListener('click', ()=>{
+    paused = !paused; document.getElementById('pauseBtn').textContent = paused? 'Reanudar':'Pausar';
+    if(!paused) loop();
+    audioElements.forEach(a=> paused? a.pause(): a.play());
+  });
+  document.getElementById('volUp').addEventListener('click', ()=> setVolume(masterVolume + 0.1));
+  document.getElementById('volDown').addEventListener('click', ()=> setVolume(masterVolume - 0.1));
 
-        function gameOver() {
-            gameRunning = false;
-            currentMusic.pause();
-            alert('¡Game Over! Puntaje: ' + score);
-        }
+  // Game loop
+  function startGame(){ if(!running){ running=true; paused=false; audioElements.forEach(a=>a.play()); requestAnimationFrame(loop); }}
 
-        // Dibujar elementos
-        function drawBackground() {
-            ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-        }
+  function loop(){ if(!running || paused) return; frames++;
+    // physics
+    bird.vy += CONFIG.gravity; bird.y += bird.vy;
+    // move obstacles
+    for(let ob of obstacles) ob.x -= CONFIG.speed;
+    // remove offscreen & spawn
+    if(obstacles.length && obstacles[0].x < -CONFIG.obstacleWidth){ obstacles.shift(); spawnObstacle(obstacles[obstacles.length-1].x + CONFIG.obstacleSpacing); score+=1; updateHUD(); }
+    // collision
+    if(bird.y + bird.h > ch - 20){ // floor
+      running=false; audioElements.forEach(a=>a.pause());
+    }
+    if(bird.y < -50) bird.y = -50;
+    for(let ob of obstacles){
+      // bounding boxes
+      const topRect = {x:ob.x, y:0, w:CONFIG.obstacleWidth, h:ob.topHeight};
+      const bottomRect = {x:ob.x, y:ob.bottomY, w:CONFIG.obstacleWidth, h: ch - ob.bottomY};
+      const birdRect = {x:bird.x, y:bird.y, w:bird.w, h:bird.h};
+      if(rectIntersect(birdRect, topRect) || rectIntersect(birdRect, bottomRect)){
+        running=false; audioElements.forEach(a=>a.pause());
+      }
+    }
 
-        function drawCharacter() {
-            ctx.drawImage(characterImg, characterX, characterY);
-        }
+    // day-night factor based on score / frames (smooth)
+    dayFactor = Math.min(1, (score / 10)); // after 10 points it becomes night gradually — puedes cambiar la fórmula
 
-        function drawObstacles() {
-            for (let i = 0; i < obstacles.length; i++) {
-                const obstacle = obstacles[i];
-                ctx.drawImage(obstacleTopImg, obstacle.x, 0, obstacle.width, obstacle.topHeight);
-                ctx.drawImage(obstacleBottomImg, obstacle.x, canvas.height - obstacle.bottomHeight, obstacle.width, obstacle.bottomHeight);
-            }
-        }
+    draw();
+    if(running) requestAnimationFrame(loop);
+  }
 
-        function drawScore() {
-            ctx.fillStyle = '#fff';
-            ctx.font = '20px Arial';
-            ctx.fillText('Puntaje: ' + score, 10, 20);
-        }
+  function rectIntersect(a,b){ return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y }
 
-        // Día/Noche
-        let isNight = false;
-        let timeSinceStart = 0;
+  function draw(){
+    // background: interpolate between day and night colors
+    const dayColor = {r:135,g:206,b:235}; const nightColor = {r:11,g:22,b:48};
+    const t = dayFactor; const bg = `rgb(${Math.round(lerp(dayColor.r,nightColor.r,t))},${Math.round(lerp(dayColor.g,nightColor.g,t))},${Math.round(lerp(dayColor.b,nightColor.b,t))})`;
+    ctx.fillStyle = bg; ctx.fillRect(0,0,cw,ch);
 
-        function updateDayNightCycle() {
-            timeSinceStart += 1;
-            if (timeSinceStart % 600 === 0) {
-                isNight = !isNight;
-                document.body.classList.toggle('night-mode', isNight);
+    // stars (show when t>0.2)
+    if(t>0.2){ for(let i=0;i<50;i++){ const sx=(i*37+frames*0.3)%cw; const sy=(i*53)% (ch/2); ctx.globalAlpha = 0.6 * (t); ctx.drawImage(ASSETS.star, sx, sy, 6,6); } ctx.globalAlpha=1 }
 
-                if (isNight) {
-                    sunImg.src = '';
-                    moonImg.src = 'assets/moon.png';
-                } else {
-                    sunImg.src = 'assets/sun.png';
-                    moonImg.src = '';
-                }
-            }
-        }
+    // mountain background (stretched to bottom)
+    ctx.drawImage(ASSETS.mountain, 0, ch - 220, cw, 220);
 
-        // Game loop
-        function loop() {
-            if (!gameRunning) return;
+    // sun / moon positions
+    const sunX = cw * 0.85; const sunY = ch * (0.15 + 0.2 * Math.sin(frames*0.003));
+    const moonX = cw * 0.15; const moonY = ch * (0.2 + 0.2 * Math.cos(frames*0.002));
+    // sun visible when t small, moon when t large (crossfade)
+    ctx.globalAlpha = 1 - t; ctx.drawImage(ASSETS.sun, sunX, sunY, 72,72);
+    ctx.globalAlpha = t; ctx.drawImage(ASSETS.moon, moonX, moonY, 64,64);
+    ctx.globalAlpha = 1;
 
-            updateDayNightCycle();
+    // draw obstacles
+    for(let ob of obstacles){
+      // top
+      if(ob.topImg) ctx.drawImage(ob.topImg, ob.x, 0, CONFIG.obstacleWidth, ob.topHeight);
+      else{ ctx.fillStyle='#2e7'; ctx.fillRect(ob.x,0,CONFIG.obstacleWidth,ob.topHeight); }
+      // bottom
+      const bh = ch - ob.bottomY;
+      if(ob.bottomImg) ctx.drawImage(ob.bottomImg, ob.x, ob.bottomY, CONFIG.obstacleWidth, bh);
+      else{ ctx.fillStyle='#2e7'; ctx.fillRect(ob.x,ob.bottomY,CONFIG.obstacleWidth,bh); }
+    }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBackground();
-            drawObstacles();
-            drawCharacter();
-            drawScore();
+    // draw bird (character)
+    if(ASSETS.character) ctx.drawImage(ASSETS.character, bird.x, bird.y, bird.w, bird.h);
+    else{ ctx.fillStyle='#ff0'; ctx.fillRect(bird.x,bird.y,bird.w,bird.h); }
 
-            if (!isNight) {
-                ctx.drawImage(sunImg, 50, 50, 50, 50);
-            } else {
-                ctx.drawImage(moonImg, 50, 50, 50, 50);
-            }
+    // ground strip
+    ctx.fillStyle = '#1f1f1f'; ctx.fillRect(0, ch-20, cw, 20);
+  }
 
-            updateCharacter();
-            updateObstacles();
-            checkCollisions();
-            updateScore();
+  function lerp(a,b,t){return a + (b-a)*t}
 
-            requestAnimationFrame(loop);
-        }
+  // initial load
+  (async ()=>{ await loadAllAssets(); resetGame(); draw(); })();
 
-        // Event listeners
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space') {
-                characterVelocity = jumpStrength;
-            }
-        });
-    </script>
+  // expose some helpers for console or future UI
+  window.FLAPPY_AIRE = {CONFIG, resetGame, startGame, pauseGame:()=>{paused=true}, audioElements, setVolume, spawnObstacle};
+
+  </script>
 </body>
 </html>
