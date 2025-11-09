@@ -1,1 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird Personalizado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background-color: #70c5ce;
+        }
 
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        canvas {
+            border: 1px solid #000;
+            background-color: #4ec0ca;
+        }
+
+        .ui {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        footer img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .night-mode {
+            background-color: #222;
+            color: #eee;
+        }
+
+        .night-mode canvas {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="480" height="640"></canvas>
+        <div class="ui">
+            <button id="startButton">Empezar Juego</button>
+            <button id="pauseButton">Pausar Juego</button>
+            <div class="music-controls">
+                <button id="volumeUp">Subir Volumen</button>
+                <button id="volumeDown">Bajar Volumen</button>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Mensaje personalizado aquí</p>
+        <img src="assets/imagen_footer.png" alt="Imagen Footer">
+    </footer>
+
+    <script>
+        // Configuración del juego
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameSpeed = 2;
+        let gameRunning = false;
+        let score = 0;
+
+        // Cargar imágenes y sonidos
+        const characterImg = new Image();
+        characterImg.src = 'assets/character.png';
+        const obstacleTopImg = new Image();
+        obstacleTopImg.src = 'assets/obstacle_top.png';
+        const obstacleBottomImg = new Image();
+        obstacleBottomImg.src = 'assets/obstacle_bottom.png';
+        const backgroundImg = new Image();
+        backgroundImg.src = 'assets/background.png';
+        const sunImg = new Image();
+        sunImg.src = 'assets/sun.png';
+        const moonImg = new Image();
+        moonImg.src = 'assets/moon.png';
+
+        const music1 = new Audio('assets/music1.mp3');
+        const music2 = new Audio('assets/music2.mp3');
+        let currentMusic = music1;
+        currentMusic.loop = true;
+
+        // Variables del juego
+        let characterX = 50;
+        let characterY = canvas.height / 2;
+        let characterVelocity = 0;
+        const gravity = 0.5;
+        const jumpStrength = -10;
+
+        let obstacles = [];
+
+        // Botones
+        const startButton = document.getElementById('startButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const volumeUpButton = document.getElementById('volumeUp');
+        const volumeDownButton = document.getElementById('volumeDown');
+
+        // Funciones de control
+        startButton.addEventListener('click', startGame);
+        pauseButton.addEventListener('click', pauseGame);
+        volumeUpButton.addEventListener('click', () => changeVolume(0.1));
+        volumeDownButton.addEventListener('click', () => changeVolume(-0.1));
+
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            obstacles = [];
+            characterY = canvas.height / 2;
+            characterVelocity = 0;
+            currentMusic.play();
+            loop();
+        }
+
+        function pauseGame() {
+            gameRunning = !gameRunning;
+            if (gameRunning) {
+                currentMusic.play();
+                loop();
+            } else {
+                currentMusic.pause();
+            }
+        }
+
+        function changeVolume(amount) {
+            currentMusic.volume = Math.max(0, Math.min(1, currentMusic.volume + amount));
+        }
+
+        // Lógica del juego
+        function createObstacle() {
+            const obstacleHeight = 100 + Math.random() * 200;
+            const topObstacleHeight = obstacleHeight;
+            const bottomObstacleHeight = canvas.height - obstacleHeight - 150;
+            const obstacleX = canvas.width;
+
+            obstacles.push({
+                x: obstacleX,
+                topHeight: topObstacleHeight,
+                bottomHeight: bottomObstacleHeight,
+                width: 50
+            });
+        }
+
+        function updateObstacles() {
+            if (obstacles.length > 0 && obstacles[0].x < -obstacles[0].width) {
+                obstacles.shift();
+            }
+
+            if (obstacles.length < 3 && Math.random() < 0.02) {
+                createObstacle();
+            }
+
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x -= gameSpeed;
+            }
+        }
+
+        function updateCharacter() {
+            characterVelocity += gravity;
+            characterY += characterVelocity;
+
+            if (characterY < 0) {
+                characterY = 0;
+                characterVelocity = 0;
+            }
+
+            if (characterY > canvas.height - characterImg.height) {
+                characterY = canvas.height - characterImg.height;
+                characterVelocity = 0;
+                gameOver();
+            }
+        }
+
+        function checkCollisions() {
+            for (let i = 0; i < obstacles.length; i++) {
+                const obstacle = obstacles[i];
+                if (characterX < obstacle.x + obstacle.width &&
+                    characterX + characterImg.width > obstacle.x &&
+                    (characterY < obstacle.topHeight ||
+                     characterY + characterImg.height > canvas.height - obstacle.bottomHeight)) {
+                    gameOver();
+                }
+            }
+        }
+
+        function updateScore() {
+            for (let i = 0; i < obstacles.length; i++) {
+                const obstacle = obstacles[i];
+                if (obstacle.x + obstacle.width < characterX && !obstacle.passed) {
+                    obstacle.passed = true;
+                    score++;
+                }
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            currentMusic.pause();
+            alert('¡Game Over! Puntaje: ' + score);
+        }
+
+        // Dibujar elementos
+        function drawBackground() {
+            ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+        }
+
+        function drawCharacter() {
+            ctx.drawImage(characterImg, characterX, characterY);
+        }
+
+        function drawObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                const obstacle = obstacles[i];
+                ctx.drawImage(obstacleTopImg, obstacle.x, 0, obstacle.width, obstacle.topHeight);
+                ctx.drawImage(obstacleBottomImg, obstacle.x, canvas.height - obstacle.bottomHeight, obstacle.width, obstacle.bottomHeight);
+            }
+        }
+
+        function drawScore() {
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.fillText('Puntaje: ' + score, 10, 20);
+        }
+
+        // Día/Noche
+        let isNight = false;
+        let timeSinceStart = 0;
+
+        function updateDayNightCycle() {
+            timeSinceStart += 1;
+            if (timeSinceStart % 600 === 0) {
+                isNight = !isNight;
+                document.body.classList.toggle('night-mode', isNight);
+
+                if (isNight) {
+                    sunImg.src = '';
+                    moonImg.src = 'assets/moon.png';
+                } else {
+                    sunImg.src = 'assets/sun.png';
+                    moonImg.src = '';
+                }
+            }
+        }
+
+        // Game loop
+        function loop() {
+            if (!gameRunning) return;
+
+            updateDayNightCycle();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawObstacles();
+            drawCharacter();
+            drawScore();
+
+            if (!isNight) {
+                ctx.drawImage(sunImg, 50, 50, 50, 50);
+            } else {
+                ctx.drawImage(moonImg, 50, 50, 50, 50);
+            }
+
+            updateCharacter();
+            updateObstacles();
+            checkCollisions();
+            updateScore();
+
+            requestAnimationFrame(loop);
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                characterVelocity = jumpStrength;
+            }
+        });
+    </script>
+</body>
+</html>
