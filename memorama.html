@@ -1,431 +1,50 @@
-<!--
-Solitario Klondike - 50 Niveles (single-file)
-Instrucciones: TODO cambio que deba hacer solo el DESARROLLADOR se encuentra en la const DEV_CONFIG dentro del script (busca "DEV-CONFIG - ZONA PARA DESARROLLADOR").
-
-Características implementadas:
-- Juego: Klondike Solitaire (reglas clásicas: construir en fundaciones A->K por palo; tableau apilar alternando color y orden descendente; mover secuencias; stock/waste con redeals según configuración de nivel).
-- 50 niveles, organizados en 10 bloques de 5 niveles. Cada bloque puede cambiar fondo y música.
-- Cronómetro por nivel, mejor tiempo (récord) y mejor movimientos guardados en localStorage (por nivel).
-- Animación de cartas al moverse, animación al completar nivel y pantalla inicial.
-- Zona única de configuración para el desarrollador: DEV_CONFIG. Allí cambiar cartas (emojis o imágenes), fondos, música, logos, footer, link inferior, y la función levelConfig(level) para ajustar la dificultad y reglas (p. ej. número de redeals, modo de robar 1/3 cartas del stock, tiempo límite opcional, cartas visibles iniciales, etc.).
-- Control de acceso: todas las customizaciones están centralizadas en DEV_CONFIG. NOTA: esto no evita que alguien con acceso al archivo lo edite.
-- Solo el desarrollador debe editar DEV_CONFIG.
-
-Limitaciones y notas:
-- Implementación orientada al navegador (single HTML). Los récords usan localStorage.
-- Para desbloquear protección real se necesita servidor/usuario autenticado.
-- Si quieres otra variante de Solitario (Spider, FreeCell), pídelo y adapto la lógica.
--->
-
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Solitario Klondike - 50 Niveles</title>
-<style>
-  :root{--bg:#072033;--card-back:#16324b;--accent:#d6a02a}
-  *{box-sizing:border-box;font-family:Inter, system-ui, Arial, sans-serif}
-  body{margin:0;min-height:100vh;background:var(--bg);color:#eee;display:flex;flex-direction:column;align-items:center}
-  header{width:100%;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-  .brand{display:flex;gap:12px;align-items:center}
-  .brand img{height:44px}
-  h1{margin:0;font-size:18px}
-  #game-wrap{width:100%;max-width:1080px;padding:12px}
-  .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .controls{display:flex;gap:8px;align-items:center}
-  button{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
-  #board{min-height:520px;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:block}
-  .row{display:flex;gap:12px;align-items:flex-start}
-  .pile{width:100px;min-height:140px;border-radius:8px;padding:6px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
-  .pile.empty{border:1px dashed rgba(255,255,255,0.04)}
-  .card{width:88px;height:124px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 6px 18px rgba(0,0,0,0.5);transition:transform .25s}
-  .card.moving{transition:none;z-index:60}
-  .card.back{background:linear-gradient(135deg,var(--card-back),#0b2a3b);color:#fff}
-  .card.front{background:white;color:#111}
-  .hidden{display:none}
-  .small{font-size:13px;color:#ccc}
-  #bottom-link{margin-top:12px;display:flex;align-items:center;gap:12px}
-  #bottom-link img{height:48px;border-radius:8px}
-  footer{width:100%;padding:18px 24px;margin-top:18px;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:space-between}
-  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:80}
-  .panel{background:rgba(0,0,0,.8);padding:18px;border-radius:10px;text-align:center}
-  .foundation, .stock, .waste{width:100px;height:140px;border-radius:8px;display:flex;align-items:center;justify-content:center}
-  .tableau{width:100px;min-height:180px}
-  .stack{display:flex;flex-direction:column;gap:8px}
-  .card .rank{font-weight:700}
-  .controls .info{display:flex;flex-direction:column;align-items:flex-end}
-  @media(max-width:900px){.row{flex-wrap:wrap;justify-content:center}.pile{width:76px}.card{width:68px;height:96px}}
-</style>
-</head>
-<body>
-<header>
-  <div class="brand"><img id="logo-img" src="" alt="Logo"><div><h1 id="title">Solitario Klondike</h1><div class="small">Nivel: <span id="level-display">1</span>/50</div></div></div>
-  <div class="controls">
-    <div class="small">Tiempo: <span id="timer">00:00</span></div>
-    <button id="btn-restart">Reiniciar</button>
-    <button id="btn-undo">Deshacer</button>
-    <div class="small">Mejor: <span id="best-display">—</span></div>
-  </div>
-</header>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>JavaScript-Solitario</title>
 
-<div id="game-wrap">
-  <div class="topbar">
-    <div class="small">Registros locales por nivel</div>
-    <div class="small">Movimientos: <span id="moves">0</span></div>
-  </div>
+        <link href="./css/style.css" rel="stylesheet" type="text/css" />
+    </head>
 
-  <div id="board">
-    <div class="row" style="margin-bottom:12px;justify-content:space-between">
-      <div class="row" style="gap:12px">
-        <div id="stock" class="pile stock"></div>
-        <div id="waste" class="pile waste empty"></div>
-      </div>
-      <div id="foundations" class="row" style="gap:12px"></div>
-    </div>
+    <body>
+        <h1>Solitario</h1>
+        <div class="stock-foundation">
+            <div class="stock-container">
+                <div class="stock">
+                    <div id="card"></div>
+                    <div class="card-back">
+                        <div class="card-border"></div>
+                    </div>
+                </div>
+                <div class="waste-container"></div>
+            </div>
 
-    <div id="tableau" class="row"></div>
+            <div id="foundation-holder" class="foundation-holder">
+                <div id="foundation-1" class="foundation"></div>
+                <div id="foundation-2" class="foundation"></div>
+                <div id="foundation-3" class="foundation"></div>
+                <div id="foundation-4" class="foundation"></div>
+            </div>
+        </div>
 
-    <div id="bottom-link" class="small"></div>
-  </div>
+        <div id="tableau-holder" class="tableau-holder">
+            <div id="tableau-pile-1" class="tableau-pile"></div>
+            <div id="tableau-pile-2" class="tableau-pile"></div>
+            <div id="tableau-pile-3" class="tableau-pile"></div>
+            <div id="tableau-pile-4" class="tableau-pile"></div>
+            <div id="tableau-pile-5" class="tableau-pile"></div>
+            <div id="tableau-pile-6" class="tableau-pile"></div>
+            <div id="tableau-pile-7" class="tableau-pile"></div>
+        </div>
 
-  <div id="start-screen" class="overlay hidden">
-    <div class="panel">
-      <h2 id="start-title">Preparado para el nivel <span id="start-level">1</span></h2>
-      <p class="small">Pulsa comenzar para iniciar. Las reglas de este nivel se configuran en DEV_CONFIG.levelConfig(level).</p>
-      <button id="btn-start">Comenzar</button>
-    </div>
-  </div>
-
-  <div id="end-screen" class="overlay hidden">
-    <div class="panel">
-      <h2>¡Nivel completado!</h2>
-      <p class="small">Tiempo: <span id="end-time">00:00</span></p>
-      <p class="small">Movimientos: <span id="end-moves">0</span></p>
-      <p class="small">Récord: <span id="end-best">—</span></p>
-      <button id="btn-continue">Siguiente nivel</button>
-      <button id="btn-replay">Repetir</button>
-    </div>
-  </div>
-
-</div>
-
-<footer>
-  <div id="footer-left"><img id="footer-logo" src="" alt="Footer" style="height:36px;vertical-align:middle;margin-right:8px"><span id="footer-text"></span></div>
-  <div class="small">Black Moon Games</div>
-</footer>
-
-<script>
-/* DEV-CONFIG - ZONA PARA DESARROLLADOR
-Localiza este bloque y edita SOLO aquí. Cualquier cambio de assets, fondos, música, textos, o reglas por nivel se hace en DEV_CONFIG.
-*/
-const DEV_CONFIG = {
-  NOTE: 'Solo editar aquí. Todo cambio que deba hacer el desarrollador está concentrado en DEV_CONFIG.',
-  // Logos
-  logoSrc: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="48"><rect width="100%" height="100%" fill="#071026"/><text x="12" y="30" fill="#fff" font-size="18">Black Moon</text></svg>',
-  footerLogo: '',
-  footerText: 'Tu frase personalizada en el footer',
-
-  // Cartas: usar emojis por defecto. Para usar imagen: 'img:https://ruta/a/imagen.png'
-  cardFaces: [
-    'A♥','2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥',
-    'A♦','2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦',
-    'A♣','2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣',
-    'A♠','2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠'
-  ],
-
-  // Backgrounds per block of 5 levels (indices 0..9 correspond to levels 1-5, 6-10, ...)
-  backgrounds: ['', '', '', '', '', '', '', '', '', ''],
-
-  // Music per block of 5 levels: list of 10 audio URLs (mp3/ogg)
-  music: ['', '', '', '', '', '', '', '', '', ''],
-
-  // Bottom link area
-  bottomLink: { url: 'https://example.com', img: '', text: 'Visita nuestro store' },
-
-  // Level configuration: return rules for given level
-  // Dev can change redeals (number), draw (1 or 3), initialVisible (true/false), timeLimit (seconds or null)
-  levelConfig: function(level){
-    const group = Math.floor((level-1)/5);
-    // Example ramp: early levels easier (draw 1, more redeals), later levels harder (draw 3, fewer redeals)
-    const draw = level < 15 ? 1 : 3; // draw 1 for first 14 levels, then 3
-    const redeals = Math.max(0, 5 - Math.floor(level/10)); // decreases with level
-    const timeLimit = null; // null => no time limit
-    return {draw, redeals, group, timeLimit};
-  }
-};
-/* FIN DEV-CONFIG */
-
-// --- Variables y UI ---
-const MAX_LEVEL = 50;
-let currentLevel = 1;
-let deck = [];
-let stock = [];
-let waste = [];
-let foundations = [[],[],[],[]];
-let tableau = [[],[],[],[],[],[],[]];
-let moves = 0;
-let undoStack = [];
-let timerInterval = null; let startTime = null; let elapsedSec = 0;
-
-// UI refs
-const levelDisplay = document.getElementById('level-display');
-const timerEl = document.getElementById('timer');
-const bestDisplay = document.getElementById('best-display');
-const startScreen = document.getElementById('start-screen');
-const endScreen = document.getElementById('end-screen');
-const btnStart = document.getElementById('btn-start');
-const btnContinue = document.getElementById('btn-continue');
-const btnReplay = document.getElementById('btn-replay');
-const btnRestart = document.getElementById('btn-restart');
-const btnUndo = document.getElementById('btn-undo');
-const movesEl = document.getElementById('moves');
-const stockEl = document.getElementById('stock');
-const wasteEl = document.getElementById('waste');
-const foundationsEl = document.getElementById('foundations');
-const tableauEl = document.getElementById('tableau');
-const startLevelSpan = document.getElementById('start-level');
-const endTimeEl = document.getElementById('end-time');
-const endMovesEl = document.getElementById('end-moves');
-const endBestEl = document.getElementById('end-best');
-const bottomLinkEl = document.getElementById('bottom-link');
-const logoImg = document.getElementById('logo-img');
-const footerLogo = document.getElementById('footer-logo');
-const footerText = document.getElementById('footer-text');
-
-let musicAudio = null;
-
-// --- Helpers ---
-function saveBest(level, seconds, moves){
-  const key = `bm_sol_best_${level}`;
-  const prev = JSON.parse(localStorage.getItem(key) || 'null');
-  if(!prev || seconds < prev.seconds || (seconds===prev.seconds && moves<prev.moves)){
-    localStorage.setItem(key, JSON.stringify({seconds,moves}));
-  }
-}
-function loadBest(level){
-  const key = `bm_sol_best_${level}`;
-  return JSON.parse(localStorage.getItem(key) || 'null');
-}
-function formatTime(sec){ const mm=Math.floor(sec/60).toString().padStart(2,'0'); const ss=(sec%60).toString().padStart(2,'0'); return `${mm}:${ss}` }
-
-function shuffle(a){ const arr = a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr }
-
-// Card utilities
-function cardObject(code){ // code like 'A♥' or '10♠'
-  const m = code.match(/(A|[2-9]|10|J|Q|K)([♥♦♣♠])/);
-  if(!m) return null;
-  const rank = m[1]; const suit = m[2];
-  const value = rank==='A'?1:rank==='J'?11:rank==='Q'?12:rank==='K'?13:parseInt(rank,10);
-  const color = (suit==='♥' || suit==='♦') ? 'red':'black';
-  return {code,rank,suit,value,color};
-}
-
-// Build full deck
-function buildDeck(){
-  deck = DEV_CONFIG.cardFaces.map(cardObject).filter(Boolean);
-}
-
-// Deal for Klondike
-function dealKlondike(){
-  // reset piles
-  stock = []; waste = []; foundations = [[],[],[],[]]; tableau = [[],[],[],[],[],[],[]];
-  let d = shuffle(deck.slice());
-  // tableau: pile i gets i+1 cards, last card face-up
-  for(let i=0;i<7;i++){
-    tableau[i] = d.splice(0,i+1).map((c,idx)=>({...c, faceUp: idx===i}));
-  }
-  stock = d.map(c=>({...c, faceUp:false}));
-}
-
-// Rendering
-function applyDevAssets(){
-  if(DEV_CONFIG.logoSrc) logoImg.src = DEV_CONFIG.logoSrc;
-  if(DEV_CONFIG.footerLogo) footerLogo.src = DEV_CONFIG.footerLogo; else footerLogo.style.display='none';
-  footerText.textContent = DEV_CONFIG.footerText || '';
-  // bottom link
-  bottomLinkEl.innerHTML = '';
-  const b = DEV_CONFIG.bottomLink;
-  if(b && (b.url || b.text || b.img)){
-    const a = document.createElement('a'); a.href = b.url||'#'; a.target='_blank'; a.className='small';
-    if(b.img){ const img = document.createElement('img'); img.src=b.img; img.style.height='40px'; img.style.marginRight='8px'; a.appendChild(img) }
-    a.appendChild(document.createTextNode(b.text || b.url));
-    bottomLinkEl.appendChild(a);
-  }
-}
-
-function applyBackgroundAndMusic(group){
-  const bg = DEV_CONFIG.backgrounds[group] || '';
-  if(bg){ document.body.style.background = `url('${bg}') center/cover no-repeat`; } else { document.body.style.background = ''; }
-  const url = DEV_CONFIG.music[group] || '';
-  if(musicAudio){ musicAudio.pause(); musicAudio=null }
-  if(url){ musicAudio = new Audio(url); musicAudio.loop=true; musicAudio.volume=0.5; musicAudio.play().catch(()=>{}); }
-}
-
-function renderAll(){
-  // stock
-  stockEl.innerHTML='';
-  const stockTop = stock.length ? stock[stock.length-1] : null;
-  const stockDiv = document.createElement('div'); stockDiv.className='pile';
-  if(stockTop){ stockDiv.appendChild(renderCardElement({...stockTop, faceUp:false}, true)); } else { stockDiv.className+=' empty' }
-  stockEl.appendChild(stockDiv);
-
-  // waste
-  wasteEl.innerHTML='';
-  const wasteDiv = document.createElement('div'); wasteDiv.className='pile';
-  if(waste.length){ wasteDiv.appendChild(renderCardElement(waste[waste.length-1], true)); } else { wasteDiv.className+=' empty' }
-  wasteEl.appendChild(wasteDiv);
-
-  // foundations
-  foundationsEl.innerHTML='';
-  for(let i=0;i<4;i++){
-    const f = document.createElement('div'); f.className='pile foundation';
-    f.dataset.idx = i;
-    if(foundations[i].length){ f.appendChild(renderCardElement(foundations[i][foundations[i].length-1], true)); } else { f.classList.add('empty'); f.textContent='Fond.' }
-    f.addEventListener('click', ()=>{});
-    foundationsEl.appendChild(f);
-  }
-
-  // tableau
-  tableauEl.innerHTML='';
-  for(let i=0;i<7;i++){
-    const col = document.createElement('div'); col.className='pile tableau'; col.dataset.idx=i;
-    const stack = document.createElement('div'); stack.className='stack';
-    tableau[i].forEach((c,idx)=>{ stack.appendChild(renderCardElement(c, c.faceUp)); });
-    col.appendChild(stack);
-    tableauEl.appendChild(col);
-  }
-
-  document.getElementById('moves').textContent = moves;
-}
-
-function renderCardElement(card, faceUp){
-  const el = document.createElement('div'); el.className = 'card '+(faceUp?'front':'back');
-  el.dataset.code = card.code;
-  if(faceUp){ el.innerHTML = `<div class='rank'>${card.rank}${card.suit}</div>`; } else { el.textContent = '' }
-  el.addEventListener('click',()=>onCardClick(card, el));
-  return el;
-}
-
-// Game interactions (simplified but functional)
-function onCardClick(card, el){
-  // If card belongs to stock top -> draw
-  const stockTop = stock[stock.length-1];
-  if(stockTop && stockTop.code===card.code){ drawFromStock(); return }
-  // Try moving waste top to foundations or tableau
-  const wasteTop = waste[waste.length-1];
-  if(wasteTop && wasteTop.code===card.code){ tryAutoMoveFromWaste(); renderAll(); checkWin(); return }
-  // Else ignore complex drag/drop (simple click-to-try to move to foundation)
-  // Try move to foundation
-  if(tryMoveToFoundation(card)){ renderAll(); checkWin(); return }
-}
-
-function tryMoveToFoundation(card){
-  // find which foundation of same suit
-  const fIdx = {'♣':2,'♦':1,'♥':0,'♠':3}[card.suit];
-  const top = foundations[fIdx].length ? foundations[fIdx][foundations[fIdx].length-1] : null;
-  if((!top && card.value===1) || (top && card.value===top.value+1)){
-    // remove card from its source
-    if(waste.length && waste[waste.length-1].code===card.code){ waste.pop(); foundations[fIdx].push(card); moves++; undoStack.push({type:'wf',card}); return true }
-    // check tableau
-    for(let i=0;i<7;i++){
-      const col = tableau[i];
-      const idx = col.findIndex(c=>c.code===card.code);
-      if(idx>=0 && col[idx].faceUp){ col.splice(idx,1); foundations[fIdx].push(card); // flip previous
-        if(col.length && !col[col.length-1].faceUp){ col[col.length-1].faceUp = true }
-        moves++; undoStack.push({type:'tf',col:i,card}); return true }
-    }
-  }
-  return false;
-}
-
-function drawFromStock(){
-  const cfg = DEV_CONFIG.levelConfig(currentLevel);
-  const drawN = cfg.draw||3;
-  if(stock.length===0){ // redeal from waste if redeals allowed
-    if(cfg.redeals>0){ // reduce redeals and move all waste back
-      cfg.redeals--; stock = waste.reverse().map(c=>({...c,faceUp:false})); waste = []; moves++; undoStack.push({type:'redeal'});
-    }
-    renderAll(); return;
-  }
-  for(let i=0;i<Math.min(drawN, stock.length);i++){
-    const c = stock.pop(); c.faceUp = true; waste.push(c);
-  }
-  moves++; undoStack.push({type:'draw',count:drawN}); renderAll();
-}
-
-function tryAutoMoveFromWaste(){
-  const c = waste[waste.length-1]; if(!c) return false; if(tryMoveToFoundation(c)){ return true }
-  // try tableau
-  for(let i=0;i<7;i++){
-    const col = tableau[i]; const top = col[col.length-1];
-    if(!top){ // empty -> can place king
-      if(c.rank==='K'){ waste.pop(); col.push(c); moves++; undoStack.push({type:'wt',to:i,card:c}); return true }
-    } else {
-      const topObj = top; if(topObj.faceUp && topObj.color !== c.color && topObj.value === c.value+1){ waste.pop(); col.push(c); moves++; undoStack.push({type:'wt',to:i,card:c}); return true }
-    }
-  }
-  return false;
-}
-
-function checkWin(){
-  if(foundations.every(f=>f.length===13)){
-    // win
-    stopTimer(); const sec = elapsedSec; const mv = moves; saveBest(currentLevel, sec, mv);
-    const best = loadBest(currentLevel);
-    endTimeEl.textContent = formatTime(sec); endMovesEl.textContent = mv; endBestEl.textContent = best?`${formatTime(best.seconds)} / ${best.moves}`:'—';
-    showEndScreen();
-  }
-}
-
-// Timer
-function startTimer(){ elapsedSec=0; timerEl.textContent='00:00'; startTime=Date.now(); timerInterval=setInterval(()=>{ elapsedSec=Math.floor((Date.now()-startTime)/1000); timerEl.textContent=formatTime(elapsedSec); },300); }
-function stopTimer(){ clearInterval(timerInterval); timerInterval=null }
-
-// UI show/hide
-function showStart(){ startLevelSpan.textContent = currentLevel; startScreen.classList.remove('hidden') }
-function hideStart(){ startScreen.classList.add('hidden') }
-function showEndScreen(){ endScreen.classList.remove('hidden') }
-function hideEndScreen(){ endScreen.classList.add('hidden') }
-
-// Load level
-function loadLevel(level){
-  currentLevel = Math.max(1, Math.min(MAX_LEVEL, level)); levelDisplay.textContent = currentLevel; startLevelSpan.textContent = currentLevel;
-  // apply assets
-  const cfg = DEV_CONFIG.levelConfig(currentLevel);
-  applyBackgroundAndMusic(cfg.group || 0);
-  // build deck and deal
-  buildDeck(); dealKlondike(); moves=0; undoStack=[]; renderAll();
-  // load best
-  const best = loadBest(currentLevel); bestDisplay.textContent = best? `${formatTime(best.seconds)} / ${best.moves}` : '—';
-  showStart();
-}
-
-// Event handlers
-btnStart.addEventListener('click', ()=>{ hideStart(); startTimer(); });
-btnContinue && btnContinue.addEventListener('click', ()=>{ hideEndScreen(); if(currentLevel<MAX_LEVEL) loadLevel(currentLevel+1); else alert('Has completado el nivel 50'); });
-btnReplay.addEventListener('click', ()=>{ hideEndScreen(); loadLevel(currentLevel); });
-btnRestart.addEventListener('click', ()=>{ loadLevel(currentLevel); stopTimer(); timerEl.textContent='00:00' });
-btnUndo.addEventListener('click', ()=>{ // simple undo: not fully implemented, placeholder
-  if(undoStack.length===0) return; const u = undoStack.pop(); console.log('undo',u); /* implementar segun tipos */ renderAll();
-});
-
-// init
-applyDevAssets(); loadLevel(1);
-
-// expose for debugging
-window.BM = {loadLevel, DEV_CONFIG};
-
-/*
-INSTRUCCIONES AL DESARROLLADOR (DÓNDE CAMBIAR COSAS)
-- Cartas: editar DEV_CONFIG.cardFaces (usar 'img:URL' para imagenes). Actualmente contiene 52 códigos con palos.
-- Fondo por bloque de 5 niveles: editar DEV_CONFIG.backgrounds (10 elementos). Index 0 => niveles 1-5, index 9 => 46-50.
-- Música por bloque: editar DEV_CONFIG.music (10 URLs). Cada bloque se reproducirá en bucle.
-- Bottom link: DEV_CONFIG.bottomLink -> {url,img,text}
-- Logos: DEV_CONFIG.logoSrc y DEV_CONFIG.footerLogo
-- Reglas de cada nivel: editar DEV_CONFIG.levelConfig(level) para cambiar draw (1 o 3), redeals (número máximo), timeLimit (segundos) u otras variables.
-- NOTA: Para que solo el desarrollador pueda cambiar, mantén el archivo protegido en el servidor. localStorage no es seguro contra edición local.
-*/
-</script>
-</body>
+        <p>Juego de solitario hecho con javascript</p>
+        <p>BASADO EN UN TUTORIAL DE INTERNET</p>
+        <footer>SOLITARIO</footer>
+    </body>
+    <script src="./javascript/card.js"></script>
+    <script src="./javascript/index.js"></script>
+    <script src="./javascript/foundation.js"></script>
+    <script src="./javascript/tableau.js"></script>
 </html>
