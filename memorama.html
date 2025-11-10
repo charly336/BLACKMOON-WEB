@@ -1,1 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solitario Multinivel Personalizable</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #006400;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #013220;
+      padding: 15px;
+      font-size: 1.5em;
+    }
+
+    #tablero {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px auto;
+      max-width: 900px;
+      gap: 10px;
+    }
+
+    .carta {
+      width: 90px;
+      height: 130px;
+      border-radius: 8px;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      border: 2px solid #fff;
+    }
+
+    .carta:hover {
+      transform: scale(1.05);
+    }
+
+    .oculta {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Card_back_06.svg/200px-Card_back_06.svg.png');
+    }
+
+    #controles {
+      margin: 15px;
+    }
+
+    button {
+      background: #009900;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #00cc00;
+    }
+
+    audio {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>♠ Solitario Multinivel Personalizable</header>
+
+  <div id="controles">
+    <button onclick="nuevoNivel()">Siguiente Nivel</button>
+    <button onclick="reiniciar()">Reiniciar</button>
+    <br>
+    <audio id="musica" controls loop>
+      <!-- Puedes poner tu propia música cambiando el enlace -->
+      <source src="https://cdn.pixabay.com/audio/2022/03/10/audio_6f39b1a7d3.mp3" type="audio/mpeg">
+      Tu navegador no soporta el audio.
+    </audio>
+  </div>
+
+  <div id="tablero"></div>
+
+  <script>
+    // ==== CONFIGURACIÓN ====
+    let nivel = 1;
+    const maxNiveles = 6;
+
+    // Puedes reemplazar estas URL por tus propias cartas (usa una carpeta local "cartas/")
+    const cartasDisponibles = [
+      "https://upload.wikimedia.org/wikipedia/commons/3/36/Ace_of_hearts.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d3/2_of_hearts.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/5/57/Ace_of_spades.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/f/f2/Ace_of_diamonds.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/2/26/Ace_of_clubs.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d5/3_of_hearts.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/4/4b/2_of_spades.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/80/3_of_diamonds.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/89/3_of_clubs.svg"
+    ];
+
+    let cartas = [];
+    let seleccionadas = [];
+    let emparejadas = [];
+
+    function crearTablero() {
+      const tablero = document.getElementById("tablero");
+      tablero.innerHTML = "";
+
+      let cantidad = 4 + nivel * 2;
+      if (cantidad > cartasDisponibles.length * 2) cantidad = cartasDisponibles.length * 2;
+
+      cartas = cartasDisponibles.slice(0, cantidad / 2);
+      cartas = cartas.concat(cartas);
+      cartas.sort(() => Math.random() - 0.5);
+
+      cartas.forEach(imagen => {
+        const carta = document.createElement("div");
+        carta.classList.add("carta", "oculta");
+        carta.dataset.valor = imagen;
+        carta.addEventListener("click", () => girarCarta(carta));
+        tablero.appendChild(carta);
+      });
+    }
+
+    function girarCarta(carta) {
+      if (carta.classList.contains("emparejada") || seleccionadas.length >= 2) return;
+
+      carta.style.backgroundImage = `url(${carta.dataset.valor})`;
+      carta.classList.remove("oculta");
+      seleccionadas.push(carta);
+
+      if (seleccionadas.length === 2) {
+        setTimeout(verificarPareja, 700);
+      }
+    }
+
+    function verificarPareja() {
+      const [c1, c2] = seleccionadas;
+      if (c1.dataset.valor === c2.dataset.valor) {
+        c1.classList.add("emparejada");
+        c2.classList.add("emparejada");
+        emparejadas.push(c1, c2);
+      } else {
+        c1.classList.add("oculta");
+        c2.classList.add("oculta");
+        c1.style.backgroundImage = "";
+        c2.style.backgroundImage = "";
+      }
+      seleccionadas = [];
+
+      if (emparejadas.length === cartas.length) {
+        setTimeout(() => {
+          alert("¡Nivel completado!");
+          nuevoNivel();
+        }, 500);
+      }
+    }
+
+    function nuevoNivel() {
+      if (nivel < maxNiveles) {
+        nivel++;
+      } else {
+        alert("🎉 ¡Has completado todos los niveles!");
+        nivel = 1;
+      }
+      emparejadas = [];
+      seleccionadas = [];
+      crearTablero();
+    }
+
+    function reiniciar() {
+      nivel = 1;
+      emparejadas = [];
+      seleccionadas = [];
+      crearTablero();
+    }
+
+    crearTablero();
+  </script>
+</body>
+</html>
 
