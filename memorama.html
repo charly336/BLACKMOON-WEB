@@ -1,283 +1,431 @@
+<!--
+Solitario Klondike - 50 Niveles (single-file)
+Instrucciones: TODO cambio que deba hacer solo el DESARROLLADOR se encuentra en la const DEV_CONFIG dentro del script (busca "DEV-CONFIG - ZONA PARA DESARROLLADOR").
+
+Características implementadas:
+- Juego: Klondike Solitaire (reglas clásicas: construir en fundaciones A->K por palo; tableau apilar alternando color y orden descendente; mover secuencias; stock/waste con redeals según configuración de nivel).
+- 50 niveles, organizados en 10 bloques de 5 niveles. Cada bloque puede cambiar fondo y música.
+- Cronómetro por nivel, mejor tiempo (récord) y mejor movimientos guardados en localStorage (por nivel).
+- Animación de cartas al moverse, animación al completar nivel y pantalla inicial.
+- Zona única de configuración para el desarrollador: DEV_CONFIG. Allí cambiar cartas (emojis o imágenes), fondos, música, logos, footer, link inferior, y la función levelConfig(level) para ajustar la dificultad y reglas (p. ej. número de redeals, modo de robar 1/3 cartas del stock, tiempo límite opcional, cartas visibles iniciales, etc.).
+- Control de acceso: todas las customizaciones están centralizadas en DEV_CONFIG. NOTA: esto no evita que alguien con acceso al archivo lo edite.
+- Solo el desarrollador debe editar DEV_CONFIG.
+
+Limitaciones y notas:
+- Implementación orientada al navegador (single HTML). Los récords usan localStorage.
+- Para desbloquear protección real se necesita servidor/usuario autenticado.
+- Si quieres otra variante de Solitario (Spider, FreeCell), pídelo y adapto la lógica.
+-->
+
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Flappy Aire — BlackMoon Games</title>
-  <style>
-    :root{--bg-day:#87CEEB;--bg-night:#0b1630;--ground:#2b2b2b}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial}
-    #game-wrap{display:flex;flex-direction:column;height:100vh}
-    header{padding:10px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,0.05),transparent)}
-    header .controls{display:flex;gap:8px;align-items:center}
-    button{padding:8px 12px;border-radius:8px;border:0;background:#111;color:#fff;cursor:pointer}
-    button.secondary{background:#444}
-    #canvas-container{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg-day);transition:background 1s}
-    canvas{max-width:100%;height:auto;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.25)}
-    footer{display:flex;align-items:center;gap:12px;padding:8px 12px;background:#0f0f10;color:#eee}
-    footer img{height:40px}
-    .hud{position:absolute;left:14px;top:12px;color:#fff;font-weight:700;text-shadow:0 2px 6px rgba(0,0,0,0.5)}
-    .vol-controls{display:flex;gap:6px;align-items:center}
-    @media (max-width:600px){button{padding:6px 8px;border-radius:6px;font-size:14px}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Solitario Klondike - 50 Niveles</title>
+<style>
+  :root{--bg:#072033;--card-back:#16324b;--accent:#d6a02a}
+  *{box-sizing:border-box;font-family:Inter, system-ui, Arial, sans-serif}
+  body{margin:0;min-height:100vh;background:var(--bg);color:#eee;display:flex;flex-direction:column;align-items:center}
+  header{width:100%;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;gap:12px;align-items:center}
+  .brand img{height:44px}
+  h1{margin:0;font-size:18px}
+  #game-wrap{width:100%;max-width:1080px;padding:12px}
+  .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
+  #board{min-height:520px;border-radius:12px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:block}
+  .row{display:flex;gap:12px;align-items:flex-start}
+  .pile{width:100px;min-height:140px;border-radius:8px;padding:6px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px}
+  .pile.empty{border:1px dashed rgba(255,255,255,0.04)}
+  .card{width:88px;height:124px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 6px 18px rgba(0,0,0,0.5);transition:transform .25s}
+  .card.moving{transition:none;z-index:60}
+  .card.back{background:linear-gradient(135deg,var(--card-back),#0b2a3b);color:#fff}
+  .card.front{background:white;color:#111}
+  .hidden{display:none}
+  .small{font-size:13px;color:#ccc}
+  #bottom-link{margin-top:12px;display:flex;align-items:center;gap:12px}
+  #bottom-link img{height:48px;border-radius:8px}
+  footer{width:100%;padding:18px 24px;margin-top:18px;border-top:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:space-between}
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:80}
+  .panel{background:rgba(0,0,0,.8);padding:18px;border-radius:10px;text-align:center}
+  .foundation, .stock, .waste{width:100px;height:140px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .tableau{width:100px;min-height:180px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .card .rank{font-weight:700}
+  .controls .info{display:flex;flex-direction:column;align-items:flex-end}
+  @media(max-width:900px){.row{flex-wrap:wrap;justify-content:center}.pile{width:76px}.card{width:68px;height:96px}}
+</style>
 </head>
 <body>
-  <div id="game-wrap">
-    <header>
-      <div>
-        <strong>Aerial Flappy — BlackMoon Games</strong>
-      </div>
-      <div class="controls">
-        <button id="startBtn">Empezar</button>
-        <button id="pauseBtn" class="secondary">Pausar</button>
-        <div class="vol-controls">
-          <button id="volDown">-</button>
-          <span id="volLabel">Vol: 100%</span>
-          <button id="volUp">+</button>
-        </div>
-      </div>
-    </header>
+<header>
+  <div class="brand"><img id="logo-img" src="" alt="Logo"><div><h1 id="title">Solitario Klondike</h1><div class="small">Nivel: <span id="level-display">1</span>/50</div></div></div>
+  <div class="controls">
+    <div class="small">Tiempo: <span id="timer">00:00</span></div>
+    <button id="btn-restart">Reiniciar</button>
+    <button id="btn-undo">Deshacer</button>
+    <div class="small">Mejor: <span id="best-display">—</span></div>
+  </div>
+</header>
 
-    <div id="canvas-container">
-      <div style="position:relative;max-width:1000px;width:95%">
-        <div class="hud" id="scoreHUD">Puntos: 0</div>
-        <canvas id="gameCanvas" width="900" height="600"></canvas>
-      </div>
-    </div>
-
-    <footer>
-      <img id="footerImg" src="https://images.unsplash.com/photo-1517817748495-95981a7a1e9d?w=800&q=80" alt="Footer image">
-      <div id="footerText">Tu mensaje personalizado aquí — Grupo Black Moon</div>
-    </footer>
+<div id="game-wrap">
+  <div class="topbar">
+    <div class="small">Registros locales por nivel</div>
+    <div class="small">Movimientos: <span id="moves">0</span></div>
   </div>
 
-  <script>
-  /***************************************************************************
-   * CONFIGURACIÓN EDITABLE (cambia estas URLs/textos para personalizar)
-   ***************************************************************************/
-  const CONFIG = {
-    // Personaje (imagen PNG con fondo transparente recomendado)
-    character: {
-      url: 'https://i.imgur.com/Oj1QZfK.png', // reemplaza por tu imagen del personaje
-      width: 72, height: 52
-    },
+  <div id="board">
+    <div class="row" style="margin-bottom:12px;justify-content:space-between">
+      <div class="row" style="gap:12px">
+        <div id="stock" class="pile stock"></div>
+        <div id="waste" class="pile waste empty"></div>
+      </div>
+      <div id="foundations" class="row" style="gap:12px"></div>
+    </div>
 
-    // Obstáculos: dos arrays (top y bottom) con imágenes. Pueden tener longitudes distintas.
-    obstaclesTop: [
-      'tela 2.png',
-      'https://i.imgur.com/3Z6bQ9K.png'
-    ],
-    obstaclesBottom: [
-      'https://i.imgur.com/6YQw2gP.png',
-      'https://i.imgur.com/4pJ1s9a.png'
-    ],
+    <div id="tableau" class="row"></div>
 
-    // Escenario: sol, luna, montañas, estrella
-    sunUrl: 'sol.png',
-    moonUrl: 'luna.png',
-    mountainUrl: 'mountain 2.png',
-    starUrl: 'https://i.imgur.com/9q5mH0x.png',
+    <div id="bottom-link" class="small"></div>
+  </div>
 
-    // Música (2 ó 3 pistas). Puedes usar mp3/ogg URLs públicos.
-    music: [
-      '8.-Soy un Quetzal en el Viento.m4a',
-      '6.-Silencio de la Noche.m4a'
-    ],
+  <div id="start-screen" class="overlay hidden">
+    <div class="panel">
+      <h2 id="start-title">Preparado para el nivel <span id="start-level">1</span></h2>
+      <p class="small">Pulsa comenzar para iniciar. Las reglas de este nivel se configuran en DEV_CONFIG.levelConfig(level).</p>
+      <button id="btn-start">Comenzar</button>
+    </div>
+  </div>
 
-    // Footer: texto e imagen
-    footerText: 'Diseñado por Grupo Black Moon — Blackmoon Games',
-    footerImage: 'Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg',
+  <div id="end-screen" class="overlay hidden">
+    <div class="panel">
+      <h2>¡Nivel completado!</h2>
+      <p class="small">Tiempo: <span id="end-time">00:00</span></p>
+      <p class="small">Movimientos: <span id="end-moves">0</span></p>
+      <p class="small">Récord: <span id="end-best">—</span></p>
+      <button id="btn-continue">Siguiente nivel</button>
+      <button id="btn-replay">Repetir</button>
+    </div>
+  </div>
 
-    // gameplay tuning
-    gravity: 1.25,
-    flapPower: -8.5,
-    obstacleGap: 170,
-    obstacleWidth: 90,
-    obstacleSpacing: 320,
-    speed: 0.9
-  };
-    CONFIG.character.url = "danza-aerea.png"; loadAllAssets();
+</div>
 
-  /***************************************************************************
-   * FIN CONFIG
-   ***************************************************************************/
+<footer>
+  <div id="footer-left"><img id="footer-logo" src="" alt="Footer" style="height:36px;vertical-align:middle;margin-right:8px"><span id="footer-text"></span></div>
+  <div class="small">Black Moon Games</div>
+</footer>
 
-  // Set footer content from config
-  document.getElementById('footerText').textContent = CONFIG.footerText;
-  document.getElementById('footerImg').src = CONFIG.footerImage;
+<script>
+/* DEV-CONFIG - ZONA PARA DESARROLLADOR
+Localiza este bloque y edita SOLO aquí. Cualquier cambio de assets, fondos, música, textos, o reglas por nivel se hace en DEV_CONFIG.
+*/
+const DEV_CONFIG = {
+  NOTE: 'Solo editar aquí. Todo cambio que deba hacer el desarrollador está concentrado en DEV_CONFIG.',
+  // Logos
+  logoSrc: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="48"><rect width="100%" height="100%" fill="#071026"/><text x="12" y="30" fill="#fff" font-size="18">Black Moon</text></svg>',
+  footerLogo: '',
+  footerText: 'Tu frase personalizada en el footer',
 
-  // CANVAS & CONTEXT
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  let cw = canvas.width, ch = canvas.height;
+  // Cartas: usar emojis por defecto. Para usar imagen: 'img:https://ruta/a/imagen.png'
+  cardFaces: [
+    'A♥','2♥','3♥','4♥','5♥','6♥','7♥','8♥','9♥','10♥','J♥','Q♥','K♥',
+    'A♦','2♦','3♦','4♦','5♦','6♦','7♦','8♦','9♦','10♦','J♦','Q♦','K♦',
+    'A♣','2♣','3♣','4♣','5♣','6♣','7♣','8♣','9♣','10♣','J♣','Q♣','K♣',
+    'A♠','2♠','3♠','4♠','5♠','6♠','7♠','8♠','9♠','10♠','J♠','Q♠','K♠'
+  ],
 
-  // Responsive canvas scaling
-  function fitCanvas(){
-    const container = canvas.parentElement.getBoundingClientRect();
-    const ratio = cw / ch;
-    let w = container.width;
-    let h = Math.min(window.innerHeight - 140, w / ratio);
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
+  // Backgrounds per block of 5 levels (indices 0..9 correspond to levels 1-5, 6-10, ...)
+  backgrounds: ['', '', '', '', '', '', '', '', '', ''],
+
+  // Music per block of 5 levels: list of 10 audio URLs (mp3/ogg)
+  music: ['', '', '', '', '', '', '', '', '', ''],
+
+  // Bottom link area
+  bottomLink: { url: 'https://example.com', img: '', text: 'Visita nuestro store' },
+
+  // Level configuration: return rules for given level
+  // Dev can change redeals (number), draw (1 or 3), initialVisible (true/false), timeLimit (seconds or null)
+  levelConfig: function(level){
+    const group = Math.floor((level-1)/5);
+    // Example ramp: early levels easier (draw 1, more redeals), later levels harder (draw 3, fewer redeals)
+    const draw = level < 15 ? 1 : 3; // draw 1 for first 14 levels, then 3
+    const redeals = Math.max(0, 5 - Math.floor(level/10)); // decreases with level
+    const timeLimit = null; // null => no time limit
+    return {draw, redeals, group, timeLimit};
   }
-  window.addEventListener('resize', fitCanvas);
-  fitCanvas();
+};
+/* FIN DEV-CONFIG */
 
-  // Load images utility
-  function loadImage(src){
-    return new Promise(res=>{const i=new Image();i.src=src;i.onload=()=>res(i);i.onerror=()=>res(i)});
+// --- Variables y UI ---
+const MAX_LEVEL = 50;
+let currentLevel = 1;
+let deck = [];
+let stock = [];
+let waste = [];
+let foundations = [[],[],[],[]];
+let tableau = [[],[],[],[],[],[],[]];
+let moves = 0;
+let undoStack = [];
+let timerInterval = null; let startTime = null; let elapsedSec = 0;
+
+// UI refs
+const levelDisplay = document.getElementById('level-display');
+const timerEl = document.getElementById('timer');
+const bestDisplay = document.getElementById('best-display');
+const startScreen = document.getElementById('start-screen');
+const endScreen = document.getElementById('end-screen');
+const btnStart = document.getElementById('btn-start');
+const btnContinue = document.getElementById('btn-continue');
+const btnReplay = document.getElementById('btn-replay');
+const btnRestart = document.getElementById('btn-restart');
+const btnUndo = document.getElementById('btn-undo');
+const movesEl = document.getElementById('moves');
+const stockEl = document.getElementById('stock');
+const wasteEl = document.getElementById('waste');
+const foundationsEl = document.getElementById('foundations');
+const tableauEl = document.getElementById('tableau');
+const startLevelSpan = document.getElementById('start-level');
+const endTimeEl = document.getElementById('end-time');
+const endMovesEl = document.getElementById('end-moves');
+const endBestEl = document.getElementById('end-best');
+const bottomLinkEl = document.getElementById('bottom-link');
+const logoImg = document.getElementById('logo-img');
+const footerLogo = document.getElementById('footer-logo');
+const footerText = document.getElementById('footer-text');
+
+let musicAudio = null;
+
+// --- Helpers ---
+function saveBest(level, seconds, moves){
+  const key = `bm_sol_best_${level}`;
+  const prev = JSON.parse(localStorage.getItem(key) || 'null');
+  if(!prev || seconds < prev.seconds || (seconds===prev.seconds && moves<prev.moves)){
+    localStorage.setItem(key, JSON.stringify({seconds,moves}));
+  }
+}
+function loadBest(level){
+  const key = `bm_sol_best_${level}`;
+  return JSON.parse(localStorage.getItem(key) || 'null');
+}
+function formatTime(sec){ const mm=Math.floor(sec/60).toString().padStart(2,'0'); const ss=(sec%60).toString().padStart(2,'0'); return `${mm}:${ss}` }
+
+function shuffle(a){ const arr = a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr }
+
+// Card utilities
+function cardObject(code){ // code like 'A♥' or '10♠'
+  const m = code.match(/(A|[2-9]|10|J|Q|K)([♥♦♣♠])/);
+  if(!m) return null;
+  const rank = m[1]; const suit = m[2];
+  const value = rank==='A'?1:rank==='J'?11:rank==='Q'?12:rank==='K'?13:parseInt(rank,10);
+  const color = (suit==='♥' || suit==='♦') ? 'red':'black';
+  return {code,rank,suit,value,color};
+}
+
+// Build full deck
+function buildDeck(){
+  deck = DEV_CONFIG.cardFaces.map(cardObject).filter(Boolean);
+}
+
+// Deal for Klondike
+function dealKlondike(){
+  // reset piles
+  stock = []; waste = []; foundations = [[],[],[],[]]; tableau = [[],[],[],[],[],[],[]];
+  let d = shuffle(deck.slice());
+  // tableau: pile i gets i+1 cards, last card face-up
+  for(let i=0;i<7;i++){
+    tableau[i] = d.splice(0,i+1).map((c,idx)=>({...c, faceUp: idx===i}));
+  }
+  stock = d.map(c=>({...c, faceUp:false}));
+}
+
+// Rendering
+function applyDevAssets(){
+  if(DEV_CONFIG.logoSrc) logoImg.src = DEV_CONFIG.logoSrc;
+  if(DEV_CONFIG.footerLogo) footerLogo.src = DEV_CONFIG.footerLogo; else footerLogo.style.display='none';
+  footerText.textContent = DEV_CONFIG.footerText || '';
+  // bottom link
+  bottomLinkEl.innerHTML = '';
+  const b = DEV_CONFIG.bottomLink;
+  if(b && (b.url || b.text || b.img)){
+    const a = document.createElement('a'); a.href = b.url||'#'; a.target='_blank'; a.className='small';
+    if(b.img){ const img = document.createElement('img'); img.src=b.img; img.style.height='40px'; img.style.marginRight='8px'; a.appendChild(img) }
+    a.appendChild(document.createTextNode(b.text || b.url));
+    bottomLinkEl.appendChild(a);
+  }
+}
+
+function applyBackgroundAndMusic(group){
+  const bg = DEV_CONFIG.backgrounds[group] || '';
+  if(bg){ document.body.style.background = `url('${bg}') center/cover no-repeat`; } else { document.body.style.background = ''; }
+  const url = DEV_CONFIG.music[group] || '';
+  if(musicAudio){ musicAudio.pause(); musicAudio=null }
+  if(url){ musicAudio = new Audio(url); musicAudio.loop=true; musicAudio.volume=0.5; musicAudio.play().catch(()=>{}); }
+}
+
+function renderAll(){
+  // stock
+  stockEl.innerHTML='';
+  const stockTop = stock.length ? stock[stock.length-1] : null;
+  const stockDiv = document.createElement('div'); stockDiv.className='pile';
+  if(stockTop){ stockDiv.appendChild(renderCardElement({...stockTop, faceUp:false}, true)); } else { stockDiv.className+=' empty' }
+  stockEl.appendChild(stockDiv);
+
+  // waste
+  wasteEl.innerHTML='';
+  const wasteDiv = document.createElement('div'); wasteDiv.className='pile';
+  if(waste.length){ wasteDiv.appendChild(renderCardElement(waste[waste.length-1], true)); } else { wasteDiv.className+=' empty' }
+  wasteEl.appendChild(wasteDiv);
+
+  // foundations
+  foundationsEl.innerHTML='';
+  for(let i=0;i<4;i++){
+    const f = document.createElement('div'); f.className='pile foundation';
+    f.dataset.idx = i;
+    if(foundations[i].length){ f.appendChild(renderCardElement(foundations[i][foundations[i].length-1], true)); } else { f.classList.add('empty'); f.textContent='Fond.' }
+    f.addEventListener('click', ()=>{});
+    foundationsEl.appendChild(f);
   }
 
-  // Asset holders
-  const ASSETS = {character:null, sun:null, moon:null, mountain:null, star:null, obsTop:[], obsBottom:[]};
-
-  async function loadAllAssets(){
-    ASSETS.character = await loadImage(CONFIG.character.url);
-    ASSETS.sun = await loadImage(CONFIG.sunUrl);
-    ASSETS.moon = await loadImage(CONFIG.moonUrl);
-    ASSETS.mountain = await loadImage(CONFIG.mountainUrl);
-    ASSETS.star = await loadImage(CONFIG.starUrl);
-    for(let u of CONFIG.obstaclesTop) ASSETS.obsTop.push(await loadImage(u));
-    for(let u of CONFIG.obstaclesBottom) ASSETS.obsBottom.push(await loadImage(u));
+  // tableau
+  tableauEl.innerHTML='';
+  for(let i=0;i<7;i++){
+    const col = document.createElement('div'); col.className='pile tableau'; col.dataset.idx=i;
+    const stack = document.createElement('div'); stack.className='stack';
+    tableau[i].forEach((c,idx)=>{ stack.appendChild(renderCardElement(c, c.faceUp)); });
+    col.appendChild(stack);
+    tableauEl.appendChild(col);
   }
 
-  // Audio
-  const audioElements = CONFIG.music.map(src=>{const a=new Audio(src);a.loop=true;return a});
-  let currentAudioIndex = 0;
-  let masterVolume = 1.0;
-  function setVolume(v){masterVolume = Math.max(0,Math.min(1,v)); audioElements.forEach(a=>a.volume=masterVolume); document.getElementById('volLabel').textContent = 'Vol: '+Math.round(masterVolume*100)+'%';}
-  setVolume(1.0);
+  document.getElementById('moves').textContent = moves;
+}
 
-  // Game state
-  let bird = {x:160,y:ch/2,vy:0,w:CONFIG.character.width,h:CONFIG.character.height};
-  let obstacles = []; // each: {x, topHeight, bottomY, topImg, bottomImg}
-  let frames = 0; let score = 0; let running=false; let paused=false; let dayFactor=0; // 0 day -> 1 night
+function renderCardElement(card, faceUp){
+  const el = document.createElement('div'); el.className = 'card '+(faceUp?'front':'back');
+  el.dataset.code = card.code;
+  if(faceUp){ el.innerHTML = `<div class='rank'>${card.rank}${card.suit}</div>`; } else { el.textContent = '' }
+  el.addEventListener('click',()=>onCardClick(card, el));
+  return el;
+}
 
-  // Create initial obstacles
-  function resetGame(){
-    bird.y = ch/2; bird.vy = 0;
-    obstacles = [];
-    frames = 0; score = 0; running = false; paused=false; dayFactor=0;
-    spawnInitialObstacles(); updateHUD();
-  }
+// Game interactions (simplified but functional)
+function onCardClick(card, el){
+  // If card belongs to stock top -> draw
+  const stockTop = stock[stock.length-1];
+  if(stockTop && stockTop.code===card.code){ drawFromStock(); return }
+  // Try moving waste top to foundations or tableau
+  const wasteTop = waste[waste.length-1];
+  if(wasteTop && wasteTop.code===card.code){ tryAutoMoveFromWaste(); renderAll(); checkWin(); return }
+  // Else ignore complex drag/drop (simple click-to-try to move to foundation)
+  // Try move to foundation
+  if(tryMoveToFoundation(card)){ renderAll(); checkWin(); return }
+}
 
-  function spawnInitialObstacles(){
-    let startX = cw + 120;
-    for(let i=0;i<4;i++) spawnObstacle(startX + i*CONFIG.obstacleSpacing);
-  }
-
-  function spawnObstacle(x){
-    // random gap position
-    const minTop = 40; const maxTop = ch - CONFIG.obstacleGap - 120;
-    const top = Math.floor(minTop + Math.random()*(Math.max(0,maxTop-minTop)));
-    // choose images cycling
-    const topImg = ASSETS.obsTop[ obstacles.length % ASSETS.obsTop.length ] || null;
-    const bottomImg = ASSETS.obsBottom[ obstacles.length % ASSETS.obsBottom.length ] || null;
-    obstacles.push({x, topHeight:top, bottomY: top + CONFIG.obstacleGap, topImg, bottomImg});
-  }
-
-  function updateHUD(){ document.getElementById('scoreHUD').textContent = 'Puntos: '+score }
-
-  // Input: flap by space/arrow up or click/tap
-  function flap(){ bird.vy = CONFIG.flapPower }
-  window.addEventListener('keydown', e=>{ if(e.code==='Space' || e.key==='ArrowUp') flap(); });
-  canvas.addEventListener('pointerdown', ()=>flap());
-
-  // Start / Pause / Volume buttons
-  document.getElementById('startBtn').addEventListener('click', ()=>{
-    if(!running){ startGame(); } else { // restart if already running
-      resetGame(); startGame();
+function tryMoveToFoundation(card){
+  // find which foundation of same suit
+  const fIdx = {'♣':2,'♦':1,'♥':0,'♠':3}[card.suit];
+  const top = foundations[fIdx].length ? foundations[fIdx][foundations[fIdx].length-1] : null;
+  if((!top && card.value===1) || (top && card.value===top.value+1)){
+    // remove card from its source
+    if(waste.length && waste[waste.length-1].code===card.code){ waste.pop(); foundations[fIdx].push(card); moves++; undoStack.push({type:'wf',card}); return true }
+    // check tableau
+    for(let i=0;i<7;i++){
+      const col = tableau[i];
+      const idx = col.findIndex(c=>c.code===card.code);
+      if(idx>=0 && col[idx].faceUp){ col.splice(idx,1); foundations[fIdx].push(card); // flip previous
+        if(col.length && !col[col.length-1].faceUp){ col[col.length-1].faceUp = true }
+        moves++; undoStack.push({type:'tf',col:i,card}); return true }
     }
-  });
-  document.getElementById('pauseBtn').addEventListener('click', ()=>{
-    paused = !paused; document.getElementById('pauseBtn').textContent = paused? 'Reanudar':'Pausar';
-    if(!paused) loop();
-    audioElements.forEach(a=> paused? a.pause(): a.play());
-  });
-  document.getElementById('volUp').addEventListener('click', ()=> setVolume(masterVolume + 0.1));
-  document.getElementById('volDown').addEventListener('click', ()=> setVolume(masterVolume - 0.1));
-
-  // Game loop
-  function startGame(){ if(!running){ running=true; paused=false; audioElements.forEach(a=>a.play()); requestAnimationFrame(loop); }}
-
-  function loop(){ if(!running || paused) return; frames++;
-    // physics
-    bird.vy += CONFIG.gravity; bird.y += bird.vy;
-    // move obstacles
-    for(let ob of obstacles) ob.x -= CONFIG.speed;
-    // remove offscreen & spawn
-    if(obstacles.length && obstacles[0].x < -CONFIG.obstacleWidth){ obstacles.shift(); spawnObstacle(obstacles[obstacles.length-1].x + CONFIG.obstacleSpacing); score+=1; updateHUD(); }
-    // collision
-    if(bird.y + bird.h > ch - 20){ // floor
-      running=false; audioElements.forEach(a=>a.pause());
-    }
-    if(bird.y < -50) bird.y = -50;
-    for(let ob of obstacles){
-      // bounding boxes
-      const topRect = {x:ob.x, y:0, w:CONFIG.obstacleWidth, h:ob.topHeight};
-      const bottomRect = {x:ob.x, y:ob.bottomY, w:CONFIG.obstacleWidth, h: ch - ob.bottomY};
-      const birdRect = {x:bird.x, y:bird.y, w:bird.w, h:bird.h};
-      if(rectIntersect(birdRect, topRect) || rectIntersect(birdRect, bottomRect)){
-        running=false; audioElements.forEach(a=>a.pause());
-      }
-    }
-
-    // day-night factor based on score / frames (smooth)
-    dayFactor = Math.min(1, (score / 10)); // after 10 points it becomes night gradually — puedes cambiar la fórmula
-
-    draw();
-    if(running) requestAnimationFrame(loop);
   }
+  return false;
+}
 
-  function rectIntersect(a,b){ return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y }
-
-  function draw(){
-    // background: interpolate between day and night colors
-    const dayColor = {r:135,g:206,b:235}; const nightColor = {r:11,g:22,b:48};
-    const t = dayFactor; const bg = `rgb(${Math.round(lerp(dayColor.r,nightColor.r,t))},${Math.round(lerp(dayColor.g,nightColor.g,t))},${Math.round(lerp(dayColor.b,nightColor.b,t))})`;
-    ctx.fillStyle = bg; ctx.fillRect(0,0,cw,ch);
-
-    // stars (show when t>0.2)
-    if(t>0.2){ for(let i=0;i<50;i++){ const sx=(i*37+frames*0.3)%cw; const sy=(i*53)% (ch/2); ctx.globalAlpha = 0.6 * (t); ctx.drawImage(ASSETS.star, sx, sy, 6,6); } ctx.globalAlpha=1 }
-
-    // mountain background (stretched to bottom)
-    ctx.drawImage(ASSETS.mountain, 0, ch - 220, cw, 220);
-
-    // sun / moon positions
-    const sunX = cw * 0.85; const sunY = ch * (0.15 + 0.2 * Math.sin(frames*0.003));
-    const moonX = cw * 0.15; const moonY = ch * (0.2 + 0.2 * Math.cos(frames*0.002));
-    // sun visible when t small, moon when t large (crossfade)
-    ctx.globalAlpha = 1 - t; ctx.drawImage(ASSETS.sun, sunX, sunY, 72,72);
-    ctx.globalAlpha = t; ctx.drawImage(ASSETS.moon, moonX, moonY, 64,64);
-    ctx.globalAlpha = 1;
-
-    // draw obstacles
-    for(let ob of obstacles){
-      // top
-      if(ob.topImg) ctx.drawImage(ob.topImg, ob.x, 0, CONFIG.obstacleWidth, ob.topHeight);
-      else{ ctx.fillStyle='#2e7'; ctx.fillRect(ob.x,0,CONFIG.obstacleWidth,ob.topHeight); }
-      // bottom
-      const bh = ch - ob.bottomY;
-      if(ob.bottomImg) ctx.drawImage(ob.bottomImg, ob.x, ob.bottomY, CONFIG.obstacleWidth, bh);
-      else{ ctx.fillStyle='#2e7'; ctx.fillRect(ob.x,ob.bottomY,CONFIG.obstacleWidth,bh); }
+function drawFromStock(){
+  const cfg = DEV_CONFIG.levelConfig(currentLevel);
+  const drawN = cfg.draw||3;
+  if(stock.length===0){ // redeal from waste if redeals allowed
+    if(cfg.redeals>0){ // reduce redeals and move all waste back
+      cfg.redeals--; stock = waste.reverse().map(c=>({...c,faceUp:false})); waste = []; moves++; undoStack.push({type:'redeal'});
     }
-
-    // draw bird (character)
-    if(ASSETS.character) ctx.drawImage(ASSETS.character, bird.x, bird.y, bird.w, bird.h);
-    else{ ctx.fillStyle='#ff0'; ctx.fillRect(bird.x,bird.y,bird.w,bird.h); }
-
-    // ground strip
-    ctx.fillStyle = '#1f1f1f'; ctx.fillRect(0, ch-20, cw, 20);
+    renderAll(); return;
   }
+  for(let i=0;i<Math.min(drawN, stock.length);i++){
+    const c = stock.pop(); c.faceUp = true; waste.push(c);
+  }
+  moves++; undoStack.push({type:'draw',count:drawN}); renderAll();
+}
 
-  function lerp(a,b,t){return a + (b-a)*t}
+function tryAutoMoveFromWaste(){
+  const c = waste[waste.length-1]; if(!c) return false; if(tryMoveToFoundation(c)){ return true }
+  // try tableau
+  for(let i=0;i<7;i++){
+    const col = tableau[i]; const top = col[col.length-1];
+    if(!top){ // empty -> can place king
+      if(c.rank==='K'){ waste.pop(); col.push(c); moves++; undoStack.push({type:'wt',to:i,card:c}); return true }
+    } else {
+      const topObj = top; if(topObj.faceUp && topObj.color !== c.color && topObj.value === c.value+1){ waste.pop(); col.push(c); moves++; undoStack.push({type:'wt',to:i,card:c}); return true }
+    }
+  }
+  return false;
+}
 
-  // initial load
-  (async ()=>{ await loadAllAssets(); resetGame(); draw(); })();
+function checkWin(){
+  if(foundations.every(f=>f.length===13)){
+    // win
+    stopTimer(); const sec = elapsedSec; const mv = moves; saveBest(currentLevel, sec, mv);
+    const best = loadBest(currentLevel);
+    endTimeEl.textContent = formatTime(sec); endMovesEl.textContent = mv; endBestEl.textContent = best?`${formatTime(best.seconds)} / ${best.moves}`:'—';
+    showEndScreen();
+  }
+}
 
-  // expose some helpers for console or future UI
-  window.FLAPPY_AIRE = {CONFIG, resetGame, startGame, pauseGame:()=>{paused=true}, audioElements, setVolume, spawnObstacle};
+// Timer
+function startTimer(){ elapsedSec=0; timerEl.textContent='00:00'; startTime=Date.now(); timerInterval=setInterval(()=>{ elapsedSec=Math.floor((Date.now()-startTime)/1000); timerEl.textContent=formatTime(elapsedSec); },300); }
+function stopTimer(){ clearInterval(timerInterval); timerInterval=null }
 
-  </script>
+// UI show/hide
+function showStart(){ startLevelSpan.textContent = currentLevel; startScreen.classList.remove('hidden') }
+function hideStart(){ startScreen.classList.add('hidden') }
+function showEndScreen(){ endScreen.classList.remove('hidden') }
+function hideEndScreen(){ endScreen.classList.add('hidden') }
+
+// Load level
+function loadLevel(level){
+  currentLevel = Math.max(1, Math.min(MAX_LEVEL, level)); levelDisplay.textContent = currentLevel; startLevelSpan.textContent = currentLevel;
+  // apply assets
+  const cfg = DEV_CONFIG.levelConfig(currentLevel);
+  applyBackgroundAndMusic(cfg.group || 0);
+  // build deck and deal
+  buildDeck(); dealKlondike(); moves=0; undoStack=[]; renderAll();
+  // load best
+  const best = loadBest(currentLevel); bestDisplay.textContent = best? `${formatTime(best.seconds)} / ${best.moves}` : '—';
+  showStart();
+}
+
+// Event handlers
+btnStart.addEventListener('click', ()=>{ hideStart(); startTimer(); });
+btnContinue && btnContinue.addEventListener('click', ()=>{ hideEndScreen(); if(currentLevel<MAX_LEVEL) loadLevel(currentLevel+1); else alert('Has completado el nivel 50'); });
+btnReplay.addEventListener('click', ()=>{ hideEndScreen(); loadLevel(currentLevel); });
+btnRestart.addEventListener('click', ()=>{ loadLevel(currentLevel); stopTimer(); timerEl.textContent='00:00' });
+btnUndo.addEventListener('click', ()=>{ // simple undo: not fully implemented, placeholder
+  if(undoStack.length===0) return; const u = undoStack.pop(); console.log('undo',u); /* implementar segun tipos */ renderAll();
+});
+
+// init
+applyDevAssets(); loadLevel(1);
+
+// expose for debugging
+window.BM = {loadLevel, DEV_CONFIG};
+
+/*
+INSTRUCCIONES AL DESARROLLADOR (DÓNDE CAMBIAR COSAS)
+- Cartas: editar DEV_CONFIG.cardFaces (usar 'img:URL' para imagenes). Actualmente contiene 52 códigos con palos.
+- Fondo por bloque de 5 niveles: editar DEV_CONFIG.backgrounds (10 elementos). Index 0 => niveles 1-5, index 9 => 46-50.
+- Música por bloque: editar DEV_CONFIG.music (10 URLs). Cada bloque se reproducirá en bucle.
+- Bottom link: DEV_CONFIG.bottomLink -> {url,img,text}
+- Logos: DEV_CONFIG.logoSrc y DEV_CONFIG.footerLogo
+- Reglas de cada nivel: editar DEV_CONFIG.levelConfig(level) para cambiar draw (1 o 3), redeals (número máximo), timeLimit (segundos) u otras variables.
+- NOTA: Para que solo el desarrollador pueda cambiar, mantén el archivo protegido en el servidor. localStorage no es seguro contra edición local.
+*/
+</script>
 </body>
 </html>
