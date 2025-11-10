@@ -1,191 +1,293 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solitario Multinivel</title>
-  <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background-color: #006400;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solitario Spider</title>
+<style>
+  body {
+    margin: 0;
+    background-image: url('fondo.jpg'); /* 🔧 CAMBIAR FONDO AQUÍ */
+    background-size: cover;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
 
-    header {
-      background: #013220;
-      padding: 15px;
-      font-size: 1.5em;
-    }
+  header {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-align: center;
+    padding: 10px;
+  }
 
-    #tablero {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 20px auto;
-      max-width: 900px;
-      gap: 10px;
-    }
+  #game-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid #333;
+    margin: 10px;
+    padding-top: 30px;
+    position: relative;
+  }
 
-    .carta {
-      width: 90px;
-      height: 130px;
-      border-radius: 8px;
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-      border: 2px solid #fff;
-    }
+  .column {
+    width: 90px;
+    min-height: 400px;
+    border: 1px dashed rgba(255,255,255,0.4);
+    margin: 0 5px;
+    position: relative;
+  }
 
-    .carta:hover {
-      transform: scale(1.05);
-    }
+  .card {
+    width: 80px;
+    height: 110px;
+    position: absolute;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    cursor: grab;
+    transition: transform 0.2s;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+  }
 
-    .oculta {
-      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Card_back_06.svg/200px-Card_back_06.svg.png');
-    }
+  .card.dragging {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
 
-    #controles {
-      margin: 15px;
-    }
+  #controls {
+    text-align: center;
+    margin: 10px;
+  }
 
-    button {
-      background: #009900;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      margin: 5px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+  button {
+    margin: 5px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #444;
+    color: white;
+    transition: 0.3s;
+  }
 
-    button:hover {
-      background: #00cc00;
-    }
+  button:hover {
+    background-color: #666;
+  }
 
-    audio {
-      margin-top: 10px;
-    }
-  </style>
+  footer {
+    background: rgba(0,0,0,0.8);
+    color: white;
+    text-align: center;
+    padding: 10px;
+  }
+
+  footer img {
+    height: 40px;
+    vertical-align: middle;
+  }
+
+  #dev-panel { display: none; }
+</style>
 </head>
 <body>
 
-  <header>♠ Solitario Multinivel Personalizable</header>
+<header>
+  <h1>🕸️ Solitario Spider</h1>
+  <p id="level">Nivel: 1 / 50</p>
+</header>
 
-  <div id="controles">
-    <button onclick="nuevoNivel()">Siguiente Nivel</button>
-    <button onclick="reiniciar()">Reiniciar</button>
-    <br>
-    <audio id="musica" controls loop>
-      <!-- Puedes poner tu propia música cambiando el enlace -->
-      <source src="https://cdn.pixabay.com/audio/2022/03/10/audio_6f39b1a7d3.mp3" type="audio/mpeg">
-      Tu navegador no soporta el audio.
-    </audio>
-  </div>
+<div id="controls">
+  <button id="btnStart">▶️ Iniciar</button>
+  <button id="btnPause">⏸️ Pausa</button>
+  <button id="btnPlayMusic">🔊 Música</button>
+  <button id="btnMute">🔇 Silencio</button>
+  <button id="btnVolUp">🔼 Volumen</button>
+  <button id="btnVolDown">🔽 Volumen</button>
+</div>
 
-  <div id="tablero"></div>
+<div id="game-area"></div>
 
-  <script>
-    // ==== CONFIGURACIÓN ====
-    let nivel = 1;
-    const maxNiveles = 6;
+<footer>
+  <img src="footer-logo.png" alt="Logo">
+  <span id="footer-text">"Paciencia es la clave de la victoria"</span>
+</footer>
 
-    // Puedes reemplazar estas URL por tus propias cartas (usa una carpeta local "cartas/")
-    const cartasDisponibles = [
-      "https://upload.wikimedia.org/wikipedia/commons/3/36/Ace_of_hearts.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/d/d3/2_of_hearts.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/5/57/Ace_of_spades.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/f/f2/Ace_of_diamonds.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/2/26/Ace_of_clubs.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/d/d5/3_of_hearts.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/4/4b/2_of_spades.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/8/80/3_of_diamonds.svg",
-      "https://upload.wikimedia.org/wikipedia/commons/8/89/3_of_clubs.svg"
-    ];
+<!-- Audios -->
+<audio id="music" src="audio1.mp3" loop></audio>
+<audio id="effect1" src="audio2.mp3"></audio>
+<audio id="effect2" src="audio3.mp3"></audio>
 
-    let cartas = [];
-    let seleccionadas = [];
-    let emparejadas = [];
+<div id="dev-panel">
+  <h3>Panel de Desarrollador</h3>
+  <label>Cambiar fondo: <input type="file" id="bgChange"></label><br>
+  <label>Cambiar carta: <input type="file" id="cardChange"></label>
+</div>
 
-    function crearTablero() {
-      const tablero = document.getElementById("tablero");
-      tablero.innerHTML = "";
+<script>
+const gameArea = document.getElementById('game-area');
+const levelText = document.getElementById('level');
+const music = document.getElementById('music');
+const effect1 = document.getElementById('effect1');
+const effect2 = document.getElementById('effect2');
+let level = 1;
+const maxLevel = 50;
+let paused = false;
 
-      let cantidad = 4 + nivel * 2;
-      if (cantidad > cartasDisponibles.length * 2) cantidad = cartasDisponibles.length * 2;
+// 🎮 Crear columnas
+const columns = 10;
+for (let i = 0; i < columns; i++) {
+  const col = document.createElement('div');
+  col.classList.add('column');
+  gameArea.appendChild(col);
+}
 
-      cartas = cartasDisponibles.slice(0, cantidad / 2);
-      cartas = cartas.concat(cartas);
-      cartas.sort(() => Math.random() - 0.5);
+// ============================================================
+// 🂡 🔧 SECCIÓN DE CAMBIO DE CARTAS Y SUS IMÁGENES
+// ============================================================
+// Aquí puedes asignar imágenes personalizadas a cada palo o tipo.
+// Puedes cambiar las URLs por tus propias imágenes.
+const cardBackImage = 'carta-dorso.png'; // dorso común
 
-      cartas.forEach(imagen => {
-        const carta = document.createElement("div");
-        carta.classList.add("carta", "oculta");
-        carta.dataset.valor = imagen;
-        carta.addEventListener("click", () => girarCarta(carta));
-        tablero.appendChild(carta);
-      });
+const cardImages = {
+  '♠': 'cartas/spade.png',
+  '♥': 'cartas/heart.png',
+  '♦': 'cartas/diamond.png',
+  '♣': 'cartas/club.png'
+};
+// ============================================================
+
+
+// 🃏 Crear una carta visual
+function createCard(value, suit) {
+  const card = document.createElement('div');
+  card.classList.add('card');
+  card.dataset.value = value;
+  card.dataset.suit = suit;
+  card.style.backgroundImage = `url(${cardImages[suit] || cardBackImage})`;
+  card.textContent = getCardSymbol(value) + suit;
+  card.draggable = true;
+  return card;
+}
+
+// Convierte número a símbolo visible
+function getCardSymbol(value) {
+  return {1:'A',11:'J',12:'Q',13:'K'}[value] || value;
+}
+
+// 🧩 Generar mazo y repartir
+function startGame() {
+  gameArea.querySelectorAll('.column').forEach(col => col.innerHTML = '');
+  const deck = createDeck();
+  for (let i = 0; i < columns; i++) {
+    const col = gameArea.children[i];
+    for (let j = 0; j < 5; j++) {
+      const card = deck.pop();
+      card.style.top = (j * 25) + 'px';
+      col.appendChild(card);
     }
+  }
+  addDragEvents();
+}
 
-    function girarCarta(carta) {
-      if (carta.classList.contains("emparejada") || seleccionadas.length >= 2) return;
-
-      carta.style.backgroundImage = `url(${carta.dataset.valor})`;
-      carta.classList.remove("oculta");
-      seleccionadas.push(carta);
-
-      if (seleccionadas.length === 2) {
-        setTimeout(verificarPareja, 700);
-      }
+function createDeck() {
+  const suits = ['♠','♥','♦','♣'];
+  const deck = [];
+  for (const s of suits) {
+    for (let v = 1; v <= 13; v++) {
+      const c = createCard(v, s);
+      deck.push(c);
     }
+  }
+  // duplicamos varias veces para simular múltiples mazos
+  return shuffle([...deck, ...deck, ...deck]);
+}
 
-    function verificarPareja() {
-      const [c1, c2] = seleccionadas;
-      if (c1.dataset.valor === c2.dataset.valor) {
-        c1.classList.add("emparejada");
-        c2.classList.add("emparejada");
-        emparejadas.push(c1, c2);
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// 🎯 Drag & Drop con validación de secuencia
+function addDragEvents() {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    card.addEventListener('dragstart', e => {
+      if (paused) return e.preventDefault();
+      card.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', JSON.stringify({
+        value: card.dataset.value,
+        suit: card.dataset.suit
+      }));
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
+
+  const cols = document.querySelectorAll('.column');
+  cols.forEach(col => {
+    col.addEventListener('dragover', e => e.preventDefault());
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      const draggingCard = document.querySelector('.dragging');
+      if (!draggingCard) return;
+      const lastCard = col.lastElementChild;
+      const draggedValue = parseInt(draggingCard.dataset.value);
+      const draggedSuit = draggingCard.dataset.suit;
+
+      // 🔍 Validar movimiento
+      if (!lastCard || 
+          (lastCard.dataset.suit === draggedSuit && 
+           parseInt(lastCard.dataset.value) === draggedValue + 1)) {
+        effect1.play();
+        draggingCard.style.top = (col.children.length * 25) + 'px';
+        col.appendChild(draggingCard);
+        checkWin();
       } else {
-        c1.classList.add("oculta");
-        c2.classList.add("oculta");
-        c1.style.backgroundImage = "";
-        c2.style.backgroundImage = "";
+        alert("❌ Movimiento inválido. Debe ser secuencia descendente del mismo palo.");
       }
-      seleccionadas = [];
+    });
+  });
+}
 
-      if (emparejadas.length === cartas.length) {
-        setTimeout(() => {
-          alert("¡Nivel completado!");
-          nuevoNivel();
-        }, 500);
-      }
-    }
+// 🏆 Revisión de victoria
+function checkWin() {
+  const allFull = [...gameArea.children].every(col => col.children.length >= 10);
+  if (allFull) nextLevel();
+}
 
-    function nuevoNivel() {
-      if (nivel < maxNiveles) {
-        nivel++;
-      } else {
-        alert("🎉 ¡Has completado todos los niveles!");
-        nivel = 1;
-      }
-      emparejadas = [];
-      seleccionadas = [];
-      crearTablero();
-    }
+// 💯 Cambio de nivel
+function nextLevel() {
+  effect2.play();
+  if (level < maxLevel) {
+    level++;
+    levelText.textContent = `Nivel: ${level} / ${maxLevel}`;
+    alert(`🎉 ¡Nivel ${level}!`);
+    startGame();
+  } else {
+    alert("🏁 ¡Has completado los 50 niveles!");
+  }
+}
 
-    function reiniciar() {
-      nivel = 1;
-      emparejadas = [];
-      seleccionadas = [];
-      crearTablero();
-    }
-
-    crearTablero();
-  </script>
+// 🎵 Controles
+document.getElementById('btnPlayMusic').onclick = () => music.play();
+document.getElementById('btnMute').onclick = () => music.pause();
+document.getElementById('btnVolUp').onclick = () => music.volume = Math.min(1, music.volume + 0.1);
+document.getElementById('btnVolDown').onclick = () => music.volume = Math.max(0, music.volume - 0.1);
+document.getElementById('btnStart').onclick = () => { paused = false; startGame(); music.play(); };
+document.getElementById('btnPause').onclick = () => { paused = !paused; alert(paused ? '⏸️ Pausa' : '▶️ Reanudar'); };
+</script>
 </body>
 </html>
-
