@@ -35,22 +35,15 @@
 }
     
   .card {
-    width: 80px;
-    height: 110px;
-    position: absolute;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    cursor: grab;
+    width: 100px;
+    height: 180px;
+    background-image: url('GPO BKM 2.jpg');
+    border-radius: 20px;
+    cursor: pointer;
+    transform: scale(1);
     transition: transform 0.2s;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-  }
+    position: relative;
+    box-shadow: 20px 20px 10px grey;
   }
 
   .card:hover {
@@ -129,12 +122,6 @@
   let cartas;
   let sonidosActivos = true;
 
-
-
-
-};
-
-
   // Lista de imágenes protegidas (solo el desarrollador puede cambiarlas)
   const imagenes = [
     '00 the aerealist.jpg',
@@ -162,7 +149,6 @@
     '22 nine of swords.jpg',
     
   ];
-  const cardBackImage = 'GPO BKM 2.jpg'; // dorso común
 
   // Inicia el juego
   startBtn.addEventListener('click', () => {
