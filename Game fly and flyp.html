@@ -452,10 +452,10 @@ function checkLevelComplete(){
   if(matchedPairs >= totalPairs){
     clearInterval(timer);
     setTimeout(()=> {
-      alert(`¡Nivel ${level} ¡¡¡Bien hecho aerealista
-😍¡¡¡ Vamos al siguiente nivel!🥇`);
+      alert(`¡Nivel ${level} 
+      ¡¡¡Bien hecho Aerealista 😍¡¡¡ Vamos al siguiente nivel!🥇`);
       if(level < levelsTotal) startLevel(level+1); else {
-        alert(`¡Juego completado! Puntaje final: ${score}`);
+        alert(`¡🥇Juego completado🥇! Puntaje final: ${score}`);
         // reiniciar o detener según preferencia
         level = 1; score = 0;
         startLevel(level);
