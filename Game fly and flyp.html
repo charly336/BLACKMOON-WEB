@@ -415,17 +415,14 @@ function updateUI(){
 }
 
 /* Timer & music */
-function startMusicForLevel(lvl) {
-  const index = Math.floor((lvl - 1) / 4) % DEFAULT_TRACKS.length;
-
-  // 🔹 NUEVAS LÍNEAS: no reiniciar si ya suena la misma pista
-  if (audio.src.includes(DEFAULT_TRACKS[index])) return; 
-  if (!audio.paused) return;
-
-  audio.src = DEFAULT_TRACKS[index];
-  audio.loop = true;
-  audio.play().catch(() => {});
-}
+function startLevel(lv){
+  clearInterval(timer);
+  level = lv;
+  matchedPairs = 0;
+  firstPick = null;
+  busy = false;
+  timeLeft = timePerLevel;
+  updateUI();
 
   const deck = pickCardsForLevel(level);
   renderBoard(deck);
