@@ -1,275 +1,387 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Solitario Klondike — Black Moon</title>
-<style>
-  :root{
-    --page-bg: #0b0b10;
-    --game-bg: linear-gradient(180deg,#123 10%,#012 100%);
-    --card-width: 90px;
-    --card-height: 130px;
-    --card-radius: 10px;
-    --accent: #ffd700;
-    --text: #eee;
-    --panel-bg: rgba(0,0,0,0.35);
-  }
-  html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;color:var(--text);background:var(--page-bg) fixed;}
-  .page{
-    min-height:100vh; display:flex; flex-direction:column; align-items:center; gap:18px;
-    padding:18px;
-    background-image: var(--page-bg);
-    background-size:cover;
-  }
-  header{width:100%;max-width:1200px; display:flex; justify-content:space-between; align-items:center; gap:12px;}
-  header h1{margin:0;font-size:20px;}
-  #game-wrap{width:100%;max-width:1200px;background:var(--game-bg); padding:14px;border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6);}
-  .top-row{display:flex; justify-content:space-between; align-items:center; gap:12px;}
-  .left-controls{display:flex; gap:12px; align-items:center;}
-  .deck, .waste, .foundations{display:flex; gap:12px; align-items:center;}
-  .tableau{display:flex; gap:12px; padding-top:12px; align-items:flex-start;}
-  .pile{width:var(--card-width); min-height:var(--card-height); position:relative; user-select:none;}
-  .card{
-    width:var(--card-width); height:var(--card-height); border-radius:var(--card-radius);
-    background:linear-gradient(180deg,#fff,#eee); color:#000; display:flex; flex-direction:column; justify-content:space-between;
-    box-shadow:0 2px 6px rgba(0,0,0,0.4); padding:6px; font-weight:700; cursor:pointer;
-    position:absolute; left:0; top:0;
-    transform-origin:top left;
-  }
-  .card.face-down{background:linear-gradient(180deg,#223,#112); color:#fff;}
-  .small{font-size:12px;}
-  .meta{display:flex; gap:10px; align-items:center;}
-  .panel{background:var(--panel-bg); padding:10px;border-radius:8px; display:flex; gap:10px; align-items:center;}
-  footer{width:100%;max-width:1200px; margin-top:14px; color:#ccc; text-align:center; padding:10px 6px;}
-  .music-controls{display:flex; gap:8px; align-items:center;}
-  .btn{background:transparent;border:1px solid rgba(255,255,255,0.12); padding:6px 8px;border-radius:6px;color:var(--text);cursor:pointer;}
-  .level-display{font-weight:700;}
-  .link-custom{color:var(--accent); text-decoration:underline; cursor:pointer;}
-  @media (max-width:900px){
-    :root{--card-width:70px;--card-height:100px;}
-    .tableau{overflow-x:auto; padding-bottom:10px;}
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memorama - Black Moon</title>
+  <style>
+    :root{
+      --bg: #0b6623; /* mesa verde */
+      --card-back:#0f3d2e;
+      --card-front:#ffffff;
+      --accent: #f0e6ff;
+      --panel: rgba(255,255,255,0.08);
+      --glass: rgba(255,255,255,0.06);
+      --shadow: 0 6px 18px rgba(0,0,0,0.35);
+      --radius: 14px;
+      --gap: 12px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:var(--accent)}
+    body{background:linear-gradient(180deg,var(--bg),#063b21);display:flex;flex-direction:column}
+
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--glass);backdrop-filter: blur(6px)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff6, #0003);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:1.05rem;margin:0}
+    .controls{display:flex;gap:12px;align-items:center}
+    .btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:var(--accent);cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+
+    main{flex:1;display:flex;flex-direction:column;gap:18px;padding:20px}
+    .topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+    .stats{display:flex;gap:10px;align-items:center}
+    .stat{background:var(--panel);padding:10px 14px;border-radius:10px;min-width:96px;text-align:center}
+    .game-wrap{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+
+    /* tabla/juego */
+    .table-area{flex:1;min-width:280px;background:linear-gradient(180deg,rgba(255,255,255,0.03), rgba(0,0,0,0.06));padding:18px;border-radius:16px;box-shadow:var(--shadow)}
+    .board{display:grid;gap:var(--gap);justify-content:center}
+
+    /* responsive grid sizes by level (pairs) */
+    .board.cols-2{grid-template-columns:repeat(2, minmax(60px, 1fr));}
+    .board.cols-3{grid-template-columns:repeat(3, minmax(70px, 1fr));}
+    .board.cols-4{grid-template-columns:repeat(4, minmax(80px, 1fr));}
+    .board.cols-5{grid-template-columns:repeat(5, minmax(80px, 1fr));}
+    .card{width:100%;aspect-ratio:1/1;perspective:1000px}
+    .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 400ms cubic-bezier(.2,.9,.3,1)}
+    .card.flipped .inner{transform:rotateY(180deg)}
+    .front,.back{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;backface-visibility:hidden}
+    .front{background:var(--card-front);transform:rotateY(180deg);}
+    .front img{width:100%;height:100%;object-fit:cover}
+    .back{background:linear-gradient(135deg,var(--card-back),#084c36);color:#fff;font-weight:800;font-size:1.1rem}
+    .footer-panel{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:var(--glass)}
+
+    aside.side-panel{width:320px;max-width:36vw;min-width:260px;background:var(--panel);padding:12px;border-radius:16px;height:fit-content}
+    .uploader{display:flex;flex-direction:column;gap:8px}
+    label.small{font-size:0.82rem;opacity:0.9}
+    input[type=file]{background:transparent}
+    .footer{padding:14px 20px;background:rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .footer a{color:var(--accent);text-decoration:underline}
+
+    /* small screens */
+    @media (max-width:900px){
+      .game-wrap{flex-direction:column}
+      aside.side-panel{width:100%;max-width:none}
+    }
+  </style>
 </head>
 <body>
-<!-- ===========================
-     DEVELOPER SETTINGS (EDITAR SOLO AQUÍ)
-     - Cambia rutas, textos y valores aquí.
-     - NO tocar más abajo salvo que sepas JS/CSS.
-   ============================ -->
-<script>
-/* ========================= DEVELOPER SETTINGS =========================
-   Solo el desarrollador debe editar esta sección.
-   CARDS: array de 52 objetos. Puedes poner 'img' con URL a imagen de carta
-          o dejar suit+rank y el renderer dibuja texto.
-   GAME_BG / PAGE_BG: puedes poner colores, gradientes o URLs con 'url(...)'.
-   MUSIC_PLAYLIST: 5 URLs (relativas o absolutas).
-   FOOTER_HTML: HTML que aparecerá en el footer.
-   EXTERNAL_LINK: link al que dirigirá el botón/link.
-   MAX_LEVELS: 30 (puedes poner otro número).
-   ======================================================================*/
-const CARDS = (function(){
-  // Ejemplo: representación por texto. Puedes reemplazar cada objeto por:
-  // { id: 'AS', img: 'assets/cards/AS.png' }  --> si pones img se mostrará la imagen.
-  const suits = ['♠','♥','♦','♣'];
-  const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-  const arr = [];
-  for(const s of suits) for(const r of ranks) arr.push({ id: r + s, suit: s, rank: r });
-  // Si prefieres URLs de 52 imágenes, reemplaza arr por lista de objetos {id, img:'ruta'}
-  return arr;
-})();
-
-const GAME_BG = 'linear-gradient(180deg,#0b2740 0%, #02101a 100%)'; // puedes usar 'url("/img/bg.jpg")' también
-const PAGE_BG = 'linear-gradient(180deg,#02030a,#071428)';          // fondo fuera del área del juego
-
-const MUSIC_PLAYLIST = [
-  // Reemplaza por tus archivos: 'music/track1.mp3'
-  'music/track1.mp3',
-  'music/track2.mp3',
-  'music/track3.mp3',
-  'music/track4.mp3',
-  'music/track5.mp3'
-];
-
-const FOOTER_HTML = `© Grupo Black Moon — Evento "Amigos del Aire" — <span class="link-custom" id="footer-link">Visita nuestro sitio</span>`;
-const EXTERNAL_LINK = 'https://tusitio.example.com';
-
-const MAX_LEVELS = 30;
-// Tiempo base por nivel (segundos). Nivel 1 => TIME_BASE + (level-1)*INC
-const TIME_BASE = 300; // 5 minutos base
-const TIME_INC = -5;   // a cada nivel el tiempo baja 5s (puedes cambiar)
-const REDEALS_BASE = 3; // cuántas veces redealar permitidas
-/* ========================= FIN DE DEVELOPER SETTINGS ===================== */
-</script>
-
-<div class="page" id="page">
   <header>
-    <h1>Solitario Klondike — Black Moon</h1>
-    <div class="meta">
-      <div class="panel">
-        <div>Nivel: <span id="level" class="level-display">1</span>/<span id="max-level">30</span></div>
-        <div>Puntos: <span id="score">0</span></div>
-        <div>Timer: <span id="timer">00:00</span></div>
+    <div class="brand">
+      <div class="logo">BM</div>
+      <div>
+        <h1>Memorama — Black Moon</h1>
+        <div style="font-size:.78rem;opacity:.8">Mesa verde · 30 niveles · Subí tus cartas y música</div>
       </div>
-      <div class="panel music-controls" id="music-panel">
-        <button class="btn" id="prev-music">⏮</button>
-        <button class="btn" id="play-music">▶</button>
-        <button class="btn" id="next-music">⏭</button>
-        <label class="small">Vol</label>
-        <input id="vol" type="range" min="0" max="1" step="0.01" value="0.5">
-      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="restartBtn">Reiniciar nivel</button>
+      <button class="btn" id="nextBtn">Siguiente nivel</button>
     </div>
   </header>
 
-  <div id="game-wrap">
-    <div class="top-row">
-      <div class="left-controls">
-        <div class="panel">
-          <div class="deck" id="stock-area">
-            <div class="pile" id="stock" title="Mazo"></div>
-            <div class="pile" id="waste" title="Descarte"></div>
-          </div>
-          <div style="width:18px"></div>
-          <div class="foundations" id="foundations">
-            <!-- 4 foundations generadas por JS -->
-          </div>
-        </div>
-        <div class="panel">
-          <button class="btn" id="restart-btn">Reiniciar</button>
-          <button class="btn" id="redeal-btn">Redeal (<span id="redeal-count">0</span>)</button>
-          <button class="btn" id="hint-btn">Hint</button>
-        </div>
+  <main>
+    <div class="topbar">
+      <div class="stats">
+        <div class="stat">Nivel: <strong id="level">1</strong></div>
+        <div class="stat">Puntaje: <strong id="score">0</strong></div>
+        <div class="stat">Tiempo: <strong id="time">00:00</strong></div>
+        <div class="stat">Parejas: <strong id="pairs">0/0</strong></div>
       </div>
-
-      <div class="panel">
-        <label class="small">Tamaño reproductor</label>
-        <select id="player-size">
-          <option value="mini">Mini</option>
-          <option value="normal" selected>Normal</option>
-        </select>
-        <label class="small">Fondo de página</label>
-        <input id="page-bg-input" placeholder="CSS o url(...)" style="min-width:160px">
-        <label class="small">Fondo juego</label>
-        <input id="game-bg-input" placeholder="CSS o url(...)" style="min-width:160px">
-        <button class="btn" id="apply-bg">Aplicar</button>
+      <div style="display:flex;gap:12px;align-items:center">
+        <audio id="bgm" controls style="opacity:.95" preload="none"></audio>
       </div>
     </div>
 
-    <div class="tableau" id="tableau"></div>
-  </div>
+    <div class="game-wrap">
+      <section class="table-area">
+        <div class="footer-panel" style="margin-bottom:12px">
+          <div style="font-weight:700">Tablero</div>
+          <div style="font-size:.9rem;opacity:.85">Profesional — adaptable</div>
+        </div>
+        <div id="board" class="board cols-4"></div>
+      </section>
 
-  <footer id="footer" class="panel" style="max-width:1200px;">
-    <!-- footer editable -->
+      <aside class="side-panel">
+        <h3 style="margin:0 0 8px 0">Zona desarrollador</h3>
+        <div style="font-size:.9rem;opacity:.9;margin-bottom:8px">Secciones editables: lista de cartas, lista de audios, configuración de niveles y footer.</div>
+        <div class="uploader">
+          <label class="small">Subir imágenes (máx 30 pares sugerido)</label>
+          <input id="cardUpload" type="file" accept="image/*" multiple />
+
+          <label class="small">Subir pistas de música (mp3, wav)</label>
+          <input id="musicUpload" type="file" accept="audio/*" multiple />
+
+          <label class="small">Footer (texto y URL)</label>
+          <input id="footerText" placeholder="Texto del footer" />
+          <input id="footerLink" placeholder="https://..." />
+
+          <label class="small">Configuración</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label>Niveles:</label><input id="levelsCount" type="number" value="30" min="1" style="width:80px" />
+            <label>Tiempo por nivel (seg):</label><input id="timePerLevel" type="number" value="60" min="10" style="width:80px" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="applyDev">Aplicar</button>
+            <button class="btn" id="loadDefaults">Cargar demo</button>
+          </div>
+        </div>
+
+        <hr style="opacity:.06;margin:12px 0" />
+        <div style="font-size:.9rem;opacity:.9">Consejos de edición: subí imágenes cuadradas, optimizá a 200–600px para rendimiento. Para cambiar orden en niveles 21+, el juego usa las mismas cartas reordenadas.</div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div id="footerLeft">Black Moon • Juego de Memoria</div>
+    <div id="footerRight"><a id="footerLinkEl" href="#">Visitar</a></div>
   </footer>
-</div>
 
-<script>
-/* ========================= GAME ENGINE (NO EDITAR A MENOS QUE SEPAS) ========================= */
-(() => {
-  // Init visual settings from developer variables
-  document.documentElement.style.setProperty('--page-bg', PAGE_BG);
-  document.documentElement.style.setProperty('--game-bg', GAME_BG);
-  document.getElementById('max-level').textContent = MAX_LEVELS;
-  document.getElementById('footer').innerHTML = FOOTER_HTML;
-  document.getElementById('footer-link')?.addEventListener('click', ()=> window.open(EXTERNAL_LINK,'_blank'));
+  <script>
+    /* ------------------------------------------------------
+       SECCIÓN EDITABLE (desarrollador):
+       - Cambiá `DEFAULT_CARDS` añadiendo URLs relativos o nombres de archivo.
+       - Cambiá `DEFAULT_TRACKS` con URLs relativos de audio.
+       - Ajustá la apariencia en CSS arriba.
+       ------------------------------------------------------*/
 
-  // Music player
-  const audio = new Audio();
-  let playlist = MUSIC_PLAYLIST.slice();
-  let trackIdx = 0;
-  audio.src = playlist[trackIdx] || '';
-  audio.loop = false;
-  audio.volume = 0.5;
-  const playBtn = document.getElementById('play-music');
-  document.getElementById('vol').addEventListener('input', e=> audio.volume = parseFloat(e.target.value));
-  document.getElementById('prev-music').addEventListener('click', ()=> {
-    trackIdx = (trackIdx-1+playlist.length)%playlist.length; audio.src = playlist[trackIdx]; audio.play(); updatePlayBtn();
-  });
-  document.getElementById('next-music').addEventListener('click', ()=> {
-    trackIdx = (trackIdx+1)%playlist.length; audio.src = playlist[trackIdx]; audio.play(); updatePlayBtn();
-  });
-  playBtn.addEventListener('click', ()=> {
-    if(audio.paused) audio.play(); else audio.pause(); updatePlayBtn();
-  });
-  audio.addEventListener('play', updatePlayBtn);
-  audio.addEventListener('pause', updatePlayBtn);
-  function updatePlayBtn(){ playBtn.textContent = audio.paused ? '▶' : '⏸'; }
+    const DEFAULT_CARDS = [
+      // Demo: si querés usar tus propias imágenes, subilas con el uploader y clic "Aplicar"
+      'https://picsum.photos/seed/a/400',
+      'https://picsum.photos/seed/b/400',
+      'https://picsum.photos/seed/c/400',
+      'https://picsum.photos/seed/d/400',
+      'https://picsum.photos/seed/e/400',
+      'https://picsum.photos/seed/f/400',
+      'https://picsum.photos/seed/g/400',
+      'https://picsum.photos/seed/h/400',
+      'https://picsum.photos/seed/i/400',
+      'https://picsum.photos/seed/j/400'
+    ];
 
-  // Player size
-  document.getElementById('player-size').addEventListener('change', e=>{
-    const s = e.target.value;
-    if(s==='mini'){ audio.volume = 0.4; document.getElementById('music-panel').style.fontSize='12px'; }
-    else { audio.volume = 0.6; document.getElementById('music-panel').style.fontSize='16px'; }
-  });
+    const DEFAULT_TRACKS = [
+      // cada 4 niveles cambia la pista (0-3 -> niveles 1-4 ; 4-7 -> 5-8 ; etc.)
+      '', // vacío = sin música (posición 0)
+      '',
+      '',
+      ''
+    ];
 
-  // Background inputs
-  document.getElementById('page-bg-input').value = PAGE_BG;
-  document.getElementById('game-bg-input').value = GAME_BG;
-  document.getElementById('apply-bg').addEventListener('click', ()=>{
-    const p = document.getElementById('page-bg-input').value || PAGE_BG;
-    const g = document.getElementById('game-bg-input').value || GAME_BG;
-    document.documentElement.style.setProperty('--page-bg', p);
-    document.documentElement.style.setProperty('--game-bg', g);
-  });
+    /* ------------------------------------------------------
+       No tocar debajo si no sabés JS. Lógica de juego:
+    ------------------------------------------------------*/
 
-  /* GAME STATE */
-  let deck = []; // cartas disponibles
-  let stock = [], waste = [], foundations = [[],[],[],[]], tableau = [[],[],[],[],[],[],[]];
-  let score = 0;
-  let level = 1;
-  let timerSeconds = Math.max(30, TIME_BASE + (level-1)*TIME_INC);
-  let timerInterval = null;
-  let redealsLeft = REDEALS_BASE;
-  const maxLevels = MAX_LEVELS;
+    // Estado
+    let level = 1;
+    let levelsTotal = 30;
+    let timePerLevel = 60; // seg
+    let score = 0;
+    let timer = null;
+    let timeLeft = 0;
+    let matchedPairs = 0;
+    let totalPairs = 0;
+    let boardEl = document.getElementById('board');
+    let scoreEl = document.getElementById('score');
+    let levelEl = document.getElementById('level');
+    let timeEl = document.getElementById('time');
+    let pairsEl = document.getElementById('pairs');
+    let bgm = document.getElementById('bgm');
 
-  // DOM areas
-  const stockDom = document.getElementById('stock');
-  const wasteDom = document.getElementById('waste');
-  const tableauDom = document.getElementById('tableau');
-  const foundationsDom = document.getElementById('foundations');
-  const scoreEl = document.getElementById('score');
-  const levelEl = document.getElementById('level');
-  const timerEl = document.getElementById('timer');
-  const redealCountEl = document.getElementById('redeal-count');
-  redealCountEl.textContent = redealsLeft;
+    // Resources editable by uploader
+    let cardPool = [...DEFAULT_CARDS];
+    let musicList = [...DEFAULT_TRACKS];
 
-  // Utilities
-  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
-  function formatTime(s){ const mm = Math.floor(s/60).toString().padStart(2,'0'); const ss = (s%60).toString().padStart(2,'0'); return `${mm}:${ss}`; }
+    // UI elements
+    document.getElementById('restartBtn').addEventListener('click', ()=>startLevel(level));
+    document.getElementById('nextBtn').addEventListener('click', ()=>advanceLevel());
+    document.getElementById('applyDev').addEventListener('click', applyDeveloperChanges);
+    document.getElementById('loadDefaults').addEventListener('click', loadDemo);
 
-  // Render functions
-  function createCardElement(card, faceDown=false){
-    const el = document.createElement('div');
-    el.className = 'card' + (faceDown ? ' face-down' : '');
-    el.dataset.id = card.id;
-    el.dataset.suit = card.suit || '';
-    el.dataset.rank = card.rank || '';
-    // If card.img exists, use it as background
-    if(card.img){
-      el.style.backgroundImage = `url(${card.img})`;
-      el.style.backgroundSize = 'cover';
-      el.style.color = '#fff';
-    } else {
-      const color = (card.suit==='♥' || card.suit==='♦') ? 'red' : 'black';
-      el.innerHTML = `<div class="small" style="color:${color}">${card.rank}${card.suit}</div><div style="align-self:flex-end;font-size:24px;text-align:right;color:${color}">${card.rank}${card.suit}</div>`;
+    // upload handlers
+    document.getElementById('cardUpload').addEventListener('change', handleCardFiles);
+    document.getElementById('musicUpload').addEventListener('change', handleMusicFiles);
+
+    function handleCardFiles(e){
+      const files = [...e.target.files];
+      if(!files.length) return;
+      const readers = files.map(f => new Promise((res,rej)=>{
+        const r = new FileReader(); r.onload = ()=>res(r.result); r.onerror=rej; r.readAsDataURL(f);
+      }));
+      Promise.all(readers).then(images => {
+        // replace cardPool with uploaded images
+        cardPool = images;
+        alert('Imágenes subidas. Click "Aplicar" para reiniciar con estas cartas.');
+      }).catch(()=>alert('Error leyendo imágenes'));
     }
-    // Events
-    el.addEventListener('click', (ev)=> onCardClick(ev, card));
-    return el;
-  }
 
-  function renderAll(){
-    // stock and waste
-    stockDom.innerHTML = ''; wasteDom.innerHTML = '';
-    if(stock.length) stockDom.appendChild(createCardElement({id:'back'}, true));
-    else { const p = document.createElement('div'); p.className='pile'; p.style.opacity=0.3; stockDom.appendChild(p); }
-    if(waste.length) wasteDom.appendChild(createCardElement(waste[waste.length-1], false));
+    function handleMusicFiles(e){
+      const files = [...e.target.files];
+      if(!files.length) return;
+      const readers = files.map(f => new Promise((res,rej)=>{
+        const r = new FileReader(); r.onload = ()=>res({name:f.name,data:r.result}); r.onerror=rej; r.readAsDataURL(f);
+      }));
+      Promise.all(readers).then(tracks => {
+        // store data URLs
+        musicList = tracks.map(t=>t.data);
+        alert('Pistas cargadas. Click "Aplicar" para reiniciar con las pistas.');
+      }).catch(()=>alert('Error leyendo pistas'));
+    }
 
-    // foundations
-    foundationsDom.innerHTML = '';
-    for(let i=0;i<4;i++){
-      const p = document.createElement('div'); p.className='pile'; p.style.minHeight='var(--card-height)'; p.dataset.idx = i;
-      if(foundations[i].length){
-        p.appendChild(createCardEleme
+    function applyDeveloperChanges(){
+      const lv = parseInt(document.getElementById('levelsCount').value)||30;
+      const tp = parseInt(document.getElementById('timePerLevel').value)||60;
+      levelsTotal = lv; timePerLevel = tp;
+      const ft = document.getElementById('footerText').value.trim();
+      const fl = document.getElementById('footerLink').value.trim();
+      if(ft) document.getElementById('footerLeft').textContent = ft;
+      if(fl){ document.getElementById('footerLinkEl').href = fl; document.getElementById('footerLinkEl').textContent = fl.replace(/^https?:\/\//,''); }
+      alert('Configuración aplicada. Reiniciando nivel actual...');
+      startLevel(level);
+    }
 
+    function loadDemo(){
+      // restore defaults
+      cardPool = [...DEFAULT_CARDS];
+      musicList = [...DEFAULT_TRACKS];
+      document.getElementById('footerLeft').textContent = 'Black Moon • Juego de Memoria';
+      document.getElementById('footerLinkEl').href = '#'; document.getElementById('footerLinkEl').textContent = 'Visitar';
+      levelsTotal = 30; timePerLevel = 60;
+      startLevel(1);
+    }
+
+    // Visual helpers
+    function formatTime(s){ const m = Math.floor(s/60).toString().padStart(2,'0'); const sec = (s%60).toString().padStart(2,'0'); return `${m}:${sec}` }
+
+    function pickCardsForLevel(lv){
+      // decide number of pairs based on level (progressive): e.g. start 3 pairs and grow up to 15
+      const minPairs = 3;
+      const maxPairs = 15; // capping for grid
+      const pairs = Math.min(maxPairs, minPairs + Math.floor((lv-1)/2));
+      totalPairs = pairs;
+      pairsEl.innerHTML = `${matchedPairs}/${totalPairs}`;
+
+      // choose 'pairs' unique cards
+      let pool = [...cardPool];
+      if(pool.length < pairs) {
+        // duplicate demo images to fill
+        while(pool.length < pairs) pool = pool.concat(pool.slice(0,pairs-pool.length));
+      }
+
+      // For levels >=21 use same set of cards (first N of cardPool) but shuffled order
+      let chosen = pool.slice(0,pairs);
+      if(lv >= 21){
+        // keep same chosen but randomize display order by shuffling later
+      } else {
+        // pick random unique
+        chosen = shuffle(pool).slice(0,pairs);
+      }
+
+      // build deck (two of each)
+      let deck = [];
+      chosen.forEach((c,idx)=>{ deck.push({id:idx, img:c}); deck.push({id:idx, img:c}); });
+
+      // shuffle deck (if lv>=21 we only shuffle positions, same cards)
+      deck = shuffle(deck);
+      return deck;
+    }
+
+    // Fisher-Yates
+    function shuffle(a){
+      const arr = a.slice();
+      for(let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] }
+      return arr;
+    }
+
+    // Board render and interactions
+    let firstPick = null; let busy = false;
+    function renderBoard(deck){
+      boardEl.innerHTML = '';
+      // decide columns based on number of pairs
+      const cols = Math.min(5, Math.ceil(Math.sqrt(deck.length)));
+      boardEl.className = 'board cols-'+cols;
+
+      deck.forEach((cardObj, idx)=>{
+        const card = document.createElement('div'); card.className='card'; card.dataset.idx = idx; card.dataset.pair = cardObj.id;
+        const inner = document.createElement('div'); inner.className='inner';
+        const back = document.createElement('div'); back.className='back'; back.textContent='?';
+        const front = document.createElement('div'); front.className='front';
+        const img = document.createElement('img'); img.src = cardObj.img; img.alt = 'card'; front.appendChild(img);
+        inner.appendChild(front); inner.appendChild(back); card.appendChild(inner);
+        boardEl.appendChild(card);
+
+        card.addEventListener('click', ()=>onCardClick(card, cardObj));
+      });
+    }
+
+    function onCardClick(cardEl, cardObj){
+      if(busy) return; if(cardEl.classList.contains('flipped')) return;
+      cardEl.classList.add('flipped');
+      if(!firstPick){ firstPick = {el:cardEl, id:cardObj.id}; return; }
+      // second pick
+      busy = true;
+      const second = {el:cardEl, id:cardObj.id};
+      if(firstPick.id === second.id){
+        // match
+        matchedPairs++;
+        score += 100 + Math.max(0, timeLeft-5);
+        updateUI();
+        // mark matched permanently
+        setTimeout(()=>{ firstPick.el.style.visibility='hidden'; second.el.style.visibility='hidden'; busy=false; firstPick=null; checkLevelComplete(); }, 600);
+      } else {
+        // not match
+        score = Math.max(0, score-15);
+        updateUI();
+        setTimeout(()=>{ firstPick.el.classList.remove('flipped'); second.el.classList.remove('flipped'); busy=false; firstPick=null; }, 700);
+      }
+    }
+
+    function updateUI(){ scoreEl.textContent = score; levelEl.textContent = level; pairsEl.textContent = `${matchedPairs}/${totalPairs}`; timeEl.textContent = formatTime(timeLeft); }
+
+    function checkLevelComplete(){
+      if(matchedPairs >= totalPairs){
+        clearInterval(timer); timer=null; alert('¡Nivel completado!');
+        // auto-advance if not last level
+        if(level < levelsTotal) level++; startLevel(level);
+      }
+    }
+
+    function startLevel(lv){
+      // reset
+      clearInterval(timer); timer=null; timeLeft = timePerLevel; matchedPairs=0; firstPick=null; busy=false;
+      level = lv; updateUI();
+
+      // prepare deck
+      const deck = pickCardsForLevel(level);
+      renderBoard(deck);
+
+      // set music: each 4 levels a different track
+      const musicIndex = Math.floor((level-1)/4) % Math.max(1, musicList.length);
+      const track = musicList[musicIndex] || '';
+      if(track){ bgm.src = track; bgm.play().catch(()=>{}); }
+      else{ bgm.pause(); bgm.src=''; }
+
+      // start timer
+      timer = setInterval(()=>{
+        timeLeft--; updateUI();
+        if(timeLeft<=0){ clearInterval(timer); timer=null; alert('Se acabó el tiempo'); startLevel(level); }
+      },1000);
+    }
+
+    function advanceLevel(){ if(level < levelsTotal) startLevel(level+1); else alert('Último nivel alcanzado'); }
+
+    // init
+    loadDemo();
+
+    // Accessibility / keyboard shortcuts
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='r') startLevel(level);
+      if(e.key==='n') advanceLevel();
+    });
+
+    // Prevent accidental image dragging
+    document.addEventListener('dragstart', e=>e.preventDefault());
+
+  </script>
+</body>
+</html>
