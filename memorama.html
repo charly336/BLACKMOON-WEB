@@ -1,387 +1,228 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Memorama - Black Moon</title>
-  <style>
-    :root{
-      --bg: #0b6623; /* mesa verde */
-      --card-back:#0f3d2e;
-      --card-front:#ffffff;
-      --accent: #f0e6ff;
-      --panel: rgba(255,255,255,0.08);
-      --glass: rgba(255,255,255,0.06);
-      --shadow: 0 6px 18px rgba(0,0,0,0.35);
-      --radius: 14px;
-      --gap: 12px;
-    }
-    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:var(--accent)}
-    body{background:linear-gradient(180deg,var(--bg),#063b21);display:flex;flex-direction:column}
-
-    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--glass);backdrop-filter: blur(6px)}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff6, #0003);display:flex;align-items:center;justify-content:center;font-weight:700}
-    h1{font-size:1.05rem;margin:0}
-    .controls{display:flex;gap:12px;align-items:center}
-    .btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:var(--accent);cursor:pointer}
-    .btn:active{transform:translateY(1px)}
-
-    main{flex:1;display:flex;flex-direction:column;gap:18px;padding:20px}
-    .topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-    .stats{display:flex;gap:10px;align-items:center}
-    .stat{background:var(--panel);padding:10px 14px;border-radius:10px;min-width:96px;text-align:center}
-    .game-wrap{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
-
-    /* tabla/juego */
-    .table-area{flex:1;min-width:280px;background:linear-gradient(180deg,rgba(255,255,255,0.03), rgba(0,0,0,0.06));padding:18px;border-radius:16px;box-shadow:var(--shadow)}
-    .board{display:grid;gap:var(--gap);justify-content:center}
-
-    /* responsive grid sizes by level (pairs) */
-    .board.cols-2{grid-template-columns:repeat(2, minmax(60px, 1fr));}
-    .board.cols-3{grid-template-columns:repeat(3, minmax(70px, 1fr));}
-    .board.cols-4{grid-template-columns:repeat(4, minmax(80px, 1fr));}
-    .board.cols-5{grid-template-columns:repeat(5, minmax(80px, 1fr));}
-    .card{width:100%;aspect-ratio:1/1;perspective:1000px}
-    .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 400ms cubic-bezier(.2,.9,.3,1)}
-    .card.flipped .inner{transform:rotateY(180deg)}
-    .front,.back{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;backface-visibility:hidden}
-    .front{background:var(--card-front);transform:rotateY(180deg);}
-    .front img{width:100%;height:100%;object-fit:cover}
-    .back{background:linear-gradient(135deg,var(--card-back),#084c36);color:#fff;font-weight:800;font-size:1.1rem}
-    .footer-panel{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:var(--glass)}
-
-    aside.side-panel{width:320px;max-width:36vw;min-width:260px;background:var(--panel);padding:12px;border-radius:16px;height:fit-content}
-    .uploader{display:flex;flex-direction:column;gap:8px}
-    label.small{font-size:0.82rem;opacity:0.9}
-    input[type=file]{background:transparent}
-    .footer{padding:14px 20px;background:rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .footer a{color:var(--accent);text-decoration:underline}
-
-    /* small screens */
-    @media (max-width:900px){
-      .game-wrap{flex-direction:column}
-      aside.side-panel{width:100%;max-width:none}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorama Black Moon</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #006400;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  #game-board {
+    display: grid;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 900px;
+  }
+  .card {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background-color: #0a0;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s;
+  }
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  .hidden img {
+    display: none;
+  }
+  #hud {
+    margin-top: 10px;
+    font-size: 1.2em;
+  }
+  footer {
+    margin-top: 20px;
+    font-size: 0.9em;
+  }
+  a {
+    color: #ff0;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <div class="logo">BM</div>
-      <div>
-        <h1>Memorama — Black Moon</h1>
-        <div style="font-size:.78rem;opacity:.8">Mesa verde · 30 niveles · Subí tus cartas y música</div>
-      </div>
-    </div>
-    <div class="controls">
-      <button class="btn" id="restartBtn">Reiniciar nivel</button>
-      <button class="btn" id="nextBtn">Siguiente nivel</button>
-    </div>
-  </header>
-
-  <main>
-    <div class="topbar">
-      <div class="stats">
-        <div class="stat">Nivel: <strong id="level">1</strong></div>
-        <div class="stat">Puntaje: <strong id="score">0</strong></div>
-        <div class="stat">Tiempo: <strong id="time">00:00</strong></div>
-        <div class="stat">Parejas: <strong id="pairs">0/0</strong></div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <audio id="bgm" controls style="opacity:.95" preload="none"></audio>
-      </div>
-    </div>
-
-    <div class="game-wrap">
-      <section class="table-area">
-        <div class="footer-panel" style="margin-bottom:12px">
-          <div style="font-weight:700">Tablero</div>
-          <div style="font-size:.9rem;opacity:.85">Profesional — adaptable</div>
-        </div>
-        <div id="board" class="board cols-4"></div>
-      </section>
-
-      <aside class="side-panel">
-        <h3 style="margin:0 0 8px 0">Zona desarrollador</h3>
-        <div style="font-size:.9rem;opacity:.9;margin-bottom:8px">Secciones editables: lista de cartas, lista de audios, configuración de niveles y footer.</div>
-        <div class="uploader">
-          <label class="small">Subir imágenes (máx 30 pares sugerido)</label>
-          <input id="cardUpload" type="file" accept="image/*" multiple />
-
-          <label class="small">Subir pistas de música (mp3, wav)</label>
-          <input id="musicUpload" type="file" accept="audio/*" multiple />
-
-          <label class="small">Footer (texto y URL)</label>
-          <input id="footerText" placeholder="Texto del footer" />
-          <input id="footerLink" placeholder="https://..." />
-
-          <label class="small">Configuración</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label>Niveles:</label><input id="levelsCount" type="number" value="30" min="1" style="width:80px" />
-            <label>Tiempo por nivel (seg):</label><input id="timePerLevel" type="number" value="60" min="10" style="width:80px" />
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn" id="applyDev">Aplicar</button>
-            <button class="btn" id="loadDefaults">Cargar demo</button>
-          </div>
-        </div>
-
-        <hr style="opacity:.06;margin:12px 0" />
-        <div style="font-size:.9rem;opacity:.9">Consejos de edición: subí imágenes cuadradas, optimizá a 200–600px para rendimiento. Para cambiar orden en niveles 21+, el juego usa las mismas cartas reordenadas.</div>
-      </aside>
-    </div>
-  </main>
-
-  <footer class="footer">
-    <div id="footerLeft">Black Moon • Juego de Memoria</div>
-    <div id="footerRight"><a id="footerLinkEl" href="#">Visitar</a></div>
+  <div id="hud">
+    <span id="score">Puntaje: 0</span> | 
+    <span id="timer">Tiempo: 0s</span> | 
+    <span id="level">Nivel: 1</span>
+  </div>
+  <div id="game-board"></div>
+  <footer>
+    <p>© 2025 Grupo Black Moon | <a href="https://blackmoon.com" target="_blank">Visitar página</a></p>
   </footer>
+<script>
+// ==================== SECCIÓN DEL DESARROLLADOR ====================
+// Cartas personalizadas (22 diferentes)
+const DEFAULT_CARDS = [
+  "cartas/carta1.png",
+  "cartas/carta2.png",
+  "cartas/carta3.png",
+  "cartas/carta4.png",
+  "cartas/carta5.png",
+  "cartas/carta6.png",
+  "cartas/carta7.png",
+  "cartas/carta8.png",
+  "cartas/carta9.png",
+  "cartas/carta10.png",
+  "cartas/carta11.png",
+  "cartas/carta12.png",
+  "cartas/carta13.png",
+  "cartas/carta14.png",
+  "cartas/carta15.png",
+  "cartas/carta16.png",
+  "cartas/carta17.png",
+  "cartas/carta18.png",
+  "cartas/carta19.png",
+  "cartas/carta20.png",
+  "cartas/carta21.png",
+  "cartas/carta22.png"
+];
 
-  <script>
-    /* ------------------------------------------------------
-       SECCIÓN EDITABLE (desarrollador):
-       - Cambiá `DEFAULT_CARDS` añadiendo URLs relativos o nombres de archivo.
-       - Cambiá `DEFAULT_TRACKS` con URLs relativos de audio.
-       - Ajustá la apariencia en CSS arriba.
-       ------------------------------------------------------*/
+// Música para cada bloque de 4 niveles
+const DEFAULT_TRACKS = [
+  "musica/track1.mp3",
+  "musica/track2.mp3",
+  "musica/track3.mp3",
+  "musica/track4.mp3",
+  "musica/track5.mp3",
+  "musica/track6.mp3",
+  "musica/track7.mp3",
+  "musica/track8.mp3"
+];
 
-    const DEFAULT_CARDS = [
-      // Demo: si querés usar tus propias imágenes, subilas con el uploader y clic "Aplicar"
-      'https://picsum.photos/seed/a/400',
-      'https://picsum.photos/seed/b/400',
-      'https://picsum.photos/seed/c/400',
-      'https://picsum.photos/seed/d/400',
-      'https://picsum.photos/seed/e/400',
-      'https://picsum.photos/seed/f/400',
-      'https://picsum.photos/seed/g/400',
-      'https://picsum.photos/seed/h/400',
-      'https://picsum.photos/seed/i/400',
-      'https://picsum.photos/seed/j/400'
-    ];
+// ==================== LÓGICA DEL JUEGO ====================
+let level = 1;
+let score = 0;
+let time = 0;
+let timerInterval;
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+let pairsFound = 0;
+const totalLevels = 30;
+const board = document.getElementById('game-board');
+const scoreEl = document.getElementById('score');
+const timerEl = document.getElementById('timer');
+const levelEl = document.getElementById('level');
+const audio = new Audio();
 
-    const DEFAULT_TRACKS = [
-      // cada 4 niveles cambia la pista (0-3 -> niveles 1-4 ; 4-7 -> 5-8 ; etc.)
-      '', // vacío = sin música (posición 0)
-      '',
-      '',
-      ''
-    ];
+function startMusicForLevel(lvl) {
+  const index = Math.floor((lvl - 1) / 4) % DEFAULT_TRACKS.length;
+  audio.src = DEFAULT_TRACKS[index];
+  audio.loop = true;
+  audio.play().catch(() => {});
+}
 
-    /* ------------------------------------------------------
-       No tocar debajo si no sabés JS. Lógica de juego:
-    ------------------------------------------------------*/
+function startTimer() {
+  clearInterval(timerInterval);
+  time = 0;
+  timerInterval = setInterval(() => {
+    time++;
+    timerEl.textContent = `Tiempo: ${time}s`;
+  }, 1000);
+}
 
-    // Estado
-    let level = 1;
-    let levelsTotal = 30;
-    let timePerLevel = 60; // seg
-    let score = 0;
-    let timer = null;
-    let timeLeft = 0;
-    let matchedPairs = 0;
-    let totalPairs = 0;
-    let boardEl = document.getElementById('board');
-    let scoreEl = document.getElementById('score');
-    let levelEl = document.getElementById('level');
-    let timeEl = document.getElementById('time');
-    let pairsEl = document.getElementById('pairs');
-    let bgm = document.getElementById('bgm');
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
-    // Resources editable by uploader
-    let cardPool = [...DEFAULT_CARDS];
-    let musicList = [...DEFAULT_TRACKS];
+function createBoard() {
+  board.innerHTML = '';
+  let numPairs = Math.min(22, Math.ceil(level / 1.5) + 4);
+  let selected = DEFAULT_CARDS.slice(0, numPairs);
+  let cards = shuffle([...selected, ...selected]);
 
-    // UI elements
-    document.getElementById('restartBtn').addEventListener('click', ()=>startLevel(level));
-    document.getElementById('nextBtn').addEventListener('click', ()=>advanceLevel());
-    document.getElementById('applyDev').addEventListener('click', applyDeveloperChanges);
-    document.getElementById('loadDefaults').addEventListener('click', loadDemo);
+  let cols = Math.ceil(Math.sqrt(cards.length));
+  board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-    // upload handlers
-    document.getElementById('cardUpload').addEventListener('change', handleCardFiles);
-    document.getElementById('musicUpload').addEventListener('change', handleMusicFiles);
+  cards.forEach(src => {
+    const card = document.createElement('div');
+    card.classList.add('card', 'hidden');
+    const img = document.createElement('img');
+    img.src = src;
+    card.appendChild(img);
+    card.addEventListener('click', () => flipCard(card));
+    board.appendChild(card);
+  });
+}
 
-    function handleCardFiles(e){
-      const files = [...e.target.files];
-      if(!files.length) return;
-      const readers = files.map(f => new Promise((res,rej)=>{
-        const r = new FileReader(); r.onload = ()=>res(r.result); r.onerror=rej; r.readAsDataURL(f);
-      }));
-      Promise.all(readers).then(images => {
-        // replace cardPool with uploaded images
-        cardPool = images;
-        alert('Imágenes subidas. Click "Aplicar" para reiniciar con estas cartas.');
-      }).catch(()=>alert('Error leyendo imágenes'));
-    }
+function flipCard(card) {
+  if (lockBoard || !card.classList.contains('hidden')) return;
+  card.classList.remove('hidden');
 
-    function handleMusicFiles(e){
-      const files = [...e.target.files];
-      if(!files.length) return;
-      const readers = files.map(f => new Promise((res,rej)=>{
-        const r = new FileReader(); r.onload = ()=>res({name:f.name,data:r.result}); r.onerror=rej; r.readAsDataURL(f);
-      }));
-      Promise.all(readers).then(tracks => {
-        // store data URLs
-        musicList = tracks.map(t=>t.data);
-        alert('Pistas cargadas. Click "Aplicar" para reiniciar con las pistas.');
-      }).catch(()=>alert('Error leyendo pistas'));
-    }
+  if (!firstCard) {
+    firstCard = card;
+  } else {
+    secondCard = card;
+    checkForMatch();
+  }
+}
 
-    function applyDeveloperChanges(){
-      const lv = parseInt(document.getElementById('levelsCount').value)||30;
-      const tp = parseInt(document.getElementById('timePerLevel').value)||60;
-      levelsTotal = lv; timePerLevel = tp;
-      const ft = document.getElementById('footerText').value.trim();
-      const fl = document.getElementById('footerLink').value.trim();
-      if(ft) document.getElementById('footerLeft').textContent = ft;
-      if(fl){ document.getElementById('footerLinkEl').href = fl; document.getElementById('footerLinkEl').textContent = fl.replace(/^https?:\/\//,''); }
-      alert('Configuración aplicada. Reiniciando nivel actual...');
-      startLevel(level);
-    }
+function checkForMatch() {
+  if (!firstCard || !secondCard) return;
+  lockBoard = true;
+  const match = firstCard.querySelector('img').src === secondCard.querySelector('img').src;
+  if (match) {
+    pairsFound++;
+    score += 10;
+    scoreEl.textContent = `Puntaje: ${score}`;
+    resetCards();
+    if (pairsFound * 2 === board.children.length) nextLevel();
+  } else {
+    setTimeout(() => {
+      firstCard.classList.add('hidden');
+      secondCard.classList.add('hidden');
+      resetCards();
+    }, 1000);
+  }
+}
 
-    function loadDemo(){
-      // restore defaults
-      cardPool = [...DEFAULT_CARDS];
-      musicList = [...DEFAULT_TRACKS];
-      document.getElementById('footerLeft').textContent = 'Black Moon • Juego de Memoria';
-      document.getElementById('footerLinkEl').href = '#'; document.getElementById('footerLinkEl').textContent = 'Visitar';
-      levelsTotal = 30; timePerLevel = 60;
-      startLevel(1);
-    }
+function resetCards() {
+  [firstCard, secondCard, lockBoard] = [null, null, false];
+}
 
-    // Visual helpers
-    function formatTime(s){ const m = Math.floor(s/60).toString().padStart(2,'0'); const sec = (s%60).toString().padStart(2,'0'); return `${m}:${sec}` }
+function nextLevel() {
+  clearInterval(timerInterval);
+  level++;
+  pairsFound = 0;
+  if (level > totalLevels) {
+    alert(`Juego completado! Puntaje final: ${score}`);
+    level = 1;
+    score = 0;
+  }
+  levelEl.textContent = `Nivel: ${level}`;
+  startMusicForLevel(level);
+  createBoard();
+  startTimer();
+}
 
-    function pickCardsForLevel(lv){
-      // decide number of pairs based on level (progressive): e.g. start 3 pairs and grow up to 15
-      const minPairs = 3;
-      const maxPairs = 15; // capping for grid
-      const pairs = Math.min(maxPairs, minPairs + Math.floor((lv-1)/2));
-      totalPairs = pairs;
-      pairsEl.innerHTML = `${matchedPairs}/${totalPairs}`;
-
-      // choose 'pairs' unique cards
-      let pool = [...cardPool];
-      if(pool.length < pairs) {
-        // duplicate demo images to fill
-        while(pool.length < pairs) pool = pool.concat(pool.slice(0,pairs-pool.length));
-      }
-
-      // For levels >=21 use same set of cards (first N of cardPool) but shuffled order
-      let chosen = pool.slice(0,pairs);
-      if(lv >= 21){
-        // keep same chosen but randomize display order by shuffling later
-      } else {
-        // pick random unique
-        chosen = shuffle(pool).slice(0,pairs);
-      }
-
-      // build deck (two of each)
-      let deck = [];
-      chosen.forEach((c,idx)=>{ deck.push({id:idx, img:c}); deck.push({id:idx, img:c}); });
-
-      // shuffle deck (if lv>=21 we only shuffle positions, same cards)
-      deck = shuffle(deck);
-      return deck;
-    }
-
-    // Fisher-Yates
-    function shuffle(a){
-      const arr = a.slice();
-      for(let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] }
-      return arr;
-    }
-
-    // Board render and interactions
-    let firstPick = null; let busy = false;
-    function renderBoard(deck){
-      boardEl.innerHTML = '';
-      // decide columns based on number of pairs
-      const cols = Math.min(5, Math.ceil(Math.sqrt(deck.length)));
-      boardEl.className = 'board cols-'+cols;
-
-      deck.forEach((cardObj, idx)=>{
-        const card = document.createElement('div'); card.className='card'; card.dataset.idx = idx; card.dataset.pair = cardObj.id;
-        const inner = document.createElement('div'); inner.className='inner';
-        const back = document.createElement('div'); back.className='back'; back.textContent='?';
-        const front = document.createElement('div'); front.className='front';
-        const img = document.createElement('img'); img.src = cardObj.img; img.alt = 'card'; front.appendChild(img);
-        inner.appendChild(front); inner.appendChild(back); card.appendChild(inner);
-        boardEl.appendChild(card);
-
-        card.addEventListener('click', ()=>onCardClick(card, cardObj));
-      });
-    }
-
-    function onCardClick(cardEl, cardObj){
-      if(busy) return; if(cardEl.classList.contains('flipped')) return;
-      cardEl.classList.add('flipped');
-      if(!firstPick){ firstPick = {el:cardEl, id:cardObj.id}; return; }
-      // second pick
-      busy = true;
-      const second = {el:cardEl, id:cardObj.id};
-      if(firstPick.id === second.id){
-        // match
-        matchedPairs++;
-        score += 100 + Math.max(0, timeLeft-5);
-        updateUI();
-        // mark matched permanently
-        setTimeout(()=>{ firstPick.el.style.visibility='hidden'; second.el.style.visibility='hidden'; busy=false; firstPick=null; checkLevelComplete(); }, 600);
-      } else {
-        // not match
-        score = Math.max(0, score-15);
-        updateUI();
-        setTimeout(()=>{ firstPick.el.classList.remove('flipped'); second.el.classList.remove('flipped'); busy=false; firstPick=null; }, 700);
-      }
-    }
-
-    function updateUI(){ scoreEl.textContent = score; levelEl.textContent = level; pairsEl.textContent = `${matchedPairs}/${totalPairs}`; timeEl.textContent = formatTime(timeLeft); }
-
-    function checkLevelComplete(){
-      if(matchedPairs >= totalPairs){
-        clearInterval(timer); timer=null; alert('¡Nivel completado!');
-        // auto-advance if not last level
-        if(level < levelsTotal) level++; startLevel(level);
-      }
-    }
-
-    function startLevel(lv){
-      // reset
-      clearInterval(timer); timer=null; timeLeft = timePerLevel; matchedPairs=0; firstPick=null; busy=false;
-      level = lv; updateUI();
-
-      // prepare deck
-      const deck = pickCardsForLevel(level);
-      renderBoard(deck);
-
-      // set music: each 4 levels a different track
-      const musicIndex = Math.floor((level-1)/4) % Math.max(1, musicList.length);
-      const track = musicList[musicIndex] || '';
-      if(track){ bgm.src = track; bgm.play().catch(()=>{}); }
-      else{ bgm.pause(); bgm.src=''; }
-
-      // start timer
-      timer = setInterval(()=>{
-        timeLeft--; updateUI();
-        if(timeLeft<=0){ clearInterval(timer); timer=null; alert('Se acabó el tiempo'); startLevel(level); }
-      },1000);
-    }
-
-    function advanceLevel(){ if(level < levelsTotal) startLevel(level+1); else alert('Último nivel alcanzado'); }
-
-    // init
-    loadDemo();
-
-    // Accessibility / keyboard shortcuts
-    document.addEventListener('keydown',(e)=>{
-      if(e.key==='r') startLevel(level);
-      if(e.key==='n') advanceLevel();
-    });
-
-    // Prevent accidental image dragging
-    document.addEventListener('dragstart', e=>e.preventDefault());
-
-  </script>
+// Iniciar juego
+startMusicForLevel(level);
+createBoard();
+startTimer();
+</script>
 </body>
 </html>
