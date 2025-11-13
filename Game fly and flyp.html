@@ -1,130 +1,145 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Memorama de Danza Aérea V.1.1 </title>
-<a href="https://www.contadorvisitasgratis.com" title="contador de visitas para blog"><img src="https://counter1.optistats.ovh/private/contadorvisitasgratis.php?c=9la8x4zl5p99ndbbkd35y6uyxnhu594j" border="0" title="contador de visitas para blog" alt="contador de visitas para blog"></a>
-  <style>
-  body {
-    font-family: 'Poppins', sans-serif;
-   background: linear-gradient(to right, #000000, #333333, #007CF0);
-    color: #101011;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Memorama  v2.0</title>
+  <a href="https://www.contadorvisitasgratis.com" title="contador de visitas para blog"><img src="https://counter1.optistats.ovh/private/contadorvisitasgratis.php?c=9la8x4zl5p99ndbbkd35y6uyxnhu594j" border="0" title="contador de visitas para blog" alt="contador de visitas para blog"></a>
+<style>
+  :root{
+    --bg:#0b6623;
+    --panel: rgba(255,255,255,0.04);
+    --accent:#f0e6ff;
+    --card-radius:12px;
+    --shadow: 0 8px 22px rgba(0,0,0,0.45);
   }
-
-  h1 {
-    margin-top: 20px;
-    color: #2E0739;
-    text-shadow: 0 0 15px #F8B653;
-  }
-   p {
-    margin-top: 30px;
-    color: #BD10EE;
-    text-shadow: 0 0 35px #F8B653;
-  }
-
- #game-container {
-    display: grid;
-    justify-content: center;
-    margin: 40px auto;
-    gap: 20px;
-}
-    
-  .card {
-    width: 100px;
-    height: 180px;
-    background-image: url('GPO BKM 2.jpg');
-    border-radius: 20px;
-    cursor: pointer;
-    transform: scale(1);
-    transition: transform 0.2s;
-    position: relative;
-    box-shadow: 20px 20px 10px grey;
-  }
-
-  .card:hover {
-    transform: scale(1.05);
-  }
-
-  .card img {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-    display: none;
-    background-image: url('GPO BKM 2.jpg');
-  }
-
-  .card.flipped img {
-    display: block;
-  }
-
-  #nivel, #mensaje {
-    font-size: 3.2em;
-    margin-top: 30px;
-  }
-
-  button {
-    background: #DED5F4;
-    border: dotted;
-    color: black;
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background 0.3s;
-  }
-
-  button:hover {
-    background: #ff3385;
-  }
-
-  audio {
-    display: block;
-  }
-
-  @keyframes win {
-    from { background-color: #000; }
-    to { background-color: #2b2b2b; }
-  }
-
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:var(--accent)}
+  body{background: #7B001C;display:flex;flex-direction:column;min-height:100vh}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--panel);backdrop-filter:blur(6px)}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff6,#0003);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000}
+  h1{font-size:1.05rem;margin:0;color:var(--accent)}
+  .controls{display:flex;gap:10px;align-items:center}
+  .btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:var(--accent);cursor:pointer}
+  main{flex:1;display:flex;flex-direction:column;gap:18px;padding:20px}
+  .topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .stats{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .stat{background:rgba(255,255,255,0.03);padding:10px 14px;border-radius:10px;min-width:96px;text-align:center}
+  .game-area{display:flex;gap:18px;align-items:flex-start;flex-direction:column;align-items:center}
+  .table-area{width:100%;max-width:1100px;background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(0,0,0,0.06));padding:18px;border-radius:16px;box-shadow:var(--shadow)}
+  #board{display:grid;gap:12px;justify-content:center}
+  /* card 3D */
+  .card{width:100%;aspect-ratio:1/1;perspective:1000px;cursor:pointer}
+  .card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 500ms cubic-bezier(.2,.9,.3,1)}
+  .card.flipped .card-inner{transform:rotateY(180deg)}
+  .card-face{position:absolute;inset:0;border-radius:var(--card-radius);overflow:hidden;backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
+  .card-front{transform:rotateY(180deg);background:#B87333}
+  .card-front img{width:100%;height:100%;length:50%;object-fit:contain}
+  .card-back{background:linear-gradient(135deg,#111111,#111111);color:#fff;font-weight:500}
+  .card-back img{width:70%;height:auto;opacity:0.95}
+  footer{padding:14px 20px;background:rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px}
+  footer a{color:var(--accent);text-decoration:underline}
+  /* responsive columns will be set dynamically */
+  @media(max-width:900px){ .table-area{padding:12px} }
+  @media(max-width:600px){ header{padding:10px} .stats{flex-direction:column;align-items:flex-start} }
+  /* developer-only UI (hidden by default) */
+  #devPanel{position:fixed;right:18px;bottom:18px;background:rgba(0,0,0,0.6);padding:12px;border-radius:12px;z-index:999;display:none;max-width:360px}
+  #devPanel label{display:block;font-size:0.85rem;margin-top:8px}
+  input[type=file]{width:100%;}
+  .muted{opacity:0.86;font-size:0.9rem}
 </style>
 </head>
 <body>
+  <header>
+    <div class="brand">
+      <div class="GPO BKM 2.jpg">BLACKMOON GAMES</div>
+      <div>
+        <h1>Memorama v.2.0</h1>
+        <div style="font-size:.78rem;opacity:.8">BIENVENIDO AEREALISTA</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="restartBtn" title="Reiniciar nivel">Reiniciar</button>
+      <button class="btn" id="nextBtn" title="Siguiente nivel">Siguiente</button>
+      <!-- developer unlock (no visible options for players) -->
+      <button class="btn" id="unlockDevBtn" title="Desarrollador (privado)">Desarrollador</button>
+    </div>
+  </header>
 
-<h1>😎 Memorama de Danza Aérea by Blackmoon Games V.1.1 😎 </h1>
-<p id="nivel">Nivel 1 😜</p>
-<div id="game-container"></div>
-<p id="mensaje"></p>
-<button id="start-btn">👾 START GAME 👾</button>
-<button id="mute-btn" style="display:none;">🔊 Silenciar</button>
+  <main>
+    <div class="topbar">
+      <div class="stats">
+        <div class="stat">Nivel: <strong id="level">1</strong></div>
+        <div class="stat">Puntaje: <strong id="score">0</strong></div>
+        <div class="stat">Tiempo: <strong id="time">00:00</strong></div>
+        <div class="stat">Parejas: <strong id="pairs">0/0</strong></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <audio id="bgm" controls style="opacity:.95" preload="none"></audio>
+      </div>
+    </div>
 
-<audio id="bg-music" loop>
-  <!-- El desarrollador puede cambiar el archivo aquí -->
-  <source src="8.-Soy un Quetzal en el Viento.m4a" type="audio/mpeg">
-</audio>
+    <div class="game-area">
+      <section class="table-area">
+        <div id="board" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div id="footerLeft">BLACKMOON RECORDS •NUESTRAS CANCIONES</div>
+    <div id="footerRight"><a id="footerLink" href="https://open.spotify.com/intl-es/artist/4lF7Q4iXqYQgTGV2rtNteG?si=mxy7FSeBTiqYhgX-LF5h0Q" target="_blank" rel="noopener">ESCUCHAR</a></div>
+  </footer>
+
+  <!-- Panel de desarrollador (oculto para jugadores) -->
+  <div id="devPanel" aria-hidden="true">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <strong>Modo desarrollador</strong>
+      <button class="btn" id="closeDev">Cerrar</button>
+    </div>
+
+    <label class="muted">Subir imágenes de cartas (se duplica cada imagen)</label>
+    <input id="cardUpload" type="file" accept="image/*" multiple />
+
+    <label class="muted">Subir pistas de música (orden por bloques de 4 niveles)</label>
+    <input id="musicUpload" type="file" accept="audio/*" multiple />
+
+    <label class="muted">Logo reverso (PNG con fondo transparente recomendado)</label>
+    <input id="logoUpload" type="file" accept="image/*" />
+
+    <label class="muted">Footer (texto y URL)</label>
+    <input id="footerText" placeholder="Texto del footer" style="width:100%;margin-top:6px" />
+    <input id="footerURL" placeholder="https://..." style="width:100%;margin-top:6px" />
+
+    <label class="muted">Configuración rápida</label>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <input id="levelsCount" type="number" value="30" min="1" style="width:100px" />
+      <input id="timePerLevel" type="number" value="60" min="10" style="width:120px" />
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn" id="applyDev">Aplicar</button>
+      <button class="btn" id="loadDefaults">Cargar demo</button>
+    </div>
+
+    <div style="font-size:12px;color:#ddd;margin-top:10px">El panel solo se activa con la contraseña definida en el código. No lo verá ningún jugador.</div>
+  </div>
 
 <script>
-  const contenedor = document.getElementById('game-container');
-  const nivelTxt = document.getElementById('nivel');
-  const mensaje = document.getElementById('mensaje');
-  const startBtn = document.getElementById('start-btn');
-  const muteBtn = document.getElementById('mute-btn');
-  const musica = document.getElementById('bg-music');
+/* ==================== SECCIÓN DEL DESARROLLADOR (MODIFICABLE SOLO AQUÍ) ====================
+   - Cambie los links de DEFAULT_CARDS por sus imágenes si quiere.
+   - Cambie DEFAULT_TRACKS por rutas a sus audios.
+   - Ponga la ruta de su logo en CARD_BACK_LOGO si no va a usar el uploader.
+   - Para que el panel de desarrollador sea accesible, cambie DEVELOPER_PASSWORD.
+   - Los cambios desde el panel usan FileReader (datos en memoria) y NO exponen controles al jugador.
+=========================================================================================== */
 
-  let nivel = 1;
-  let paresEncontrados = 0;
-  let cartasSeleccionadas = [];
-  let cartas;
-  let sonidosActivos = true;
+/* CONTRASEÑA para desbloquear el panel de desarrollador (cámbiela) */
+const DEVELOPER_PASSWORD = '2426';
 
-  // Lista de imágenes protegidas (solo el desarrollador puede cambiarlas)
-  const imagenes = [
-    '00 the aerealist.jpg',
+/* Cartas por defecto (22 enlaces solicitados) — puede reemplazarlos */
+const DEFAULT_CARDS = [
+  '00 the aerealist.jpg',
     '01 ace of pentacles.jpg',
     '02 kinigth of pentacles.jpg',
     '03 the devil.jpg', 
@@ -147,126 +162,325 @@
     '20 king of swords.jpg',
     '21 knigth of cups.jpg',
     '22 nine of swords.jpg',
-    
-  ];
+];
 
-  // Inicia el juego
-  startBtn.addEventListener('click', () => {
-    startBtn.style.display = 'none';
-    muteBtn.style.display = 'inline-block';
-    musica.play().catch(() => {});
-    iniciarNivel();
+/* Pistas de música por bloques (placeholder para desarrollador) */
+const DEFAULT_TRACKS = [
+  "15.-En el aire soy todo.m4a", // niveles 1-4
+  "6.-Silencio de la Noche.m4a", // 5-8
+  "8.-Blackmoon podcast.mp3", // 9-12
+  "1.- Volando con Black Moon.m4a", // 13-16
+  "nudos de amor y traición [1].mp3", // 17-20
+  "9.-Soy un fénix en el aire.m4a", // 21-24
+  "1.- Bajo la noche (Blackmoon).mp3", // 25-28
+  "8.-Soy un Quetzal en el Viento.m4a"  // 29-30 (y sobrantes)
+];
+
+/* Logo reverso por defecto (puede sobrescribirse con uploader) */
+const CARD_BACK_LOGO = "GPO BKM 2.jpg";
+
+/* -------------------------------------------------------------
+   FIN SECCIÓN DESARROLLADOR
+   ------------------------------------------------------------- */
+
+/* Estado del juego */
+let level = 1;
+let levelsTotal = 30;
+let timePerLevel = 90; // segundos por nivel
+let score = 0;
+let timeLeft = 0;
+let timer = null;
+let matchedPairs = 0;
+let totalPairs = 0;
+let developerModeActive = false;
+
+/* Recursos en memoria (pueden ser reemplazados por uploader en modo dev) */
+let cardPool = [...DEFAULT_CARDS];       // images (URLs or dataURLs)
+let musicPool = [...DEFAULT_TRACKS];     // audio URLs or dataURLs
+let cardBackLogo = CARD_BACK_LOGO;       // logo URL or dataURL
+
+/* Elementos DOM */
+const boardEl = document.getElementById('board');
+const scoreEl = document.getElementById('score');
+const levelEl = document.getElementById('level');
+const timeEl = document.getElementById('time');
+const pairsEl = document.getElementById('pairs');
+const bgm = document.getElementById('bgm');
+const restartBtn = document.getElementById('restartBtn');
+const nextBtn = document.getElementById('nextBtn');
+const unlockDevBtn = document.getElementById('unlockDevBtn');
+const devPanel = document.getElementById('devPanel');
+const closeDev = document.getElementById('closeDev');
+const cardUpload = document.getElementById('cardUpload');
+const musicUpload = document.getElementById('musicUpload');
+const logoUpload = document.getElementById('logoUpload');
+const applyDev = document.getElementById('applyDev');
+const loadDefaultsBtn = document.getElementById('loadDefaults');
+
+restartBtn.addEventListener('click', ()=>startLevel(level));
+nextBtn.addEventListener('click', ()=>{ if(level < levelsTotal) startLevel(level+1); });
+unlockDevBtn.addEventListener('click', unlockDeveloperPanel);
+closeDev.addEventListener('click', ()=>{ devPanel.style.display='none'; developerModeActive=false; });
+
+/* Dev uploads */
+cardUpload.addEventListener('change', handleCardFiles);
+musicUpload.addEventListener('change', handleMusicFiles);
+logoUpload.addEventListener('change', handleLogoFile);
+applyDev.addEventListener('click', applyDeveloperSettings);
+loadDefaultsBtn.addEventListener('click', loadDemoDefaults);
+
+/* Seguridad simple: pedir contraseña para mostrar panel */
+function unlockDeveloperPanel(){
+  const p = prompt('Ingrese contraseña de desarrollador:');
+  if(p === DEVELOPER_PASSWORD){
+    developerModeActive = true;
+    devPanel.style.display = 'block';
+    devPanel.setAttribute('aria-hidden', 'false');
+    alert('Modo desarrollador activado (panel visible).');
+  } else {
+    alert('Contraseña incorrecta.');
+  }
+}
+
+/* Upload handlers (solo disponibles en modo dev real) */
+function handleCardFiles(e){
+  if(!developerModeActive) return alert('Acceso denegado.');
+  const files = Array.from(e.target.files).slice(0, 50);
+  if(!files.length) return;
+  Promise.all(files.map(f => new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(f);
+  }))).then(images => {
+    cardPool = images.slice(0, 50); // guardamos data URLs
+    alert('Imágenes cargadas en memoria. Presione "Aplicar" para reiniciar con ellas.');
+  }).catch(()=>alert('Error al leer imágenes.'));
+}
+
+function handleMusicFiles(e){
+  if(!developerModeActive) return alert('Acceso denegado.');
+  const files = Array.from(e.target.files).slice(0, 16);
+  if(!files.length) return;
+  Promise.all(files.map(f => new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(f);
+  }))).then(tracks => {
+    musicPool = tracks.slice(0, 16);
+    alert('Pistas cargadas en memoria. Presione "Aplicar" para reiniciar con ellas.');
+  }).catch(()=>alert('Error leyendo pistas.'));
+}
+
+function handleLogoFile(e){
+  if(!developerModeActive) return alert('Acceso denegado.');
+  const f = e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ cardBackLogo = r.result; alert('Logo cargado. Presione "Aplicar" para verlo en las cartas.'); };
+  r.readAsDataURL(f);
+}
+
+/* Aplicar configuraciones desde panel */
+function applyDeveloperSettings(){
+  if(!developerModeActive) return alert('Acceso denegado.');
+  const lv = parseInt(document.getElementById('levelsCount').value) || 30;
+  const tp = parseInt(document.getElementById('timePerLevel').value) || 60;
+  levelsTotal = lv; timePerLevel = tp;
+  const ft = document.getElementById('footerText').value.trim();
+  const fu = document.getElementById('footerURL').value.trim();
+  if(ft) document.getElementById('footerLeft').textContent = ft;
+  if(fu) { document.getElementById('footerLink').href = fu; document.getElementById('footerLink').textContent = (new URL(fu)).hostname; }
+  alert('Configuración aplicada. Reiniciando nivel actual...');
+  startLevel(level);
+}
+
+function loadDemoDefaults(){
+  if(!developerModeActive) return alert('Acceso denegado.');
+  cardPool = [...DEFAULT_CARDS];
+  musicPool = [...DEFAULT_TRACKS];
+  cardBackLogo = CARD_BACK_LOGO;
+  levelsTotal = 30;
+  timePerLevel = 60;
+  document.getElementById('footerLeft').textContent = 'Black Moon • Juego de Memoria';
+  document.getElementById('footerLink').href = '#';
+  document.getElementById('footerLink').textContent = 'Visitar';
+  startLevel(1);
+}
+
+/* Utilidades */
+function formatTime(s){ const m = Math.floor(s/60).toString().padStart(2,'0'); const sec = (s%60).toString().padStart(2,'0'); return `${m}:${sec}`; }
+function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* Lógica del juego */
+let firstPick = null;
+let busy = false;
+
+function pickCardsForLevel(lv){
+  // Pairs progression: comienza con 3 y sube hasta 15 (se puede ajustar)
+  const minPairs = 3; const maxPairs = 15;
+  const pairs = Math.min(maxPairs, minPairs + Math.floor((lv-1)/2));
+  totalPairs = pairs;
+  matchedPairs = 0;
+  pairsEl.textContent = `${matchedPairs}/${totalPairs}`;
+
+  // A partir de nivel 21 usar el mismo set de cartas (first N of pool) pero shuffled on board
+  let pool = cardPool.slice();
+  if(pool.length < pairs){
+    while(pool.length < pairs) pool = pool.concat(pool.slice(0, pairs - pool.length));
+  }
+  let chosen;
+  if(lv >= 21){
+    chosen = pool.slice(0, pairs);
+  } else {
+    chosen = shuffle(pool).slice(0, pairs);
+  }
+  let deck = [];
+  chosen.forEach((c, i) => { deck.push({id:i, img:c}); deck.push({id:i, img:c}); });
+  deck = shuffle(deck);
+  return deck;
+}
+
+function renderBoard(deck){
+  boardEl.innerHTML = '';
+  const cols = Math.min(6, Math.ceil(Math.sqrt(deck.length)));
+  boardEl.style.gridTemplateColumns = `repeat(${cols}, minmax(80px, 1fr))`;
+
+  deck.forEach((cardObj, idx) => {
+    const card = document.createElement('div'); card.className = 'card'; card.dataset.idx = idx; card.dataset.pair = cardObj.id;
+    const inner = document.createElement('div'); inner.className = 'card-inner';
+
+    // front (imagen)
+    const frontFace = document.createElement('div'); frontFace.className='card-face card-front';
+    const frontImg = document.createElement('img'); frontImg.src = cardObj.img; frontImg.alt='carta';
+    frontFace.appendChild(frontImg);
+
+    // back (logo)
+    const backFace = document.createElement('div'); backFace.className='card-face card-back';
+    const backImg = document.createElement('img'); backImg.src = cardBackLogo; backImg.alt='logo reverso';
+    backFace.appendChild(backImg);
+
+    inner.appendChild(frontFace); inner.appendChild(backFace);
+    card.appendChild(inner);
+    // start with back visible (not flipped)
+    card.classList.remove('flipped');
+
+    card.addEventListener('click', ()=> onCardClick(card, cardObj));
+    boardEl.appendChild(card);
   });
+}
 
-  // Botón de silenciar música
-  muteBtn.addEventListener('click', () => {
-    if (musica.paused) {
-      musica.play();
-      muteBtn.textContent = "🔊 Silenciar";
-    } else {
-      musica.pause();
-      muteBtn.textContent = "🔈 Activar";
-    }
-  });
+function onCardClick(cardEl, cardObj){
+  if(busy) return;
+  if(cardEl.classList.contains('flipped')) return; // already open
+  cardEl.classList.add('flipped');
 
-  function iniciarNivel() {
-    mensaje.textContent = '';
-    contenedor.innerHTML = '';
-    paresEncontrados = 0;
-    cartasSeleccionadas = [];
+  if(!firstPick){ firstPick = {el: cardEl, id: cardObj.id}; return; }
 
-    const pares = Math.min(2 + nivel, imagenes.length);
-    const seleccion = imagenes.slice(0, pares);
-    const baraja = [...seleccion, ...seleccion].sort(() => 0.5 - Math.random());
+  // second pick
+  busy = true;
+  const second = {el: cardEl, id: cardObj.id};
 
-    // Tamaño de la cuadrícula según el nivel
-    const columnas = Math.ceil(Math.sqrt(baraja.length));
-    contenedor.style.gridTemplateColumns = `repeat(${columnas}, 100px)`;
+  if(firstPick.id === second.id){
+    // match
+    matchedPairs++;
+    score += 100 + Math.max(0, timeLeft - 5);
+    updateUI();
+    setTimeout(()=> {
+      // hide matched cards (or keep flipped but disabled)
+      firstPick.el.style.visibility = 'hidden';
+      second.el.style.visibility = 'hidden';
+      busy = false; firstPick = null;
+      checkLevelComplete();
+    }, 600);
+  } else {
+    // not match
+    score = Math.max(0, score - 15);
+    updateUI();
+    setTimeout(()=> {
+      firstPick.el.classList.remove('flipped');
+      second.el.classList.remove('flipped');
+      busy = false; firstPick = null;
+    }, 700);
+  }
+}
 
-    baraja.forEach((src, index) => {
-      const card = document.createElement('div');
-      card.classList.add('card');
-      card.dataset.imagen = src;
+function updateUI(){
+  scoreEl.textContent = score;
+  levelEl.textContent = level;
+  pairsEl.textContent = `${matchedPairs}/${totalPairs}`;
+  timeEl.textContent = formatTime(timeLeft);
+}
 
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = "Carta Danza Aérea";
+/* Timer & music */
+function startLevel(lv){
+  clearInterval(timer);
+  level = lv;
+  matchedPairs = 0;
+  firstPick = null;
+  busy = false;
+  timeLeft = timePerLevel;
+  updateUI();
 
-      card.appendChild(img);
-      card.addEventListener('click', () => voltearCarta(card));
-      contenedor.appendChild(card);
-    });
+  const deck = pickCardsForLevel(level);
+  renderBoard(deck);
 
-    cartas = document.querySelectorAll('.card');
-    nivelTxt.textContent = `Nivel ${nivel}`;
+  // music per 4-level blocks
+  const idx = Math.floor((level-1)/4) % Math.max(1, musicPool.length);
+  const track = musicPool[idx] || '';
+  if(track){
+    bgm.src = track;
+    bgm.play().catch(()=>{ /* autoplay blocked */ });
+  } else {
+    bgm.pause(); bgm.src = '';
   }
 
-  function voltearCarta(card) {
-    if (card.classList.contains('flipped') || cartasSeleccionadas.length === 2) return;
+  timer = setInterval(()=>{
+    timeLeft--; updateUI();
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      alert('Se acabó el tiempo. Reiniciando nivel.');
+      startLevel(level);
+    }
+  }, 1000);
+}
 
-    card.classList.add('flipped');
-    cartasSeleccionadas.push(card);
-
-    if (cartasSeleccionadas.length === 2) {
-      const [c1, c2] = cartasSeleccionadas;
-      if (c1.dataset.imagen === c2.dataset.imagen) {
-        paresEncontrados++;
-        cartasSeleccionadas = [];
-        if (paresEncontrados === (Math.min(2 + nivel, imagenes.length))) {
-          setTimeout(() => {
-            mensaje.textContent = "✌ ¡Nivel completado, sigue adelante aerealista! ✌";
-            nivel++;
-            if (nivel > 20) {
-              mensaje.textContent = "🏆 ¡Has completado los 20 niveles de Danza Aérea! 🏆";
-              contenedor.innerHTML = '';
-              nivelTxt.textContent = '';
-              return;
-            }
-            setTimeout(iniciarNivel, 1500);
-          }, 500);
-        }
-      } else {
-        setTimeout(() => {
-          c1.classList.remove('flipped');
-          c2.classList.remove('flipped');
-          cartasSeleccionadas = [];
-        }, 800);
+function checkLevelComplete(){
+  if(matchedPairs >= totalPairs){
+    clearInterval(timer);
+    setTimeout(()=> {
+      alert(`¡Nivel ${level} completado!`);
+      if(level < levelsTotal) startLevel(level+1); else {
+        alert(`¡Juego completado! Puntaje final: ${score}`);
+        // reiniciar o detener según preferencia
+        level = 1; score = 0;
+        startLevel(level);
       }
-    }
+    }, 300);
   }
-  // 🔧 Ajusta dinámicamente el número de columnas según el número de cartas
-  const container = document.getElementById('game-container');
-  const totalCards = 44; // cámbialo según tu nivel actual
+}
 
-  function ajustarTablero(total) {
-    let columnas;
-    if (total <= 16) columnas = 4;
-    else if (total <= 36) columnas = 6;
-    else columnas = 8;
-    container.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
-  }
+/* Inicialización */
+document.addEventListener('keydown', (e)=>{ if(e.key==='r') startLevel(level); if(e.key==='n') { if(level<levelsTotal) startLevel(level+1);} });
 
- ajustarTablero(totalCards);
-  
+/* START */
+startLevel(1);
+
+/* Nota: las funciones relacionadas con el panel dev ya fueron definidas más arriba.
+   Si quiere que modifique DEVELOPER_PASSWORD o las rutas por defecto, indíquemelo. */
 </script>
-  <!-- podcast -->
-   <p>Puedes escuchar el podcast haciendo clic aquí 👉</p>
-  <p><a href="https://open.spotify.com/show/1Jw4Vem2XkNuCG9pKqHRXy?si=decb2b99f5b34b87" target="_blank"><img src="BKM PODCAST 2.0.jpg" alt="Nuestro podcast" width="80"></a></p>
-<!-- pagina principal -->
+  <!-- pagina principal -->
   <div style="display: inline-block;">
   <a href="https://charly336.github.io/BLACKMOON-WEB/" style="text-decoration: none;">
-    <img src="bkm systerms 2.0.jpg" alt="Pagina principal" width="40" height="40" style="vertical-align: middle; border-radius: 8px;">
+    <img src="bkm systerms 2.0.jpg" alt="Pagina principal" width="45" height="45" style="vertical-align: middle; border-radius: 12px;">
     <span>Regresar a nuestra pagina principal</span>
   </a>
 </div>
-
- 
-     <!-- Footer con imagen y texto -->
+    <!-- Footer con imagen y texto -->
 <footer style="text-align:center; padding:10px; background: linear-gradient(to right, #000000, #333333, #007CF0)">
-  <img src="GPO BKM 2.jpg" alt="Logo" style="width:50px; vertical-align:middle; margin-right:10px;">
+  <img src="GPO BKM 2.jpg" alt="Logo" style="width:70px; vertical-align:middle; margin-right:20px;">
   <span>© 2025-2026 Grupo Black Moon - Todos los derechos reservados</span>
 </footer>
-
 </body>
 </html>
-  
