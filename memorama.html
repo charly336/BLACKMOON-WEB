@@ -19,7 +19,7 @@ Instrucciones rápidas (en el código también):
   --bg:#0f1724; --card:#0b1220; --accent:#f59e0b;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#c267a7;background: linear-gradient(180deg, #071021 0%, #1a0f3b 100%)}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#eee;background:linear-gradient(180deg,#071021 0%, #071827 100%)}
 .container{max-width:920px;margin:24px auto;padding:18px}
 .header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .title{font-size:28px;letter-spacing:1px}
@@ -94,7 +94,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial
     </aside>
   </div>
 
-  <div<span>© 2025-2026 Grupo Black Moon - Todos los derechos reservados</span></div>
+  <div class="footer" id="footer">Footer personalizable - editarlo solo desde el bloque CONFIG del archivo HTML</div>
 </div>
 
 <script>
@@ -105,32 +105,20 @@ const CONFIG = {
   GRID_SIZE: 4, // no editar salvo que sepas lo que haces
   START_TILES: 2,
   // Asignar imágenes por valor; si faltan usa IMAGES.default
- IMAGES: {
-    default: "img/default.jpg",
-    2: "img/2.jpg",
-    4: "img/4.jpg",
-    8: "img/8.jpg",
-    16: "img/16.jpg",
-    32: "img/32.jpg",
-    64: "img/64.jpg",
-    128: "img/128.jpg",
-    256: "img/256.jpg",
-    512: "img/512.jpg",
-    1024: "img/1024.jpg",
-    2048: "img/2048.jpg"
+  IMAGES: {
+    default: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=60',
+    2: 'https://images.unsplash.com/photo-1526403224742-1b3b1f2d0d42?auto=format&fit=crop&w=800&q=60',
+    4: 'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=800&q=60'
+    // AÑADIR rutas para 8,16,32,... si lo desea el desarrollador
   },
   // Enlaces laterales (2). Cada objeto: {href, img, alt}
   SIDE_LINKS: [
-    {href:'https://open.spotify.com/show/1Jw4Vem2XkNuCG9pKqHRXy?si=071174eb0d9049dd', img:'blackmoon podcast.png', alt:'Nuestro Pocast'},
+    {href:'#', img:'https://images.unsplash.com/photo-1542744095-291d1f67b221?auto=format&fit=crop&w=400&q=60', alt:'Enlace 1'},
     {href:'#', img:'https://images.unsplash.com/photo-1524253482453-3fed8d2fe12b?auto=format&fit=crop&w=400&q=60', alt:'Enlace 2'}
   ],
-  
+  FOOTER_TEXT: 'Pie de página personalizable — editar solo en CONFIG',
   // LOCAL LEADERBOARD: número máximo de entradas guardadas
-  LEADERBOARD_SIZE: 30
-};
-FOOTER_TEXT: 'Pie de página personalizable — editar solo en CONFIG',
-// LOCAL LEADERBOARD: número máximo de entradas guardadas
-LEADERBOARD_SIZE: 10
+  LEADERBOARD_SIZE: 10
 };
 /* ========================= */
 
@@ -294,12 +282,12 @@ loadState(); renderLeaderboard();
 // ================== MUSICA EN BUCLE ==================
 // Lista de pistas (el desarrollador puede cambiarlas)
 const playlist = [
-  'Becoming Insane.MP3',
-  '8.-Blackmoon podcast.mp3',
-  '7.-Volemos Alto.mp3',
-  '1.- Bajo la noche (Blackmoon).mp3',
-  'nudos de amor y traición [1].mp3',
-  '1.- Volando con Black Moon.m4a'
+  'musica1.mp3',
+  'musica2.mp3',
+  'musica3.mp3',
+  'musica4.mp3',
+  'musica5.mp3',
+  'musica6.mp3'
 ];
 let currentTrack = 0;
 const audio = new Audio();
@@ -319,4 +307,3 @@ window.addEventListener('load', ()=>{ audio.play(); });
 </script>
 </body>
 </html>
-
