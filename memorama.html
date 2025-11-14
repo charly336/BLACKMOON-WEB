@@ -1,1 +1,310 @@
+<!--
+2048 con tiles con imágenes difuminadas y números visibles
+Archivo single-file. Solo el desarrollador debe editar las opciones al inicio (VER BLOQUE DE CONFIGURACIÓN).
+Guardar como: 2048_BlurredTiles.html
+
+Instrucciones rápidas (en el código también):
+- Editar IMAGES, SIDE_LINKS y FOOTER_TEXT en el bloque CONFIG.
+- Para un leaderboard verdaderamente "global" conectar la función submitScore a un endpoint backend.
+-->
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>2048 — Black Moon Edition</title>
+<style>
+:root{
+  --bg:#0f1724; --card:#0b1220; --accent:#f59e0b;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#eee;background:linear-gradient(180deg,#071021 0%, #071827 100%)}
+.container{max-width:920px;margin:24px auto;padding:18px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{font-size:28px;letter-spacing:1px}
+.controls{display:flex;gap:12px;align-items:center}
+.btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:#fff;cursor:pointer}
+.scoreBox{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));padding:8px 12px;border-radius:8px;text-align:center}
+.gridWrap{position:relative;margin-top:18px;background:var(--card);padding:18px;border-radius:12px;display:grid;grid-template-columns:1fr 360px;gap:18px}
+.gameArea{width:360px;height:360px;background:rgba(255,255,255,0.02);border-radius:10px;padding:10px;position:relative}
+.board{width:100%;height:100%;background:rgba(0,0,0,0.15);border-radius:8px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:10px;padding:10px}
+.cell{background:rgba(255,255,255,0.02);border-radius:8px;position:relative;overflow:hidden}
+.tile{position:absolute;left:0;top:0;right:0;bottom:0;margin:0;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:transform 150ms ease, opacity 150ms ease}
+.tile .img{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(6px) saturate(0.9) brightness(0.8);opacity:0.85}
+.tile .overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.25));border-radius:8px}
+.tile .num{position:relative;font-weight:700;font-size:28px;z-index:3;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,0.6)}
+.tile.small .num{font-size:18px}
+.sidePanel{padding:12px;background:rgba(255,255,255,0.02);border-radius:10px}
+.links{display:flex;flex-direction:column;gap:12px}
+.sideLink{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.03);cursor:pointer;text-decoration:none;color:#fff}
+.sideLink img{width:56px;height:56px;object-fit:cover;border-radius:6px}
+.footer{margin-top:18px;padding:12px;text-align:center;color:#cbd5e1}
+.hint{font-size:13px;color:#9aa4b2}
+.leaderboard{margin-top:12px}
+.leaderboard ol{padding-left:18px;margin:4px 0}
+.inputName{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
+.small{font-size:12px}
+/* animations for appearing tiles */
+.spawn{transform:scale(0);opacity:0}
+.appear{transform:scale(1);opacity:1}
+.move{transition:transform 150ms cubic-bezier(.2,.8,.2,1)}
+
+@media (max-width:880px){.gridWrap{grid-template-columns:1fr;}
+  .sidePanel{order:2}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="title">2048 — Black Moon</div>
+    <div class="controls">
+      <div class="scoreBox">
+        <div>Score</div>
+        <div id="score">0</div>
+      </div>
+      <div class="scoreBox">
+        <div>Mejor</div>
+        <div id="best">0</div>
+      </div>
+      <button id="newBtn" class="btn">Nuevo</button>
+    </div>
+  </div>
+
+  <div class="gridWrap">
+    <div class="gameArea">
+      <div id="board" class="board"></div>
+      <div style="position:absolute;left:12px;top:12px;color:#fff;opacity:0.85;font-size:12px;">Usa teclas ←↑→↓ o desliza</div>
+    </div>
+
+    <aside class="sidePanel">
+      <div class="links" id="sideLinks">
+        <!-- side links injected by JS -->
+      </div>
+
+      <div class="leaderboard">
+        <div class="small">Enviar puntaje (para leaderboard)</div>
+        <input id="playerName" class="inputName" placeholder="Tu nombre (devs: puede cambiar ubicación)" />
+        <button id="submitScore" class="btn" style="margin-top:8px">Enviar</button>
+
+        <div style="margin-top:12px" class="small hint">Top local (localStorage). Para leaderboard global conectar backend.</div>
+        <ol id="boardList"></ol>
+      </div>
+    </aside>
+  </div>
+
+  <div class="footer" id="footer">Footer personalizable - editarlo solo desde el bloque CONFIG del archivo HTML</div>
+</div>
+
+<script>
+/* =========================
+   BLOQUE DE CONFIGURACIÓN (SOLO EDITAR ESTAS CONSTANTES)
+   ========================= */
+const CONFIG = {
+  GRID_SIZE: 4, // no editar salvo que sepas lo que haces
+  START_TILES: 2,
+  // Asignar imágenes por valor; si faltan usa IMAGES.default
+  IMAGES: {
+    default: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=60',
+    2: 'https://images.unsplash.com/photo-1526403224742-1b3b1f2d0d42?auto=format&fit=crop&w=800&q=60',
+    4: 'https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=800&q=60'
+    // AÑADIR rutas para 8,16,32,... si lo desea el desarrollador
+  },
+  // Enlaces laterales (2). Cada objeto: {href, img, alt}
+  SIDE_LINKS: [
+    {href:'#', img:'https://images.unsplash.com/photo-1542744095-291d1f67b221?auto=format&fit=crop&w=400&q=60', alt:'Enlace 1'},
+    {href:'#', img:'https://images.unsplash.com/photo-1524253482453-3fed8d2fe12b?auto=format&fit=crop&w=400&q=60', alt:'Enlace 2'}
+  ],
+  FOOTER_TEXT: 'Pie de página personalizable — editar solo en CONFIG',
+  // LOCAL LEADERBOARD: número máximo de entradas guardadas
+  LEADERBOARD_SIZE: 10
+};
+/* ========================= */
+
+// Variables internas
+let size = CONFIG.GRID_SIZE;
+let board = [];
+let score = 0;
+let best = parseInt(localStorage.getItem('best2048')||'0',10);
+const boardEl = document.getElementById('board');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+const newBtn = document.getElementById('newBtn');
+const sideLinksEl = document.getElementById('sideLinks');
+const footerEl = document.getElementById('footer');
+const submitScoreBtn = document.getElementById('submitScore');
+const playerNameInput = document.getElementById('playerName');
+const boardListEl = document.getElementById('boardList');
+
+footerEl.textContent = CONFIG.FOOTER_TEXT;
+bestEl.textContent = best;
+
+// Render side links
+function renderSideLinks(){
+  sideLinksEl.innerHTML = '';
+  CONFIG.SIDE_LINKS.slice(0,2).forEach(l=>{
+    const a = document.createElement('a'); a.className='sideLink'; a.href=l.href; a.target='_blank';
+    a.innerHTML = `<img src="${l.img}" alt="${l.alt}"><div><div style='font-weight:700'>${l.alt}</div><div class='small hint'>Visitar</div></div>`;
+    sideLinksEl.appendChild(a);
+  });
+}
+renderSideLinks();
+
+// Helpers
+function randEmptyCell(){
+  const empties = [];
+  for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(board[r][c]===0) empties.push([r,c]);
+  if(!empties.length) return null;
+  return empties[Math.floor(Math.random()*empties.length)];
+}
+
+function newGame(){
+  board = Array.from({length:size},()=>Array(size).fill(0));
+  score = 0; updateScore();
+  for(let i=0;i<CONFIG.START_TILES;i++) spawnTile();
+  renderBoard();
+}
+
+function spawnTile(){
+  const pos = randEmptyCell(); if(!pos) return;
+  const [r,c]=pos;
+  board[r][c] = Math.random()<0.9?2:4;
+}
+
+function updateScore(){
+  scoreEl.textContent = score;
+  if(score>best){best=score; localStorage.setItem('best2048',best); bestEl.textContent = best}
+}
+
+// Rendering
+function renderBoard(){
+  boardEl.innerHTML = '';
+  // create empty grid cells
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      const cell = document.createElement('div'); cell.className='cell';
+      cell.dataset.r=r; cell.dataset.c=c;
+      boardEl.appendChild(cell);
+    }
+  }
+  // create tiles overlay
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      const val=board[r][c];
+      if(val===0) continue;
+      const tile = document.createElement('div'); tile.className='tile appear';
+      const img = document.createElement('div'); img.className='img';
+      img.style.backgroundImage = `url('${CONFIG.IMAGES[val]||CONFIG.IMAGES.default}')`;
+      const overlay = document.createElement('div'); overlay.className='overlay';
+      const num = document.createElement('div'); num.className='num'; num.textContent = val;
+      if(val<32) num.style.fontSize='26px';
+      tile.appendChild(img); tile.appendChild(overlay); tile.appendChild(num);
+      // position tile inside the corresponding cell
+      const cellIndex = r*size + c;
+      const cellEl = boardEl.children[cellIndex];
+      cellEl.appendChild(tile);
+    }
+  }
+}
+
+// Movement logic adapted for 2048 (merge once per move)
+function move(dir){
+  // dir: 'left','right','up','down'
+  let moved=false;
+  const traversals = {x: [...Array(size).keys()], y:[...Array(size).keys()]};
+  if(dir==='right') traversals.x = [...Array(size).keys()].reverse();
+  if(dir==='down') traversals.y = [...Array(size).keys()].reverse();
+
+  const merged = Array.from({length:size},()=>Array(size).fill(false));
+
+  function within(r,c){return r>=0 && r<size && c>=0 && c<size}
+
+  const vectors = {left:[0,-1],right:[0,1],up:[-1,0],down:[1,0]};
+  const [dr,dc] = vectors[dir];
+
+  for(let i of traversals.y){
+    for(let j of traversals.x){
+      let r=i,c=j; if(board[r][c]===0) continue;
+      let value = board[r][c];
+      let nr=r+dr, nc=c+dc;
+      while(within(nr,nc) && board[nr][nc]===0){ nr+=dr; nc+=dc; }
+      // step back to last empty
+      let tr = nr-dr, tc = nc-dc;
+      if(tr!==r || tc!==c){ board[tr][tc]=value; board[r][c]=0; r=tr; c=tc; moved=true; }
+      // try merge
+      let mr = r+dr, mc = c+dc;
+      if(within(mr,mc) && board[mr][mc]===board[r][c] && !merged[mr][mc]){
+        board[mr][mc] *= 2; score += board[mr][mc]; board[r][c]=0; merged[mr][mc]=true; moved=true;
+      }
+    }
+  }
+
+  if(moved){ spawnTile(); updateScore(); renderBoard(); saveState(); }
+}
+
+// Input handling
+let startX=null, startY=null;
+window.addEventListener('touchstart', e=>{ const t=e.touches[0]; startX=t.clientX; startY=t.clientY; },{passive:true});
+window.addEventListener('touchend', e=>{ if(startX===null) return; const t=e.changedTouches[0]; const dx=t.clientX-startX, dy=t.clientY-startY; const absX=Math.abs(dx), absY=Math.abs(dy); if(Math.max(absX,absY)<30) return; const dir = absX>absY ? (dx>0?'right':'left') : (dy>0?'down':'up'); move(dir); startX=null; startY=null; });
+window.addEventListener('keydown', e=>{
+  const map = {37:'left',38:'up',39:'right',40:'down',65:'left',87:'up',68:'right',83:'down'}; if(map[e.keyCode]){ e.preventDefault(); move(map[e.keyCode]); }
+});
+
+newBtn.addEventListener('click', newGame);
+
+// State save/load
+function saveState(){ localStorage.setItem('2048_board', JSON.stringify(board)); localStorage.setItem('2048_score', score); }
+function loadState(){ const b = localStorage.getItem('2048_board'); if(b){ try{ board = JSON.parse(b); score = parseInt(localStorage.getItem('2048_score')||'0',10); updateScore(); renderBoard(); return; }catch(e){} } newGame(); }
+
+// Leaderboard (local) functions
+function getLocalLeaderboard(){ try{ return JSON.parse(localStorage.getItem('leaderboard2048')||'[]') }catch(e){return []} }
+function saveLocalLeaderboard(list){ localStorage.setItem('leaderboard2048', JSON.stringify(list.slice(0,CONFIG.LEADERBOARD_SIZE))); }
+function renderLeaderboard(){ const list = getLocalLeaderboard(); boardListEl.innerHTML = ''; list.forEach(it=>{ const li=document.createElement('li'); li.textContent = `${it.name} — ${it.score}`; boardListEl.appendChild(li); }); }
+
+submitScoreBtn.addEventListener('click', ()=>{
+  const name = (playerNameInput.value||'Anon').slice(0,20);
+  const list = getLocalLeaderboard(); list.push({name,score}); list.sort((a,b)=>b.score-a.score); saveLocalLeaderboard(list); renderLeaderboard();
+  // Para leaderboard GLOBAL: aquí el desarrollador puede enviar `name` y `score` a su servidor mediante fetch a su API.
+});
+
+// Save best on unload
+window.addEventListener('beforeunload', ()=>{ saveState(); });
+
+// allow continue after reaching big value (infinite game)
+// no "win" check: el juego es infinito y seguirá permitiendo merges y spawn mientras haya espacios.
+
+// Initializers
+loadState(); renderLeaderboard();
+
+</script>
+<script>
+// ================== MUSICA EN BUCLE ==================
+// Lista de pistas (el desarrollador puede cambiarlas)
+const playlist = [
+  'musica1.mp3',
+  'musica2.mp3',
+  'musica3.mp3',
+  'musica4.mp3',
+  'musica5.mp3',
+  'musica6.mp3'
+];
+let currentTrack = 0;
+const audio = new Audio();
+audio.src = playlist[currentTrack];
+audio.loop = false; // Usamos bucle manual para cambiar entre pistas
+
+function playNextTrack(){
+  currentTrack = (currentTrack + 1) % playlist.length;
+  audio.src = playlist[currentTrack];
+  audio.play();
+}
+
+audio.addEventListener('ended', playNextTrack);
+audio.volume = 0.6; // volumen inicial
+window.addEventListener('load', ()=>{ audio.play(); });
+// =====================================================
+</script>
+</body>
+</html>
 
