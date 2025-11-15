@@ -142,135 +142,8 @@
   </style>
   <!-- Bloque para fijar pantalla y evitar desplazamientos en móvil -->
   <script>
-    // Evita que la pantalla se mueva al tocar o arrastrar (mejora jugabilidad)
-    // Nota: esto se aplica globalmente; si quieres cambiarlo coloca la escucha después de cargar el DOM.
-    document.addEventListener('touchmove', function(e){
-      // Solo evitar scroll cuando hay varios toques o cuando el objetivo es el canvas
-      // Para simplicidad aquí evitamos el scroll por defecto — funciona bien para juegos en pantalla completa.
-      e.preventDefault();
-    }, { passive:false });
-
-    // NO bloqueamos orientación automáticamente ni solicitamos fullscreen sin interacción del usuario.
-    // Permisos/Políticas de los navegadores impiden requests de fullscreen fuera de un gesto del usuario.
-  </script>
-</head>
-<body>
-  <div class="wrap">
-    <!-- GAME CARD -->
-    <div class="game-card" role="application" aria-label="TetrisMoon juego">
-      <div class="board-wrap">
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%">
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:center;width:100%">
-            <div class="canvas-outer">
-              <!-- Canvas: se redimensiona con JS para mantener proporción -->
-              <canvas id="gameCanvas" width="240" height="480" aria-label="tablero tetris"></canvas>
-            </div>
-
-            <div class="row" style="justify-content:center;gap:10px;width:100%">
-              <button class="btn big-btn" id="startBtn">Iniciar / Pausa</button>
-              <button class="btn" id="saveBtn">Reiniciar</button>
-              <button class="btn" id="dropBtn">Drop Rápido</button>
-            </div>
-
-            <!-- controles táctiles (visible en móvil) -->
-            <div class="touch-controls">
-              <button class="btn" id="leftBtn">◀</button>
-              <button class="btn" id="rotateBtn">⟳</button>
-              <button class="btn" id="rightBtn">▶</button>
-              <button class="btn" id="downBtn">▼</button>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL DERECHO -->
-      <aside class="panel">
-        <h3>TETRISMOON</h3>
-        <div class="muted">Puntuación</div>
-        <div class="stat" id="score">0</div>
-        <div class="muted small">Líneas: <span id="lines">0</span> • Nivel: <span id="level">1</span></div>
-
-        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03)">
-
-        <div class="instructions">
-          <strong>Instrucciones:</strong>
-          <ul style="margin:6px 0 0 18px;padding:0">
-            <li>Flechas ← → para mover. Flecha ↑ para rotar. Espacio para soltar.</li>
-            <li>En móvil usa los botones táctiles o toca izquierda/derecha del tablero.</li>
-            <li>Personaliza fondos y la imagen promocional desde los controles abajo.</li>
-          </ul>
-        </div>
-
-        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03)">
-
-        <div>
-          <label class="small">Fondo de la página (color o gradiente CSS)</label>
-          <input type="text" id="pageBgInput" placeholder="p.ej. linear-gradient(180deg,#123,#456) or #071827" />
-        </div>
-
-        <div>
-          <label class="small">Fondo del área del juego (CSS)</label>
-          <input type="text" id="gameBgInput" placeholder="p.ej. url('miLuna.jpg') center/cover, or #071021" />
-        </div>
-
-        <div>
-          <label class="small">Imagen promocional (URL)</label>
-          <input type="text" id="promoInput" placeholder="URL de la imagen promocional" />
-        </div>
-
-        <div class="row">
-          <button class="btn" id="applyStyle">Aplicar</button>
-          <button class="btn" id="resetStyle">Reset</button>
-        </div>
-
-        <div style="margin-top:6px">
-          <label class="small">Tema de colores rápido</label>
-          <div class="row" style="margin-top:6px">
-            <input type="color" id="accent1" title="Accent 1" value="#ff4d6d" />
-            <input type="color" id="accent2" title="Accent 2" value="#ffd24d" />
-            <input type="color" id="accent3" title="Accent 3" value="#6bffef" />
-            <button class="btn" id="applyColors">OK</button>
-          </div>
-        </div>
-
-      </aside>
-    </div>
-
-    <!-- PROMOCIONAL (externo al juego) -->
-    <aside class="promo" aria-label="Imagen promocional">
-      <h3 style="margin:0">Black Moon — Promo</h3>
-      <img id="promoImg" src="" alt="Imagen promocional (pon tu URL o deja en blanco para usar una luna)" />
-      <div class="muted small">Coloca aquí una imagen separada del área del juego. En móvil se posiciona arriba.</div>
-    </aside>
-
-    <!-- Phrases in DOM but hidden from player's view -->
-    <div class="hidden-phrases" aria-hidden="true">
-      <p>Frase 1: Inspiración en el aire</p>
-      <p>Frase 2: Black Moon • Tetrismoon</p>
-      <p>Frase 3: Diseño por Grupo Black Moon</p>
-    </div>
-
-  </div>
-
-  <!-- FOOTER FIJO -->
-  <footer>
-    <div class="links">
-      <a href="#" target="_blank">Acerca</a>
-      <a href="#" target="_blank">Contacto</a>
-      <a href="#" target="_blank">Términos</a>
-    </div>
-  </footer>
-
-  <!-- Developer controls: hidden by default. Set DEV = true in the script below to reveal them for development. -->
-  <div id="devControls" class="dev-controls hidden" aria-hidden="true">
-    <button class="btn" id="devFullscreenBtn">Ir Fullscreen</button>
-    <button class="btn" id="devLockOrientBtn">Bloquear Orientación (Portrait)</button>
-  </div>
-
-  <script>
   // -------------------------------
-  // TETRIS CORE (simple y funcional)
+  // TETRIS CORE (simple y funcional) con rotaciones mejoradas
   // -------------------------------
   (function(){
     'use strict';
@@ -278,25 +151,20 @@
     // ----------------------
     // Developer flags
     // ----------------------
-    // Para habilitar los controles de desarrollo, cambia esto a true (sólo el desarrollador).
     const DEV = false; // <<-- cambiar a true manualmente cuando seas el desarrollador
 
-    // Mostrar controles developer si corresponde
     if(DEV){
       const devEl = document.getElementById('devControls');
       if(devEl) { devEl.classList.remove('hidden'); devEl.setAttribute('aria-hidden','false'); }
     }
 
-    // configuración
     const COLS = 10;
     const ROWS = 20;
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Variables para tamaño responsivo
     function resizeCanvas(){
-      // jugamos con el tamaño para que las celdas no sean mayores a 36px en pantallas grandes
       const containerWidth = Math.min(480, Math.floor(window.innerWidth * 0.92));
       const block = Math.max(18, Math.floor(containerWidth / COLS));
       const width = block * COLS;
@@ -304,12 +172,11 @@
       canvas.width = width;
       canvas.height = height;
       document.documentElement.style.setProperty('--block-size', block + 'px');
-      // draw may be called safely after initialization
       if(typeof board !== 'undefined' && board) draw();
     }
     window.addEventListener('resize', resizeCanvas);
 
-    // piezas estándar
+    // Definimos las piezas como matrices base (estado 0). Para permitir rotaciones con estados
     const SHAPES = [
       [[1,1,1,1]], // I
       [[1,1],[1,1]], // O
@@ -320,34 +187,54 @@
       [[0,0,1],[1,1,1]]  // J
     ];
 
-    const COLORS = [
-      '#00e1ff','#ffd200','#ff4d6d','#6bffef','#8b5cff','#ff8a00','#3eff7f'
-    ];
+    const COLORS = ['#00e1ff','#ffd200','#ff4d6d','#6bffef','#8b5cff','#ff8a00','#3eff7f'];
 
-    // juego
-    let board; // inicializaremos con createMatrix más abajo
-    let current = null;
+    // Juego
+    let board;
+    let current = null; // { shape, id, x, y, rot }
     let nextPieces = [];
-    let score = 0; let lines = 0; let level = 1;
-    let dropCounter = 0; let dropInterval = 1000;
+    let score = 0, lines = 0, level = 1;
+    let dropCounter = 0, dropInterval = 1000;
     let lastTime = 0;
     let playing = false;
 
-    // util
     function createMatrix(w,h){
       const m = [];
-      for(let y=0;y<h;y++){m.push(new Array(w).fill(0));}
+      for(let y=0;y<h;y++) m.push(new Array(w).fill(0));
       return m;
     }
+
+    function copyMatrix(m){ return m.map(row=>row.slice()); }
+
+    // rotate matrix clockwise (dir=1) or counterclockwise (dir=-1)
+    function rotateMatrix(matrix, dir){
+      // Create a transposed copy then reverse rows or columns
+      const sizeY = matrix.length;
+      const sizeX = matrix[0].length;
+      const res = Array.from({length: sizeX}, ()=>Array(sizeY).fill(0));
+      for(let y=0;y<sizeY;y++) for(let x=0;x<sizeX;x++) res[x][y] = matrix[y][x];
+      if(dir>0) res.forEach(row=>row.reverse()); else res.reverse();
+      return res;
+    }
+
+    // improved wall kicks: try a set of offsets after rotating
+    const KICK_OFFSETS = [
+      {x:0,y:0}, {x:1,y:0}, {x:-1,y:0}, {x:2,y:0}, {x:-2,y:0}, {x:0,y:-1}, {x:0,y:1}
+    ];
+
+    // For I-piece we can try a slightly larger set (simple heuristic)
+    const I_KICK_OFFSETS = [
+      {x:0,y:0},{x:1,y:0},{x:-1,y:0},{x:2,y:0},{x:-2,y:0},{x:0,y:-1},{x:0,y:1},{x:3,y:0},{x:-3,y:0}
+    ];
 
     function newPiece(){
       if(nextPieces.length < 7) fillBag();
       const id = nextPieces.shift();
-      return {shape: SHAPES[id], color: COLORS[id], x: Math.floor((COLS - SHAPES[id][0].length)/2), y: -1, id};
+      return { shape: copyMatrix(SHAPES[id]), id, x: Math.floor((COLS - SHAPES[id][0].length)/2), y: -1, rot:0 };
     }
+
     function fillBag(){
       const bag = [0,1,2,3,4,5,6];
-      // Fisher-Yates
       for(let i=bag.length-1;i>0;i--){
         const j = Math.floor(Math.random()*(i+1));
         [bag[i],bag[j]]=[bag[j],bag[i]];
@@ -379,45 +266,6 @@
       }
     }
 
-    function rotate(matrix, dir){
-      // transpose + reverse rows/cols
-      for(let y=0;y<matrix.length;y++){
-        for(let x=0;x<y;x++){
-          [matrix[x][y],matrix[y][x]]=[matrix[y][x],matrix[x][y]];
-        }
-      }
-      if(dir>0) matrix.forEach(row=>row.reverse()); else matrix.reverse();
-    }
-
-    function playerRotate(dir){
-      if(!current) return;
-      rotate(current.shape, dir);
-      // wall kick simple
-      let offset=1;
-      while(collide(board,current)){
-        current.x += offset;
-        offset = -(offset + (offset>0?1:-1));
-        if(offset > current.shape[0].length) {rotate(current.shape,-dir); return}
-      }
-    }
-
-    function playerDrop(){
-      if(!current) return;
-      current.y++;
-      if(collide(board,current)){
-        current.y--;
-        lockPiece();
-        spawn();
-      }
-      dropCounter = 0;
-    }
-
-    function playerMove(dir){
-      if(!current) return;
-      current.x += dir;
-      if(collide(board,current)) current.x -= dir;
-    }
-
     function lockPiece(){
       if(!current) return;
       merge(board,current);
@@ -446,7 +294,6 @@
         // game over -> reset board
         playing=false;
         document.getElementById('startBtn').textContent = 'Iniciar / Pausa';
-        // simple game over animation
         for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) board[y][x]=0;
         score=0;lines=0;level=1;document.getElementById('score').textContent=0;document.getElementById('lines').textContent=0;document.getElementById('level').textContent=1;
       }
@@ -458,26 +305,65 @@
       lockPiece(); spawn();
     }
 
-    // dibujado
+    // Nueva función: intenta rotar con wall-kicks mejoradas
+    function attemptRotate(dir){
+      if(!current) return;
+      // rotate a copy first
+      const rotated = rotateMatrix(current.shape, dir);
+      const offsets = (current.id === 0) ? I_KICK_OFFSETS : KICK_OFFSETS;
+      for(let i=0;i<offsets.length;i++){
+        const ox = offsets[i].x;
+        const oy = offsets[i].y;
+        const test = { ...current, shape:rotated, x: current.x + ox, y: current.y + oy };
+        if(!collide(board, test)){
+          current.shape = rotated;
+          current.x = test.x; current.y = test.y;
+          current.rot = (current.rot + (dir>0 ? 1 : 3)) % 4;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // movimiento y rotación del jugador
+    function playerRotate(dir){
+      attemptRotate(dir);
+    }
+    function playerRotateCCW(){ attemptRotate(-1); }
+
+    function playerDrop(){
+      if(!current) return;
+      current.y++;
+      if(collide(board,current)){
+        current.y--;
+        lockPiece();
+        spawn();
+      }
+      dropCounter = 0;
+    }
+
+    function playerMove(dir){
+      if(!current) return;
+      current.x += dir;
+      if(collide(board,current)) current.x -= dir;
+    }
+
+    // Dibujo
     function drawCell(x,y,val){
       const bw = canvas.width/COLS; const bh = canvas.height/ROWS;
       const px = x*bw; const py = y*bh;
       if(val){
-        // color por id
         const c = COLORS[val-1] || '#fff';
         ctx.fillStyle = c;
         roundRect(ctx,px+1,py+1,bw-2,bh-2,Math.max(2,bw*0.08));
         ctx.fill();
-        // brillo
         ctx.fillStyle = 'rgba(255,255,255,0.12)';
         ctx.fillRect(px+2,py+2,Math.min(10,bw*0.25),Math.min(12,bh*0.25));
       } else {
-        // cuadricula sutil
         ctx.fillStyle = 'rgba(255,255,255,0.02)';
         ctx.fillRect(px+0.5,py+0.5,bw-1,bh-1);
       }
     }
-
     function roundRect(ctx,x,y,w,h,r){
       ctx.beginPath();
       ctx.moveTo(x+r,y);
@@ -489,15 +375,9 @@
     }
 
     function draw(){
-      // safety: si board no está inicializado, no dibujamos
       if(typeof board === 'undefined' || !board) return;
-      // fondo: transparente para permitir el CSS detrás
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      // draw board
-      for(let y=0;y<ROWS;y++){
-        for(let x=0;x<COLS;x++) drawCell(x,y,board[y][x]);
-      }
-      // draw current
+      for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) drawCell(x,y,board[y][x]);
       if(current){
         const m = current.shape;
         for(let y=0;y<m.length;y++){
@@ -508,7 +388,6 @@
       }
     }
 
-    // game loop
     function update(time=0){
       const dt = time - lastTime; lastTime = time;
       dropCounter += dt;
@@ -524,20 +403,25 @@
       requestAnimationFrame(update);
     }
 
-    // input
+    // Input
     document.addEventListener('keydown', e=>{
       if(e.code==='ArrowLeft') playerMove(-1);
       if(e.code==='ArrowRight') playerMove(1);
       if(e.code==='ArrowUp') playerRotate(1);
+      if(e.code==='KeyZ') playerRotateCCW();
       if(e.code==='ArrowDown') playerDrop();
       if(e.code==='Space') { hardDrop(); }
     });
 
     // touch buttons
-    document.getElementById('leftBtn').addEventListener('touchstart',()=>playerMove(-1));
-    document.getElementById('rightBtn').addEventListener('touchstart',()=>playerMove(1));
-    document.getElementById('rotateBtn').addEventListener('touchstart',()=>playerRotate(1));
-    document.getElementById('downBtn').addEventListener('touchstart',()=>playerDrop());
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const rotateBtn = document.getElementById('rotateBtn');
+    const downBtn = document.getElementById('downBtn');
+    if(leftBtn) leftBtn.addEventListener('touchstart',()=>playerMove(-1));
+    if(rightBtn) rightBtn.addEventListener('touchstart',()=>playerMove(1));
+    if(rotateBtn) rotateBtn.addEventListener('touchstart',()=>playerRotate(1));
+    if(downBtn) downBtn.addEventListener('touchstart',()=>playerDrop());
 
     // click buttons
     document.getElementById('startBtn').addEventListener('click',()=>{
@@ -548,19 +432,18 @@
       } else document.getElementById('startBtn').textContent='Iniciar / Pausa';
     });
     document.getElementById('saveBtn').addEventListener('click',()=>{
-      // reiniciar juego
       board = createMatrix(COLS,ROWS); nextPieces=[]; current=null; score=0;lines=0;level=1;document.getElementById('score').textContent=0;document.getElementById('lines').textContent=0;document.getElementById('level').textContent=1; playing=false; document.getElementById('startBtn').textContent='Iniciar / Pausa';
     });
     document.getElementById('dropBtn').addEventListener('click',()=>{ hardDrop(); });
 
-    // click en canvas: izquierda / derecha mover, tap rotar
+    // canvas pointer handling
     let lastTap=0;
     canvas.addEventListener('pointerdown',(ev)=>{
       const rect = canvas.getBoundingClientRect();
       const x = ev.clientX - rect.left;
       const w = rect.width;
       const now = Date.now();
-      if(now - lastTap < 250){ // doble tap -> rotate
+      if(now - lastTap < 250){
         playerRotate(1);
       } else {
         if(x < w*0.4) playerMove(-1);
@@ -570,7 +453,7 @@
       lastTap = now;
     });
 
-    // estilo / personalización
+    // estilos y personalizacion
     const pageBgInput = document.getElementById('pageBgInput');
     const gameBgInput = document.getElementById('gameBgInput');
     const promoInput = document.getElementById('promoInput');
@@ -578,7 +461,6 @@
     const resetStyle = document.getElementById('resetStyle');
     const promoImg = document.getElementById('promoImg');
 
-    // cargar valores por defecto
     pageBgInput.value = getComputedStyle(document.documentElement).getPropertyValue('--page-bg').trim();
     gameBgInput.value = getComputedStyle(document.documentElement).getPropertyValue('--game-area-bg').trim();
 
@@ -607,43 +489,29 @@
       document.documentElement.style.setProperty('--accent-1', a1);
       document.documentElement.style.setProperty('--accent-2', a2);
       document.documentElement.style.setProperty('--accent-3', a3);
-      // tie into COLORS for pieces (simple override)
       COLORS[0]=a3; COLORS[1]=a2; COLORS[2]=a1;
     });
 
-    // iniciar primeras piezas
+    // inicializacion
     board = createMatrix(COLS, ROWS);
     fillBag(); spawn();
-    // ahora que board y piezas están inicializadas, ajustamos tamaño correctamente
     resizeCanvas();
     update();
 
-    // Developer fullscreen / orientation controls (only available when DEV = true)
+    // controles de desarrollador (cuando DEV=true)
     if(DEV){
       const devFsBtn = document.getElementById('devFullscreenBtn');
       const devLockBtn = document.getElementById('devLockOrientBtn');
       if(devFsBtn){
         devFsBtn.addEventListener('click', async ()=>{
-          try{
-            const el = document.documentElement;
-            if (el.requestFullscreen) await el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-            else if (el.msRequestFullscreen) await el.msRequestFullscreen();
-          } catch(err){
-            console.warn('Fullscreen request failed or disallowed:', err);
-            alert('No se pudo activar fullscreen: ' + (err && err.message ? err.message : err));
-          }
+          try{ const el = document.documentElement; if(el.requestFullscreen) await el.requestFullscreen(); }
+          catch(err){ alert('No se pudo activar fullscreen: '+(err&&err.message?err.message:err)); }
         });
       }
       if(devLockBtn){
         devLockBtn.addEventListener('click', async ()=>{
-          try{
-            if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait');
-            else alert('Bloqueo de orientación no soportado en este navegador');
-          } catch(err){
-            console.warn('Orientation lock failed or disallowed:', err);
-            alert('No se pudo bloquear la orientación: ' + (err && err.message ? err.message : err));
-          }
+          try{ if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('portrait'); else alert('Bloqueo no soportado'); }
+          catch(err){ alert('No se pudo bloquear la orientación: '+(err&&err.message?err.message:err)); }
         });
       }
     }
