@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tetris — BlackMoon (Todo en 1)</title>
+<title>TetrisMoon</title>
 <style>
   :root{
     --bg-1:#070319; --bg-2:#0b0830; --accent:#b59cff; --muted:#9fb0c1;
@@ -63,7 +63,7 @@
   .music-row{ display:flex; gap:8px; align-items:center; }
 
   /* promo image */
-  .promo img{ width:100%; border-radius:12px; box-shadow: 0 10px 30px rgba(80,40,140,0.3); }
+  .promo img{ width:50%; border-radius:12px; box-shadow: 0 10px 30px rgba(80,40,140,0.3); }
 
   /* small screens: put promo under and vertical layout for canvas */
   @media (max-width:920px){
@@ -92,8 +92,8 @@
 <div class="wrap">
   <header>
     <div style="display:flex;gap:12px;align-items:center">
-      <h1>BlackMoon Tetris — 30 niveles</h1>
-      <div style="font-size:12px;color:var(--muted)">Edita frases, audio y promo desde el panel</div>
+      <h1>Moontetris</h1>
+      <div style="font-size:12px;color:var(--muted)">🥇Adelante aerealista🥇</div>
     </div>
 
     <div style="display:flex;gap:8px;align-items:center">
@@ -146,11 +146,11 @@
             <button id="pauseMusic">Pause</button>
             <input id="vol" type="range" min="0" max="1" step="0.01" value="0.7" />
           </div>
-          <div style="font-size:11px;color:var(--muted); margin-top:6px">Coloca la URL en el código o arrastra un mp3 al control.</div>
+          <div style="font-size:11px;color:var(--muted); margin-top:6px">VOLANDO CON BLACKMOON RECORDS.</div>
         </div>
 
         <div style="margin-top:6px">
-          <label style="font-size:12px">Imagen promocional</label>
+          <label style="font-size:12px">NUESTRA MUSICA</label>
           <div class="promo"><img id="promoImg" src="" alt="Promo" /></div>
         </div>
 
@@ -182,10 +182,10 @@
  - footerText, ftImg1, ftImg2, links arrays...
 -------------------------------------------------------------------------*/
 const CONFIG = {
-  phrases: ['¡Perfecto!', 'Gran combo', 'Así se hace', 'Líneas puras', 'Subes de nivel', 'Golazo'],
-  audioSrc: '', // ejemplo: 'https://cdn.example.com/track.mp3'
-  promoImage: '', // ejemplo: 'https://.../promo.jpg'
-  footerText: 'BlackMoon — Hecho con pasión por el aire',
+  phrases: ['¡Perfecto!', 'Gran combo', 'No te rindas', 'Líneas perfectas', 'Subes de nivel', 'Eso aerealista'],
+  audioSrc: '1.- Volando con Black Moon.m4a', // ejemplo: 'https://cdn.example.com/track.mp3'
+  promoImage: 'GPO BKM 2.jpg', // ejemplo: 'https://.../promo.jpg'
+  footerText: 'Grupo BlackMoon — Hecho con pasión por el aire',
   ftImg1: '', ftImg2: ''
 };
 /* ---------------------------------------------------------------------*/
