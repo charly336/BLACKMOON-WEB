@@ -1,551 +1,359 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>TetrisMoon</title>
 <style>
-  :root{
-    --bg-1:#070319; --bg-2:#0b0830; --accent:#b59cff; --muted:#9fb0c1;
-    --panel: rgba(255,255,255,0.03); --glass: rgba(255,255,255,0.04);
-  }
-  /* light vars (applied with .light) */
-  .light{ --bg-1:#f2f6ff; --bg-2:#dfe9ff; --accent:#6b4dff; --panel: rgba(0,0,0,0.04); --glass: rgba(0,0,0,0.03); color:#071022; }
-  html,body{height:100%; margin:0; font-family:Inter,system-ui,Arial; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:var(--accent); -webkit-font-smoothing:antialiased;}
-  body{display:flex; align-items:center; justify-content:center; padding:18px; overscroll-behavior:none; touch-action:none;}
+    body {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle at 50% 20%, #4a1dff 0%, #14003b 60%, #000 100%);
+        background-image: url('luna-grande.png');
+        background-size: cover;
+        background-position: center;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-/* layout */
-  .wrap{ width:100%; max-width:1200px; display:grid; grid-template-columns: 1fr 360px; gap:18px; align-items:start;}
-  header{grid-column:1/3; display:flex; justify-content:space-between; align-items:center; gap:12px}
-  h1{margin:0; font-size:18px}
-  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); border-radius:12px; padding:12px; box-shadow: 0 10px 30px rgba(2,6,12,0.45);}
+    /* Estrellas dinámicas */
+    .stars {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        background: url('stars.png');
+        animation: twinkle 3s infinite alternate ease-in-out;
+        opacity: 0.5;
+        z-index: 2;
+    }
+    @keyframes twinkle {
+        from { opacity: 0.2; transform: scale(1); }
+        to { opacity: 0.9; transform: scale(1.04); }
+    }
 
-/* game area with moon behind */
-  .stage { position:relative; display:flex; gap:12px; align-items:flex-start; }
-  .moon-wrap{ position:absolute; left: -10%; top: -30%; width:60%; height:160%; pointer-events:none; z-index:0; opacity:0.45; filter:blur(6px) saturate(120%); mix-blend-mode:overlay; }
-  .moon { width:50%; height:50%; background: url("Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg"); border-radius:50%; box-shadow: 0 0 120px rgba(120,80,220,0.55) inset; transform:translateZ(0); animation:moonMove 8s ease-in-out infinite alternate; }
-  @keyframes moonMove{ from{ transform:translateY(0) scale(0.98);} to{transform:translateY(18px) scale(1.02);} }
+    /* Luna animada con brillo pulsante */
+    .luna-animada {
+        position: fixed;
+        top: -40px;
+        right: -60px;
+        width: 320px;
+        animation: float 18s infinite ease-in-out alternate, pulse 4s infinite ease-in-out;
+        opacity: 0.70;
+        z-index: 1;
+    }
+    @keyframes float {
+        from { transform: translateY(0px); }
+        to { transform: translateY(40px); }
+    }
+    @keyframes pulse {
+        0% { filter: drop-shadow(0 0 4px #d2a8ff); }
+        50% { filter: drop-shadow(0 0 20px #bb6aff); }
+        100% { filter: drop-shadow(0 0 4px #d2a8ff); }
+    }
 
-  /* stars overlay */
-  .stars { position:absolute; inset:0; pointer-events:none; z-index:0; background-image:
-    radial-gradient(1px 1px at 20% 10%, rgba(255,255,255,0.9), transparent),
-    radial-gradient(1px 1px at 80% 40%, rgba(255,255,255,0.75), transparent),
-    radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.5), transparent);
-    opacity:0.18; filter:blur(0.2px); mix-blend-mode:screen; animation:starDrift 120s linear infinite; }
-  @keyframes starDrift{ from{ transform:translate(0,0);} to{ transform:translate(-200px,-120px);} }
+    .contenedor-global {
+        width: 100%;
+        max-width: 1500px;
+        display: flex;
+        gap: 25px;
+        padding: 20px;
+        box-sizing: border-box;
+        z-index: 5;
+    }
 
-  /* canvas panel */
-  .game-panel{ position:relative; z-index:2; padding:12px; display:flex; gap:12px; align-items:flex-start;}
-  #playfield{ width:300px; height:600px; background: linear-gradient(180deg, #020617 0%, #0b0f32 40%, #1e1b4b 100%), rgba(0,0,0,0.2)); border-radius:14px; padding:12px; box-shadow: 0 10px 30px rgba(10,0,40,0.5); display:flex; justify-content:center; align-items:center; }
-  canvas { background: transparent; display:block; border-radius:8px; image-rendering:pixelated; }
+    .juego-area {
+        background: rgba(20, 0, 45, 0.55);
+        border: 5px solid #c07aff;
+        border-radius: 14px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 0 25px #c07aff;
+        animation: glow 3s infinite ease-in-out;
+    }
+    @keyframes glow {
+        0% { box-shadow: 0 0 10px #a855ff; }
+        50% { box-shadow: 0 0 35px #d28cff; }
+        100% { box-shadow: 0 0 10px #a855ff; }
+    }
 
-  /* HUD / sidebar */
-  .sidebar{ width:320px; display:flex; flex-direction:column; gap:12px; z-index:2; }
-  .hud{ display:grid; grid-template-columns: repeat(2,1fr); gap:8px; }
-  .stat{ background:var(--glass); padding:10px; border-radius:8px; text-align:center; color:var(--muted); }
-  .big{ font-size:20px; font-weight:800; color:var(--accent); }
+    #tetrisCanvas {
+        background: #1a0037;
+        border: 2px solid #d8a6ff;
+        width: 100%;
+        height: auto;
+        box-shadow: 0 0 12px #d8a6ff inset;
+        animation: pulseCanvas 6s infinite ease-in-out;
+    }
+    @keyframes pulseCanvas {
+        0% { box-shadow: 0 0 8px #9f60ff inset; }
+        50% { box-shadow: 0 0 20px #d8a6ff inset; }
+        100% { box-shadow: 0 0 8px #9f60ff inset; }
+    }
 
-  .controls{ display:flex; gap:8px; flex-wrap:wrap; }
-  button{ padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit; cursor:pointer; }
+    /* Controles móviles */
+    .controles-movil {
+        display: none;
+        margin-top: 15px;
+    }
+    @media(max-width: 900px) {
+        .controles-movil {
+            display: flex;
+            gap: 10px;
+        }
+        .controles-movil button {
+            padding: 10px 18px;
+            background: #9a00ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0 12px #c780ff;
+            font-size: 1.1rem;
+        }
+    }
 
-  textarea{ width:100%; min-height:56px; background:transparent; border-radius:8px; padding:8px; color:inherit; border:1px solid rgba(255,255,255,0.04); resize:vertical;}
+    .panel-info {
+        margin-top: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
 
-  /* footer */
-  footer{ grid-column:1/3; margin-top:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;}
-  .link-card{ width:120px; height:72px; background:var(--panel); border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .link-card img{ width:100%; height:100%; object-fit:cover; }
+    .promo-area {
+        width: 40%;
+        min-width: 260px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .promo-area img {
+        width: 100%;
+        border-radius: 12px;
+        border: 4px solid #c07aff;
+        box-shadow: 0 0 25px #c07aff;
+    }
 
-  /* phrase toast */
-  .phrase{ position:fixed; left:50%; transform:translateX(-50%); bottom:22px; background:linear-gradient(90deg, rgba(0,0,0,0.55), rgba(255,255,255,0.02)); padding:12px 18px; border-radius:20px; z-index:9999; font-weight:700; display:none; color:var(--accent); }
+    footer {
+        width: 100%;
+        background: #100018;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        bottom: 0;
+        z-index: 10;
+        border-top: 2px solid #9a4bff;
+    }
 
-  /* music controls */
-  .music-row{ display:flex; gap:8px; align-items:center; }
+    .footer-links img {
+        width: 55px;
+        margin: 0 10px;
+        cursor: pointer;
+    }
 
-  /* promo image */
-  .promo img{ width:50%; border-radius:12px; box-shadow: 0 10px 30px rgba(80,40,140,0.3); }
-
-  /* small screens: put promo under and vertical layout for canvas */
-  @media (max-width:920px){
-    .wrap{ grid-template-columns: 1fr; max-width:680px; }
-    .stage{ flex-direction:column; align-items:center; }
-    #playfield{ width:240px; height:480px; }
-    canvas{ width:240px; height:480px; }
-    .sidebar{ width:100%; order:2; }
-    .promo{ order:3; width:100%; }
-  }
-
-  /* mobile vertical mode: tall/narrow */
-  @media (max-width:520px){
-    #playfield{ width:240px; height:640px; }
-    canvas{ width:240px; height:640px; }
-    .promo img{ width:160px; }
-  }
-
-  /* switch button styles */
-  .toggle{ display:inline-flex; align-items:center; gap:8px; }
-  .mode-btn{ padding:6px 10px; border-radius:999px; border:none; cursor:pointer; background:linear-gradient(90deg,var(--accent), #6b8cff); color:white; font-weight:700; }
+    @media(max-width: 900px) {
+        .contenedor-global { flex-direction: column; align-items: center; }
+        .promo-area { width: 90%; }
+    }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header>
-    <div style="display:flex;gap:12px;align-items:center">
-      <h1>TetrisMoon</h1>
-      <div style="font-size:17px;color:var(--muted)">🥇Adelante aerealista🥇</div>
+<div class="stars"></div>
+<img src="luna.png" class="luna-animada">
+
+<h1>TETRISMOON</h1>
+
+<div class="contenedor-global">
+    <div class="juego-area">
+        <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+
+        <div class="panel-info">
+            <span>Puntaje: <span id="score">0</span></span>
+            <span>Nivel: <span id="level">1</span></span>
+            <span>Tiempo: <span id="timer">0</span>s</span>
+        </div>
+
+        <audio id="bgm" src="musica.mp3" loop></audio>
+        <div>
+            <button onclick="toggleMusic()">Play/Pause</button>
+            <input type="range" min="0" max="1" step="0.01" value="0.5" onchange="setVolume(this.value)">
+        </div>
+
+        <div id="frases" style="display:none;">
+            <p>¡Explosión lunar!</p>
+            <p>¡Alineación cósmica total!</p>
+            <p>¡Brillo astral activado!</p>
+            <p>¡Ondas de energía lunar!</p>
+        </div>
+
+        <div class="controles-movil">
+            <button onclick="moverIzquierda()">◀</button>
+            <button onclick="rotarPieza()">⟳</button>
+            <button onclick="moverDerecha()">▶</button>
+            <button onclick="bajarPieza()">▼</button>
+        </div>
     </div>
 
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="toggle">
-        <button id="themeToggle" class="mode-btn">Modo Brillante</button>
-      </div>
-      <button id="lockBtn" title="Bloquear/Desbloquear scroll">Bloquear pantalla</button>
+    <div class="promo-area">
+        <img src="promo.png" alt="Promo BlackMoon TetrisMoon">
     </div>
-  </header>
-
-  <!-- STAGE with moon & stars -->
-  <div class="stage panel" style="position:relative; overflow:hidden;">
-    <div class="moon-wrap">
-      <div class="moon"></div>
-    </div>
-    <div class="stars"></div>
-
-    <!-- game area -->
-    <div class="game-panel">
-      <div id="playfield" class="panel">
-        <canvas id="tetris" width="200" height="400"></canvas>
-      </div>
-
-      <!-- sidebar -->
-      <aside class="sidebar panel">
-        <div class="hud">
-          <div class="stat"><div style="font-size:12px">Puntos</div><div id="score" class="big">0</div></div>
-          <div class="stat"><div style="font-size:12px">Nivel</div><div id="level" class="big">1</div></div>
-          <div class="stat"><div style="font-size:12px">Líneas</div><div id="lines" class="big">0</div></div>
-          <div class="stat"><div style="font-size:12px">Tiempo</div><div id="timer" class="big">00:00</div></div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
-          <div class="controls">
-            <button id="startBtn">Iniciar</button>
-            <button id="pauseBtn">Pausa</button>
-            <button id="resetBtn">Reiniciar</button>
-          </div>
-        </div>
-
-        <div style="margin-top:6px">
-          <label style="font-size:12px;">Frases (separadas por | )</label>
-          <textarea id="phrasesInput" placeholder="¡Perfecto! | Gran combo | Subes de nivel"></textarea>
-        </div>
-
-        <div style="margin-top:6px">
-          <div style="font-size:12px">Música</div>
-          <div class="music-row">
-            <button id="playMusic">Play</button>
-            <button id="pauseMusic">Pause</button>
-            <input id="vol" type="range" min="0" max="1" step="0.01" value="0.7" />
-          </div>
-          <div style="font-size:11px;color:var(--muted); margin-top:6px">VOLANDO CON BLACKMOON RECORDS.</div>
-        </div>
-
-        <div style="margin-top:6px">
-          <label style="font-size:12px">Blackmoon Games</label>
-          <div class="promo"><img id="promoImg" src="" alt="Promo" /></div>
-        </div>
-
-        <div style="margin-top:6px; font-size:12px; color:var(--muted)">
-          Controles: ← → abajo, ↑ girar, espacio caída dura, P pausa.
-        </div>
-      </aside>
-    </div>
-
-  <footer class="panel">
-    <div id="footerText">Footer personalizable — cambia en el config del código</div>
-    <div style="display:flex;gap:8px">
-      <div class="GPO BKM 2.jpg"><img id="ftImg1" src="https://www.jotform.com/app/251536021952856" alt="NUESTRA APP"></div>
-      <div class="link-card"><img id="ftImg2" src="" alt=""></div>
-    </div>
-  </footer>
 </div>
 
-<div id="phraseToast" class="phrase"></div>
+<footer>
+    <div class="footer-links">
+        <img src="link1.png">
+        <img src="link2.png">
+    </div>
 
-<!-- Audio element (invisible) -->
-<audio id="bgAudio" loop crossorigin="anonymous"></audio>
+    <span>© 2025 TetrisMoon • Grupo Black Moon</span>
+
+    <div class="footer-links">
+        <img src="link3.png">
+        <img src="link4.png">
+    </div>
+</footer>
 
 <script>
-/* ------------------------ CONFIG (edítalo aquí) ------------------------
- - phrases: array por defecto (si dejas textarea vacío se usan estas)
- - audioSrc: pon la url de tu mp3
- - promoImage: URL imagen promo
- - footerText, ftImg1, ftImg2, links arrays...
--------------------------------------------------------------------------*/
-const CONFIG = {
-  phrases: ['¡Perfecto!', 'Gran combo', 'No te rindas', 'Líneas perfectas', 'Subes de nivel', 'Eso aerealista'],
-  audioSrc: '1.- Volando con Black Moon.m4a', // ejemplo: 'https://cdn.example.com/track.mp3'
-  promoImage: 'GPO BKM 2.jpg', // ejemplo: 'https://.../promo.jpg'
-  footerText: 'Grupo BlackMoon — Hecho con pasión por el aire',
-  ftImg1: '', ftImg2: ''
-};
-/* ---------------------------------------------------------------------*/
-
-/* ---------- Init DOM based on config ---------- */
-document.getElementById('phrasesInput').value = CONFIG.phrases.join(' | ');
-document.getElementById('promoImg').src = CONFIG.promoImage;
-document.getElementById('footerText').textContent = CONFIG.footerText;
-document.getElementById('ftImg1').src = CONFIG.ftImg1;
-document.getElementById('ftImg2').src = CONFIG.ftImg2;
-const audioEl = document.getElementById('bgAudio');
-if(CONFIG.audioSrc) audioEl.src = CONFIG.audioSrc;
-audioEl.volume = Number(document.getElementById('vol').value);
-
-/* ---------- Canvas setup ---------- */
-const canvas = document.getElementById('tetris');
-const ctx = canvas.getContext('2d');
-// logical board size
-const COLS = 10, ROWS = 20;
-const VIRTUAL_W = COLS, VIRTUAL_H = ROWS;
-let pixel = 20; // block pixel size (will adapt)
-function resizeCanvasToPlayfield(){
-  // Compute pixel size based on container
-  const pf = document.getElementById('playfield');
-  const w = pf.clientWidth - 24; // padding
-  const h = pf.clientHeight - 24;
-  // choose pixel such that cols fit
-  pixel = Math.floor(Math.min(w / COLS, h / ROWS));
-  canvas.width = COLS * pixel;
-  canvas.height = ROWS * pixel;
-  canvas.style.width = canvas.width + 'px';
-  canvas.style.height = canvas.height + 'px';
+// Música
+function toggleMusic() {
+    const bgm = document.getElementById("bgm");
+    bgm.paused ? bgm.play() : bgm.pause();
 }
-resizeCanvasToPlayfield();
-window.addEventListener('resize', resizeCanvasToPlayfield);
-
-/* ---------- Game state ---------- */
-let board = Array.from({length: ROWS}, ()=>Array(COLS).fill(0));
-const PIECES = {
-  I:[[1,1,1,1]],
-  J:[[2,0,0],[2,2,2]],
-  L:[[0,0,3],[3,3,3]],
-  O:[[4,4],[4,4]],
-  S:[[0,5,5],[5,5,0]],
-  T:[[0,6,0],[6,6,6]],
-  Z:[[7,7,0],[0,7,7]]
-};
-const COLORS = ['#000000','#6bd3ff','#3b82f6','#f59e0b','#facc15','#34d399','#d8b4fe','#fb7185'];
-let current = null, nextPiece = null;
-let score = 0, level = 1, lines = 0, timerSeconds = 0;
-let dropInterval = 800, dropHandle = null, clockHandle = null;
-let running = false;
-const LINES_PER_LEVEL = 5; // puedes cambiar
-const MAX_LEVEL = 30;
-
-/* ---------- Utilities ---------- */
-function randKey(obj){ const keys=Object.keys(obj); return keys[Math.floor(Math.random()*keys.length)]; }
-function createPiece(type){
-  const shape = PIECES[type].map(r=>r.slice());
-  return { shape, x: Math.floor((COLS - shape[0].length)/2), y: -1, type};
+function setVolume(v) {
+    document.getElementById("bgm").volume = v;
 }
 
-/* ---------- Collision detection ---------- */
-function collide(board, piece, ox=0, oy=0){
-  const s = piece.shape;
-  for(let r=0;r<s.length;r++) for(let c=0;c<s[0].length;c++){
-    if(s[r][c]){
-      const x = piece.x + c + ox;
-      const y = piece.y + r + oy;
-      if(x<0 || x>=COLS || y>=ROWS) return true;
-      if(y>=0 && board[y][x]) return true;
+// Timer
+let time = 0;
+setInterval(() => {
+    time++;
+    document.getElementById("timer").innerText = time;
+}, 1000);
+
+// Canvas
+const canvas = document.getElementById("tetrisCanvas");
+const ctx = canvas.getContext("2d");
+
+const grid = 30;
+const cols = 10;
+const rows = 20;
+let tablero = [];
+for (let y = 0; y < rows; y++) tablero[y] = Array(cols).fill(0);
+
+// Efecto visual de explosión
+function explosionLunar(x, y) {
+    const particles = 20;
+    for (let i=0;i<particles;i++){
+        let px = x * grid + grid/2;
+        let py = y * grid + grid/2;
+        let ang = Math.random()*Math.PI*2;
+        let sp = Math.random()*4 + 1;
+        let p = { x:px, y:py, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp, life:30 };
+        animateParticle(p);
     }
-  }
-  return false;
 }
 
-/* ---------- Merge ---------- */
-function merge(board, piece){
-  const s = piece.shape;
-  for(let r=0;r<s.length;r++) for(let c=0;c<s[0].length;c++){
-    if(s[r][c]){
-      const x = piece.x + c; const y = piece.y + r;
-      if(y>=0 && y<ROWS && x>=0 && x<COLS) board[y][x] = s[r][c];
+function animateParticle(p){
+    function frame(){
+        ctx.fillStyle = `rgba(200,120,255,${p.life/30})`;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,4,0,Math.PI*2);
+        ctx.fill();
+        p.x+=p.vx;
+        p.y+=p.vy;
+        p.life--;
+        if(p.life>0) requestAnimationFrame(frame);
     }
-  }
+    frame();
 }
 
-/* ---------- Clear lines & phrases ---------- */
-function clearLines(){
-  let cleared = 0;
-  for(let r=ROWS-1; r>=0; r--){
-    if(board[r].every(v=>v!==0)){
-      board.splice(r,1);
-      board.unshift(Array(COLS).fill(0));
-      cleared++; r++; // re-check the same index
+// Dibujar tablero con neón
+function dibujarTablero() {
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            ctx.fillStyle = tablero[y][x] ? "#f3c8ff" : "#1a0033";
+            ctx.shadowColor = tablero[y][x] ? "#e38bff" : "transparent";
+            ctx.shadowBlur = tablero[y][x] ? 25 : 0;
+            ctx.fillRect(x * grid, y * grid, grid - 1, grid - 1);
+        }
     }
-  }
-  if(cleared>0){
-    lines += cleared;
-    score += (cleared * 100) * level;
-    level = Math.min(MAX_LEVEL, Math.floor(lines / LINES_PER_LEVEL) + 1);
-    // progressive speed
-    dropInterval = Math.max(80, 800 - (level-1) * 24); // level30 -> ~80ms
-    showPhrase();
-    updateHUD();
-    // restart drop timer with new interval if running
-    if(running){ clearInterval(dropHandle); dropHandle = setInterval(gameStep, dropInterval); }
-  }
 }
 
-/* ---------- show phrase toast ---------- */
-function showPhrase(){
-  const raw = document.getElementById('phrasesInput').value.trim();
-  let arr = raw ? raw.split('|').map(s=>s.trim()).filter(Boolean) : CONFIG.phrases;
-  if(!arr || arr.length===0) arr = CONFIG.phrases;
-  const ph = arr[Math.floor(Math.random()*arr.length)];
-  const el = document.getElementById('phraseToast');
-  el.textContent = ph;
-  el.style.display='block'; el.style.opacity='1';
-  setTimeout(()=>{ el.style.transition='opacity 700ms'; el.style.opacity='0'; setTimeout(()=>el.style.display='none',750); },1400);
+function actualizar() {
+    dibujarTablero();
+    requestAnimationFrame(actualizar);
+}
+actualizar();
+// --- BlackMoon Pro Effects Added ---
+
+// Bass Boost Pulse
+const bassPulse = document.createElement('div');
+bassPulse.id = 'bassPulse';
+bassPulse.style.position = 'fixed';
+bassPulse.style.top = 0;
+bassPulse.style.left = 0;
+bassPulse.style.width = '100%';
+bassPulse.style.height = '100%';
+bassPulse.style.pointerEvents = 'none';
+bassPulse.style.zIndex = '2';
+bassPulse.style.boxShadow = '0 0 0px rgba(255,255,255,0)';
+document.body.appendChild(bassPulse);
+
+setInterval(() => {
+  bassPulse.style.transition = 'box-shadow 0.2s ease';
+  bassPulse.style.boxShadow = '0 0 45px rgba(255,255,255,0.25)';
+  setTimeout(() => bassPulse.style.boxShadow = '0 0 0px rgba(255,255,255,0)', 150);
+}, 1200);
+
+// Supernova Explosion
+function supernovaEffect(x, y) {
+  const boom = document.createElement('div');
+  boom.classList.add('supernova');
+  boom.style.left = x + 'px';
+  boom.style.top = y + 'px';
+  document.body.appendChild(boom);
+  setTimeout(() => boom.remove(), 800);
 }
 
-/* ---------- draw ---------- */
-function draw(){
-  // clear
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  // draw board
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
-      const v = board[r][c];
-      if(v){
-        drawBlock(c,r, COLORS[v]);
-      } else {
-        // faint grid
-        ctx.fillStyle = 'rgba(255,255,255,0.02)';
-        //ctx.fillRect(c*pixel+1, r*pixel+1, pixel-2, pixel-2);
-      }
-    }
-  }
-  // current piece
-  if(current){
-    const s = current.shape;
-    for(let r=0;r<s.length;r++) for(let c=0;c<s[0].length;c++){
-      if(s[r][c]){
-        drawBlock(current.x + c, current.y + r, COLORS[s[r][c]]);
-      }
-    }
-  }
-  // optional: draw grid lines subtle
-  ctx.strokeStyle = 'rgba(255,255,255,0.02)'; ctx.lineWidth = 1;
-  for(let x=0;x<=COLS;x++){ ctx.beginPath(); ctx.moveTo(x*pixel,0); ctx.lineTo(x*pixel, ROWS*pixel); ctx.stroke(); }
-  for(let y=0;y<=ROWS;y++){ ctx.beginPath(); ctx.moveTo(0,y*pixel); ctx.lineTo(COLS*pixel, y*pixel); ctx.stroke(); }
+// Comet
+function launchComet() {
+  const comet = document.createElement('div');
+  comet.className = 'comet';
+  document.body.appendChild(comet);
+  comet.style.top = (Math.random() * window.innerHeight * 0.7) + 'px';
+  setTimeout(() => comet.remove(), 6000);
 }
-function drawBlock(x,y,color){
-  ctx.fillStyle = color;
-  ctx.fillRect(x*pixel+1, y*pixel+1, pixel-2, pixel-2);
-  // inner highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.06)';
-  ctx.fillRect(x*pixel+2, y*pixel+2, pixel-4, Math.max(2,pixel/6));
-}
+setInterval(launchComet, 9000);
 
-/* ---------- piece rotation with simple SRS-kicks ---------- */
-function rotate(piece){
-  const s = piece.shape;
-  const res = Array.from({length:s[0].length}, ()=>Array(s.length).fill(0));
-  for(let r=0;r<s.length;r++) for(let c=0;c<s[0].length;c++) res[c][s.length-1-r] = s[r][c];
-  return res;
-}
-function tryRotate(){
-  const rotated = rotate(current);
-  // if fits, apply
-  if(!collide(board, {...current, shape:rotated}, 0,0) && !collide(board, {shape:rotated, x:current.x, y:current.y})){
-    current.shape = rotated; return;
-  }
-  // kicks: try small offsets
-  const kicks = [-1, 1, -2, 2];
-  for(const k of kicks){
-    const test = {shape:rotated, x: current.x + k, y: current.y};
-    if(!collide(board, test, 0,0) && !collide(board, test, 0,0)){
-      current.x += k; current.shape = rotated; return;
-    }
-  }
-  // if none fits, don't rotate
-}
+// Fog Layer
+const fog = document.createElement('div');
+fog.id = 'fogLayer';
+fog.style.position = 'fixed';
+fog.style.bottom = '0';
+fog.style.left = '0';
+fog.style.width = '100%';
+fog.style.height = '30vh';
+fog.style.background = 'rgba(255,255,255,0.03)';
+fog.style.backdropFilter = 'blur(8px)';
+fog.style.opacity = '0.35';
+fog.style.pointerEvents = 'none';
+fog.style.animation = 'fogMove 35s linear infinite';
+fog.style.zIndex = '3';
+document.body.appendChild(fog);
 
-/* ---------- game step ---------- */
-function gameStep(){
-  if(!running) return;
-  if(!collide(board, current, 0, 1)){
-    current.y++;
-  } else {
-    merge(board, current);
-    clearLines();
-    current = nextPiece; nextPiece = createPiece(randKey(PIECES));
-    if(collide(board, current, 0, 0)){
-      // game over
-      running = false;
-      clearInterval(dropHandle); clearInterval(clockHandle);
-      alert('Game Over — Reinicia para jugar de nuevo');
-    }
-  }
-  draw();
-}
-
-/* ---------- create piece helper ---------- */
-function createPiece(type){
-  return createPieceObj(type);
-}
-function createPieceObj(type){
-  const shape = PIECES[type].map(r=>r.slice());
-  return { shape, x: Math.floor((COLS - shape[0].length)/2), y: -1, type };
-}
-
-/* ---------- start/pause/reset ---------- */
-function updateHUD(){
-  document.getElementById('score').textContent = score;
-  document.getElementById('level').textContent = level;
-  document.getElementById('lines').textContent = lines;
-  const mm = String(Math.floor(timerSeconds/60)).padStart(2,'0');
-  const ss = String(timerSeconds%60).padStart(2,'0');
-  document.getElementById('timer').textContent = `${mm}:${ss}`;
-}
-function startGame(){
-  if(running) return;
-  running=true;
-  if(!current) { current = createPieceObj(randKey(PIECES)); nextPiece = createPieceObj(randKey(PIECES)); }
-  dropHandle = setInterval(gameStep, dropInterval);
-  clockHandle = setInterval(()=>{ timerSeconds++; updateHUD(); }, 1000);
-}
-function pauseGame(){
-  running=false; if(dropHandle) clearInterval(dropHandle); if(clockHandle) clearInterval(clockHandle);
-}
-function resetGame(){
-  pauseGame();
-  board = Array.from({length: ROWS}, ()=>Array(COLS).fill(0));
-  current = createPieceObj(randKey(PIECES));
-  nextPiece = createPieceObj(randKey(PIECES));
-  score = 0; level = 1; lines = 0; timerSeconds = 0;
-  dropInterval = 800;
-  updateHUD(); draw();
-}
-
-/* ---------- controls ---------- */
-document.getElementById('startBtn').addEventListener('click', ()=>startGame());
-document.getElementById('pauseBtn').addEventListener('click', ()=>pauseGame());
-document.getElementById('resetBtn').addEventListener('click', ()=>resetGame());
-
-// keyboard
-document.addEventListener('keydown', (e)=>{
-  if(!current) return;
-  if(!running && ['ArrowLeft','ArrowRight','ArrowDown','ArrowUp','Space'].includes(e.code)) return;
-  if(e.code === 'ArrowLeft'){ if(!collide(board, current, -1, 0)){ current.x--; } }
-  if(e.code === 'ArrowRight'){ if(!collide(board, current, 1, 0)){ current.x++; } }
-  if(e.code === 'ArrowDown'){ if(!collide(board, current, 0,1)) current.y++; else { /* will merge next tick */ } }
-  if(e.code === 'Space'){ // hard drop
-    while(!collide(board, current, 0, 1)) current.y++;
-    gameStep();
-  }
-  if(e.code === 'ArrowUp'){ tryRotate(); }
-  if(e.code === 'KeyP'){ if(running) pauseGame(); else startGame(); }
-  draw();
-  // prevent page scroll
-  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
-}, {passive:false});
-
-/* ---------- music controls ---------- */
-const playMusicBtn = document.getElementById('playMusic');
-const pauseMusicBtn = document.getElementById('pauseMusic');
-const volSlider = document.getElementById('vol');
-playMusicBtn.addEventListener('click', ()=>{ if(audioEl.src) audioEl.play().catch(()=>{}); else alert('Coloca CONFIG.audioSrc en el código con la url del mp3.'); });
-pauseMusicBtn.addEventListener('click', ()=>{ audioEl.pause(); });
-volSlider.addEventListener('input', (e)=>{ audioEl.volume = Number(e.target.value); });
-
-/* allow dropping an mp3 file into playfield to set audio */
-const pf = document.getElementById('playfield');
-pf.addEventListener('dragover', e=>{ e.preventDefault(); pf.style.outline='2px dashed rgba(255,255,255,0.06)'; });
-pf.addEventListener('dragleave', e=>{ pf.style.outline='none'; });
-pf.addEventListener('drop', e=>{
-  e.preventDefault(); pf.style.outline='none';
-  const f = e.dataTransfer.files && e.dataTransfer.files[0];
-  if(f && f.type.startsWith('audio/')){
-    const url = URL.createObjectURL(f);
-    audioEl.src = url; audioEl.play().catch(()=>{}); alert('Audio cargado desde archivo local');
-  }
-});
-
-/* ---------- theme toggle ---------- */
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('click', ()=>{
-  if(document.documentElement.classList.contains('light')){
-    document.documentElement.classList.remove('light');
-    themeToggle.textContent = 'Modo Brillante';
-  } else {
-    document.documentElement.classList.add('light');
-    themeToggle.textContent = 'Modo Oscuro';
-  }
-});
-
-/* ---------- lock scroll toggle ---------- */
-const lockBtn = document.getElementById('lockBtn');
-let locked = true;
-function lockScreen(val){
-  locked = val;
-  if(locked){
-    document.body.style.overflow = 'hidden';
-    lockBtn.textContent = 'Bloqueado';
-    window.addEventListener('touchmove', preventDefault, {passive:false});
-  } else {
-    document.body.style.overflow = '';
-    lockBtn.textContent = 'Bloquear pantalla';
-    window.removeEventListener('touchmove', preventDefault);
-  }
-}
-function preventDefault(e){ e.preventDefault(); }
-lockBtn.addEventListener('click', ()=>lockScreen(!locked));
-lockScreen(true); // default locked
-
-/* ---------- adapt to device orientation: vertical mode ---------- */
-function handleOrientation(){
-  // if device narrow (mobile), make canvas taller by altering pixel and size
-  resizeCanvasToPlayfield();
-  draw();
-}
-window.addEventListener('orientationchange', handleOrientation);
-window.addEventListener('resize', handleOrientation);
-
-/* ---------- HUD & timer ---------- */
-function updateHUD(){ // update function redfined to ensure it's used consistently
-  document.getElementById('score').textContent = score;
-  document.getElementById('level').textContent = level;
-  document.getElementById('lines').textContent = lines;
-  const mm = String(Math.floor(timerSeconds/60)).padStart(2,'0');
-  const ss = String(timerSeconds%60).padStart(2,'0');
-  document.getElementById('timer').textContent = `${mm}:${ss}`;
-}
-
-/* ---------- boot ---------- */
-function boot(){
-  // ensure pixel matches current sizes
-  resizeCanvasToPlayfield();
-  board = Array.from({length:ROWS}, ()=>Array(COLS).fill(0));
-  current = createPieceObj(randKey(PIECES));
-  nextPiece = createPieceObj(randKey(PIECES));
-  score=0; level=1; lines=0; timerSeconds=0;
-  updateHUD(); draw();
-}
-boot();
-
-/* ---------- helpers that avoid curly confusion ---------- */
-function createPieceObj(type){
-  const shape = PIECES[type].map(r=>r.slice());
-  return {shape, x: Math.floor((COLS-shape[0].length)/2), y: -1, type};
-}
-function randKey(obj){ const k = Object.keys(obj); return k[Math.floor(Math.random()*k.length)]; }
-
-/* ---------- expose some functions for debugging in console ---------- */
-window.Tetris = {
-  start: startGame, pause: pauseGame, reset: resetGame, setAudio(url){ audioEl.src=url; },
-  config: CONFIG
-};
 </script>
+
 </body>
 </html>
+
