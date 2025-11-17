@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Juego de Escalada</title>
+<style>
+    body{
+        margin:0;
+        font-family: Arial, sans-serif;
+        background:#d0ecff;
+        display:flex;
+        justify-content:center;
+        padding-top:20px;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container{
+        display:flex;
+        gap:20px;
+    }
+
+    /* JUEGO */
+    #gameArea{
+        width:400px;
+        height:600px;
+        background:#aee1ff;
+        overflow:hidden;
+        border:3px solid #003f7f;
+        position:relative;
+    }
+
+    /* JUGADOR */
+    .player{
+        width:40px;
+        height:40px;
+        background:red;
+        position:absolute;
+        bottom:10px;
+        left:180px;
+        border-radius:8px;
+    }
+
+    /* OBSTÁCULOS */
+    .obstacle{
+        width:60px;
+        height:20px;
+        background:#444;
+        position:absolute;
+        border-radius:6px;
+    }
+
+    /* INFO */
+    #hud{
+        margin-bottom:10px;
+        font-size:18px;
+    }
+
+    /* LATERAL PARA PROMOCIÓN */
+    #promoArea{
+        width:200px;
+        height:600px;
+        border:2px solid #555;
+        background:#fff;
+        text-align:center;
+        padding:10px;
+    }
+
+    #promoArea img{
+        width:100%;
+        height:auto;
+    }
+
+    /* FOOTER */
+    footer{
+        width:100%;
+        margin-top:20px;
+        display:flex;
+        justify-content:center;
+        gap:20px;
+    }
+
+    footer a img{
+        width:60px;
+        height:60px;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div>
+        <div id="hud">
+            <span>Puntaje: <strong id="score">0</strong></span> |
+            <span>Tiempo: <strong id="timer">0</strong>s</span> |
+            <span>Nivel: <strong id="level">1</strong></span>
+        </div>
+
+        <div id="gameArea">
+            <div class="player" id="player"></div>
+        </div>
+    </div>
+
+    <!-- ZONA DE PROMOCIÓN -->
+    <div id="promoArea">
+        <h3>Promoción</h3>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/640px-Cat03.jpg">
+        <p>Puedes colocar aquí tu anuncio o imagen promocional.</p>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <a href="#"><img src="https://via.placeholder.com/60"></a>
+    <a href="#"><img src="https://via.placeholder.com/60"></a>
+    <a href="#"><img src="https://via.placeholder.com/60"></a>
+    <a href="#"><img src="https://via.placeholder.com/60"></a>
+</footer>
+
+
+<script>
+/* VARIABLES DEL JUEGO */
+const game = document.getElementById("gameArea");
+const player = document.getElementById("player");
+const scoreEl = document.getElementById("score");
+const timerEl = document.getElementById("timer");
+const levelEl = document.getElementById("level");
+
+let score = 0;
+let timer = 0;
+let level = 1;
+let speed = 2;
+let obstacles = [];
+let timerInterval;
+
+const fasesDia = ["mañana", "tarde", "noche", "amanecer"];
+let faseIndex = 0;
+
+/* MOVIMIENTO DEL JUGADOR */
+let px = 180;
+let py = 10;
+
+document.addEventListener("keydown", e=>{
+    const step = 10;
+    if(e.key==="ArrowLeft")  px -= step;
+    if(e.key==="ArrowRight") px += step;
+    if(e.key==="ArrowUp")    py += step;
+    if(e.key==="ArrowDown")  py -= step;
+
+    // límites
+    if(px < 0) px = 0;
+    if(px > 360) px = 360;
+    if(py < 0) py = 0;
+    if(py > 550) py = 550;
+
+    player.style.left = px+"px";
+    player.style.bottom = py+"px";
+});
+
+/* CREAR OBSTÁCULOS - Puedes cambiar los obstáculos aquí */
+function createObstacle(){
+    const obs = document.createElement("div");
+    obs.classList.add("obstacle");
+    obs.style.left = Math.floor(Math.random()*340) + "px";
+    obs.style.top = "-20px";
+    game.appendChild(obs);
+    obstacles.push(obs);
+}
+
+/* AUMENTO DE DIFICULTAD */
+function checkLevelUp(){
+    if(score > level * 50){
+        level++;
+        levelEl.textContent = level;
+        speed += 0.5;
+
+        // Cambio de fase del día cada 4 niveles
+        if(level % 4 === 0){
+            faseIndex = (faseIndex + 1) % fasesDia.length;
+            cambiarFaseDia();
+        }
+    }
+}
+
+/* FASES DEL DÍA */
+function cambiarFaseDia(){
+    const fase = fasesDia[faseIndex];
+    const fondo = {
+        mañana:"#aee1ff",
+        tarde:"#ffd9a1",
+        noche:"#1b1b2f",
+        amanecer:"#ffefd5",
+    };
+    game.style.background = fondo[fase];
+}
+
+/* TIMER */
+function startTimer(){
+    timerInterval = setInterval(()=>{
+        timer++;
+        timerEl.textContent = timer;
+    },1000);
+}
+
+/* LOOP DEL JUEGO */
+function gameLoop(){
+    // Crear obstáculos cada cierto tiempo
+    if(Math.random() < 0.03) createObstacle();
+
+    obstacles.forEach((obs, index)=>{
+        let y = parseInt(obs.style.top);
+        y += speed;
+        obs.style.top = y + "px";
+
+        // Colisión
+        const oRect = obs.getBoundingClientRect();
+        const pRect = player.getBoundingClientRect();
+
+        if(!(pRect.right < oRect.left ||
+             pRect.left > oRect.right ||
+             pRect.bottom < oRect.top ||
+             pRect.top > oRect.bottom)){
+            alert("¡Has perdido! Puntaje final: "+score);
+            location.reload();
+        }
+
+        // Si sale de pantalla
+        if(y > 600){
+            obs.remove();
+            obstacles.splice(index,1);
+            score += 10;
+            scoreEl.textContent = score;
+            checkLevelUp();
+        }
+    });
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* INICIAR */
+startTimer();
+gameLoop();
+
+</script>
+
+</body>
+</html>
