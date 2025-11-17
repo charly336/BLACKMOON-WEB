@@ -1,590 +1,184 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Snake — Editable (Single File)</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Editable</title>
+
 <style>
-  :root{
-    --page-bg: linear-gradient(180deg,#0b0f1a 0%, #121827 100%); /* --- EDITAR: fondo de la página --- */
-    --panel-bg: rgba(255,255,255,0.03); /* --- EDITAR: fondo del panel del juego --- */
-    --accent: #9b59b6; /* --- EDITAR: color principal (botones, bordes) --- */
-    --game-bg: #071021; /* --- EDITAR: fondo dentro del canvas (por si no usas imagen) --- */
-    --footer-bg: #06060a;
-    --text-color: #f0f4f8;
-    --ui-radius: 10px;
-  }
-
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{
-    background: var(--page-bg);
-    color:var(--text-color);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    display:flex;align-items:stretch;justify-content:center;
-    padding:16px;
-    box-sizing:border-box;
-  }
-
-  .container{
-    width:100%;
-    max-width:1200px;
+/* ==================== ESTILOS GENERALES ==================== */
+/* --------- EDITAR COLOR DE TODA LA PÁGINA AQUÍ --------- */
+body{
+    background: #0d0d0d; /* EDITAR AQUÍ - Color fondo página */
+    color:white;
+    font-family: Arial, sans-serif;
+    margin:0;
     display:flex;
     flex-direction:column;
-    gap:14px;
-  }
-
-  .top{
-    display:flex;
-    gap:14px;
-    align-items:flex-start;
-    justify-content:space-between;
-    flex-wrap:wrap;
-  }
-
-  .game-panel{
-    flex:1 1 660px;
-    min-width:280px;
-    background:var(--panel-bg);
-    padding:12px;
-    border-radius:var(--ui-radius);
-    box-shadow:0 6px 18px rgba(0,0,0,0.5);
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-
-  /* ZONA EDITABLE: cambia aquí el tamaño del canvas en píxeles base (se escala responsivamente) */
-  #canvas-wrap{
-    display:flex;
-    gap:12px;
     align-items:center;
+}
+
+/* Zona contenedora del juego */
+#container{
+    display:flex;
+    flex-direction: row;
+    gap:20px;
+    margin-top:20px;
+    width:90%;
+    max-width:1000px;
     justify-content:center;
-    width:100%;
     flex-wrap:wrap;
-  }
+}
 
-  .play-area{
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    padding:10px;border-radius:8px;
-    display:flex;align-items:center;justify-content:center;
-  }
+canvas{
+    background:#111; /* EDITAR AQUÍ - color fondo del área del juego */
+    border:3px solid #6a00ff; /* EDITAR AQUÍ - borde del área del juego */
+    border-radius:10px;
+}
 
-  canvas{
-    display:block;
-    background:var(--game-bg);
-    border-radius:8px;
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.02);
-    touch-action: none; /* para evitar desplazamiento al tocar */
-  }
+/* Imagen promocional */
+#promo{
+    width:180px; /* EDITAR TAMAÑO */
+    height:auto;
+}
 
-  .sidebar{
-    width:300px;
-    min-width:220px;
-    background:var(--panel-bg);
-    border-radius:var(--ui-radius);
-    padding:12px;
-    box-sizing:border-box;
-  }
-
-  .stats{display:flex;gap:8px;flex-wrap:wrap}
-  .stat{
-    background:rgba(255,255,255,0.02);
-    padding:8px 10px;border-radius:8px;
-    flex:1 1 120px;
+/* Footer */
+footer{
+    margin-top:30px;
+    background:#111; /* EDITAR COLOR DEL FOOTER */
+    width:100%;
+    padding:20px;
     text-align:center;
-  }
-  .controls{display:flex;gap:8px;flex-wrap:wrap}
-  button{background:var(--accent);color:white;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
-  button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-  label{font-size:13px;display:block;margin-top:8px}
+}
+footer a{
+    color:#fff;
+    margin:0 10px;
+}
 
-  /* PROMO IMAGE */
-  .promo{
-    width:300px;
-    min-width:220px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:var(--ui-radius);
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    padding:10px;
-    box-sizing:border-box;
-  }
-  .promo img{max-width:100%;border-radius:8px;display:block}
-
-  /* FOOTER */
-  footer{
-    margin-top:6px;
-    background:var(--footer-bg);
-    color:var(--text-color);
-    padding:12px;border-radius:8px;
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-  }
-  footer .links{display:flex;gap:10px}
-  footer a{color:var(--text-color);text-decoration:none;opacity:0.9}
-  /* responsive */
-  @media (max-width:980px){
-    .top{flex-direction:column}
-    .promo{order:2}
-    .sidebar{order:3;width:100%}
-  }
+/* Adaptación móvil */
+@media(max-width:700px){
+    #container{
+        flex-direction:column;
+        align-items:center;
+    }
+    #promo{
+        width:60%;
+    }
+}
 </style>
 </head>
+
 <body>
-<div class="container">
-  <div class="top">
-    <div class="game-panel" role="main" aria-label="Área del juego">
-      <h2>Snake — Black Moon Edition</h2>
 
-      <div id="canvas-wrap">
-        <div class="play-area" aria-hidden="false">
-          <!-- CANVAS: se escala automáticamente según el tamaño del contenedor -->
-          <canvas id="gameCanvas" width="480" height="480"></canvas>
-        </div>
+<h1>Snake Editable</h1>
+<p>Puntuación: <span id="score">0</span></p>
 
-        <!-- IMAGENES DENTRO DEL JUEGO (editable) -->
-        <div style="min-width:160px;">
-          <label><strong>Imágenes del juego</strong></label>
-          <div style="font-size:13px;margin-top:6px">Sube imagen para <em>comida</em> y para la <em>serpiente</em>. Si las quitas usa colores por defecto.</div>
-          <input id="foodFile" type="file" accept="image/*" />
-          <input id="snakeFile" type="file" accept="image/*" style="margin-top:6px"/>
-          <label style="font-size:13px;margin-top:10px"><input id="useImages" type="checkbox" checked /> Usar imágenes en el juego</label>
-          <div style="margin-top:10px">
-            <button id="restartBtn">Reiniciar</button>
-            <button id="pauseBtn" class="secondary">Pausar</button>
-          </div>
-        </div>
-      </div>
+<div id="container">
 
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap">
-        <div class="stats" aria-hidden="false">
-          <div class="stat"><div>Score</div><div id="score" style="font-weight:700;font-size:20px">0</div></div>
-          <div class="stat"><div>Tiempo</div><div id="timer" style="font-weight:700;font-size:20px">00:00</div></div>
-          <div class="stat"><div>Nivel</div><div id="level" style="font-weight:700;font-size:20px">1</div></div>
-        </div>
+    <!-- ==================== ÁREA DEL JUEGO ==================== -->
+    <canvas id="game" width="400" height="400"></canvas>
 
-        <div style="text-align:right;">
-          <div style="font-size:13px;opacity:0.85">Controles: Flechas / WASD / Toque & swipe</div>
-        </div>
-      </div>
-
-      <!-- ZONA EDITABLE: estilos rápidos y ajustes -->
-      <details style="margin-top:8px">
-        <summary>Configuración rápida (editar como dev)</summary>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-          <label>Velocidad (ms por tick)<input id="speedInput" type="number" value="120" style="width:100%"/></label>
-          <label>Tamaño de la cuadrícula (cells)<input id="gridSizeInput" type="number" value="24" style="width:100%"/></label>
-          <label>Color serpiente<input id="snakeColor" type="color" value="#34d399" /></label>
-          <label>Color comida<input id="foodColor" type="color" value="#ff6b6b" /></label>
-          <label>Background juego<input id="gameBg" type="color" value="#071021" /></label>
-        </div>
-        <div style="margin-top:8px;font-size:13px">* Cambios aplican al presionar "Aplicar cambios"</div>
-        <div style="margin-top:6px"><button id="applySettings">Aplicar cambios</button></div>
-      </details>
-    </div>
-
-    <!-- PROMOCIONAL: imagen al lado del juego -->
-    <div class="promo" aria-hidden="false">
-      <img id="promoImg" src="data:image/svg+xml;utf8,
-        <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
-          <rect width='100%' height='100%' fill='%230b1020' />
-          <text x='50%' y='50%' font-size='28' fill='%23ffffff' text-anchor='middle' font-family='Arial'>PROMO AQUI</text>
-        </svg>"
-        alt="Promoción" />
-    </div>
-
-    <!-- SIDEBAR con instrucciones / edición de página -->
-    <aside class="sidebar" aria-label="Controles y edición">
-      <h3>Ediciones rápidas de página</h3>
-      <label>Fondo de la página (CSS)</label>
-      <input id="pageBgInput" placeholder="linear-gradient(...)" style="width:100%" />
-      <label>Color acento</label>
-      <input id="accentInput" type="color" value="#9b59b6" />
-      <label>Imagen promocional (URL)</label>
-      <input id="promoUrl" placeholder="https://..." style="width:100%" />
-      <div style="margin-top:8px">
-        <button id="applyPage">Aplicar cambios de página</button>
-      </div>
-
-      <hr style="margin-top:12px;border:none;border-top:1px solid rgba(255,255,255,0.03)"/>
-
-      <div style="font-size:13px;margin-top:8px">
-        <strong>Notas para desarrollador</strong>
-        <ul>
-          <li>Las paredes están en modo <em>wrap-around</em> (atraviesan).</li>
-          <li>Game over ocurre solo al chocar con tu cuerpo (puedes cambiarlo).</li>
-          <li>Busca los comentarios <code>/* --- EDITAR --- */</code> en el JS para personalizar.</li>
-        </ul>
-      </div>
-    </aside>
-  </div>
-
-  <!-- FOOTER con 3 enlaces -->
-  <footer>
-    <div>© <span id="year"></span> Grupo Black Moon</div>
-    <div class="links">
-      <a href="#" id="link1">Inicio</a>
-      <a href="#" id="link2">Amigos del Aire</a>
-      <a href="#" id="link3">Contacto</a>
-    </div>
-    <div style="opacity:0.8">v1.0</div>
-  </footer>
+    <!-- ==================== IMAGEN PROMOCIONAL ==================== -->
+    <!-- --------- EDITAR AQUÍ: Cambia URL por tu imagen --------- -->
+    <img id="promo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Black_circle.svg/1200px-Black_circle.svg.png">
 </div>
 
+<footer>
+    <!-- ==================== LINKS DEL FOOTER ==================== -->
+    <!-- --------- EDITAR TEXTO / URL AQUÍ --------- -->
+    <a href="#">Link 1</a>
+    <a href="#">Link 2</a>
+    <a href="#">Link 3</a>
+</footer>
+
 <script>
-/* ------------------------------ JS DEL JUEGO ------------------------------
-   Single-file Snake. Busca "/* --- EDITAR --- */" para cambios rápidos.
-   Puntos clave:
-   - paredes atraviezan (wrap-around)
-   - game over cuando la serpiente se come a sí misma
-   - puedes subir imágenes para la comida / serpiente
-   - responsive: el canvas se reescala según contenedor
--------------------------------------------------------------------------*/
+/* ==================== CONFIGURACIÓN DEL JUEGO ==================== */
 
-(() => {
-  // --- EDITAR: Parámetros por defecto (dev puede cambiarlos desde UI o aquí)
-  let config = {
-    gridCells: 24,            // resolución de cuadrícula (n x n)
-    tickMs: 120,              // velocidad del juego en ms por tick
-    initialLength: 4,         // tamaño inicial de la serpiente
-    useImages: true,          // usar imagenes para sprite/food si están cargadas
-    snakeColor: '#34d399',
-    foodColor: '#ff6b6b',
-    gameBg: '#071021'
-  };
+/* --------- EDITAR VELOCIDAD --------- */
+let speed = 120;
 
-  // Estado del juego
-  let canvas = document.getElementById('gameCanvas');
-  let ctx = canvas.getContext('2d', { alpha: false });
-  let scoreEl = document.getElementById('score');
-  let timerEl = document.getElementById('timer');
-  let levelEl = document.getElementById('level');
-  let speedInput = document.getElementById('speedInput');
-  let gridSizeInput = document.getElementById('gridSizeInput');
-  let snakeColorInput = document.getElementById('snakeColor');
-  let foodColorInput = document.getElementById('foodColor');
-  let gameBgInput = document.getElementById('gameBg');
+/* --------- EDITAR COLOR DE LA SERPIENTE --------- */
+let snakeColor = "#00ff88";
 
-  let ctxWr = canvas.parentElement; // contenedor
+/* --------- EDITAR COLOR DE LA COMIDA --------- */
+let foodColor = "red";
 
-  const files = { snake: null, food: null };
-  const images = { snake: null, food: null };
+let canvas = document.getElementById("game");
+let ctx = canvas.getContext("2d");
 
-  // elementos UI
-  const restartBtn = document.getElementById('restartBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const useImagesCheck = document.getElementById('useImages');
-  const foodFile = document.getElementById('foodFile');
-  const snakeFile = document.getElementById('snakeFile');
-  const applySettings = document.getElementById('applySettings');
-  const applyPage = document.getElementById('applyPage');
-  const pageBgInput = document.getElementById('pageBgInput');
-  const accentInput = document.getElementById('accentInput');
-  const promoUrl = document.getElementById('promoUrl');
-  const promoImg = document.getElementById('promoImg');
+let box = 20;
+let snake = [{x:10, y:10}];
+let food = {x:5, y:5};
+let dx = 1;
+let dy = 0;
+let score = 0;
+let interval;
 
-  document.getElementById('year').textContent = new Date().getFullYear();
+/* Generar comida en posición random */
+function placeFood(){
+    food.x = Math.floor(Math.random()*20);
+    food.y = Math.floor(Math.random()*20);
+}
 
-  // Variables internas
-  let grid, cellSize, cols, rows;
-  let snake, dir, nextDir, food, score, level;
-  let running = false, paused = false;
-  let tickTimer = null;
-  let startTime = 0, elapsed = 0;
-  let touchStart = null;
+/* Dibujar juego */
+function draw(){
+    ctx.clearRect(0,0,400,400);
 
-  // --- UTIL: redimensiona canvas según contenedor y grid ---
-  function resizeCanvas() {
-    // determinamos tamaño máximo disponible (cuadrado)
-    const rect = canvas.parentElement.getBoundingClientRect();
-    const size = Math.min(rect.width - 10, Math.max(240, window.innerHeight * 0.45));
-    canvas.width = Math.floor(size);
-    canvas.height = Math.floor(size);
-    // calcular tamaño de celda tomando config.gridCells
-    cols = rows = config.gridCells;
-    cellSize = Math.floor(Math.min(canvas.width / cols, canvas.height / rows));
-    // centrar juego si canvas tiene padding extra
-    // (no necesario; usamos 0,0)
-  }
+    // Dibujar comida
+    ctx.fillStyle = foodColor;
+    ctx.fillRect(food.x * box, food.y * box, box, box);
 
-  // --- INICIAR / REINICIAR PARTIDA ---
-  function initGame() {
-    resizeCanvas();
-    score = 0; level = 1;
-    snake = [];
-    const mid = Math.floor(cols/2);
-    for (let i = 0; i < config.initialLength; i++){
-      snake.push({x: mid - i, y: mid});
-    }
-    dir = {x:1,y:0};
-    nextDir = dir;
-    placeFood();
-    running = true;
-    paused = false;
-    startTime = Date.now();
-    elapsed = 0;
-    updateStats();
-    startTick();
-  }
+    // Dibujar serpiente
+    ctx.fillStyle = snakeColor;
+    snake.forEach(part=>{
+        ctx.fillRect(part.x * box, part.y * box, box, box);
+    });
 
-  function startTick(){
-    stopTick();
-    tickTimer = setInterval(tick, config.tickMs);
-  }
-  function stopTick(){ if(tickTimer) clearInterval(tickTimer); tickTimer=null; }
-
-  function tick(){
-    if(paused || !running) return;
-    // mover
-    dir = nextDir;
-    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-
-    // --- WRAP AROUND (atravesar paredes) ---
-    if (head.x < 0) head.x = cols - 1;
-    if (head.y < 0) head.y = rows - 1;
-    if (head.x >= cols) head.x = 0;
-    if (head.y >= rows) head.y = 0;
-
-    // choque consigo mismo -> GAME OVER
-    if (snake.some(s => s.x === head.x && s.y === head.y)) {
-      gameOver();
-      return;
-    }
-
-    snake.unshift(head);
-
-    // comer
-    if (head.x === food.x && head.y === food.y) {
-      score += 10;
-      placeFood();
-      // opcional: subir nivel por puntos
-      const newLevel = Math.floor(score / 50) + 1;
-      if (newLevel > level) {
-        level = newLevel;
-        // aumentar velocidad levemente
-        config.tickMs = Math.max(40, config.tickMs - 6);
-        startTick();
-      }
-    } else {
-      snake.pop();
-    }
-    elapsed = Date.now() - startTime;
-    updateStats();
-    draw();
-  }
-
-  function gameOver(){
-    running = false;
-    stopTick();
-    alert('Game Over — puntuación: ' + score);
-  }
-
-  function updateStats(){
-    scoreEl.textContent = score;
-    levelEl.textContent = level;
-    // timer formateado mm:ss
-    const s = Math.floor(elapsed / 1000);
-    const mm = String(Math.floor(s/60)).padStart(2,'0');
-    const ss = String(s%60).padStart(2,'0');
-    timerEl.textContent = mm + ':' + ss;
-  }
-
-  // --- Colocar comida en celda libre ---
-  function placeFood(){
-    const free = [];
-    for (let x=0;x<cols;x++) for (let y=0;y<rows;y++){
-      if (!snake.some(s=>s.x===x && s.y===y)) free.push({x,y});
-    }
-    if (free.length===0) { gameOver(); return; }
-    food = free[Math.floor(Math.random()*free.length)];
-  }
-
-  // --- DIBUJOS ---
-  function draw(){
-    // fondo
-    ctx.fillStyle = config.gameBg;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    // opcional: cuadricula (desactivada por defecto)
-    // ctx.strokeStyle = 'rgba(255,255,255,0.02)';
-    // for(let i=0;i<=cols;i++){ ctx.beginPath(); ctx.moveTo(i*cellSize,0); ctx.lineTo(i*cellSize,rows*cellSize); ctx.stroke(); }
-
-    // dibujar comida
-    const fx = food.x*cellSize, fy = food.y*cellSize;
-    if (config.useImages && images.food && images.food.complete) {
-      ctx.drawImage(images.food, fx, fy, cellSize, cellSize);
-    } else {
-      ctx.fillStyle = config.foodColor;
-      ctx.fillRect(fx+2, fy+2, cellSize-4, cellSize-4);
-    }
-
-    // dibujar serpiente
-    for (let i=0;i<snake.length;i++){
-      const s = snake[i];
-      const x = s.x*cellSize, y = s.y*cellSize;
-      if (config.useImages && images.snake && images.snake.complete) {
-        // puede usar la misma imagen para cada segmento, se escala a cellSize
-        ctx.drawImage(images.snake, x, y, cellSize, cellSize);
-      } else {
-        ctx.fillStyle = config.snakeColor;
-        // cabeza con un tono más brillante
-        ctx.fillRect(x+1, y+1, cellSize-2, cellSize-2);
-        if (i===0){
-          ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-          ctx.strokeRect(x+1,y+1,cellSize-2,cellSize-2);
-        }
-      }
-    }
-  }
-
-  // --- INPUT: teclado ---
-  window.addEventListener('keydown', e => {
-    const key = e.key.toLowerCase();
-    if (key==='arrowup' || key==='w') tryChangeDir(0,-1);
-    if (key==='arrowdown' || key==='s') tryChangeDir(0,1);
-    if (key==='arrowleft' || key==='a') tryChangeDir(-1,0);
-    if (key==='arrowright' || key==='d') tryChangeDir(1,0);
-    if (key==='p') togglePause();
-  });
-
-  function tryChangeDir(x,y){
-    // evita reverso directo
-    if (dir.x === -x && dir.y === -y) return;
-    nextDir = {x,y};
-  }
-
-  // --- TOUCH / SWIPE para móviles ---
-  canvas.addEventListener('touchstart', (e) => {
-    const t = e.changedTouches[0];
-    touchStart = {x:t.clientX, y:t.clientY};
-    e.preventDefault();
-  }, {passive:false});
-  canvas.addEventListener('touchend', (e) => {
-    if (!touchStart) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx > 20) tryChangeDir(1,0);
-      else if (dx < -20) tryChangeDir(-1,0);
-    } else {
-      if (dy > 20) tryChangeDir(0,1);
-      else if (dy < -20) tryChangeDir(0,-1);
-    }
-    touchStart = null;
-  });
-
-  // --- MOUSE: click para cambiar dirección (opcional) ---
-  canvas.addEventListener('click', (e) => {
-    // click -> determinar relación al centro y cambiar
-    const rect = canvas.getBoundingClientRect();
-    const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-    const dx = e.clientX - cx, dy = e.clientY - cy;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      tryChangeDir(dx>0?1:-1, 0);
-    } else {
-      tryChangeDir(0, dy>0?1:-1);
-    }
-  });
-
-  // --- UI: archivos para imagenes ---
-  function loadImageFromFile(file, targetKey){
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        images[targetKey] = img;
-        draw();
-      };
-      img.src = reader.result;
+    // Nueva posición cabeza
+    let head = {
+        x: snake[0].x + dx,
+        y: snake[0].y + dy
     };
-    reader.readAsDataURL(file);
-  }
-  foodFile.addEventListener('change', e => {
-    const f = e.target.files[0];
-    files.food = f || null;
-    if (f) loadImageFromFile(f,'food');
-  });
-  snakeFile.addEventListener('change', e => {
-    const f = e.target.files[0];
-    files.snake = f || null;
-    if (f) loadImageFromFile(f,'snake');
-  });
 
-  // --- BOTONES ---
-  restartBtn.addEventListener('click', ()=> {
-    initGame();
-  });
-  pauseBtn.addEventListener('click', ()=> {
-    togglePause();
-  });
+    // PAREDES ATRAVESABLES
+    if(head.x < 0) head.x = 19;
+    if(head.x > 19) head.x = 0;
+    if(head.y < 0) head.y = 19;
+    if(head.y > 19) head.y = 0;
 
-  function togglePause(){
-    paused = !paused;
-    pauseBtn.textContent = paused ? 'Reanudar' : 'Pausar';
-  }
+    // Si come comida
+    if(head.x === food.x && head.y === food.y){
+        score++;
+        document.getElementById("score").innerText = score;
+        placeFood();
+    } else {
+        snake.pop();
+    }
 
-  // --- APLICAR CONFIGURACION DESDE UI (ediciones) ---
-  applySettings.addEventListener('click', ()=>{
-    const sp = Number(speedInput.value) || config.tickMs;
-    const gs = Math.max(8, Math.min(48, Number(gridSizeInput.value) || config.gridCells));
-    config.tickMs = sp;
-    config.gridCells = gs;
-    config.snakeColor = snakeColorInput.value;
-    config.foodColor = foodColorInput.value;
-    config.gameBg = gameBgInput.value;
-    config.useImages = useImagesCheck.checked;
-    resizeCanvas();
-    draw();
-    if (running) startTick();
-  });
+    // Ver si choca consigo misma
+    for(let i=0;i<snake.length;i++){
+        if(head.x === snake[i].x && head.y === snake[i].y){
+            alert("¡Perdiste! Puntaje final: "+score);
+            clearInterval(interval);
+            return;
+        }
+    }
 
-  // --- APLICAR CAMBIOS DE PAGINA (colores, promo) ---
-  applyPage.addEventListener('click', ()=>{
-    const val = pageBgInput.value.trim();
-    if (val) document.documentElement.style.setProperty('--page-bg', val);
-    const acc = accentInput.value;
-    if (acc) document.documentElement.style.setProperty('--accent', acc);
-    const url = promoUrl.value.trim();
-    if (url) promoImg.src = url;
-  });
+    // Agregar cabeza
+    snake.unshift(head);
+}
 
-  // enlaces del footer (puedes cambiar hrefs)
-  document.getElementById('link1').href = '#';
-  document.getElementById('link2').href = '#';
-  document.getElementById('link3').href = '#';
+document.addEventListener("keydown", e=>{
+    if(e.key==="ArrowUp" && dy!==1){ dx=0; dy=-1; }
+    if(e.key==="ArrowDown" && dy!==-1){ dx=0; dy=1; }
+    if(e.key==="ArrowLeft" && dx!==1){ dx=-1; dy=0; }
+    if(e.key==="ArrowRight" && dx!==-1){ dx=1; dy=0; }
+});
 
-  // resize observer para reescalar cuando cambie el layout
-  const ro = new ResizeObserver(() => {
-    const oldCell = cellSize;
-    resizeCanvas();
-    if(cellSize !== oldCell) draw();
-  });
-  ro.observe(canvas.parentElement);
-
-  // inicializar valores del UI con config
-  speedInput.value = config.tickMs;
-  gridSizeInput.value = config.gridCells;
-  snakeColorInput.value = config.snakeColor;
-  foodColorInput.value = config.foodColor;
-  gameBgInput.value = config.gameBg;
-  useImagesCheck.checked = config.useImages;
-
-  // evitar scroll con gestos en el canvas en móviles
-  document.body.addEventListener('touchmove', function(e){
-    if (e.target === canvas) e.preventDefault();
-  }, {passive:false});
-
-  // iniciar la primera partida
-  initGame();
-
-  // Exponer variables en consola para dev quick-edit (opcional)
-  window.SNAKE_DEV = { config, initGame, images, canvas, ctx, snake };
-
-  // dibujar primer frame
-  draw();
-})();
+// Iniciar
+placeFood();
+interval = setInterval(draw, speed);
 </script>
+
 </body>
 </html>
