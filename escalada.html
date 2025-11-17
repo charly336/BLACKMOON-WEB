@@ -3,155 +3,69 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Snake BlackMoon — Retro</title>
+<title>Snake BlackMoon — Retro (Funcional)</title>
 <style>
-/* ===========================
-   VARIABLES EDITABLES (CAMBIAR)
-   =========================== */
 :root{
-  --bg:#071019;                /* EDITAR: fondo general */
-  --accent:#ff4d4d;            /* EDITAR: color acento (botones, glow) */
-  --panel:#0b1220;             /* EDITAR: color panel juego/menu */
-  --text:#e6f0ff;              /* EDITAR: color texto */
-  --ui:#39ffca;                /* EDITAR: color secundario */
-  --footer:#05060a;            /* EDITAR: footer */
-  --logo-color:#ffd166;        /* EDITAR: color logo retro */
+  --bg:#071019;            /* EDITAR: fondo general */
+  --accent:#ff4d4d;        /* EDITAR: color acento */
+  --panel:#0b1220;         /* EDITAR: color panel */
+  --text:#e6f0ff;          /* EDITAR: color texto */
+  --ui:#39ffca;            /* EDITAR: color secundario */
+  --footer:#05060a;        /* EDITAR: footer */
+  --logo-color:#ffd166;    /* EDITAR: color logo retro */
 }
 
-/* RESET / LAYOUT */
+/* reset y layout */
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family: "Press Start 2P", "Courier New", Courier, monospace; -webkit-font-smoothing:antialiased}
-.container{
-  width:100%;max-width:1200px;margin:18px auto;padding:12px;
-  display:flex;flex-direction:column;gap:14px;align-items:center;
-}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Press Start 2P","Courier New",monospace;}
+.container{width:100%;max-width:1100px;margin:18px auto;padding:12px;display:flex;flex-direction:column;gap:14px;align-items:center;}
 
-/* ------- RETRO CRT + SCANLINES ------- */
-.crt {
-  position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;
-  background:linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.12) 100%);
-  mix-blend-mode:overlay;
-  z-index:40;
-}
-.crt::after{
-  content:"";position:absolute;left:0;top:0;right:0;bottom:0;
-  background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 100% 4px; opacity:0.25;
-  backdrop-filter: blur(0.6px);
-}
+/* CRT scanlines overlay */
+.crt{position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;background:linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.1));mix-blend-mode:overlay;z-index:40}
+.crt::after{content:"";position:absolute;inset:0;background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);background-size:100% 4px;opacity:0.22}
 
-/* ------- MENU PRINCIPAL (Retro gamer) ------- */
-.menu {
-  width:100%; max-width:980px; padding:28px; border-radius:12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
-  border: 2px solid rgba(255,255,255,0.03);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  display:flex;gap:18px; align-items:center; justify-content:space-between;
-  position:relative; overflow:hidden;
+/* MENU */
+.menu{
+  width:100%;max-width:980px;padding:24px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
+  border:2px solid rgba(255,255,255,0.03);display:flex;gap:18px;align-items:center;justify-content:space-between;
 }
+.logo{display:flex;flex-direction:column;gap:8px;max-width:60%}
+.logo .title{font-size:18px;color:var(--logo-color);letter-spacing:2px;animation:glitch 3s linear infinite}
+.logo .subtitle{font-size:10px;color:var(--ui)}
+@keyframes glitch{0%{transform:none}20%{transform:translateX(-1px)}40%{transform:translateX(1px)}60%{transform:translateX(-1px)}80%{transform:translateX(1px)}100%{transform:none}}
 
-/* Animated pixel logo */
-.logo {
-  width:420px; max-width:58%;
-  display:flex; flex-direction:column; gap:10px;
-  padding:8px;
-}
-.logo .title{
-  font-size:20px; letter-spacing:2px; color:var(--logo-color);
-  text-shadow: 0 0 8px rgba(255,209,102,0.12), 0 2px 0 #000;
-  transform-origin:left;
-  animation:glitch 3.6s linear infinite;
-}
-.logo .subtitle {
-  font-size:10px; opacity:0.9; color:var(--ui)
-}
+/* preview mini */
+.preview{width:180px;height:90px;border-radius:8px;background:repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0 1px, transparent 1px 8px);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.03)}
+.preview canvas{image-rendering:pixelated}
 
-/* Chip / moving snake preview (pixel-ish) */
-.preview {
-  width:220px; height:120px; border-radius:8px;
-  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 8px);
-  border: 2px solid rgba(255,255,255,0.03); display:flex;align-items:center;justify-content:center;
-  position:relative; overflow:hidden;
-}
+/* buttons */
+.btn{display:inline-block;padding:10px 14px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.05));color:var(--text);border:2px solid rgba(255,255,255,0.06);cursor:pointer;font-size:12px}
+.btn.primary{background:linear-gradient(180deg,var(--accent),#b22d2d);color:#0b0b0b;animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
 
-/* Buttons retro */
-.btn {
-  display:inline-block;padding:12px 18px;border-radius:8px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.05));
-  color:var(--text); border:2px solid rgba(255,255,255,0.06); cursor:pointer;
-  font-size:12px; letter-spacing:1px; text-transform:uppercase;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
-}
-.btn.primary {
-  background: linear-gradient(180deg, var(--accent), #b22d2d);
-  color: #0b0b0b; border-color: rgba(0,0,0,0.3);
-  box-shadow: 0 6px 30px rgba(255,77,77,0.14);
-  animation: pulse 2s infinite;
-}
+/* game area (hidden initially) */
+.game-wrap{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap;opacity:0;transform:translateY(14px);transition:all .35s cubic-bezier(.2,.9,.2,1);pointer-events:none}
+.game-wrap.visible{opacity:1;transform:none;pointer-events:auto}
 
-/* small controls */
-.menu-right { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
-.menu-right .info { font-size:12px; opacity:0.9; }
-
-/* ------- TRANSICIÓN A JUEGO ------- */
-.game-wrap { width:100%; max-width:980px; display:flex; gap:14px; align-items:flex-start; justify-content:center; flex-wrap:wrap; opacity:0; transform: translateY(18px); transition:all .45s cubic-bezier(.2,.9,.2,1); pointer-events:none; }
-.game-wrap.visible { opacity:1; transform:none; pointer-events:auto; }
-
-/* panel del juego */
-.panel {
-  background:var(--panel); padding:14px; border-radius:12px; min-width:320px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.6); display:flex; flex-direction:column; gap:12px;
-}
-
-/* canvas responsive */
-.canvas-wrap { width:520px; max-width: calc(100vw - 60px); background: #000; border-radius:8px; padding:12px; display:flex; justify-content:center; align-items:center; }
-canvas#game {
-  width:100%; height:auto; image-rendering: pixelated; border-radius:6px;
-}
+/* panel y canvas */
+.panel{background:var(--panel);padding:14px;border-radius:12px;min-width:320px;box-shadow:0 6px 20px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:12px}
+.canvas-wrap{width:520px;max-width:calc(100vw - 60px);background:#000;border-radius:8px;padding:12px;display:flex;justify-content:center;align-items:center}
+canvas#game{width:100%;height:auto;border-radius:6px;image-rendering:pixelated}
 
 /* sidebar */
-.sidebar { width:260px; min-width:220px; display:flex; flex-direction:column; gap:10px; }
-
-/* controls en juego */
-.controls { display:flex; gap:8px; flex-wrap:wrap; }
-.small { font-size:12px; padding:8px 10px; border-radius:8px; }
+.sidebar{width:240px;min-width:200px;display:flex;flex-direction:column;gap:10px}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.small{font-size:12px;padding:8px 10px;border-radius:8px}
 
 /* footer */
-footer{ width:100%; max-width:980px; margin: 12px auto 36px; background:var(--footer); padding:10px 18px; border-radius:10px; display:flex; justify-content:space-between; gap:10px; align-items:center; color:var(--text) }
-.footer-links a { color:var(--text); text-decoration:none; margin-left:10px; font-size:13px; }
+footer{width:100%;max-width:980px;margin:14px auto;background:var(--footer);padding:10px 18px;border-radius:10px;display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--text)}
+.footer-links a{color:var(--text);text-decoration:none;margin-left:10px;font-size:13px}
 
 /* responsive */
-@media (max-width:980px){
-  .logo{ max-width:60% }
-  .menu-right{ align-items:flex-start }
-  .game-wrap{ flex-direction:column; align-items:center }
-  .sidebar{ width:100% }
-}
-
-/* retro animations */
-@keyframes glitch {
-  0% { transform: translateX(0) skewX(0); }
-  10% { transform: translateX(-1px) skewX(-2deg); }
-  20% { transform: translateX(1px) skewX(1deg); }
-  30% { transform: translateX(-1px) skewX(0); }
-  100% { transform:none; }
-}
-@keyframes pulse {
-  0% { box-shadow: 0 6px 30px rgba(255,77,77,0.14); transform: translateY(0px) }
-  50% { box-shadow: 0 12px 40px rgba(255,77,77,0.22); transform: translateY(-2px) }
-  100% { box-shadow: 0 6px 30px rgba(255,77,77,0.14); transform: translateY(0px) }
-}
-
-/* small pixel effect on preview snake */
-.preview .pixel {
-  width:10px;height:10px;margin:1px;background:var(--accent);display:inline-block;
-  filter: drop-shadow(0 0 4px rgba(255,77,77,0.14));
-}
+@media (max-width:980px){.logo{max-width:60%}.game-wrap{flex-direction:column}.sidebar{width:100%}.preview{display:none}}
 </style>
 
-<!-- LOAD PIXEL FONT (Press Start 2P) - if not allowed, falls back to monospace -->
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
 </head>
 <body>
 <div class="crt" aria-hidden="true"></div>
@@ -160,67 +74,55 @@ footer{ width:100%; max-width:980px; margin: 12px auto 36px; background:var(--fo
   <!-- MENU -->
   <div class="menu" id="menu">
     <div class="logo">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <svg width="64" height="64" viewBox="0 0 64 64" style="filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));">
-          <rect x="0" y="0" width="64" height="64" rx="8" fill="#0b0b0b"></rect>
-          <g fill="none" stroke="var(--logo-color)" stroke-width="2">
-            <path d="M8 32c6-10 20-18 36-12" stroke-linecap="round"/>
-            <circle cx="12" cy="12" r="2" fill="var(--logo-color)" stroke="none"/>
-          </g>
-        </svg>
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg width="56" height="56" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="#07080a"></rect><g stroke="var(--logo-color)" stroke-width="2" fill="none"><path d="M10 34C18 22 34 16 50 20" stroke-linecap="round"/></g></svg>
         <div>
           <div class="title">S N A K E  —  B L A C K M O O N</div>
           <div class="subtitle">Retro Arcade • 8-bit vibes</div>
         </div>
       </div>
-
-      <div style="margin-top:8px; font-size:11px; opacity:0.95;">
-        <div>Controles: flechas / WASD — Móvil: swipe</div>
-        <div style="margin-top:6px; color:var(--ui)">Niveles suben cada 5 puntos — Velocidad aumenta</div>
+      <div style="margin-top:8px;font-size:11px;opacity:0.95">
+        <div>Controles: Flechas / WASD — Móvil: swipe</div>
+        <div style="margin-top:6px;color:var(--ui)">Niveles cada 5 puntos — Velocidad aumenta</div>
       </div>
     </div>
 
-    <!-- RIGHT: PREVIEW + ACTIONS -->
-    <div class="menu-right">
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
       <div class="preview" id="preview">
-        <!-- tiny canvas preview; animated snake-->
-        <canvas id="previewCanvas" width="160" height="80" style="width:160px;height:80px; image-rendering:pixelated;"></canvas>
+        <canvas id="previewCanvas" width="160" height="80"></canvas>
       </div>
-
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="btn primary" id="startBtn" title="Comenzar">COMENZAR</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" id="startBtn">COMENZAR</button>
         <button class="btn" id="optionsBtn">OPCIONES</button>
       </div>
-
-      <div style="margin-top:8px; display:flex; gap:6px; align-items:center;">
-        <div class="info" style="font-size:12px">Highscore: <strong id="highscore">0</strong></div>
-      </div>
+      <div style="margin-top:6px;font-size:12px">Highscore: <strong id="highscore">0</strong></div>
     </div>
   </div>
 
-  <!-- GAME AREA (hidden until start) -->
+  <!-- GAME (oculto hasta start) -->
   <div class="game-wrap" id="gameWrap" role="main" aria-hidden="true">
     <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div style="font-size:12px;opacity:0.9">Puntos: <strong id="score">0</strong></div>
-          <div style="font-size:12px;opacity:0.9">Nivel: <strong id="level">1</strong></div>
+          <div style="font-size:12px">Puntos: <strong id="score">0</strong></div>
+          <div style="font-size:12px">Nivel: <strong id="level">1</strong></div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="small" id="pauseBtn">Pausar</button>
           <button class="small" id="restartBtn">Reiniciar</button>
+          <button class="small" id="menuBtn">Menú</button>
         </div>
       </div>
 
       <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
         <div class="canvas-wrap">
-          <!-- EDITAR: canvas se escala; el tamaño real se calcula en JS -->
+          <!-- El tamaño real del grid se calcula en JS -->
           <canvas id="game" width="360" height="360"></canvas>
         </div>
 
         <aside class="sidebar">
-          <div style="font-size:12px">Configuración rápida (editar como dev):</div>
-          <label style="font-size:12px;margin-top:6px">Velocidad base (ms por tick)
+          <div style="font-size:12px">Configuración rápida:</div>
+          <label style="font-size:12px">Velocidad base (ms por tick)
             <input id="speedInput" type="number" value="140" style="width:100%;margin-top:6px"/>
           </label>
           <label style="font-size:12px">Tamaño cuadrícula (cols)
@@ -235,49 +137,49 @@ footer{ width:100%; max-width:980px; margin: 12px auto 36px; background:var(--fo
           <div style="display:flex;gap:8px;margin-top:8px">
             <button class="small" id="applyBtn">Aplicar</button>
           </div>
+          <div style="margin-top:8px;font-size:12px;opacity:0.9">
+            <strong>Notas:</strong>
+            <ul style="padding-left:18px;margin:6px 0;">
+              <li>Paredes atraviesan; choque consigo misma = fin.</li>
+              <li>Buscar comentarios /* EDITAR */ en el código para cambiarlo.</li>
+            </ul>
+          </div>
         </aside>
       </div>
     </div>
 
-    <!-- PROMO / INFO a la derecha -->
     <div class="panel" style="min-width:220px">
       <div style="font-size:13px;margin-bottom:8px">Promoción</div>
       <img id="promoImg" src="https://i.imgur.com/3YQZ5kr.png" alt="Promo" style="width:100%;border-radius:8px;display:block" />
-      <div style="margin-top:10px;font-size:12px;opacity:0.9">
-        <strong>Notas para dev:</strong>
-        <ul style="padding-left:18px;margin:8px 0;">
-          <li>Busca comentarios <!-- EDITAR --> en el código JS/CSS para personalizar.</li>
-          <li>Paredes atraviesan; choque = consigo misma.</li>
-        </ul>
-      </div>
+      <div style="margin-top:10px;font-size:12px;opacity:0.9"><strong>Para dev:</strong> cambiar variables JS en el bloque CONFIG (/* EDITAR */).</div>
     </div>
   </div>
 
-  <!-- FOOTER -->
   <footer>
     <div>© <span id="year"></span> Grupo Black Moon</div>
     <div class="footer-links">
       <a href="#" id="f1">Inicio</a>
       <a href="#" id="f2">Amigos del Aire</a>
       <a href="#" id="f3">Podcast</a>
-      <a href="#" id="f4">Contacto</a> <!-- CUARTO LINK -->
+      <a href="#" id="f4">Contacto</a>
     </div>
   </footer>
 </div>
 
 <script>
 /* ============================
-   SNAKE BLACKMOON - JS
-   - Menú Retro con preview (previewCanvas)
+   SNAKE BLACKMOON — FUNCIONAL
+   - Menú retro con preview
    - Transición a juego
-   - Pause / Restart
-   - Niveles: sube cada 5 puntos -> acelera
-   - Edit locations marked with comments "/* EDITAR */"
+   - Pausa / Reiniciar / Volver a menú
+   - Niveles (cada 5 puntos)
+   - Highscore en localStorage
+   - Comentarios /* EDITAR */ donde cambiar
    ============================ */
 
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* ---------- UI ELEMENTS ---------- */
+/* ---------- ELEMENTOS UI ---------- */
 const menu = document.getElementById('menu');
 const startBtn = document.getElementById('startBtn');
 const previewCanvas = document.getElementById('previewCanvas');
@@ -287,6 +189,7 @@ const gameCanvas = document.getElementById('game');
 const ctx = gameCanvas.getContext('2d');
 const pauseBtn = document.getElementById('pauseBtn');
 const restartBtn = document.getElementById('restartBtn');
+const menuBtn = document.getElementById('menuBtn');
 const scoreEl = document.getElementById('score');
 const levelEl = document.getElementById('level');
 const highscoreEl = document.getElementById('highscore');
@@ -295,16 +198,16 @@ const applyBtn = document.getElementById('applyBtn');
 let highscore = Number(localStorage.getItem('bm_highscore') || 0);
 highscoreEl.textContent = highscore;
 
-/* ---------- GAME CONFIG (EDITAR AQUÍ si deseas) ---------- */
+/* ---------- CONFIG (/* EDITAR */) ---------- */
 let config = {
-  grid: 20,                 // columnas/filas (cuadrícula)
-  baseTickMs: 140,          // velocidad base en ms por tick (menor = más rápido)
-  snakeColor: '#33ff55',    // color serpiente
-  foodColor: '#ff4d4d'      // color comida
+  grid: 20,                // columnas/filas
+  baseTickMs: 140,         // velocidad base (ms per tick) - menor = más rápido
+  snakeColor: '#33ff55',   // color serpiente
+  foodColor: '#ff4d4d'     // color comida
 };
-/* ---------- end EDITAR ---------- */
+/* ---------- FIN EDITAR ---------- */
 
-/* ---------- STATE ---------- */
+/* ---------- ESTADO ---------- */
 let state = {
   running:false,
   paused:false,
@@ -315,54 +218,49 @@ let state = {
   score:0,
   level:1,
   tickMs: config.baseTickMs,
-  tickTimer:null,
+  tickId: null,
   cols: config.grid,
   rows: config.grid,
   box:16
 };
 
-/* Resize canvas to fit wrap and compute box size */
+/* ---------- TAMAÑO DEL CANVAS y caja (se ejecuta en start y resize) ---------- */
 function resizeGameCanvas(){
-  // choose size based on container .canvas-wrap width
+  // ancho disponible dentro de canvas-wrap (CSS controla max width)
   const wrap = document.querySelector('.canvas-wrap');
   const maxWidth = Math.min(520, wrap.clientWidth);
-  // keep square
   gameCanvas.width = maxWidth;
   gameCanvas.height = maxWidth;
-  // compute cell size (integer)
   state.cols = Number(document.getElementById('gridInput').value) || config.grid;
   state.rows = state.cols;
   state.box = Math.floor(gameCanvas.width / state.cols);
-  // ensure canvas uses pixelated rendering (works with CSS)
-  // adjust internal canvas resolution to exact multiple to avoid blur
 }
 
-/* ---------- DRAWING ---------- */
-function clearCtx(c, color='#000'){
+/* ---------- UTIL: limpiar ---------- */
+function clearCtx(c, color = '#000'){
   c.fillStyle = color;
   c.fillRect(0,0,c.canvas.width,c.canvas.height);
 }
 
+/* ---------- DIBUJOS ---------- */
 function drawGame(){
-  // clear
   clearCtx(ctx,'#000');
-  // draw food
+  // comida
   ctx.fillStyle = config.foodColor;
   const fx = state.food.x * state.box, fy = state.food.y * state.box;
-  ctx.fillRect(fx, fy, state.box-1, state.box-1);
+  ctx.fillRect(fx, fy, state.box - 1, state.box - 1);
 
-  // draw snake
+  // serpiente
   for (let i=0;i<state.snake.length;i++){
     const p = state.snake[i];
     const x = p.x * state.box, y = p.y * state.box;
     ctx.fillStyle = (i===0) ? shadeColor(config.snakeColor, -8) : config.snakeColor;
-    ctx.fillRect(x, y, state.box-1, state.box-1);
-    // slight highlight for head
-    if (i===0){ ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.strokeRect(x,y,state.box-1,state.box-1);}
+    ctx.fillRect(x, y, state.box - 1, state.box - 1);
+    if (i===0){ ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.strokeRect(x,y,state.box-1,state.box-1); }
   }
 }
 
-/* ---------- GAME LOGIC ---------- */
+/* ---------- LÓGICA ---------- */
 function placeFood(){
   const free = [];
   for (let x=0;x<state.cols;x++) for (let y=0;y<state.rows;y++){
@@ -374,7 +272,6 @@ function placeFood(){
 
 function step(){
   if (!state.running || state.paused) return;
-  // move direction
   state.dir = state.nextDir;
   const head = { x: state.snake[0].x + state.dir.x, y: state.snake[0].y + state.dir.y };
 
@@ -384,25 +281,24 @@ function step(){
   if (head.y < 0) head.y = state.rows - 1;
   if (head.y >= state.rows) head.y = 0;
 
-  // collision with self?
+  // colisión consigo misma?
   if (state.snake.some(s => s.x===head.x && s.y===head.y)){
-    // game over
     gameOver();
     return;
   }
 
   state.snake.unshift(head);
 
-  // eat food?
+  // comer?
   if (head.x === state.food.x && head.y === state.food.y){
     state.score += 1;
     scoreEl.textContent = state.score;
-    // level-up every 5 points
-    const newLevel = Math.floor(state.score/5) + 1;
+    // nivel cada 5 puntos
+    const newLevel = Math.floor(state.score / 5) + 1;
     if (newLevel > state.level){
       state.level = newLevel;
       levelEl.textContent = state.level;
-      // increase speed
+      // acelerar: reducir tickMs un 15% (no menos de 50ms)
       state.tickMs = Math.max(50, Math.floor(state.tickMs * 0.85));
       restartTick();
     }
@@ -410,9 +306,43 @@ function step(){
   } else {
     state.snake.pop();
   }
+
   drawGame();
 }
 
+/* ---------- START / STOP TICK ---------- */
+function startTick(){
+  stopTick();
+  state.tickId = setInterval(step, state.tickMs);
+}
+function stopTick(){
+  if (state.tickId){ clearInterval(state.tickId); state.tickId = null; }
+}
+function restartTick(){
+  stopTick();
+  if (state.running && !state.paused) startTick();
+}
+
+/* ---------- INICIAR NUEVO JUEGO ---------- */
+function initNewGame(){
+  state.cols = Number(document.getElementById('gridInput').value) || config.grid;
+  state.rows = state.cols;
+  // reset snake
+  state.snake = [];
+  const mid = Math.floor(state.cols/2);
+  for (let i=0;i<4;i++) state.snake.push({x: mid - i, y: mid});
+  state.dir = {x:1,y:0}; state.nextDir = {x:1,y:0};
+  state.score = 0; state.level = 1;
+  state.tickMs = Number(document.getElementById('speedInput').value) || config.baseTickMs;
+  scoreEl.textContent = state.score; levelEl.textContent = state.level;
+  resizeGameCanvas();
+  placeFood();
+  drawGame();
+  state.running = true; state.paused = false;
+  startTick();
+}
+
+/* ---------- GAME OVER ---------- */
 function gameOver(){
   state.running = false;
   stopTick();
@@ -423,66 +353,24 @@ function gameOver(){
       localStorage.setItem('bm_highscore', String(highscore));
       highscoreEl.textContent = highscore;
     }
-    // volver al menu con transición (mantiene highscore)
     showMenu();
-  }, 60);
+  }, 40);
 }
 
-/* ---------- TICKER CONTROL ---------- */
-function startTick(){
-  stopTick();
-  state.tickTimer = setInterval(step, state.tickMs);
-}
-function stopTick(){
-  if (state.tickTimer){ clearInterval(state.tickTimer); state.tickTimer = null; }
-}
-function restartTick(){
-  stopTick();
-  if (state.running && !state.paused) startTick();
-}
-
-/* ---------- INIT / START / RESTART ---------- */
-function initNewGame(){
-  // initialize snake center
-  state.cols = Number(document.getElementById('gridInput').value) || config.grid;
-  state.rows = state.cols;
-  state.snake = [];
-  const mid = Math.floor(state.cols/2);
-  for (let i=0;i<4;i++) state.snake.push({x:mid - i, y:mid});
-  state.dir = {x:1,y:0}; state.nextDir = {x:1,y:0};
-  state.score = 0; state.level = 1; state.tickMs = Number(document.getElementById('speedInput').value) || config.baseTickMs;
-  scoreEl.textContent = state.score; levelEl.textContent = state.level;
-  placeFood();
-  resizeGameCanvas();
-  drawGame();
-  state.running = true; state.paused = false;
-  startTick();
-}
-
-/* ---------- MENU / TRANSITIONS ---------- */
+/* ---------- MENU / TRANSICION ---------- */
 function showGame(){
-  menu.style.opacity = '0'; menu.style.transform = 'translateY(-8px)'; menu.style.pointerEvents = 'none';
-  setTimeout(()=> {
-    menu.style.display = 'none';
-    gameWrap.classList.add('visible');
-    gameWrap.setAttribute('aria-hidden','false');
-    // start game
-    initNewGame();
-  }, 260);
+  menu.style.transition = 'all .22s ease'; menu.style.opacity = '0'; menu.style.pointerEvents = 'none';
+  setTimeout(()=>{ menu.style.display='none'; gameWrap.classList.add('visible'); gameWrap.setAttribute('aria-hidden','false'); initNewGame(); }, 240);
 }
 function showMenu(){
   stopTick();
   state.running = false;
   gameWrap.classList.remove('visible');
-  setTimeout(()=>{
-    menu.style.display = 'flex';
-    menu.style.opacity = '1';
-    menu.style.transform = 'none';
-  }, 220);
+  setTimeout(()=>{ menu.style.display='flex'; menu.style.opacity='1'; menu.style.pointerEvents='auto'; }, 240);
 }
 
-/* ---------- INPUT / CONTROLS ---------- */
-document.addEventListener('keydown', (e) => {
+/* ---------- CONTROLES ---------- */
+document.addEventListener('keydown', (e)=>{
   if (!state.running && (e.key === 'Enter' || e.key === ' ')) startBtn.click();
   const k = e.key.toLowerCase();
   if (k === 'arrowup' || k === 'w') tryDir(0,-1);
@@ -493,98 +381,78 @@ document.addEventListener('keydown', (e) => {
 });
 
 function tryDir(x,y){
-  // prevent reversing
   if (state.dir.x === -x && state.dir.y === -y) return;
   state.nextDir = {x,y};
 }
 
-/* TOUCH SWIPE for mobile */
+/* TOUCH SWIPE */
 let touchStart = null;
-gameCanvas.addEventListener('touchstart',(e)=>{ const t=e.changedTouches[0]; touchStart={x:t.clientX,y:t.clientY}; }, {passive:true});
-gameCanvas.addEventListener('touchend',(e)=>{ if(!touchStart) return; const t=e.changedTouches[0]; const dx=t.clientX-touchStart.x, dy=t.clientY-touchStart.y; if(Math.abs(dx)>Math.abs(dy)){ if(dx>20) tryDir(1,0); else if(dx<-20) tryDir(-1,0);} else { if(dy>20) tryDir(0,1); else if(dy<-20) tryDir(0,-1);} touchStart=null; }, {passive:true});
+gameCanvas.addEventListener('touchstart', (e)=>{ const t=e.changedTouches[0]; touchStart={x:t.clientX,y:t.clientY}; }, {passive:true});
+gameCanvas.addEventListener('touchend', (e)=>{ if(!touchStart) return; const t=e.changedTouches[0]; const dx=t.clientX-touchStart.x, dy=t.clientY-touchStart.y; if(Math.abs(dx)>Math.abs(dy)){ if(dx>20) tryDir(1,0); else if(dx<-20) tryDir(-1,0);} else { if(dy>20) tryDir(0,1); else if(dy<-20) tryDir(0,-1);} touchStart=null; }, {passive:true});
 
-/* ---------- BUTTONS ---------- */
-startBtn.addEventListener('click', ()=> { showGame(); });
-pauseBtn.addEventListener('click', togglePause);
+/* ---------- BOTONES ---------- */
+startBtn.addEventListener('click', showGame);
+pauseBtn.addEventListener('click', ()=>{ if (!state.running) return; state.paused = !state.paused; pauseBtn.textContent = state.paused ? 'Continuar' : 'Pausar'; if (state.paused) stopTick(); else startTick(); });
 restartBtn.addEventListener('click', ()=>{ initNewGame(); });
+menuBtn.addEventListener('click', ()=>{ if(confirm('Volver al menú? Se perderá la partida actual.')) showMenu(); });
 
-function togglePause(){
-  if (!state.running) return;
-  state.paused = !state.paused;
-  pauseBtn.textContent = state.paused ? 'Continuar' : 'Pausar';
-  if (state.paused) stopTick(); else startTick();
-}
-
-/* ---------- APPLY SETTINGS FROM UI ---------- */
 applyBtn.addEventListener('click', ()=>{
-  // update config
+  // actualizar config y reiniciar si está corriendo
   config.grid = Number(document.getElementById('gridInput').value) || config.grid;
   config.baseTickMs = Number(document.getElementById('speedInput').value) || config.baseTickMs;
   config.snakeColor = document.getElementById('snakeColorInput').value || config.snakeColor;
   config.foodColor = document.getElementById('foodColorInput').value || config.foodColor;
-  // apply and restart if running
+  // aplicar visuales
   if (state.running) initNewGame();
 });
 
-/* ---------- PREVIEW ANIMATION (in menu) ---------- */
+/* ---------- PREVIEW (menú) ---------- */
 function runPreview(){
   const pCols = 16, pRows = 8;
-  const pBoxX = previewCanvas.width / pCols;
-  const pBoxY = previewCanvas.height / pRows;
+  const pW = previewCanvas.width, pH = previewCanvas.height;
+  const pBoxX = Math.floor(pW / pCols), pBoxY = Math.floor(pH / pRows);
   let psnake = [{x:2,y:3},{x:1,y:3},{x:0,y:3}];
   let pd = {x:1,y:0};
   setInterval(()=>{
     // move
     const head = {x: (psnake[0].x + pd.x + pCols)%pCols, y: (psnake[0].y + pd.y + pRows)%pRows};
-    psnake.unshift(head);
-    psnake.pop();
-    // occasionally change direction
-    if (Math.random()<0.12){
+    psnake.unshift(head); psnake.pop();
+    if (Math.random() < 0.12){
       const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
       pd = dirs[Math.floor(Math.random()*4)];
     }
     // draw
-    previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
-    previewCtx.fillStyle = '#06121a';
-    previewCtx.fillRect(0,0,previewCanvas.width, previewCanvas.height);
+    previewCtx.fillStyle = '#071018';
+    previewCtx.fillRect(0,0,pW,pH);
+    // random food sparkle
     previewCtx.fillStyle = config.foodColor;
-    previewCtx.fillRect( (Math.floor(Math.random()*pCols))*pBoxX, (Math.floor(Math.random()*pRows))*pBoxY, pBoxX-2, pBoxY-2);
+    previewCtx.fillRect( (Math.floor(Math.random()*pCols))*pBoxX, (Math.floor(Math.random()*pRows))*pBoxY, pBoxX-1, pBoxY-1);
     previewCtx.fillStyle = config.snakeColor;
-    psnake.forEach((p,i)=> previewCtx.fillRect(p.x*pBoxX, p.y*pBoxY, pBoxX-2, pBoxY-2));
+    psnake.forEach((p,i)=> previewCtx.fillRect(p.x*pBoxX, p.y*pBoxY, pBoxX-1, pBoxY-1));
   }, 220);
 }
 
-/* ---------- UTIL ---------- */
-function shadeColor(col, percent) {
-  // simple shade function, accepts hex like "#33ff55"
-  let f=parseInt(col.slice(1),16),t=percent<0?0:255,p= Math.abs(percent)/100;
+/* ---------- UTILS ---------- */
+function shadeColor(col, percent){
+  let f=parseInt(col.slice(1),16), t=percent<0?0:255, p=Math.abs(percent)/100;
   let R=f>>16, G=(f>>8)&0x00FF, B=f&0x0000FF;
-  let newR = Math.round((t-R)*p)+R;
-  let newG = Math.round((t-G)*p)+G;
-  let newB = Math.round((t-B)*p)+B;
-  return '#'+( (1<<24) + (newR<<16) + (newG<<8) + (newB) ).toString(16).slice(1);
+  let newR = Math.round((t-R)*p)+R, newG=Math.round((t-G)*p)+G, newB=Math.round((t-B)*p)+B;
+  return '#'+( (1<<24)+(newR<<16)+(newG<<8)+newB ).toString(16).slice(1);
 }
 
-/* ---------- WINDOW RESIZE ---------- */
-window.addEventListener('resize', ()=> {
-  resizeGameCanvas();
-  drawGame();
-});
+/* ---------- RESIZE ---------- */
+window.addEventListener('resize', ()=>{ if (state.running) { resizeGameCanvas(); drawGame(); } });
 
-/* ---------- INITIAL SETUP ---------- */
+/* ---------- BOOT ---------- */
 (function boot(){
-  // load inputs with config
   document.getElementById('gridInput').value = config.grid;
   document.getElementById('speedInput').value = config.baseTickMs;
   document.getElementById('snakeColorInput').value = config.snakeColor;
   document.getElementById('foodColorInput').value = config.foodColor;
-  // preview animation
   runPreview();
-  // set initial canvas sizes
   resizeGameCanvas();
-  // draw placeholder
   clearCtx(ctx,'#000');
-  ctx.fillStyle = '#222'; ctx.fillRect(10,10,gameCanvas.width-20, gameCanvas.height-20);
+  ctx.fillStyle = '#111'; ctx.fillRect(8,8,gameCanvas.width-16, gameCanvas.height-16);
 })();
 </script>
 </body>
