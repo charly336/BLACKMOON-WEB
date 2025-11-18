@@ -2,117 +2,151 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tic Tac Toe Personalizable</title>
+<title>Tic Tac Toe Mejorado</title>
 <style>
 
 body {
-    font-family: Arial, sans-serif;
+    margin: 0;
+    background: var(--bg, #e2c9a6);
+    font-family: Arial;
     display: flex;
     justify-content: center;
-    margin-top: 40px;
-    background: #e2c9a6;
+    padding: 20px;
 }
 
-/* CONTENEDOR PRINCIPAL */
+/* ---------------- THEMES ---------------- */
+.light {
+    --bg: #f5e9d2;
+    --board: #fff5e1;
+    --hover: #f0ddbc;
+    --text: #3b2a17;
+}
+.dark {
+    --bg: #222;
+    --board: #444;
+    --hover: #555;
+    --text: #fff;
+}
+.blue {
+    --bg: #d0e6ff;
+    --board: #f0f7ff;
+    --hover: #cfe0f7;
+    --text: #002859;
+}
+
+/* ---------------- LAYOUT ---------------- */
 .container {
     display: flex;
-    gap: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-/* MARCO DE MADERA */
 .marco {
-    padding: 20px;
     background: url('https://i.imgur.com/UN1MhlK.jpeg');
     background-size: cover;
-    border: 10px solid #7a541e;
+    border: 8px solid #7a541e;
     border-radius: 12px;
+    padding: 20px;
+    animation: fadeIn 0.5s ease-out;
+    color: var(--text);
 }
 
-/* TABLERO */
+/* Animación */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
 .tablero {
     display: grid;
     grid-template-columns: repeat(3, 100px);
-    grid-template-rows: repeat(3, 100px);
     gap: 5px;
+}
+
+/* Responsive */
+@media(max-width:600px) {
+    .tablero {
+        grid-template-columns: repeat(3, 80px);
+    }
+    .casilla {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 40px !important;
+    }
 }
 
 .casilla {
     width: 100px;
     height: 100px;
-    background: #fff5e1;
+    background: var(--board);
+    border-radius: 10px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 48px;
+    align-items: center;
     cursor: pointer;
-    border-radius: 8px;
-    transition: background 0.2s;
+    font-size: 48px;
+    transition: 0.2s;
 }
-
 .casilla:hover {
-    background: #f0ddbc;
+    background: var(--hover);
 }
 
-/* PANEL DE CONFIGURACIÓN */
-.config {
-    margin-bottom: 10px;
-}
-
-/* IMAGEN PROMOCIONAL */
+/* Imagen */
 .promo img {
     width: 220px;
     border-radius: 12px;
     border: 4px solid #8b5a2b;
 }
 
-/* FOOTER */
+/* Footer */
 footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: #c7a676;
-    padding: 10px 0;
+    margin-top: 20px;
     text-align: center;
-    border-top: 3px solid #7a541e;
+    width: 100%;
 }
 
 footer a {
-    margin: 0 20px;
+    margin: 0 15px;
+    color: var(--text);
     font-weight: bold;
-    color: #4b2e12;
-    text-decoration: none;
 }
 
-footer a:hover {
-    text-decoration: underline;
+/* Selector */
+select, input {
+    margin: 5px 0;
 }
 
 </style>
 </head>
-<body>
+
+<body class="light">
 
 <div class="container">
 
-    <!-- Zona del juego con marco -->
     <div class="marco">
+        <h2 id="nivel"></h2>
 
-        <!-- Configuración X y O -->
-        <div class="config">
-            Cruz: <input id="cruz" value="X" size="2">  
-            &nbsp;&nbsp;
-            Círculo: <input id="circulo" value="O" size="2">
-        </div>
+        <!-- Selector de tema -->
+        <label>Tema: </label>
+        <select id="tema" onchange="cambiarTema()">
+            <option value="light">Claro</option>
+            <option value="dark">Oscuro</option>
+            <option value="blue">Azul</option>
+        </select>
+        <br>
 
-        <h2 id="nivel">Nivel: 1</h2>
-        <div id="tablero" class="tablero"></div>
+        <!-- Selector de símbolos -->
+        Cruz: <input id="cruz" value="X" size="2">
+        Círculo: <input id="circulo" value="O" size="2">
+
         <h3 id="mensaje"></h3>
+
+        <div id="tablero" class="tablero"></div>
     </div>
 
-    <!-- Imagen promocional -->
     <div class="promo">
         <img src="https://i.imgur.com/QKmOe4N.jpeg" alt="Promo">
     </div>
-
 </div>
 
 <footer>
@@ -121,70 +155,143 @@ footer a:hover {
     <a href="#">Más juegos</a>
 </footer>
 
-<script>
-let jugador = "X";
-let nivel = 1;
+<!-- ---------------- SOUNDS ---------------- -->
+<audio id="sndClick" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3"></audio>
+<audio id="sndWin"   src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
+<audio id="sndLose"  src="https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3"></audio>
+<audio id="sndDraw"  src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-notification-212.mp3"></audio>
 
-const tablero = document.getElementById("tablero");
+<script>
+let nivel = Number(localStorage.getItem("nivel")) || 1;
+let jugador = "X";
+let CPU = "O";
+let celdas = [];
 const msg = document.getElementById("mensaje");
 const nivelTxt = document.getElementById("nivel");
+const tablero = document.getElementById("tablero");
 
-let celdas = ["", "", "", "", "", "", "", "", ""];
+function actualizarNivel() {
+    nivelTxt.textContent = "Nivel: " + nivel;
+    localStorage.setItem("nivel", nivel);
+}
 
+actualizarNivel();
+
+/* ---------------- TABLERO ---------------- */
 function crearTablero() {
     tablero.innerHTML = "";
-    celdas = ["", "", "", "", "", "", "", "", ""];
+    celdas = Array(9).fill("");
 
     for (let i = 0; i < 9; i++) {
-        const casilla = document.createElement("div");
-        casilla.className = "casilla";
-        casilla.dataset.index = i;
-        casilla.onclick = () => jugar(i);
-        tablero.appendChild(casilla);
-    }
-}
-
-function jugar(i) {
-    if (celdas[i] !== "") return;
-
-    const simboloX = document.getElementById("cruz").value;
-    const simboloO = document.getElementById("circulo").value;
-
-    celdas[i] = jugador;
-    document.querySelector(`[data-index='${i}']`).textContent =
-        jugador === "X" ? simboloX : simboloO;
-
-    if (revisarGanador()) {
-        msg.textContent = `¡Jugador ${jugador} ha ganado! Pasas al siguiente nivel.`;
-        nivel++;
-        nivelTxt.textContent = "Nivel: " + nivel;
-        setTimeout(crearTablero, 1500);
-        return;
+        let d = document.createElement("div");
+        d.className = "casilla";
+        d.dataset.i = i;
+        d.onclick = () => moverHumano(i);
+        tablero.appendChild(d);
     }
 
-    if (celdas.every(c => c !== "")) {
-        msg.textContent = "Empate. Nivel se reinicia.";
-        setTimeout(crearTablero, 1500);
-        return;
-    }
-
-    jugador = jugador === "X" ? "O" : "X";
-}
-
-function revisarGanador() {
-    const lineas = [
-        [0,1,2], [3,4,5], [6,7,8],
-        [0,3,6], [1,4,7], [2,5,8],
-        [0,4,8], [2,4,6]
-    ];
-    return lineas.some(([a,b,c]) => 
-        celdas[a] && celdas[a] === celdas[b] && celdas[a] === celdas[c]
-    );
+    msg.textContent = "";
 }
 
 crearTablero();
+
+/* ---------------- JUGADAS ---------------- */
+
+function moverHumano(i) {
+    if (celdas[i]) return;
+
+    let X = document.getElementById("cruz").value;
+    let O = document.getElementById("circulo").value;
+
+    document.getElementById("sndClick").play();
+
+    celdas[i] = "X";
+    document.querySelector(`[data-i="${i}"]`).textContent = X;
+
+    if (ganar("X")) return victoriaHumano();
+    if (lleno()) return empate();
+
+    setTimeout(() => moverCPU(O), 300);
+}
+
+function moverCPU(O) {
+    let mov = mejorMovimiento();
+    celdas[mov] = "O";
+    document.querySelector(`[data-i="${mov}"]`).textContent = O;
+
+    if (ganar("O")) return derrota();
+    if (lleno()) return empate();
+}
+
+/* ---------------- IA SIMPLE ---------------- */
+function mejorMovimiento() {
+    // 1: ganar
+    let g = jugadaCritica("O");
+    if (g !== null) return g;
+
+    // 2: bloquear
+    let b = jugadaCritica("X");
+    if (b !== null) return b;
+
+    // 3: casilla aleatoria
+    let libres = celdas.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+    return libres[Math.floor(Math.random() * libres.length)];
+}
+
+function jugadaCritica(simbolo) {
+    const lineas = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],
+                    [1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+    for (let [a,b,c] of lineas) {
+        let L = [celdas[a], celdas[b], celdas[c]];
+        if (L.filter(x => x === simbolo).length === 2 && L.includes("")) {
+            return [a,b,c][L.indexOf("")];
+        }
+    }
+    return null;
+}
+
+/* ---------------- REGLAS ---------------- */
+function ganar(p) {
+    const L = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return L.some(([a,b,c]) => celdas[a] === p && celdas[b] === p && celdas[c] === p);
+}
+
+function lleno() {
+    return celdas.every(c => c !== "");
+}
+
+/* ---------------- RESULTADOS ---------------- */
+
+function victoriaHumano() {
+    document.getElementById("sndWin").play();
+    msg.textContent = "¡Ganaste! +1 nivel 🎉";
+    nivel++;
+    actualizarNivel();
+    setTimeout(crearTablero, 1500);
+}
+
+function derrota() {
+    document.getElementById("sndLose").play();
+    msg.textContent = "La máquina ganó. Nivel reiniciado.";
+    nivel = 1;
+    actualizarNivel();
+    setTimeout(crearTablero, 1500);
+}
+
+function empate() {
+    document.getElementById("sndDraw").play();
+    msg.textContent = "Empate.";
+    setTimeout(crearTablero, 1500);
+}
+
+/* ---------------- TEMAS ---------------- */
+function cambiarTema() {
+    let t = document.getElementById("tema").value;
+    document.body.className = t;
+}
+
 </script>
 
 </body>
 </html>
-
