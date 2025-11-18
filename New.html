@@ -2,77 +2,190 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Aerial Rhythm</title>
+<title>Aerial Rhythm – Black Moon Edition</title>
 <style>
     body {
         margin: 0;
-        background: linear-gradient(180deg, #0a0f1f, #140a1f);
+        background: linear-gradient(180deg, #090a20, #150021, #090a20);
         font-family: Arial, sans-serif;
         color: #fff;
         text-align: center;
         overflow: hidden;
     }
 
+    h1 {
+        font-size: 40px;
+        margin-top: 20px;
+        text-shadow: 0 0 18px #a200ff;
+    }
+
+    #menu, #gameUI {
+        display: none;
+    }
+
+    #menu {
+        margin-top: 60px;
+    }
+
+    button {
+        padding: 15px 30px;
+        margin: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #7a00ff;
+        color: #fff;
+        box-shadow: 0 0 15px #7a00ff;
+        transition: 0.2s;
+    }
+    button:hover {
+        transform: scale(1.1);
+    }
+
     #gameArea {
         width: 90%;
-        height: 400px;
+        height: 430px;
         border: 3px solid #ffffff55;
         margin: 20px auto;
         position: relative;
         overflow: hidden;
         background: rgba(255,255,255,0.05);
         border-radius: 15px;
+        box-shadow: 0 0 20px #7a00ff;
     }
 
     .note {
-        width: 60px;
-        height: 60px;
+        width: 65px;
+        height: 65px;
         border-radius: 50%;
         position: absolute;
         top: -70px;
-        left: calc(50% - 30px);
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 28px;
+        font-size: 30px;
         font-weight: bold;
         color: #fff;
-        opacity: 0.9;
+        opacity: 0.95;
+        animation: glow 1s infinite alternate;
     }
 
-    .up    { background: #6a00ff; }
+    @keyframes glow {
+        from { box-shadow: 0 0 10px #fff; }
+        to   { box-shadow: 0 0 25px #fff; }
+    }
+
+    .up    { background: #7200ff; }
     .down  { background: #ff009d; }
-    .left  { background: #00d9ff; }
+    .left  { background: #00c8ff; }
     .right { background: #ffae00; }
 
-    #score {
-        font-size: 26px;
-        margin-top: 10px;
+    #score, #combo, #levelLabel {
+        font-size: 22px;
+        margin: 5px;
+        text-shadow: 0 0 10px #fff;
     }
 
     #hitLine {
         width: 90%;
-        height: 5px;
+        height: 6px;
         background: #ffffffaa;
         margin: 0 auto;
         position: relative;
-        top: -20px;
+        top: -15px;
     }
+
 </style>
 </head>
 <body>
 
-<h1>Aerial Rhythm</h1>
-<p>Sigue el ritmo presionando las flechas correctas cuando la nota cruce la línea</p>
-<div id="score">Puntuación: 0</div>
+<h1>Aerial Rhythm – Black Moon Edition</h1>
 
-<div id="gameArea">
-    <div id="hitLine"></div>
+<!-- MENU PRINCIPAL -->
+<div id="menu">
+    <h2>Selecciona una canción</h2>
+
+    <button onclick="startGame('song1.mp3')">Canción 1</button>
+    <button onclick="startGame('song2.mp3')">Canción 2</button>
+    <button onclick="startGame('song3.mp3')">Canción 3</button>
+    <button onclick="startGame('song4.mp3')">Canción 4</button>
+
+    <br><br>
+    <button onclick="startGame('song1.mp3')">Modo Normal</button>
+</div>
+
+<!-- GAME UI -->
+<div id="gameUI">
+    <div id="score">Puntos: 0</div>
+    <div id="combo">Combo: 0</div>
+    <div id="levelLabel">Nivel 1</div>
+
+    <div id="gameArea">
+        <div id="hitLine"></div>
+    </div>
+
+    <button onclick="pause()">Pausa / Reanudar</button>
+    <button onclick="returnToMenu()">Volver al menú</button>
 </div>
 
 <script>
     let score = 0;
-    let gameArea = document.getElementById("gameArea");
+    let combo = 0;
+    let level = 1;
+    let spawnSpeed = 1300;
+    let gameRunning = false;
+    let spawnInterval;
+    let music;
+
+    function returnToMenu() {
+        document.getElementById("menu").style.display = "block";
+        document.getElementById("gameUI").style.display = "none";
+        if (music) music.pause();
+        clearInterval(spawnInterval);
+    }
+
+    function pause() {
+        if (!gameRunning) return;
+        if (music.paused) { music.play(); }
+        else { music.pause(); }
+    }
+
+    function startGame(songFile) {
+        document.getElementById("menu").style.display = "none";
+        document.getElementById("gameUI").style.display = "block";
+
+        score = 0;
+        combo = 0;
+        level = 1;
+        spawnSpeed = 1300;
+
+        document.getElementById("score").innerHTML = "Puntos: " + score;
+        document.getElementById("combo").innerHTML = "Combo: " + combo;
+        document.getElementById("levelLabel").innerHTML = "Nivel 1";
+
+        music = new Audio(songFile);
+        music.loop = true;
+        music.volume = 0.75;
+        music.play();
+
+        gameRunning = true;
+
+        clearInterval(spawnInterval);
+        spawnInterval = setInterval(spawnNote, spawnSpeed);
+    }
+
+    function nextLevel() {
+        level++;
+        spawnSpeed -= 150;
+        if (spawnSpeed < 600) spawnSpeed = 600;
+
+        clearInterval(spawnInterval);
+        spawnInterval = setInterval(spawnNote, spawnSpeed);
+
+        document.getElementById("levelLabel").innerHTML = "Nivel " + level;
+    }
 
     function spawnNote() {
         const directions = ["up", "down", "left", "right"];
@@ -87,26 +200,27 @@
 
         note.dataset.direction = dir;
 
+        // Posiciones de columnas
         note.style.left =
             dir === "left" ? "20%" :
             dir === "right" ? "70%" :
             "45%";
 
-        gameArea.appendChild(note);
+        document.getElementById("gameArea").appendChild(note);
 
         let pos = -70;
         let fall = setInterval(() => {
-            pos += 3;
+            pos += 3 + level * 0.5;
             note.style.top = pos + "px";
 
             if (pos > 380) {
-                gameArea.removeChild(note);
+                note.remove();
+                combo = 0;
+                document.getElementById("combo").innerHTML = "Combo: 0";
                 clearInterval(fall);
             }
         }, 20);
     }
-
-    setInterval(spawnNote, 1200);
 
     document.addEventListener("keydown", (e) => {
         const key = e.key;
@@ -125,8 +239,13 @@
         notes.forEach(n => {
             let top = parseInt(n.style.top);
             if (n.dataset.direction === dir && top > 300 && top < 440) {
-                score += 10;
-                document.getElementById("score").innerHTML = "Puntuación: " + score;
+                score += 10 + combo;
+                combo++;
+
+                if (combo % 10 === 0) nextLevel();
+
+                document.getElementById("score").innerHTML = "Puntos: " + score;
+                document.getElementById("combo").innerHTML = "Combo: " + combo;
                 n.remove();
             }
         });
