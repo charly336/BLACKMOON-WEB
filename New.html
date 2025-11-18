@@ -1,491 +1,190 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Aerial Rhythm — DarkMoon Full (Moonlight Purple)</title>
+<meta charset="UTF-8">
+<title>Tic Tac Toe Personalizable</title>
 <style>
-  :root{
-    --bg:#05020a;
-    --panel:#0d0613;
-    --neon1:#9b59ff; /* purple */
-    --neon2:#ff66b2; /* pink */
-    --accent-text:#f6e9ff;
-    --muted: rgba(255,255,255,0.12);
-    --good:#7effa1;
-    --miss:#ff7a7a;
-    --outline-none: none;
-  }
-  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;margin:0}
-  html,body{height:100%;background:linear-gradient(180deg,var(--bg),#070317);color:var(--accent-text);-webkit-font-smoothing:antialiased}
-  /* Remove focus outline globally */
-  *{outline:none!important} :focus{outline:none!important}
 
-  /* Container */
-  .container{max-width:1200px;margin:18px auto;padding:18px;display:grid;grid-template-columns:1fr 360px;gap:14px}
-  header{grid-column:1/-1;display:flex;align-items:center;gap:12px}
-  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--neon1),var(--neon2));display:flex;align-items:center;justify-content:center;color:#070317;font-weight:900}
-  h1{font-size:18px;margin:0}
-  .sub{color:var(--muted);font-size:13px}
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    background: #e2c9a6;
+}
 
-  /* Main */
-  .main{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);min-height:620px}
-  .panel{background:var(--panel);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+/* CONTENEDOR PRINCIPAL */
+.container {
+    display: flex;
+    gap: 30px;
+}
 
-  /* HUD */
-  .hud{display:flex;gap:10px;align-items:center;margin-bottom:10px}
-  .stat{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);min-width:120px;text-align:center}
-  .progress{height:10px;border-radius:8px;background:rgba(255,255,255,0.04);overflow:hidden}
-  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--neon1),var(--neon2))}
+/* MARCO DE MADERA */
+.marco {
+    padding: 20px;
+    background: url('https://i.imgur.com/UN1MhlK.jpeg');
+    background-size: cover;
+    border: 10px solid #7a541e;
+    border-radius: 12px;
+}
 
-  /* Stage */
-  .stage{height:480px;border-radius:10px;position:relative;overflow:hidden;background:
-    radial-gradient(600px 200px at 10% 0%, rgba(155,89,255,0.03), transparent 20%),
-    radial-gradient(500px 160px at 90% 20%, rgba(255,102,178,0.02), transparent 18%),
-    linear-gradient(180deg, rgba(0,0,0,0.22), rgba(255,255,255,0.01));
-    border:1px solid rgba(255,255,255,0.02);
-  }
-  .moon{position:absolute;right:-110px;top:-70px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.04), rgba(0,0,0,0.45));filter:blur(4px);opacity:.55;mix-blend-mode:screen}
+/* TABLERO */
+.tablero {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 5px;
+}
 
-  /* lanes */
-  .lanes{display:flex;gap:10px;align-items:flex-end;height:100%;padding:20px;position:relative}
-  .lane{flex:1;min-width:80px;max-width:240px;height:100%;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));position:relative;box-shadow:inset 0 10px 40px rgba(0,0,0,0.45)}
-  .label{position:absolute;top:12px;left:12px;font-size:12px;color:var(--muted)}
-  .hitline{position:absolute;left:10px;right:10px;bottom:84px;height:18px;border-radius:10px;border:2px dashed rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;pointer-events:none}
-  .note{position:absolute;left:50%;transform:translateX(-50%);width:64px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#071021;box-shadow:0 10px 30px rgba(155,89,255,0.06);z-index:6}
+.casilla {
+    width: 100px;
+    height: 100px;
+    background: #fff5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
 
-  /* Floating judgment text */
-  .judgement{
-    position:absolute;left:50%;transform:translateX(-50%);bottom:140px;font-weight:900;padding:6px 12px;border-radius:8px;font-size:18px;z-index:30;pointer-events:none;
-    opacity:0;transition:transform .28s ease, opacity .28s ease;
-  }
-  .judgement.show{opacity:1;transform:translateX(-50%) translateY(-18px)}
+.casilla:hover {
+    background: #f0ddbc;
+}
 
-  /* silhouette */
-  .silhouette{position:absolute;right:18px;bottom:18px;width:220px;height:300px;border-radius:18px;background:linear-gradient(180deg,#071021,#2b1936);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;box-shadow:0 20px 60px rgba(155,89,255,0.06);z-index:10}
-  .avatar{width:120px;height:120px;border-radius:60px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;font-weight:900}
-  .pose{margin-top:8px;font-weight:700;color:var(--muted);font-size:13px}
+/* PANEL DE CONFIGURACIÓN */
+.config {
+    margin-bottom: 10px;
+}
 
-  /* controls row */
-  .controls{display:flex;gap:8px;align-items:center;margin-top:10px}
-  .btn{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;cursor:pointer}
-  .btn.primary{background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#070317;border:none}
+/* IMAGEN PROMOCIONAL */
+.promo img {
+    width: 220px;
+    border-radius: 12px;
+    border: 4px solid #8b5a2b;
+}
 
-  /* right column inputs */
-  select,input[type=color],textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-  textarea{min-height:90px}
+/* FOOTER */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #c7a676;
+    padding: 10px 0;
+    text-align: center;
+    border-top: 3px solid #7a541e;
+}
 
-  /* small responsive */
-  @media (max-width:980px){ .container{grid-template-columns:1fr} .silhouette{right:8px;bottom:8px;width:160px;height:220px} }
+footer a {
+    margin: 0 20px;
+    font-weight: bold;
+    color: #4b2e12;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
 </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">BM</div>
-      <div>
-        <h1>Aerial Rhythm — DarkMoon (Full)</h1>
-        <div class="sub">Moonlight Purple skin • Perfect/Good/Miss • Niveles avanzados</div>
-      </div>
-      <div style="margin-left:auto;color:var(--muted);font-size:13px">Integrable • Usa las flechas ← ↑ ↓ →</div>
-    </header>
 
-    <main class="main panel">
-      <div class="hud">
-        <div class="stat">Puntaje <div id="score" style="font-weight:900">0</div></div>
-        <div class="stat">Combo <div id="combo" style="font-weight:900">0</div></div>
-        <div style="flex:1">
-          <div style="font-size:13px;color:var(--muted)">Nivel <strong id="level">1</strong></div>
-          <div class="progress" style="margin-top:6px"><div id="progressBar" class="bar"></div></div>
+<div class="container">
+
+    <!-- Zona del juego con marco -->
+    <div class="marco">
+
+        <!-- Configuración X y O -->
+        <div class="config">
+            Cruz: <input id="cruz" value="X" size="2">  
+            &nbsp;&nbsp;
+            Círculo: <input id="circulo" value="O" size="2">
         </div>
-      </div>
 
-      <div class="stage panel" id="stage">
-        <div class="moon" aria-hidden="true"></div>
+        <h2 id="nivel">Nivel: 1</h2>
+        <div id="tablero" class="tablero"></div>
+        <h3 id="mensaje"></h3>
+    </div>
 
-        <div class="lanes" id="lanes"></div>
+    <!-- Imagen promocional -->
+    <div class="promo">
+        <img src="https://i.imgur.com/QKmOe4N.jpeg" alt="Promo">
+    </div>
 
-        <div class="judgement" id="judgement"></div>
+</div>
 
-        <div class="silhouette" id="silhouette">
-          <div class="avatar" id="avatar">Isis</div>
-          <div class="pose" id="pose">Reposo</div>
-        </div>
-      </div>
-
-      <div class="controls">
-        <button class="btn primary" id="playBtn">Iniciar</button>
-        <button class="btn" id="pauseBtn">Pausar</button>
-        <button class="btn" id="stopBtn">Detener</button>
-        <div style="margin-left:auto;color:var(--muted);font-size:13px">Modo: Selección manual + Auto-progresión</div>
-      </div>
-    </main>
-
-    <aside class="right panel">
-      <label><strong>Skin Black Moon</strong></label>
-      <select id="skinSelect">
-        <option value="moonlight">Moonlight Purple</option>
-        <option value="eclipse">Eclipse Dark</option>
-        <option value="aurora">Telas Boreales</option>
-        <option value="gold">BlackMoon Gold</option>
-      </select>
-
-      <label style="margin-top:8px">Selector de canción</label>
-      <select id="songSelect">
-        <option value="ambient">Ambient Flow</option>
-        <option value="pulse">Pulse Aerial</option>
-        <option value="show">Showtime Heavy</option>
-      </select>
-
-      <label style="margin-top:8px">Selector de nivel (manual)</label>
-      <select id="levelSelect">
-        <option value="1">Nivel 1 — Suave</option>
-        <option value="2">Nivel 2 — Medio</option>
-        <option value="3">Nivel 3 — Rápido</option>
-      </select>
-
-      <div style="margin-top:12px">
-        <label><strong>Editor / Import</strong></label>
-        <textarea id="patternBox" placeholder='Ej: [{"time":0,"lane":1},{"time":0.5,"lane":2}]'></textarea>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <button class="btn" id="loadPat">Cargar</button>
-          <button class="btn" id="playPat">Reproducir</button>
-        </div>
-      </div>
-
-      <div style="margin-top:12px" class="panel">
-        <div style="font-size:13px;color:var(--muted)">Perfect / Good / Miss</div>
-        <div style="margin-top:6px">
-          <div style="display:flex;gap:8px;align-items:center">
-            <div style="width:12px;height:12px;background:var(--neon1);border-radius:3px"></div><div style="font-size:13px">Perfect (≤14px)</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
-            <div style="width:12px;height:12px;background:var(--neon2);border-radius:3px"></div><div style="font-size:13px">Good (&lt;30px)</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
-            <div style="width:12px;height:12px;background:var(--miss);border-radius:3px"></div><div style="font-size:13px">Miss (>30px)</div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
+<footer>
+    <a href="#">Contacto</a>
+    <a href="#">Términos</a>
+    <a href="#">Más juegos</a>
+</footer>
 
 <script>
-/* ---------- DarkMoon Full — JS ---------- */
+let jugador = "X";
+let nivel = 1;
 
-/* Config */
-const LANE_COUNT = 4;
-const HIT_Y = 420;         // position in px for judging
-const PERFECT_WINDOW = 14; // px
-const GOOD_WINDOW = 30;    // px
-const MISS_WINDOW = 999;   // fallback
+const tablero = document.getElementById("tablero");
+const msg = document.getElementById("mensaje");
+const nivelTxt = document.getElementById("nivel");
 
-/* Game state */
-let GAME = {
-  score:0, combo:0, multi:1, level:1, progress:0, combosToClear:8, lives:3,
-  notes:[], savedPatterns:{}
-};
-let running = false;
-let spawnTimer = null;
-let frameReq = null;
-let skin = 'moonlight';
+let celdas = ["", "", "", "", "", "", "", "", ""];
 
-/* DOM refs */
-const lanesRoot = document.getElementById('lanes');
-const scoreEl = document.getElementById('score');
-const comboEl = document.getElementById('combo');
-const levelEl = document.getElementById('level');
-const progressBar = document.getElementById('progressBar');
-const judgementEl = document.getElementById('judgement');
-const poseEl = document.getElementById('pose');
-const avatarEl = document.getElementById('avatar');
+function crearTablero() {
+    tablero.innerHTML = "";
+    celdas = ["", "", "", "", "", "", "", "", ""];
 
-const playBtn = document.getElementById('playBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const stopBtn = document.getElementById('stopBtn');
-const skinSelect = document.getElementById('skinSelect');
-const songSelect = document.getElementById('songSelect');
-const levelSelect = document.getElementById('levelSelect');
-const patternBox = document.getElementById('patternBox');
-const loadPat = document.getElementById('loadPat');
-const playPat = document.getElementById('playPat');
-
-/* simple audio ctx for tones */
-let audioCtx = null;
-function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-
-/* Set skins */
-function applySkin(name){
-  skin = name;
-  if(name === 'moonlight'){
-    document.documentElement.style.setProperty('--neon1','#9b59ff');
-    document.documentElement.style.setProperty('--neon2','#ff66b2');
-  } else if(name === 'eclipse'){
-    document.documentElement.style.setProperty('--neon1','#47262b');
-    document.documentElement.style.setProperty('--neon2','#ff2b2b');
-  } else if(name === 'aurora'){
-    document.documentElement.style.setProperty('--neon1','#2be0c6');
-    document.documentElement.style.setProperty('--neon2','#7ac4ff');
-  } else {
-    document.documentElement.style.setProperty('--neon1','#d4af37');
-    document.documentElement.style.setProperty('--neon2','#f9d976');
-  }
-}
-skinSelect.addEventListener('change', ()=> applySkin(skinSelect.value));
-applySkin('moonlight');
-
-/* Build lanes */
-function buildLanes(){
-  lanesRoot.innerHTML='';
-  for(let i=0;i<LANE_COUNT;i++){
-    const l = document.createElement('div');
-    l.className='lane';
-    l.dataset.index = i;
-    l.innerHTML = `<div class="label">Lane ${i+1}</div><div class="hitline"></div>`;
-    l.addEventListener('pointerdown', ()=> handleHit(i));
-    lanesRoot.appendChild(l);
-  }
-}
-buildLanes();
-
-/* Spawn a note on lane */
-function spawnNote(lane){
-  const laneEl = lanesRoot.children[lane];
-  const n = document.createElement('div');
-  n.className = 'note';
-  n.style.background = `linear-gradient(90deg,var(--neon1),var(--neon2))`;
-  n.style.top = '-60px';
-  laneEl.appendChild(n);
-  const note = { el:n, lane:lane, y:-60, id: 'n'+Math.random().toString(36).slice(2,9) };
-  GAME.notes.push(note);
-}
-
-/* Spawner: frequency based on level */
-function startSpawner(){
-  stopSpawner();
-  const baseMs = levelValueToMs(GAME.level);
-  spawnTimer = setInterval(()=> {
-    const lane = Math.floor(Math.random()*LANE_COUNT);
-    spawnNote(lane);
-  }, baseMs);
-}
-function stopSpawner(){ if(spawnTimer){ clearInterval(spawnTimer); spawnTimer = null; } }
-
-function levelValueToMs(level){
-  // manual selection influences base speed; higher level => smaller ms
-  const manual = parseInt(levelSelect.value || '1', 10);
-  const base = manual===1 ? 800 : manual===2 ? 600 : 420;
-  // plus slight auto speedup with level
-  return Math.max(220, base - (GAME.level-1)*20);
-}
-
-/* Frame loop -> move notes */
-function frame(){
-  for(let i=GAME.notes.length-1;i>=0;i--){
-    const n = GAME.notes[i];
-    n.y += 3 + (GAME.level-1)*0.25;
-    n.el.style.top = n.y + 'px';
-    if(n.y > 560){ // passed beyond hit -> miss
-      n.el.remove();
-      GAME.notes.splice(i,1);
-      handleMiss();
+    for (let i = 0; i < 9; i++) {
+        const casilla = document.createElement("div");
+        casilla.className = "casilla";
+        casilla.dataset.index = i;
+        casilla.onclick = () => jugar(i);
+        tablero.appendChild(casilla);
     }
-  }
-  frameReq = requestAnimationFrame(frame);
 }
 
-/* Handle hit (lane index) */
-function handleHit(lane){
-  if(!running) return;
-  let bestIdx=-1, bestDist=9999;
-  for(let i=0;i<GAME.notes.length;i++){
-    if(GAME.notes[i].lane !== lane) continue;
-    const dist = Math.abs(GAME.notes[i].y - HIT_Y);
-    if(dist < bestDist){ bestDist = dist; bestIdx = i; }
-  }
-  if(bestIdx >= 0 && bestDist <= GOOD_WINDOW){
-    const grade = gradeFromDist(bestDist);
-    const noteObj = GAME.notes[bestIdx];
-    noteObj.el.remove();
-    GAME.notes.splice(bestIdx,1);
-    handleSuccess(grade);
-  } else {
-    handleMiss();
-  }
+function jugar(i) {
+    if (celdas[i] !== "") return;
+
+    const simboloX = document.getElementById("cruz").value;
+    const simboloO = document.getElementById("circulo").value;
+
+    celdas[i] = jugador;
+    document.querySelector(`[data-index='${i}']`).textContent =
+        jugador === "X" ? simboloX : simboloO;
+
+    if (revisarGanador()) {
+        msg.textContent = `¡Jugador ${jugador} ha ganado! Pasas al siguiente nivel.`;
+        nivel++;
+        nivelTxt.textContent = "Nivel: " + nivel;
+        setTimeout(crearTablero, 1500);
+        return;
+    }
+
+    if (celdas.every(c => c !== "")) {
+        msg.textContent = "Empate. Nivel se reinicia.";
+        setTimeout(crearTablero, 1500);
+        return;
+    }
+
+    jugador = jugador === "X" ? "O" : "X";
 }
 
-/* Grading */
-function gradeFromDist(d){
-  if(d <= PERFECT_WINDOW) return 'perfect';
-  if(d <= GOOD_WINDOW) return 'good';
-  return 'miss';
+function revisarGanador() {
+    const lineas = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+    ];
+    return lineas.some(([a,b,c]) => 
+        celdas[a] && celdas[a] === celdas[b] && celdas[a] === celdas[c]
+    );
 }
 
-/* Success / Miss */
-function handleSuccess(grade){
-  let base = grade==='perfect'?300: grade==='good'?160:80;
-  GAME.score += Math.round(base * GAME.multi);
-  GAME.combo += 1;
-  if(GAME.combo % 8 === 0) GAME.multi += 1;
-  GAME.progress += 1;
-  showJudgement(grade);
-  playGradeSound(grade);
-  poseEl.textContent = grade==='perfect' ? 'Perfect' : grade==='good' ? 'Good' : 'Nice';
-  updateHUD();
-  // auto-level progression by score thresholds (option C)
-  autoLevelUpCheck();
-}
-function handleMiss(){
-  GAME.combo = 0; GAME.multi = 1; GAME.lives = (GAME.lives || 3) - 1;
-  showJudgement('miss');
-  playGradeSound('miss');
-  poseEl.textContent = 'Miss';
-  updateHUD();
-  if(GAME.lives <= 0) endRun();
-}
-
-/* Judgement display */
-function showJudgement(kind){
-  const j = judgementEl;
-  if(kind==='perfect'){ j.textContent = 'PERFECT ✨'; j.style.color = getComputedStyle(document.documentElement).getPropertyValue('--neon1'); }
-  else if(kind==='good'){ j.textContent = 'GOOD ⭐'; j.style.color = getComputedStyle(document.documentElement).getPropertyValue('--neon2'); }
-  else { j.textContent = 'MISS ❌'; j.style.color = 'var(--miss)'; }
-  j.classList.add('show');
-  setTimeout(()=> j.classList.remove('show'), 400);
-}
-
-/* Sounds */
-function playGradeSound(kind){
-  ensureAudio();
-  const now = audioCtx.currentTime;
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  if(kind==='perfect'){ o.type='sine'; o.frequency.value=880; g.gain.value=0.12; }
-  else if(kind==='good'){ o.type='triangle'; o.frequency.value=660; g.gain.value=0.1; }
-  else if(kind==='miss'){ o.type='square'; o.frequency.value=220; g.gain.value=0.14; }
-  else { o.type='sawtooth'; o.frequency.value=520; g.gain.value=0.08; }
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-  setTimeout(()=> o.stop(), 160);
-}
-
-/* HUD update */
-function updateHUD(){
-  scoreEl.textContent = GAME.score;
-  comboEl.textContent = GAME.combo;
-  levelEl.textContent = GAME.level;
-  const pct = Math.min(100, Math.round((GAME.progress / GAME.combosToClear) * 100));
-  progressBar.style.width = pct + '%';
-}
-
-/* Level up triggers */
-function levelUp(){
-  GAME.level += 1;
-  GAME.progress = 0;
-  GAME.combosToClear = 6 + Math.floor(GAME.level / 1.2);
-  // visual burst
-  for(let i=0;i<6;i++) spawnNote(Math.floor(Math.random()*LANE_COUNT));
-  updateHUD();
-}
-function autoLevelUpCheck(){
-  // Option C auto progression by score thresholds
-  if(GAME.score >= 5000 && GAME.level < 3){ GAME.level = 3; levelSelect.value = '3'; startSpawner(); updateHUD(); }
-  else if(GAME.score >= 2000 && GAME.level < 2){ GAME.level = 2; levelSelect.value = '2'; startSpawner(); updateHUD(); }
-}
-
-/* End run */
-function endRun(){
-  stopGame();
-  setTimeout(()=> alert('Run ended — Score: ' + GAME.score), 120);
-}
-
-/* Start/stop/pause */
-function startGame(){
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  running = true; GAME.notes = []; GAME.lives = 3; GAME.progress = 0;
-  updateHUD();
-  startSpawner();
-  frameReq = requestAnimationFrame(frame);
-}
-function stopGame(){
-  running = false;
-  stopSpawner();
-  if(frameReq) cancelAnimationFrame(frameReq);
-  // clear notes DOM
-  GAME.notes.forEach(n=> n.el.remove());
-  GAME.notes = [];
-}
-function pauseGame(){
-  if(running) stopGame(); else startGame();
-}
-
-/* Spawner control */
-function startSpawner(){ stopSpawner(); const ms = levelValueToMs(); spawnTimer = setInterval(()=> spawnNote(Math.floor(Math.random()*LANE_COUNT)), ms); }
-function stopSpawner(){ if(spawnTimer){ clearInterval(spawnTimer); spawnTimer=null; } }
-function levelValueToMs(){ const manual = parseInt(levelSelect.value||'1',10); const base = manual===1?800:manual===2?600:420; return Math.max(200, base - (GAME.level-1)*18); }
-
-/* Pattern play (from editor) */
-loadPat.addEventListener('click', ()=>{
-  try{
-    const arr = JSON.parse(patternBox.value || '[]');
-    GAME.editorPattern = arr;
-    alert('Patrón cargado (' + arr.length + ' notas)');
-  }catch(e){ alert('JSON inválido'); }
-});
-playPat.addEventListener('click', ()=>{
-  try{
-    const arr = JSON.parse(patternBox.value || '[]');
-    playPattern(arr);
-  }catch(e){ alert('JSON inválido'); }
-});
-function playPattern(pattern){
-  stopGame();
-  const start = performance.now();
-  pattern.forEach(p => {
-    const t = Math.max(0,(p.time||0)*1000);
-    setTimeout(()=> spawnNote(p.lane), t);
-  });
-  startGame();
-  // auto-stop after last note + buffer
-  const last = Math.max(0, ...pattern.map(p=>p.time||0));
-  setTimeout(()=> stopGame(), (last + 4) * 1000);
-}
-
-/* Keyboard handlers */
-const keyMap = {'ArrowLeft':0,'ArrowUp':1,'ArrowDown':2,'ArrowRight':3};
-document.addEventListener('keydown', e=>{
-  if(keyMap[e.key] !== undefined){ e.preventDefault(); handleHit(keyMap[e.key]); flashLane(keyMap[e.key]); }
-});
-function flashLane(i){
-  const lane = lanesRoot.children[i];
-  if(!lane) return;
-  lane.animate([{filter:'brightness(1.35)'},{filter:'brightness(1)'}],{duration:160});
-}
-
-/* UI wiring */
-playBtn.addEventListener('click', ()=> { startGame(); });
-pauseBtn.addEventListener('click', ()=> { pauseGame(); });
-stopBtn.addEventListener('click', ()=> { stopGame(); });
-
-skinSelect.addEventListener('change', ()=> applySkin(skinSelect.value));
-songSelect.addEventListener('change', ()=> {/* if you want to add real audio tracks you can attach here */});
-levelSelect.addEventListener('change', ()=> { startSpawner(); });
-
-/* Init */
-function init(){
-  buildLanes();
-  applySkin('moonlight');
-  updateHUD();
-  // small idle spawn so it looks alive
-  for(let i=0;i<3;i++){ setTimeout(()=> spawnNote(Math.floor(Math.random()*LANE_COUNT)), i*400); }
-}
-init();
-
-/* Expose minimal API */
-window.DarkMoonAerial = { startGame, stopGame, pauseGame, spawnNote, applySkin };
-
+crearTablero();
 </script>
+
 </body>
 </html>
-ml>
 
