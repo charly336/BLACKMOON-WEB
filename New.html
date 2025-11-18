@@ -1,777 +1,279 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Aerial Combo Master — Black Moon</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aerial Rhythm — Black Moon</title>
+
 <style>
-  :root{
-    --bg1:#071021;
-    --bg2:#0f1024;
-    --accent:#9b59ff;
-    --accent2:#ff66b2;
-    --glass: rgba(255,255,255,0.05);
-    --muted: rgba(255,255,255,0.15);
-    --success: #7effa1;
-    --fail: #ff7a7a;
-  }
-  *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#fff}
-  .wrap{max-width:1100px;margin:24px auto;padding:20px;display:grid;grid-template-columns:1fr 360px;gap:18px}
-  header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px}
-  h1{font-size:20px;margin:0;display:flex;align-items:center;gap:12px}
-  .logo{
-    width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));
-    display:flex;align-items:center;justify-content:center;font-weight:700;color:#071021;font-size:18px;box-shadow:0 6px 18px rgba(0,0,0,0.5)
-  }
-  .controls{display:flex;gap:8px;align-items:center}
-  button{background:var(--glass);border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px 12px;border-radius:8px;cursor:pointer}
-  button.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#071021;border:none;font-weight:600}
-  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.04)}
-  /* Game area */
-  .game{
-    min-height:520px;display:flex;flex-direction:column;gap:12px;align-items:stretch;
-    padding:18px;border-radius:12px;position:relative;overflow:hidden;
-    border:1px solid rgba(255,255,255,0.03)
-  }
-  .stage{
-    flex:1;background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(255,255,255,0.02));
-    border-radius:10px;padding:16px;display:flex;gap:18px;
-    align-items:center;justify-content:space-between;position:relative;
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#070a16,#0e0f1d,#1a0f28);
+    font-family:Arial,Helvetica,sans-serif;
+    color:#fff;
     overflow:hidden;
   }
-  /* Character */
-  .char-wrap{width:48%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
-  .silhouette{
-    width:220px;height:360px;background:linear-gradient(180deg,#111, #2b1936);
-    border-radius:18px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 -60px 120px rgba(0,0,0,0.6);
-    transform-origin:50% 0%;
-    transition:transform 250ms cubic-bezier(.2,.9,.2,1), box-shadow 200ms;
-    border:2px solid rgba(255,255,255,0.03)
+  h1{
+    text-align:center;
+    padding:10px 0;
+    font-size:24px;
+    letter-spacing:2px;
+    background:linear-gradient(90deg,#9333ff,#ff42c7);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin:8px 0 12px;
   }
-  .silhouette::before{
-    content:"";position:absolute;inset:0;border-radius:inherit;
-    background:linear-gradient(180deg, rgba(155,89,255,0.06), rgba(255,102,178,0.04));
-    mix-blend-mode:screen;opacity:0.9;
+  .game{
+    width:100%;
+    height:600px;
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
   }
-  .silhouette .pose{
-    color:var(--muted);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:12px;
-    position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.25);padding:6px 8px;border-radius:8px
+  /* columnas de ritmo */
+  .lane{
+    width:90px;
+    height:100%;
+    border-left:1px solid rgba(255,255,255,0.06);
+    border-right:1px solid rgba(255,255,255,0.06);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
   }
-  .tela{
-    position:absolute;left:48%;top:0;width:12px;bottom:0;margin-left:-6px;
-    background:linear-gradient(180deg, rgba(155,89,255,0.18), rgba(255,102,178,0.12));box-shadow:0 4px 20px rgba(155,89,255,0.07);
-    border-radius:10px;
+  .hit-zone{
+    width:70px;
+    height:18px;
+    border-radius:6px;
+    border:2px solid rgba(255,255,255,0.25);
+    position:absolute;
+    bottom:60px;
   }
-  /* Combo panel on left */
-  .combo-panel{width:48%;display:flex;flex-direction:column;gap:12px}
-  .combo-list{display:flex;flex-direction:column;gap:8px}
-  .combo-item{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;background:rgba(0,0,0,0.12);border:1px solid rgba(255,255,255,0.02)}
-  .chip{background:rgba(0,0,0,0.25);padding:6px 8px;border-radius:8px;font-weight:700}
-  .seq{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-  .key{
-    width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);
-    border:1px solid rgba(255,255,255,0.04);font-weight:700
+  .note{
+    width:70px;
+    height:26px;
+    border-radius:8px;
+    position:absolute;
+    background:linear-gradient(90deg,#9333ff,#ff42c7);
+    box-shadow:0 0 12px rgba(255,0,200,0.6);
   }
   /* HUD */
-  .hud{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .meter{padding:8px;border-radius:10px;background:rgba(0,0,0,0.18);min-width:160px}
-  .level{font-size:18px;font-weight:700}
-  .score{font-size:16px;color:var(--accent)}
-  .message{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);min-height:40px;display:flex;align-items:center;justify-content:center;font-weight:700}
-  .progress-bar{height:8px;background:rgba(255,255,255,0.05);border-radius:8px;overflow:hidden}
-  .progress-inner{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 300ms}
-  /* right column */
-  .right {display:flex;flex-direction:column;gap:12px}
-  .list{max-height:240px;overflow:auto;padding-right:8px}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-  .tiny{font-size:12px;color:var(--muted)}
-  .kbd {display:inline-block;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2);font-weight:700}
-  footer{grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.18);font-size:13px;margin-top:8px}
-  /* editor modal */
-  .modal{
-    position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.7));
-    z-index:60;padding:20px
+  .hud{
+    position:absolute;
+    top:0;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding:10px 20px;
+    font-size:18px;
   }
-  .modal .card{width:100%;max-width:680px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
-  .editor-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-  input[type="text"],select{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit;flex:1}
-  .small{font-size:13px;padding:6px 8px}
-  .keybtn{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2);cursor:pointer;margin-right:6px}
-  .keybtn.selected{background:var(--accent);color:#071021;border:none}
-  .combo-seq{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-  .status-ok{color:var(--success)}
-  .status-fail{color:var(--fail)}
-  /* responsive */
-  @media (max-width:940px){
-    .wrap{grid-template-columns:1fr; padding:12px}
-    .stage{flex-direction:column;gap:12px}
-    .combo-panel,.char-wrap{width:100%}
-    .right{order:3}
+  .multiplier{color:#b37dff;}
+  /* silueta */
+  .dancer{
+    position:absolute;
+    right:20px;
+    bottom:60px;
+    width:180px;
+    height:260px;
+    border-radius:20px;
+    background:linear-gradient(180deg,#1a1a1a,#3a2350);
+    box-shadow:inset 0 -50px 100px rgba(0,0,0,0.7);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    font-weight:bold;
+    font-size:14px;
+  }
+  .dancer.shake{
+    animation:shake 0.25s linear;
+  }
+  @keyframes shake{
+    0%{transform:translateX(0);}
+    25%{transform:translateX(-10px);}
+    50%{transform:translateX(10px);}
+    75%{transform:translateX(-6px);}
+    100%{transform:translateX(0);}
+  }
+  .controls{
+    text-align:center;
+    margin-top:6px;
+  }
+  button{
+    padding:8px 14px;
+    border:none;
+    border-radius:6px;
+    background:linear-gradient(90deg,#9333ff,#ff42c7);
+    font-weight:bold;
+    color:#fff;
+    cursor:pointer;
   }
 </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <h1><span class="logo">BM</span> Aerial Combo Master</h1>
-      <div class="controls">
-        <button id="btn-start" class="primary">Empezar</button>
-        <button id="btn-pause">Pausar</button>
-        <button id="btn-editor">Editor de Figuras</button>
-      </div>
-    </header>
 
-    <section class="game panel">
-      <div class="hud">
-        <div class="meter"><div class="level">Nivel: <span id="level">1</span></div></div>
-        <div class="meter"><div class="score">Puntaje: <span id="score">0</span></div></div>
-        <div class="meter"><div>Vidas: <span id="lives">3</span></div></div>
-        <div style="flex:1" class="tiny">Controles: usa las teclas <span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span><span class="kbd">W</span> + <span class="kbd">J</span><span class="kbd">K</span> (modificadores opcionales). También puedes usar flechas → ↑ ↓ ←</div>
-      </div>
+<h1>AERIAL RHYTHM — BLACK MOON</h1>
 
-      <div class="stage" id="stage">
-        <div class="combo-panel">
-          <div class="message" id="message">Pulsa <strong>Empezar</strong> para recibir la secuencia.</div>
+<div class="hud">
+  <div>Puntaje: <span id="score">0</span></div>
+  <div>Combo: <span id="combo">0</span></div>
+  <div class="multiplier">x<span id="multi">1</span></div>
+</div>
 
-          <div>
-            <label>Secuencia objetivo (reproducir exactamente):</label>
-            <div class="combo-list" id="current-combo-container"></div>
-          </div>
+<div class="game">
 
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="btn-next" class="small">Siguiente Combo</button>
-            <button id="btn-skip" class="small">Saltarse (costo: 1 vida)</button>
-            <button id="btn-edit-quick" class="small">Editar rápido</button>
-          </div>
+  <div class="lane" id="lane1"><div class="hit-zone"></div></div>
+  <div class="lane" id="lane2"><div class="hit-zone"></div></div>
+  <div class="lane" id="lane3"><div class="hit-zone"></div></div>
+  <div class="lane" id="lane4"><div class="hit-zone"></div></div>
 
-          <div style="margin-top:10px">
-            <label>Historial de entradas:</label>
-            <div id="input-history" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
-          </div>
-        </div>
+  <div class="dancer" id="dancer">Ritmo</div>
+</div>
 
-        <div class="char-wrap">
-          <div class="tela" aria-hidden="true"></div>
-          <div class="silhouette" id="silhouette">
-            <div class="pose" id="pose-label">Reposo</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
-        <div style="flex:1">
-          <div class="progress-bar"><div id="progress" class="progress-inner"></div></div>
-        </div>
-        <div style="width:220px;text-align:right" class="tiny">Nivel sube cuando aciertas 3 combos</div>
-      </div>
-    </section>
-
-    <aside class="right">
-      <div class="panel">
-        <label>Combos disponibles</label>
-        <div class="list" id="combo-list"></div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button id="btn-random">Combo Aleatorio</button>
-          <button id="btn-reset-local">Reset Combos</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <label>Detalles</label>
-        <div class="tiny">Cada combo es una secuencia de teclas. Puedes crear y editar tus propias figuras desde el editor. Las entradas deben coincidir exactamente (orden y cantidad) para sumar puntos.</div>
-      </div>
-
-      <div class="panel">
-        <label>Atajos</label>
-        <div class="tiny">Guardar combos en el navegador. Usa el botón <strong>Editar</strong> para abrir el constructor de figuras.</div>
-        <div style="margin-top:8px">
-          <div class="tiny">Teclas que reconoce el juego:</div>
-          <div style="margin-top:6px" id="available-keys">
-            <span class="kbd">A</span> <span class="kbd">S</span> <span class="kbd">D</span> <span class="kbd">W</span> <span class="kbd">J</span> <span class="kbd">K</span> <span class="kbd">←</span> <span class="kbd">→</span> <span class="kbd">↑</span> <span class="kbd">↓</span>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <footer>Black Moon — Aerial Combo Master • Guarda tus figuras localmente • Hecho con ❤️</footer>
-  </div>
-
-  <!-- Editor modal -->
-  <div class="modal" id="modal-editor" aria-hidden="true">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h3 style="margin:0">Editor de Figuras</h3>
-        <div><button id="close-modal">Cerrar</button></div>
-      </div>
-
-      <div class="editor-row">
-        <input id="fig-name" type="text" placeholder="Nombre de la figura (ej. Cross Back)" />
-        <select id="fig-difficulty">
-          <option value="1">Fácil</option>
-          <option value="2">Medio</option>
-          <option value="3">Difícil</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Construye la secuencia: (pulsa los botones o usa teclado)</label>
-        <div style="display:flex;flex-wrap:wrap;margin-top:6px">
-          <!-- buttons will be injected -->
-          <div id="key-buttons" style="display:flex;flex-wrap:wrap"></div>
-        </div>
-        <div class="combo-seq" id="builder-seq"></div>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
-        <button id="btn-save-fig" class="primary">Guardar Figura</button>
-        <button id="btn-clear-builder">Limpiar Secuencia</button>
-        <button id="btn-delete-fig">Eliminar Seleccionada</button>
-        <select id="existing-figs" style="flex:1"></select>
-      </div>
-
-      <div style="margin-top:10px" class="tiny">Tus figuras se guardan en este navegador. Se pueden exportar manualmente desde la consola (localStorage key: <code>bm_aerial_figs</code>).</div>
-    </div>
-  </div>
+<div class="controls">
+  <button id="start">Iniciar</button>
+  <p>Controles: <b>D – F – J – K</b></p>
+</div>
 
 <script>
-/* ---- Aerial Combo Master - Single File JS ----
-   - Controls: A S D W J K + Arrow keys
-   - Editor for custom combos saved to localStorage
-   - Levels, lives, score, simple sound feedback via WebAudio
-*/
+/* ---------------- AERIAL RHYTHM ENGINE ---------------- */
 
-/* ---------- Data model & defaults ---------- */
-const DEFAULT_FIGS = [
-  { id: 'fig1', name: 'Sweet Spot', diff:1, seq: ['A','S','D'] },
-  { id: 'fig2', name: 'Cross-Back', diff:2, seq: ['←','A','W','D'] },
-  { id: 'fig3', name: 'Angel Drop', diff:2, seq: ['S','D','K'] },
-  { id: 'fig4', name: 'Three Turn', diff:3, seq: ['A','D','A','D','S'] }
+const lanes = [
+  document.getElementById("lane1"),
+  document.getElementById("lane2"),
+  document.getElementById("lane3"),
+  document.getElementById("lane4")
 ];
 
-const AVAILABLE_KEYS = ['A','S','D','W','J','K','←','→','↑','↓'];
+let score = 0;
+let combo = 0;
+let multiplier = 1;
+let notes = [];
+let running = false;
 
-/* ---------- State ---------- */
-let state = {
-  running: false,
-  paused: false,
-  level: 1,
-  score: 0,
-  lives: 3,
-  combosToClear: 3, // combos to win level
-  combosCleared: 0,
-  currentCombo: null,
-  inputBuffer: [],
-  history: [],
-  figs: []
-};
+const dancer = document.getElementById("dancer");
+const scoreEl = document.getElementById("score");
+const comboEl = document.getElementById("combo");
+const multiEl = document.getElementById("multi");
 
-/* ---------- DOM ---------- */
-const dom = {
-  btnStart: document.getElementById('btn-start'),
-  btnPause: document.getElementById('btn-pause'),
-  btnEditor: document.getElementById('btn-editor'),
-  btnNext: document.getElementById('btn-next'),
-  btnSkip: document.getElementById('btn-skip'),
-  btnRandom: document.getElementById('btn-random'),
-  btnResetLocal: document.getElementById('btn-reset-local'),
-  message: document.getElementById('message'),
-  comboList: document.getElementById('combo-list'),
-  currentComboContainer: document.getElementById('current-combo-container'),
-  level: document.getElementById('level'),
-  score: document.getElementById('score'),
-  lives: document.getElementById('lives'),
-  silhouette: document.getElementById('silhouette'),
-  poseLabel: document.getElementById('pose-label'),
-  progress: document.getElementById('progress'),
-  inputHistory: document.getElementById('input-history'),
-  modal: document.getElementById('modal-editor'),
-  btnCloseModal: document.getElementById('close-modal'),
-  btnSaveFig: document.getElementById('btn-save-fig'),
-  keyButtonsContainer: document.getElementById('key-buttons'),
-  builderSeq: document.getElementById('builder-seq'),
-  figName: document.getElementById('fig-name'),
-  figDiff: document.getElementById('fig-difficulty'),
-  existingFigs: document.getElementById('existing-figs'),
-  btnClearBuilder: document.getElementById('btn-clear-builder'),
-  btnDeleteFig: document.getElementById('btn-delete-fig'),
-  btnEditQuick: document.getElementById('btn-edit-quick')
-};
-
-/* ---------- Audio (simple beeps) ---------- */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function beep(f=440, duration=0.08, type='sine', vol=0.15){
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.type = type;
-  o.frequency.value = f;
-  g.gain.value = vol;
+/* ---- Simple beep sounds ---- */
+function beep(freq=440, time=0.08){
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
   o.connect(g);
-  g.connect(audioCtx.destination);
+  g.connect(ctx.destination);
+  o.frequency.value = freq;
+  g.gain.value = 0.15;
   o.start();
-  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-  setTimeout(()=>{ o.stop(); }, duration*1000 + 20);
-}
-function playSuccess(){ beep(880,0.12,'sine',0.12); beep(1100,0.06,'sine',0.08); }
-function playFail(){ beep(180,0.08,'sawtooth',0.18); }
-
-/* ---------- Utilities ---------- */
-function uid(prefix='id'){return prefix + Math.random().toString(36).slice(2,9)}
-function saveFigs(){
-  localStorage.setItem('bm_aerial_figs', JSON.stringify(state.figs));
-}
-function loadFigs(){
-  try{
-    const raw = localStorage.getItem('bm_aerial_figs');
-    if(raw){ state.figs = JSON.parse(raw); if(!Array.isArray(state.figs)) throw 'bad'; }
-    else { state.figs = DEFAULT_FIGS.slice(); saveFigs(); }
-  }catch(e){ state.figs = DEFAULT_FIGS.slice(); saveFigs(); }
-}
-function resetFigsToDefault(){
-  state.figs = DEFAULT_FIGS.slice();
-  saveFigs();
-  renderFigList();
-  renderEditorList();
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time);
+  setTimeout(()=> o.stop(), time*1000 + 30);
 }
 
-/* ---------- Rendering ---------- */
-function renderFigList(){
-  dom.comboList.innerHTML = '';
-  state.figs.forEach(f => {
-    const el = document.createElement('div');
-    el.className = 'combo-item';
-    el.innerHTML = `<div style="flex:1">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <div><strong>${f.name}</strong> <span class="tiny">· D${f.diff}</span></div>
-        <div class="chip">${f.seq.length} pasos</div>
-      </div>
-      <div class="seq" style="margin-top:8px">${f.seq.map(k => `<div class="key">${k}</div>`).join('')}</div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-left:8px">
-      <button class="small" data-id="${f.id}" onclick="startComboById(this.dataset.id)">Jugar</button>
-      <button class="small" data-id="${f.id}" onclick="selectFigInEditor(this.dataset.id)">Editar</button>
-    </div>`;
-    dom.comboList.appendChild(el);
-  });
-  // quick hint: update existing-figs select
-  renderEditorList();
+/* ---- Spawn Notes ---- */
+function spawnNote(){
+  const laneIndex = Math.floor(Math.random()*4);
+  const lane = lanes[laneIndex];
+  const n = document.createElement("div");
+  n.className="note";
+
+  n.style.top = "-30px";
+  lane.appendChild(n);
+
+  notes.push({el:n, lane:laneIndex, y:-30});
 }
 
-function renderCurrentCombo(){
-  dom.currentComboContainer.innerHTML = '';
-  if(!state.currentCombo){ dom.currentComboContainer.innerHTML = '<div class="tiny">No hay combo activo</div>'; return }
-  const f = state.currentCombo;
-  const el = document.createElement('div');
-  el.className = 'combo-item';
-  el.innerHTML = `<div style="flex:1">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <div><strong>${f.name}</strong> <span class="tiny">· D${f.diff}</span></div>
-      <div class="chip">Objetivo: ${f.seq.length}</div>
-    </div>
-    <div class="seq" style="margin-top:8px">${f.seq.map(k => `<div class="key">${k}</div>`).join('')}</div>
-  </div>`;
-  dom.currentComboContainer.appendChild(el);
-}
+/* ---- Game Loop ---- */
+function loop(){
+  if(!running) return;
+  notes.forEach((n, i)=>{
+    n.y += 4;
+    n.el.style.top = n.y+"px";
 
-/* ---------- Game flow ---------- */
-function startGame(){
-  if(!state.running){
-    state.running = true;
-    state.paused = false;
-    state.level = 1; state.score = 0; state.lives = 3; state.combosCleared = 0;
-    dom.btnStart.textContent = 'Reiniciar';
-    dom.message.innerHTML = 'Juego iniciado — recibe el primer combo';
-    setTimeout(()=>generateCombo(), 400);
-    updateHUD();
-  } else {
-    // restart
-    if(confirm('Reiniciar el juego?')) {
-      localReloadState();
-      startGame();
+    // Miss
+    if(n.y > 600){
+      miss();
+      n.el.remove();
+      notes.splice(i,1);
     }
-  }
-}
-
-function localReloadState(){
-  state.running = false; state.paused = false;
-  state.level = 1; state.score = 0; state.lives = 3; state.combosCleared = 0;
-  state.currentCombo = null; state.inputBuffer = []; state.history = [];
-  dom.btnStart.textContent = 'Empezar';
-  renderCurrentCombo(); updateHUD();
-}
-
-function pauseToggle(){
-  if(!state.running) return;
-  state.paused = !state.paused;
-  dom.btnPause.textContent = state.paused ? 'Reanudar' : 'Pausar';
-  dom.message.innerHTML = state.paused ? 'Pausado' : 'En juego';
-}
-
-function endGame(win=false){
-  state.running = false;
-  dom.btnStart.textContent = 'Empezar';
-  if(win){
-    dom.message.innerHTML = `<span class="status-ok">¡Nivel completado! Puntaje final: ${state.score}</span>`;
-  } else {
-    dom.message.innerHTML = `<span class="status-fail">Juego terminado. Puntaje: ${state.score}</span>`;
-  }
-  playFail();
-}
-
-/* ---------- Combos & input logic ---------- */
-function chooseComboForLevel(){
-  // Filter by difficulty relative to level
-  const maxDiff = Math.min(3, Math.ceil(state.level / 2) + 1);
-  const eligible = state.figs.filter(f => f.diff <= maxDiff);
-  if(eligible.length === 0) return state.figs[0];
-  return eligible[Math.floor(Math.random()*eligible.length)];
-}
-
-function generateCombo(){
-  if(!state.running || state.paused) return;
-  const chosen = JSON.parse(JSON.stringify(chooseComboForLevel()));
-  // Slightly increase length based on level
-  const extra = Math.floor(Math.max(0, state.level - 1) * 0.4);
-  for(let i=0;i<extra;i++){
-    // append random key from available keys to increase length
-    chosen.seq.push(AVAILABLE_KEYS[Math.floor(Math.random()*AVAILABLE_KEYS.length)]);
-  }
-  chosen.id = uid('cmb');
-  state.currentCombo = chosen;
-  state.inputBuffer = [];
-  state.history = [];
-  renderCurrentCombo();
-  dom.message.innerHTML = `Reproduce la secuencia: <strong>${chosen.name}</strong>`;
-  updateProgress();
-  flashSilhouette('ready');
-}
-
-function startComboById(id){
-  const f = state.figs.find(x=>x.id===id);
-  if(!f) return;
-  state.currentCombo = JSON.parse(JSON.stringify(f));
-  state.inputBuffer = []; state.history = [];
-  renderCurrentCombo();
-  dom.message.innerHTML = `Reproduce la figura: <strong>${f.name}</strong>`;
-}
-
-function handleInput(key){
-  if(!state.running || state.paused) return;
-  if(!state.currentCombo) { dom.message.innerHTML = 'No hay combo activo. Pulsa "Siguiente Combo" o espera.'; return; }
-
-  // push to buffer & history
-  state.inputBuffer.push(key);
-  state.history.push({key, time:Date.now()});
-  showHistory();
-
-  // animate silhouette quickly
-  animatePoseForKey(key);
-
-  // check prefix match
-  const expectedSeq = state.currentCombo.seq;
-  const idx = state.inputBuffer.length - 1;
-  if(state.inputBuffer[idx] !== expectedSeq[idx]){
-    // fail combo
-    playFail();
-    state.lives -= 1;
-    dom.lives.textContent = state.lives;
-    dom.message.innerHTML = `<span class="status-fail">Figura fallida. Perdiste 1 vida.</span>`;
-    flashSilhouette('fail');
-    state.inputBuffer = [];
-    if(state.lives <= 0){
-      setTimeout(()=>endGame(false), 600);
-      return;
-    }
-    updateProgress();
-    return;
-  } else {
-    // correct so far
-    playSuccess();
-    // if finished
-    if(state.inputBuffer.length === expectedSeq.length){
-      // success
-      const points = expectedSeq.length * 10 + (state.currentCombo.diff * 5) + (state.level*2);
-      state.score += points;
-      state.combosCleared += 1;
-      dom.message.innerHTML = `<span class="status-ok">¡Figura lograda! +${points} pts</span>`;
-      flashSilhouette('success');
-      state.inputBuffer = []; state.history = [];
-      updateHUD();
-      updateProgress();
-      // next combo after delay
-      setTimeout(()=> {
-        if(state.combosCleared >= state.combosToClear){
-          // level up
-          state.level += 1;
-          state.combosCleared = 0;
-          state.combosToClear = Math.max(3, 3 + Math.floor(state.level/2));
-          dom.message.innerHTML = `<span class="status-ok">¡Subes a Nivel ${state.level}!</span>`;
-          updateHUD();
-        }
-        generateCombo();
-      }, 700);
-      return;
-    } else {
-      // partial success
-      dom.message.innerHTML = `Correcto ${state.inputBuffer.length}/${expectedSeq.length} — sigue`;
-      updateHUD();
-    }
-  }
-}
-
-function showHistory(){
-  dom.inputHistory.innerHTML = '';
-  state.history.slice(-12).forEach(h => {
-    const el = document.createElement('div');
-    el.className = 'key';
-    el.style.opacity = '0.95';
-    el.textContent = h.key;
-    dom.inputHistory.appendChild(el);
   });
+
+  requestAnimationFrame(loop);
 }
 
-/* ---------- Visuals / animations ---------- */
-function flashSilhouette(type='ready'){
-  const el = dom.silhouette;
-  if(type==='success'){
-    el.style.transform = 'translateY(-6px) rotate(-3deg) scale(1.02)';
-    el.style.boxShadow = '0 20px 60px rgba(126,255,161,0.08)';
-    setTimeout(()=>{ el.style.transform=''; el.style.boxShadow=''; }, 400);
-  } else if(type==='fail'){
-    el.style.transform = 'translateY(6px) rotate(4deg) scale(0.98)';
-    el.style.boxShadow = '0 6px 20px rgba(255,122,122,0.06)';
-    setTimeout(()=>{ el.style.transform=''; el.style.boxShadow=''; }, 420);
-  } else {
-    el.animate([{transform:'scale(1)'},{transform:'scale(1.01)'}],{duration:320,fill:'forwards'});
-  }
-}
-
-function animatePoseForKey(key){
-  // map keys to simple poses & label
-  const map = {
-    'A':'Split',
-    'S':'Hook',
-    'D':'Invert',
-    'W':'Climb',
-    'J':'Lock',
-    'K':'Drop',
-    '←':'SpinL','→':'SpinR','↑':'Hold','↓':'Descend'
-  };
-  const label = map[key] || key;
-  dom.poseLabel.textContent = label;
-  // small transform
-  const el = dom.silhouette;
-  el.style.transform = `rotate(${(Math.random()*6-3).toFixed(2)}deg) translateY(${(Math.random()*6-3).toFixed(2)}px)`;
-  setTimeout(()=>{ el.style.transform=''; dom.poseLabel.textContent = 'Reposo'; }, 520);
-}
-
-/* ---------- HUD updates ---------- */
-function updateHUD(){
-  dom.level.textContent = state.level;
-  dom.score.textContent = state.score;
-  dom.lives.textContent = state.lives;
-}
-
-function updateProgress(){
-  // progress = combos cleared towards combosToClear
-  const pct = Math.min(100, Math.round((state.combosCleared / state.combosToClear)*100));
-  dom.progress.style.width = pct + '%';
-}
-
-/* ---------- Editor modal & builder ---------- */
-function openEditor(){
-  dom.modal.style.display = 'flex';
-  dom.modal.setAttribute('aria-hidden','false');
-}
-function closeEditor(){
-  dom.modal.style.display = 'none';
-  dom.modal.setAttribute('aria-hidden','true');
-}
-
-function renderEditorKeyButtons(){
-  dom.keyButtonsContainer.innerHTML = '';
-  AVAILABLE_KEYS.forEach(k => {
-    const b = document.createElement('button');
-    b.className = 'keybtn'; b.textContent = k;
-    b.dataset.key = k;
-    b.onclick = ()=> {
-      addBuilderKey(k);
-      // flash
-      b.classList.add('selected');
-      setTimeout(()=>b.classList.remove('selected'),160);
-    };
-    dom.keyButtonsContainer.appendChild(b);
-  });
-}
-
-let builderSeq = [];
-
-function addBuilderKey(k){
-  builderSeq.push(k);
-  renderBuilderSeq();
-}
-
-function renderBuilderSeq(){
-  dom.builderSeq.innerHTML = '';
-  builderSeq.forEach((k, i) => {
-    const el = document.createElement('div');
-    el.className = 'key';
-    el.textContent = k;
-    el.style.cursor = 'pointer';
-    el.title = 'Click para eliminar';
-    el.onclick = ()=> {
-      builderSeq.splice(i,1); renderBuilderSeq();
-    };
-    dom.builderSeq.appendChild(el);
-  });
-}
-
-function renderEditorList(){
-  dom.existingFigs.innerHTML = '';
-  const optEmpty = document.createElement('option');
-  optEmpty.value = ''; optEmpty.textContent = '-- seleccionar figura --';
-  dom.existingFigs.appendChild(optEmpty);
-  state.figs.forEach(f => {
-    const o = document.createElement('option'); o.value = f.id; o.textContent = f.name;
-    dom.existingFigs.appendChild(o);
-  });
-}
-
-/* ---------- Editor actions ---------- */
-function saveFigureFromBuilder(){
-  const name = dom.figName.value.trim() || 'Figura ' + (state.figs.length + 1);
-  const diff = parseInt(dom.figDiff.value) || 1;
-  if(builderSeq.length === 0){ alert('Añade al menos un paso a la secuencia'); return; }
-  const newFig = { id: uid('fig'), name, diff, seq: builderSeq.slice() };
-  state.figs.push(newFig);
-  saveFigs();
-  renderFigList();
-  builderSeq = []; renderBuilderSeq();
-  dom.figName.value = '';
-  dom.figDiff.value = '1';
-  renderEditorList();
-  alert('Figura guardada.');
-}
-
-function loadSelectedFigToBuilder(){
-  const id = dom.existingFigs.value;
-  if(!id) return;
-  const fig = state.figs.find(x=>x.id===id);
-  if(!fig) return;
-  builderSeq = fig.seq.slice();
-  dom.figName.value = fig.name;
-  dom.figDiff.value = String(fig.diff);
-  renderBuilderSeq();
-}
-
-function deleteSelectedFig(){
-  const id = dom.existingFigs.value;
-  if(!id) { alert('Selecciona una figura para eliminar'); return; }
-  if(!confirm('Eliminar figura seleccionada permanentemente?')) return;
-  state.figs = state.figs.filter(f => f.id !== id);
-  saveFigs();
-  renderFigList();
-  renderEditorList();
-  alert('Eliminada.');
-}
-
-/* ---------- Input listeners ---------- */
-const keyMap = {
-  'ArrowLeft':'←','ArrowRight':'→','ArrowUp':'↑','ArrowDown':'↓',
-  'a':'A','s':'S','d':'D','w':'W','j':'J','k':'K'
+/* ---- Hit detection ---- */
+const hitKeys = {
+  "d":0,
+  "f":1,
+  "j":2,
+  "k":3
 };
 
-window.addEventListener('keydown', (ev) => {
-  const k = ev.key;
-  const mapped = keyMap[k] || (AVAILABLE_KEYS.includes(k.toUpperCase()) ? k.toUpperCase() : null);
-  if(mapped){
-    ev.preventDefault();
-    // if modal open & editable, push to builder instead of game
-    if(dom.modal.style.display === 'flex'){
-      addBuilderKey(mapped); return;
-    }
-    handleInput(mapped);
-  }
+document.addEventListener("keydown", e=>{
+  const key = e.key.toLowerCase();
+  if(hitKeys[key] === undefined) return;
+
+  hit(hitKeys[key]);
 });
 
-/* ---------- Button hooks ---------- */
-dom.btnStart.onclick = ()=> startGame();
-dom.btnPause.onclick = ()=> pauseToggle();
-dom.btnNext.onclick = ()=> {
-  if(!state.running){ alert('Primero inicia el juego.'); return; }
-  generateCombo();
-};
-dom.btnSkip.onclick = ()=> {
-  if(!state.running) return;
-  if(state.lives <= 1){ alert('No puedes saltar si te queda 1 o menos vidas.'); return; }
-  state.lives -= 1;
-  dom.lives.textContent = state.lives;
-  generateCombo();
-  dom.message.innerHTML = 'Saltado (perdiste 1 vida).';
-};
-dom.btnRandom.onclick = ()=> {
-  const c = chooseComboForLevel();
-  startComboById(c.id || c.id);
-};
-dom.btnResetLocal.onclick = ()=> {
-  if(confirm('Resetear figuras a las predeterminadas?')) resetFigsToDefault();
-};
-dom.btnEditor.onclick = ()=> openEditor();
-dom.btnCloseModal.onclick = ()=> closeEditor();
-dom.btnSaveFig.onclick = ()=> saveFigureFromBuilder();
-dom.btnClearBuilder.onclick = ()=> { builderSeq = []; renderBuilderSeq(); };
-dom.btnDeleteFig.onclick = ()=> deleteSelectedFig();
-dom.existingFigs.onchange = ()=> loadSelectedFigToBuilder();
-dom.btnEditQuick.onclick = ()=> {
-  // open editor and prefill with current combo for quick editing
-  if(state.currentCombo){
-    openEditor();
-    builderSeq = state.currentCombo.seq.slice();
-    renderBuilderSeq();
-    dom.figName.value = state.currentCombo.name + ' (copy)';
-  } else {
-    alert('Activa un combo para editarlo rápido (pulsa "Siguiente Combo" para generar uno).');
+function hit(laneIndex){
+  let best = null;
+  let bestDist = 999;
+
+  notes.forEach((n,i)=>{
+    if(n.lane === laneIndex){
+      const dist = Math.abs((n.y) - 520);
+      if(dist < bestDist){
+        bestDist = dist;
+        best = {n,i};
+      }
+    }
+  });
+
+  if(best && bestDist < 45){
+    perfectHit(best.n.el, best.i);
+  }else{
+    miss();
   }
-};
-
-/* ---------- Helpers for external buttons (used in render) ---------- */
-window.startComboById = function(id){
-  const f = state.figs.find(x=>x.id===id);
-  if(!f) return;
-  startComboById(id);
-};
-
-window.selectFigInEditor = function(id){
-  openEditor();
-  const fig = state.figs.find(x=>x.id===id);
-  if(!fig) return;
-  builderSeq = fig.seq.slice();
-  renderBuilderSeq();
-  dom.figName.value = fig.name;
-  dom.figDiff.value = String(fig.diff);
-  dom.existingFigs.value = id;
-};
-
-/* ---------- Init ---------- */
-function init(){
-  loadFigs();
-  renderFigList();
-  renderCurrentCombo();
-  renderEditorKeyButtons();
-  renderEditorList();
-  updateHUD();
-  updateProgress();
-  // small welcome pulse
-  setTimeout(()=>{ dom.silhouette.animate([{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:1200}); }, 200);
 }
 
-/* ---------- Start ---------- */
-init();
+/* ---- Perfect Hit ---- */
+function perfectHit(el, index){
+  score += 100 * multiplier;
+  combo++;
+  if(combo % 8 === 0) multiplier++;
 
-/* Expose some state for console debugging (optional) */
-window._bm = { state, saveFigs, loadFigs };
+  scoreEl.textContent = score;
+  comboEl.textContent = combo;
+  multiEl.textContent = multiplier;
 
+  dancer.classList.add("shake");
+  setTimeout(()=> dancer.classList.remove("shake"), 250);
+
+  beep(700);
+  el.remove();
+  notes.splice(index,1);
+}
+
+/* ---- Miss ---- */
+function miss(){
+  combo = 0;
+  multiplier = 1;
+  comboEl.textContent = combo;
+  multiEl.textContent = multiplier;
+  beep(180);
+}
+
+/* ---- Start ---- */
+document.getElementById("start").onclick = ()=> {
+  if(running) return;
+  running = true;
+
+  setInterval(()=> spawnNote(), 600);
+  loop();
+};
 </script>
+
 </body>
 </html>
-
