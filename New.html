@@ -2,175 +2,187 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Aerial Rhythm – SAFE MODE</title>
+<title>Aerial Rhythm</title>
 <style>
-    body {
-        margin: 0;
-        background: #0f0f1f;
-        font-family: Arial, sans-serif;
-        color: #fff;
-        text-align: center;
+    body{
+        margin:0;
+        background:#050010;
+        color:white;
+        font-family:Arial;
+        overflow:hidden;
     }
 
-    h1 { margin-top: 30px; }
-
-    #menu, #gameUI {
-        display: none;
+    #game{
+        width:400px;
+        height:600px;
+        background:#111;
+        margin:20px auto;
+        position:relative;
+        border:3px solid #8800ff;
+        box-shadow:0 0 20px #a300ff;
     }
 
-    button {
-        padding: 15px 30px;
-        margin: 10px;
-        font-size: 18px;
-        background: #6a00ff;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
+    /* Columnas donde caen las notas */
+    .lane{
+        width:100px;
+        height:600px;
+        border-right:1px solid #333;
+        float:left;
+        position:relative;
     }
 
-    #gameArea {
-        width: 90%;
-        height: 400px;
-        background: rgba(255,255,255,0.05);
-        border: 2px solid #ffffff55;
-        border-radius: 10px;
-        margin: 20px auto;
-        position: relative;
-        overflow: hidden;
+    /* Notas que caen */
+    .note{
+        width:80px;
+        height:20px;
+        background:#ff00ff;
+        position:absolute;
+        left:10px;
+        top:-20px;
+        border-radius:5px;
+        animation:fall 2s linear forwards;
     }
 
-    .note {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        position: absolute;
-        top: -70px;
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 26px;
-        font-weight: bold;
+    @keyframes fall{
+        from{ top:-40px; }
+        to{ top:580px; }
     }
 
-    .up    { background: #7300ff; }
-    .down  { background: #ff0095; }
-    .left  { background: #00caff; }
-    .right { background: #ffae00; }
+    /* Zona de impacto */
+    #hitbar{
+        width:400px;
+        height:50px;
+        background:#222;
+        position:absolute;
+        bottom:0;
+        border-top:3px solid #f0f;
+    }
 
-    #hitLine {
-        width: 100%;
-        height: 4px;
-        background: #ffffffaa;
-        position: absolute;
-        bottom: 50px;
+    /* Indicadores de teclas */
+    .key{
+        width:80px;
+        height:40px;
+        background:#440044;
+        border:2px solid #ff00ff;
+        border-radius:10px;
+        text-align:center;
+        line-height:40px;
+        position:absolute;
+        bottom:5px;
+        color:#fff;
+        font-weight:bold;
+    }
+
+    #kLeft{ left:10px; }
+    #kUp{ left:110px; }
+    #kDown{ left:210px; }
+    #kRight{ left:310px; }
+
+    #score{
+        text-align:center;
+        font-size:28px;
+        margin-top:10px;
     }
 </style>
 </head>
+
 <body>
 
-<h1>Aerial Rhythm</h1>
+<h1 style="text-align:center;">Aerial Rhythm</h1>
+<div id="score">Puntos: 0</div>
 
-<div id="menu">
-    <h2>Menú Principal</h2>
-    <button onclick="startGame()">Iniciar Juego</button>
-</div>
+<div id="game">
+    <div class="lane" id="lane0"></div>
+    <div class="lane" id="lane1"></div>
+    <div class="lane" id="lane2"></div>
+    <div class="lane" id="lane3"></div>
 
-<div id="gameUI">
-    <h3 id="score">Puntos: 0</h3>
-    <h3 id="combo">Combo: 0</h3>
+    <div id="hitbar"></div>
 
-    <div id="gameArea">
-        <div id="hitLine"></div>
-    </div>
+    <!-- Botones visuales -->
+    <div id="kLeft" class="key">←</div>
+    <div id="kUp" class="key">↑</div>
+    <div id="kDown" class="key">↓</div>
+    <div id="kRight" class="key">→</div>
 </div>
 
 <script>
-let score = 0;
-let combo = 0;
-let dropping;
-let speed = 1200;
+// ----------------------
+// MÚSICAS ROTATIVAS
+// ----------------------
+const songs = [
+    "https://cdn.pixabay.com/audio/2022/03/15/audio_2fe0ec1d6b.mp3",
+    "https://cdn.pixabay.com/audio/2023/03/19/audio_a1bbef3a8b.mp3",
+    "https://cdn.pixabay.com/audio/2022/10/26/audio_3fb5cace35.mp3"
+];
 
-// Mostrar menú al cargar
-window.onload = () => {
-    document.getElementById("menu").style.display = "block";
+let currentSong = 0;
+let audio = new Audio(songs[currentSong]);
+audio.volume = 0.5;
+
+// Reproduce siguiente canción al terminar
+audio.onended = () => {
+    currentSong = (currentSong + 1) % songs.length;
+    audio = new Audio(songs[currentSong]);
+    audio.play();
 };
 
-function startGame() {
-    document.getElementById("menu").style.display = "none";
-    document.getElementById("gameUI").style.display = "block";
+// ----------------------
+// NOTAS Y JUEGO
+// ----------------------
+let score = 0;
+const lanes = [0,1,2,3];
+const keyMap = { "ArrowLeft":0, "ArrowUp":1, "ArrowDown":2, "ArrowRight":3 };
 
-    score = 0;
-    combo = 0;
-    updateUI();
+function spawnNote(){
+    let lane = lanes[Math.floor(Math.random()*4)];
+    let div = document.createElement("div");
+    div.className = "note";
+    document.getElementById("lane"+lane).appendChild(div);
 
-    clearInterval(dropping);
-    dropping = setInterval(spawnNote, speed);
+    // Cuando termine la animación, eliminar nota
+    setTimeout(() => div.remove(), 2100);
 }
 
-function updateUI() {
-    document.getElementById("score").innerText = "Puntos: " + score;
-    document.getElementById("combo").innerText = "Combo: " + combo;
-}
+// Crear notas constantemente
+setInterval(spawnNote, 600);
 
-function spawnNote() {
-    const dirs = ["up", "down", "left", "right"];
-    let dir = dirs[Math.floor(Math.random() * dirs.length)];
+// ----------------------
+// DETECCIÓN DE IMPACTO
+// ----------------------
+document.addEventListener("keydown", e=>{
+    if(!(e.key in keyMap)) return;
 
-    let n = document.createElement("div");
-    n.classList.add("note", dir);
+    let laneNum = keyMap[e.key];
+    let lane = document.getElementById("lane"+laneNum);
+    let notes = lane.getElementsByClassName("note");
 
-    n.innerText =
-        dir === "up" ? "↑" :
-        dir === "down" ? "↓" :
-        dir === "left" ? "←" : "→";
+    for(let n of notes){
+        let pos = n.getBoundingClientRect().top;
 
-    n.dataset.direction = dir;
-
-    n.style.left =
-        dir === "left" ? "20%" :
-        dir === "right" ? "70%" :
-        "45%";
-
-    document.getElementById("gameArea").appendChild(n);
-
-    let pos = -60;
-    let fall = setInterval(() => {
-        pos += 3;
-        n.style.top = pos + "px";
-
-        if (pos > 380) {
+        // Área válida del hitbar
+        if(pos > 520 && pos < 580){
+            score += 100;
+            document.getElementById("score").innerHTML = "Puntos: " + score;
             n.remove();
-            combo = 0;
-            updateUI();
-            clearInterval(fall);
+            break;
         }
-    }, 20);
-}
+    }
 
-document.addEventListener("keydown", (e) => {
-    let dir =
-        e.key === "ArrowUp" ? "up" :
-        e.key === "ArrowDown" ? "down" :
-        e.key === "ArrowLeft" ? "left" :
-        e.key === "ArrowRight" ? "right" :
-        null;
-
-    if (!dir) return;
-
-    let notes = document.querySelectorAll(".note");
-
-    notes.forEach(n => {
-        let t = parseInt(n.style.top);
-        if (n.dataset.direction === dir && t > 260 && t < 420) {
-            score += 10 + combo;
-            combo++;
-            updateUI();
-            n.remove();
-        }
-    });
+    flashKey(laneNum);
 });
+
+// Animación del botón
+function flashKey(lane){
+    const ids = ["kLeft","kUp","kDown","kRight"];
+    let b = document.getElementById(ids[lane]);
+    b.style.background="#ff00ff";
+    setTimeout(()=>{ b.style.background="#440044"; },120);
+}
+
+// Iniciar la música
+audio.play();
+
 </script>
 
 </body>
