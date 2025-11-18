@@ -1,279 +1,684 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aerial Rhythm — Black Moon</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aerial Rhythm — Black Moon (Ultra)</title>
 <style>
-  body{
-    margin:0;
-    background:linear-gradient(180deg,#070a16,#0e0f1d,#1a0f28);
-    font-family:Arial,Helvetica,sans-serif;
-    color:#fff;
-    overflow:hidden;
+  :root{
+    --bg1:#050713; --bg2:#12071a;
+    --accent1:#9b59ff; --accent2:#ff66b2;
+    --glass: rgba(255,255,255,0.04);
+    --muted: rgba(255,255,255,0.12);
+    --success:#7effa1; --danger:#ff7a7a;
   }
-  h1{
-    text-align:center;
-    padding:10px 0;
-    font-size:24px;
-    letter-spacing:2px;
-    background:linear-gradient(90deg,#9333ff,#ff42c7);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin:8px 0 12px;
+  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;margin:0}
+  html,body{height:100%;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#fff}
+  .app{max-width:1200px;margin:12px auto;padding:14px;display:grid;grid-template-columns:1fr 360px;gap:16px}
+  header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .logo{display:flex;align-items:center;gap:12px}
+  .moon{
+    width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff3, #0000 40%), linear-gradient(180deg,#fff2,#fff0);
+    display:flex;align-items:center;justify-content:center;color:#111;font-weight:800;font-size:18px;
+    background-color:linear-gradient(180deg,#fff,#aaa);
+    box-shadow:0 8px 40px rgba(155,89,255,0.12), inset 0 -8px 20px rgba(0,0,0,0.5);
   }
-  .game{
-    width:100%;
-    height:600px;
-    position:relative;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+  h1{font-size:18px;letter-spacing:1px}
+  .main{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.03);min-height:640px}
+  .sidebar{display:flex;flex-direction:column;gap:12px}
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03)}
+  .menu{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px
   }
-  /* columnas de ritmo */
-  .lane{
-    width:90px;
-    height:100%;
-    border-left:1px solid rgba(255,255,255,0.06);
-    border-right:1px solid rgba(255,255,255,0.06);
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-  }
-  .hit-zone{
-    width:70px;
-    height:18px;
-    border-radius:6px;
-    border:2px solid rgba(255,255,255,0.25);
-    position:absolute;
-    bottom:60px;
-  }
-  .note{
-    width:70px;
-    height:26px;
-    border-radius:8px;
-    position:absolute;
-    background:linear-gradient(90deg,#9333ff,#ff42c7);
-    box-shadow:0 0 12px rgba(255,0,200,0.6);
-  }
+  button{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;padding:8px 12px;border-radius:10px;color:#071021;font-weight:700;cursor:pointer}
+  .muted-btn{background:var(--glass);color:inherit;border:1px solid rgba(255,255,255,0.04)}
+  .flex{display:flex;gap:10px;align-items:center}
+  /* Game canvas */
+  #game-wrap{position:relative;height:520px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:stretch}
+  .left-col{width:66%;padding:12px;display:flex;flex-direction:column;gap:12px}
+  .right-col{width:34%;padding:12px;display:flex;flex-direction:column;gap:12px}
+  .stage{flex:1;background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(255,255,255,0.02));border-radius:10px;position:relative;overflow:hidden;padding:8px;display:flex;align-items:flex-end;justify-content:center}
+  /* lanes */
+  .lanes{display:flex;gap:10px;height:100%;align-items:flex-end;justify-content:center;padding-bottom:90px;width:100%}
+  .lane{flex:1;max-width:110px;height:100%;position:relative;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));box-shadow: inset 0 8px 30px rgba(0,0,0,0.3)}
+  .lane .label{position:absolute;top:10px;left:8px;font-size:12px;color:var(--muted)}
+  .hitline{position:absolute;left:8px;right:8px;bottom:60px;height:18px;border-radius:10px;border:2px dashed rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center}
+  .note{position:absolute;left:calc(50% - 28px);width:56px;height:28px;border-radius:8px;background:linear-gradient(90deg,var(--accent1),var(--accent2));box-shadow:0 12px 30px rgba(155,89,255,0.12);display:flex;align-items:center;justify-content:center;font-weight:800;color:#071021}
   /* HUD */
-  .hud{
-    position:absolute;
-    top:0;
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    padding:10px 20px;
-    font-size:18px;
+  .hud{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px}
+  .hud .stat{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;min-width:120px;text-align:center}
+  .meter{height:10px;border-radius:8px;background:rgba(255,255,255,0.04);overflow:hidden}
+  .meter .bar{height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent2));width:0%}
+  /* controls row */
+  .controls{display:flex;gap:8px;align-items:center}
+  .small{padding:6px 8px;border-radius:8px;background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+  /* selector */
+  select,input[type="color"]{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit;width:100%}
+  textarea{width:100%;height:80px;background:rgba(255,255,255,0.02);border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.04);color:inherit}
+  .editor-row{display:flex;gap:8px}
+  .note-tiny{font-size:13px;color:var(--muted)}
+  /* silhouette */
+  .silhouette{position:absolute;right:24px;bottom:16px;width:200px;height:300px;border-radius:20px;background:linear-gradient(180deg,#0f0715,#2b163a);display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 20px 80px rgba(155,89,255,0.06)}
+  .silhouette .pose{font-weight:800;letter-spacing:1px;margin-bottom:12px}
+  .silhouette .figure{width:120px;height:120px;border-radius:60px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;font-weight:900}
+  .silhouette.celebrate{animation:celebrate 1s ease-in-out}
+  @keyframes celebrate{
+    0%{transform:translateY(0) rotate(0)}
+    30%{transform:translateY(-14px) rotate(-6deg)}
+    60%{transform:translateY(6px) rotate(6deg)}
+    100%{transform:translateY(0) rotate(0)}
   }
-  .multiplier{color:#b37dff;}
-  /* silueta */
-  .dancer{
-    position:absolute;
-    right:20px;
-    bottom:60px;
-    width:180px;
-    height:260px;
-    border-radius:20px;
-    background:linear-gradient(180deg,#1a1a1a,#3a2350);
-    box-shadow:inset 0 -50px 100px rgba(0,0,0,0.7);
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-    font-weight:bold;
-    font-size:14px;
+  /* achievements */
+  .ach{display:flex;flex-wrap:wrap;gap:8px}
+  .ach .item{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);min-width:110px;text-align:center}
+  /* responsive */
+  @media (max-width:980px){
+    .app{grid-template-columns:1fr; padding:8px}
+    .right-col{order:3}
+    .silhouette{right:8px;bottom:8px;width:150px;height:220px}
   }
-  .dancer.shake{
-    animation:shake 0.25s linear;
-  }
-  @keyframes shake{
-    0%{transform:translateX(0);}
-    25%{transform:translateX(-10px);}
-    50%{transform:translateX(10px);}
-    75%{transform:translateX(-6px);}
-    100%{transform:translateX(0);}
-  }
-  .controls{
-    text-align:center;
-    margin-top:6px;
-  }
-  button{
-    padding:8px 14px;
-    border:none;
-    border-radius:6px;
-    background:linear-gradient(90deg,#9333ff,#ff42c7);
-    font-weight:bold;
-    color:#fff;
-    cursor:pointer;
-  }
+  /* footer */
+  footer{grid-column:1/-1;text-align:center;color:rgba(255,255,255,0.18);font-size:12px;margin-top:10px}
 </style>
 </head>
-
 <body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="moon">●</div>
+        <div>
+          <h1>Black Moon — Aerial Rhythm (Ultra)</h1>
+          <div class="note-tiny">Showcase · Editor · Logros · Música dinámica</div>
+        </div>
+      </div>
+      <div class="flex">
+        <button id="btn-play">Jugar</button>
+        <button id="btn-practice" class="muted-btn">Práctica</button>
+        <button id="btn-editor" class="muted-btn">Editor</button>
+        <button id="btn-showcase" class="muted-btn">Showcase</button>
+      </div>
+    </header>
 
-<h1>AERIAL RHYTHM — BLACK MOON</h1>
+    <main class="main" id="main">
+      <div id="game-wrap">
+        <div class="left-col">
+          <div class="hud">
+            <div class="stat">Puntaje: <div id="score" style="font-size:18px;font-weight:800">0</div></div>
+            <div class="stat">Combo: <div id="combo" style="font-size:18px;font-weight:800">0</div></div>
+            <div class="stat">Multiplicador: <div id="multi" style="font-size:18px;font-weight:800">x1</div></div>
+            <div style="flex:1">
+              <div style="font-size:13px;color:var(--muted)">Nivel: <strong id="level">1</strong></div>
+              <div class="meter" style="margin-top:6px"><div class="bar" id="progress-bar"></div></div>
+            </div>
+          </div>
 
-<div class="hud">
-  <div>Puntaje: <span id="score">0</span></div>
-  <div>Combo: <span id="combo">0</span></div>
-  <div class="multiplier">x<span id="multi">1</span></div>
-</div>
+          <div class="stage" id="stage">
+            <div class="lanes" id="lanes"></div>
+            <div class="silhouette" id="silhouette" aria-hidden="true">
+              <div class="pose" id="pose">Reposo</div>
+              <div class="figure" id="figure">Isis</div>
+            </div>
+          </div>
 
-<div class="game">
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+            <div class="controls">
+              <button id="btn-next">Siguiente</button>
+              <button id="btn-skip" class="small">Saltar (pierdes 1 vida)</button>
+            </div>
+            <div style="margin-left:auto" class="note-tiny">Controles: D F J K o toca las columnas</div>
+          </div>
+        </div>
 
-  <div class="lane" id="lane1"><div class="hit-zone"></div></div>
-  <div class="lane" id="lane2"><div class="hit-zone"></div></div>
-  <div class="lane" id="lane3"><div class="hit-zone"></div></div>
-  <div class="lane" id="lane4"><div class="hit-zone"></div></div>
+        <aside class="right-col">
+          <div class="panel">
+            <label>Selecciona pista</label>
+            <select id="song-select">
+              <option value="ambient">Ambient Flow</option>
+              <option value="pulse">Pulse Aerial</option>
+              <option value="show">Showtime - High</option>
+            </select>
+            <label style="margin-top:8px">Skin de telas</label>
+            <input type="color" id="skin-color" value="#9b59ff" />
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="btn-export" class="small">Exportar</button>
+              <button id="btn-import" class="small">Importar</button>
+            </div>
+            <div style="margin-top:8px">
+              <label>Importar JSON (editor)</label>
+              <textarea id="import-text" placeholder='[{"time":0.5,"lane":1},...]'></textarea>
+              <button id="btn-load-json" class="small">Cargar Secuencia</button>
+            </div>
+          </div>
 
-  <div class="dancer" id="dancer">Ritmo</div>
-</div>
+          <div class="panel">
+            <label>Editor rápido</label>
+            <div class="note-tiny" style="margin-bottom:6px">Crea secuencias y guárdalas a localStorage</div>
+            <div class="editor-row">
+              <input id="fig-name" placeholder="Nombre" />
+              <select id="fig-diff"><option value="1">Fácil</option><option value="2">Medio</option><option value="3">Difícil</option></select>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button id="btn-add-note" class="small">Añadir nota (0s)</button>
+              <button id="btn-save-pattern" class="small">Guardar</button>
+            </div>
+            <div style="margin-top:8px">
+              <label>Patrones guardados</label>
+              <select id="saved-patterns"></select>
+              <div style="display:flex;gap:6px;margin-top:6px">
+                <button id="btn-load-pattern" class="small">Cargar</button>
+                <button id="btn-delete-pattern" class="small">Eliminar</button>
+              </div>
+            </div>
+          </div>
 
-<div class="controls">
-  <button id="start">Iniciar</button>
-  <p>Controles: <b>D – F – J – K</b></p>
-</div>
+          <div class="panel">
+            <label>Logros</label>
+            <div class="ach" id="achievements">
+              <div class="item">Novato</div>
+              <div class="item">Consistente</div>
+              <div class="item">Maestro</div>
+            </div>
+            <div style="margin-top:8px" class="note-tiny">Logros se desbloquean por puntaje, combos y niveles</div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer>Black Moon • Todos los derechos reservados — Generated by Aerial Rhythm Ultra</footer>
+  </div>
 
 <script>
-/* ---------------- AERIAL RHYTHM ENGINE ---------------- */
+/* ---------- Aerial Rhythm Ultra - Single File JS ---------- */
+/* Features: lanes, notes, levels, dynamic WebAudio tracks, editor, import/export, skins, achievements, showcase */
 
-const lanes = [
-  document.getElementById("lane1"),
-  document.getElementById("lane2"),
-  document.getElementById("lane3"),
-  document.getElementById("lane4")
-];
-
-let score = 0;
-let combo = 0;
-let multiplier = 1;
-let notes = [];
-let running = false;
-
-const dancer = document.getElementById("dancer");
-const scoreEl = document.getElementById("score");
-const comboEl = document.getElementById("combo");
-const multiEl = document.getElementById("multi");
-
-/* ---- Simple beep sounds ---- */
-function beep(freq=440, time=0.08){
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
-  o.connect(g);
-  g.connect(ctx.destination);
-  o.frequency.value = freq;
-  g.gain.value = 0.15;
-  o.start();
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + time);
-  setTimeout(()=> o.stop(), time*1000 + 30);
-}
-
-/* ---- Spawn Notes ---- */
-function spawnNote(){
-  const laneIndex = Math.floor(Math.random()*4);
-  const lane = lanes[laneIndex];
-  const n = document.createElement("div");
-  n.className="note";
-
-  n.style.top = "-30px";
-  lane.appendChild(n);
-
-  notes.push({el:n, lane:laneIndex, y:-30});
-}
-
-/* ---- Game Loop ---- */
-function loop(){
-  if(!running) return;
-  notes.forEach((n, i)=>{
-    n.y += 4;
-    n.el.style.top = n.y+"px";
-
-    // Miss
-    if(n.y > 600){
-      miss();
-      n.el.remove();
-      notes.splice(i,1);
-    }
-  });
-
-  requestAnimationFrame(loop);
-}
-
-/* ---- Hit detection ---- */
-const hitKeys = {
-  "d":0,
-  "f":1,
-  "j":2,
-  "k":3
+/* ---------- State ---------- */
+const STATE_KEY = 'bm_aerial_rhythm_ultra_v1';
+let state = {
+  score:0, combo:0, multi:1, level:1, lives:3,
+  progress:0, combosCleared:0, combosToClear:3,
+  skin: '#9b59ff',
+  selectedSong: 'ambient',
+  savedPatterns: {}, // name -> pattern[]
+  achievements: {}
 };
 
-document.addEventListener("keydown", e=>{
-  const key = e.key.toLowerCase();
-  if(hitKeys[key] === undefined) return;
+/* ---------- DOM ---------- */
+const lanesContainer = document.getElementById('lanes');
+const scoreEl = document.getElementById('score');
+const comboEl = document.getElementById('combo');
+const multiEl = document.getElementById('multi');
+const levelEl = document.getElementById('level');
+const progressBar = document.getElementById('progress-bar');
+const silhouette = document.getElementById('silhouette');
+const poseEl = document.getElementById('pose');
+const figureEl = document.getElementById('figure');
+const skinInput = document.getElementById('skin-color');
+const songSelect = document.getElementById('song-select');
+const savedPatternsSelect = document.getElementById('saved-patterns');
+const achievementsEl = document.getElementById('achievements');
+const importText = document.getElementById('import-text');
 
-  hit(hitKeys[key]);
+/* ---------- Lanes Setup ---------- */
+const LANE_COUNT = 4;
+let lanes = []; // DOM refs
+for(let i=0;i<LANE_COUNT;i++){
+  const lane = document.createElement('div');
+  lane.className = 'lane';
+  lane.dataset.index = i;
+  lane.innerHTML = `<div class="label">Lane ${i+1}</div><div class="hitline"></div>`;
+  lanesContainer.appendChild(lane);
+  lanes.push(lane);
+}
+let activeNotes = []; // {el, lane, y, time, id}
+
+/* ---------- Audio ---------- */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioCtx();
+let masterGain = audioCtx.createGain(); masterGain.gain.value = 0.9; masterGain.connect(audioCtx.destination);
+
+function playBeep(freq=440, time=0.08, type='sine', vol=0.12){
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(masterGain);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + time);
+  setTimeout(()=>o.stop(), time*1000 + 30);
+}
+
+/* Simple dynamic track generator: schedules a repeating pattern using oscillators */
+let trackInterval = null;
+function startTrack(name, tempo=100){
+  stopTrack();
+  // create a repeating sequence determined by song name and level
+  const base = name === 'ambient' ? [220, 264, 330, 440] : (name==='pulse' ? [280,330,380,440] : [320,400,480,560]);
+  const groove = name==='ambient' ? [1,0,1,0,1,0,1,0] : (name==='pulse' ? [1,1,0,1,1,0,1,0] : [1,1,1,0,1,1,1,0]);
+  const beatMs = 60000/tempo;
+  let idx = 0;
+  trackInterval = setInterval(()=>{
+    const now = audioCtx.currentTime;
+    const noteOn = groove[idx % groove.length];
+    if(noteOn){
+      const f = base[idx % base.length] * (1 + (state.level-1)*0.06);
+      playSynth(f, 0.12);
+    }
+    idx++;
+  }, beatMs/2);
+}
+function stopTrack(){ if(trackInterval) clearInterval(trackInterval); trackInterval = null; }
+function playSynth(freq, dur=0.12){
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  const f2 = audioCtx.createOscillator();
+  o.type='sine'; f2.type='sawtooth';
+  o.frequency.value = freq; f2.frequency.value = freq*1.98;
+  g.gain.value = 0.09;
+  const mix = audioCtx.createGain(); mix.gain.value = 0.6;
+  o.connect(mix); f2.connect(mix);
+  mix.connect(g); g.connect(masterGain);
+  o.start(); f2.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  setTimeout(()=>{ o.stop(); f2.stop(); }, dur*1000 + 40);
+}
+
+/* ---------- Game Engine ---------- */
+let running = false;
+let spawnTimer = null;
+let tickTimer = null;
+let speed = 2.8; // px per frame base (adjust by level)
+const HIT_Y = 420; // approximate y position of hitline in px (from top of lane)
+const HIT_WINDOW = 48; // px tolerance
+
+function startGame(mode = 'arcade'){
+  // resume audio context
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  running = true;
+  state.selectedSong = songSelect.value;
+  state.skin = skinInput.value;
+  applySkin();
+  resetRound();
+  startTrack(state.selectedSong, mode==='arcade'? 100 + (state.level-1)*6 : 90);
+  spawnTimer = setInterval(()=> spawnNoteRandom(), 650 - (state.level-1)*30);
+  tickTimer = requestAnimationFrame(tick);
+  updateHUD();
+}
+
+function stopGame(){
+  running = false;
+  if(spawnTimer) clearInterval(spawnTimer);
+  stopTrack();
+  cancelAnimationFrame(tickTimer);
+  // clear notes
+  activeNotes.forEach(n=>n.el.remove());
+  activeNotes = [];
+  updateHUD();
+}
+
+function resetRound(){
+  state.combo = 0; state.multi = 1; state.progress = 0; state.combosCleared = 0;
+  state.lives = 3;
+  updateHUD();
+}
+
+/* spawn notes from patterns or random */
+function spawnNote(laneIndex, fromTime){
+  const lane = lanes[laneIndex];
+  const n = document.createElement('div');
+  n.className = 'note';
+  n.style.background = `linear-gradient(90deg, ${state.skin}, ${shadeColor(state.skin, 30)})`;
+  // start above view
+  n.style.top = '-60px';
+  lane.appendChild(n);
+  const id = 'n_' + Math.random().toString(36).slice(2,9);
+  activeNotes.push({el:n, lane:laneIndex, y:-60, id, time: fromTime || performance.now()});
+}
+
+/* randomness/spawn patterns */
+function spawnNoteRandom(){
+  // choose lane weighted by level
+  const laneIndex = Math.floor(Math.random()*LANE_COUNT);
+  spawnNote(laneIndex);
+}
+
+/* movement tick */
+function tick(){
+  if(!running) return;
+  // move notes
+  for(let i=activeNotes.length-1;i>=0;i--){
+    const n = activeNotes[i];
+    n.y += speed + (state.level-1)*0.4;
+    n.el.style.top = n.y + 'px';
+    // check miss
+    // get lane top offset
+    const laneRect = lanes[n.lane].getBoundingClientRect();
+    const noteTop = n.el.getBoundingClientRect().top;
+    const hitline = laneRect.top + HIT_Y - (lanesContainer.getBoundingClientRect().top);
+    // but simpler: when y > 520 (below hitline) consider miss
+    if(n.y > 520){
+      // miss
+      handleMiss();
+      n.el.remove();
+      activeNotes.splice(i,1);
+    }
+  }
+  // schedule next frame
+  tickTimer = requestAnimationFrame(tick);
+}
+
+/* ---------- Input Handling ---------- */
+const keyToLane = {'d':0,'f':1,'j':2,'k':3};
+document.addEventListener('keydown', (e)=>{
+  const k = e.key.toLowerCase();
+  if(keyToLane[k] !== undefined){
+    handleHit(keyToLane[k]);
+  }
+});
+/* touch support: tap lane */
+lanes.forEach((lane, idx)=>{
+  lane.addEventListener('pointerdown', ()=> handleHit(idx));
 });
 
-function hit(laneIndex){
-  let best = null;
-  let bestDist = 999;
-
-  notes.forEach((n,i)=>{
-    if(n.lane === laneIndex){
-      const dist = Math.abs((n.y) - 520);
-      if(dist < bestDist){
-        bestDist = dist;
-        best = {n,i};
-      }
-    }
-  });
-
-  if(best && bestDist < 45){
-    perfectHit(best.n.el, best.i);
-  }else{
-    miss();
+function handleHit(laneIndex){
+  if(!running) return;
+  // find nearest note in lane
+  let bestIdx = -1; let bestDist = 9999;
+  for(let i=0;i<activeNotes.length;i++){
+    if(activeNotes[i].lane !== laneIndex) continue;
+    // compute distance to hit position: we use n.y approximated
+    const n = activeNotes[i];
+    const dist = Math.abs(n.y - 420);
+    if(dist < bestDist){ bestDist = dist; bestIdx = i; }
+  }
+  if(bestIdx >= 0 && bestDist <= HIT_WINDOW){
+    // grade quality
+    const quality = gradeFromDist(bestDist);
+    handleSuccess(activeNotes[bestIdx], quality);
+    activeNotes[bestIdx].el.remove();
+    activeNotes.splice(bestIdx,1);
+  } else {
+    // no note - miss
+    handleMiss();
   }
 }
 
-/* ---- Perfect Hit ---- */
-function perfectHit(el, index){
-  score += 100 * multiplier;
-  combo++;
-  if(combo % 8 === 0) multiplier++;
-
-  scoreEl.textContent = score;
-  comboEl.textContent = combo;
-  multiEl.textContent = multiplier;
-
-  dancer.classList.add("shake");
-  setTimeout(()=> dancer.classList.remove("shake"), 250);
-
-  beep(700);
-  el.remove();
-  notes.splice(index,1);
+function gradeFromDist(dist){
+  if(dist < 16) return 'perfect';
+  if(dist < 32) return 'great';
+  return 'good';
 }
 
-/* ---- Miss ---- */
-function miss(){
-  combo = 0;
-  multiplier = 1;
-  comboEl.textContent = combo;
-  multiEl.textContent = multiplier;
-  beep(180);
+function handleSuccess(noteObj, quality){
+  // points: perfect=300, great=200, good=100 times multiplier
+  const base = quality === 'perfect' ? 300 : (quality==='great'?200:100);
+  state.score += Math.round(base * state.multi);
+  state.combo += 1;
+  if(state.combo % 8 === 0) state.multi += 1;
+  state.progress += 1;
+  // silhouette animation
+  flashSilhouette(quality);
+  playFeedbackSound(quality);
+  updateHUD();
+  // if progress enough, level up
+  if(state.progress >= state.combosToClear){
+    levelUp();
+  }
 }
 
-/* ---- Start ---- */
-document.getElementById("start").onclick = ()=> {
-  if(running) return;
+function handleMiss(){
+  state.combo = 0;
+  state.multi = 1;
+  state.lives -= 1;
+  playFeedbackSound('miss');
+  silhouette.classList.remove('celebrate');
+  poseEl.textContent = 'Falló';
+  updateHUD();
+  if(state.lives <= 0){
+    endRound();
+  }
+}
+
+/* ---------- HUD & visuals ---------- */
+function updateHUD(){
+  scoreEl.textContent = state.score;
+  comboEl.textContent = state.combo;
+  multiEl.textContent = 'x' + state.multi;
+  levelEl.textContent = state.level;
+  const pct = Math.min(100, Math.round((state.progress / state.combosToClear) * 100));
+  progressBar.style.width = pct + '%';
+}
+
+/* silhouette flash based on quality */
+function flashSilhouette(quality){
+  poseEl.textContent = quality.toUpperCase();
+  silhouette.classList.add('celebrate');
+  setTimeout(()=>{ silhouette.classList.remove('celebrate'); poseEl.textContent = 'Reposo'; }, 700);
+}
+function playFeedbackSound(quality){
+  if(quality === 'perfect'){ playBeep(880,0.09,'sine',0.12); playBeep(1200,0.05,'sine',0.06); }
+  else if(quality === 'great'){ playBeep(660,0.08,'triangle',0.11); }
+  else if(quality === 'good'){ playBeep(500,0.07,'sine',0.1); }
+  else playBeep(220,0.12,'sawtooth',0.16);
+}
+
+/* ---------- Leveling & Rounds ---------- */
+function levelUp(){
+  state.level += 1;
+  state.progress = 0;
+  state.combosToClear = 3 + Math.floor(state.level / 2);
+  playSynth(900, 0.12);
+  // small burst: spawn some notes
+  for(let i=0;i<4;i++) spawnNote(Math.floor(Math.random()*LANE_COUNT));
+  updateHUD();
+  saveState();
+}
+
+/* end round */
+function endRound(){
+  stopGame();
+  alert('Ronda terminada. Puntaje final: ' + state.score);
+  // showcase option: auto-play a choreography
+  unlockAchievements();
+  saveState();
+}
+
+/* ---------- Patterns / Editor ---------- */
+let editorPattern = []; // array of {time, lane}
+let editorTimeCursor = 0;
+
+document.getElementById('btn-editor').addEventListener('click', openEditorModal);
+document.getElementById('btn-play').addEventListener('click', ()=> { startGame('arcade'); });
+document.getElementById('btn-practice').addEventListener('click', ()=> { startGame('practice'); });
+document.getElementById('btn-next').addEventListener('click', ()=> spawnNoteRandom());
+document.getElementById('skin-color').addEventListener('input', (e)=> { state.skin = e.target.value; applySkin(); saveState(); });
+document.getElementById('song-select').addEventListener('change', (e)=> { state.selectedSong = e.target.value; saveState(); });
+
+document.getElementById('btn-export').addEventListener('click', exportPatterns);
+document.getElementById('btn-import').addEventListener('click', ()=> {
+  try{
+    const arr = JSON.parse(importText.value);
+    if(Array.isArray(arr)) editorPattern = arr; alert('Secuencia cargada en editor.');
+  }catch(e){ alert('JSON inválido'); }
+});
+document.getElementById('btn-load-json').addEventListener('click', ()=> {
+  try{
+    const arr = JSON.parse(importText.value);
+    if(Array.isArray(arr)){
+      // spawn the pattern over time
+      playPattern(arr);
+    } else alert('JSON inválido');
+  }catch(e){ alert('JSON inválido'); }
+});
+
+/* quick editor controls */
+document.getElementById('btn-add-note').addEventListener('click', ()=> {
+  // add a note at current cursor time and random lane for quickness
+  const lane = Math.floor(Math.random()*LANE_COUNT);
+  editorPattern.push({time: editorTimeCursor, lane});
+  editorTimeCursor += 0.5;
+  document.getElementById('btn-add-note').textContent = 'Añadir nota ('+ editorTimeCursor.toFixed(1) +'s)';
+});
+document.getElementById('btn-save-pattern').addEventListener('click', ()=> {
+  const name = document.getElementById('fig-name').value.trim() || ('Pattern ' + Date.now());
+  state.savedPatterns[name] = editorPattern.slice();
+  updateSavedPatternsUI();
+  saveState();
+  alert('Patrón guardado: ' + name);
+});
+document.getElementById('btn-load-pattern').addEventListener('click', ()=> {
+  const name = savedPatternsSelect.value;
+  if(!name) return alert('Selecciona un patrón');
+  const patt = state.savedPatterns[name];
+  if(!patt) return alert('Patrón no encontrado');
+  editorPattern = JSON.parse(JSON.stringify(patt));
+  alert('Patrón cargado en editor: ' + name);
+});
+document.getElementById('btn-delete-pattern').addEventListener('click', ()=> {
+  const name = savedPatternsSelect.value;
+  if(!name) return alert('Selecciona un patrón');
+  delete state.savedPatterns[name];
+  updateSavedPatternsUI();
+  saveState();
+  alert('Eliminado: ' + name);
+});
+
+/* play a pattern gradually */
+function playPattern(pattern){
+  if(!Array.isArray(pattern) || pattern.length === 0) return alert('Patrón vacío');
+  // stop existing game
+  stopGame();
+  // schedule notes by time (seconds)
+  const start = performance.now();
+  pattern.forEach(p => {
+    setTimeout(()=> spawnNote(p.lane), Math.max(0, (p.time || 0)*1000));
+  });
+  // play track to accompany
+  startTrack(state.selectedSong, 100);
   running = true;
+  tickTimer = requestAnimationFrame(tick);
+  // auto-stop after last note + buffer
+  const last = Math.max(...pattern.map(p=>p.time || 0));
+  setTimeout(()=> { stopGame(); }, (last + 3) * 1000);
+}
 
-  setInterval(()=> spawnNote(), 600);
-  loop();
-};
+/* ---------- Import/Export patterns ---------- */
+function exportPatterns(){
+  const data = JSON.stringify(state.savedPatterns);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'bm_patterns.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Utilities ---------- */
+function shadeColor(hex, percent) {
+  // lighten hex by percent (0-100)
+  const f = hex.slice(1), t = 0, R = parseInt(f.slice(0,2),16), G = parseInt(f.slice(2,4),16), B = parseInt(f.slice(4,6),16);
+  const newR = Math.min(255, Math.round(R + (255 - R) * (percent/100)));
+  const newG = Math.min(255, Math.round(G + (255 - G) * (percent/100)));
+  const newB = Math.min(255, Math.round(B + (255 - B) * (percent/100)));
+  return '#' + [newR,newG,newB].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+/* ---------- Persistence ---------- */
+function saveState(){ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+function loadState(){
+  const raw = localStorage.getItem(STATE_KEY);
+  if(raw) {
+    try{ const s = JSON.parse(raw); state = Object.assign(state, s); }catch(e){}
+  }
+}
+function updateSavedPatternsUI(){
+  savedPatternsSelect.innerHTML = '';
+  const keys = Object.keys(state.savedPatterns);
+  keys.forEach(k => {
+    const o = document.createElement('option'); o.value = k; o.textContent = k; savedPatternsSelect.appendChild(o);
+  });
+}
+
+/* ---------- Achievements ---------- */
+function unlockAchievements(){
+  // basic rules
+  if(state.score > 1000) state.achievements['Points 1k'] = true;
+  if(state.combo >= 20) state.achievements['Combo 20'] = true;
+  if(state.level >= 5) state.achievements['Climb 5'] = true;
+  renderAchievements();
+  saveState();
+}
+function renderAchievements(){
+  achievementsEl.innerHTML = '';
+  const all = ['Novato','Consistente','Maestro','Points 1k','Combo 20','Climb 5'];
+  all.forEach(name=>{
+    const el = document.createElement('div'); el.className='item';
+    if(state.achievements[name]) el.style.border = '2px solid var(--success)';
+    el.textContent = name;
+    achievementsEl.appendChild(el);
+  });
+}
+
+/* ---------- Showcase mode ---------- */
+document.getElementById('btn-showcase').addEventListener('click', ()=> {
+  // animate silhouette based on current score: higher score => cooler moves
+  const score = state.score;
+  // simple choreography: sequence of classes & labels
+  const moves = score > 1500 ? ['Invert','Spin','Drop','Pose'] : (score>700?['Spin','Hook','Pose']:['Climb','Pose']);
+  let i=0;
+  silhouette.style.transition = 'transform 300ms ease';
+  const iv = setInterval(()=> {
+    poseEl.textContent = moves[i% moves.length];
+    silhouette.style.transform = `translateY(${ (i%2? -10:0)}px) rotate(${ (i%2? -6:3)}deg)`;
+    i++;
+    if(i>8){ clearInterval(iv); silhouette.style.transform=''; poseEl.textContent='Reposo'; }
+  }, 420);
+});
+
+/* ---------- Editor Modal (simple inline) ---------- */
+function openEditorModal(){
+  const name = prompt('Nombre del patrón a editar/crear (deja vacío para cancelar)');
+  if(!name) return;
+  const existing = state.savedPatterns[name] || [];
+  const raw = prompt('Introduce patrón JSON (array de {time,lane}), o deja vacío para crear uno rápido. Ej: [{"time":0,"lane":0},{"time":0.5,"lane":2}]', JSON.stringify(existing));
+  if(raw === null) return;
+  try{
+    const arr = raw ? JSON.parse(raw) : [];
+    state.savedPatterns[name] = arr;
+    updateSavedPatternsUI();
+    saveState();
+    alert('Patrón guardado: ' + name);
+  }catch(e){ alert('JSON inválido'); }
+}
+
+/* ---------- Apply skin */
+function applySkin(){
+  // set CSS var? We'll set the note gradient when spawning; also adjust silhouette color accent
+  figureEl.style.background = `linear-gradient(90deg, ${state.skin}, ${shadeColor(state.skin, 30)})`;
+}
+
+/* ---------- Init ---------- */
+function init(){
+  loadState();
+  applySkin();
+  updateSavedPatternsUI();
+  renderAchievements();
+  updateHUD();
+  // wire some extras
+  document.getElementById('btn-practice').classList.add('muted-btn');
+  // preload some saved patterns example
+  if(Object.keys(state.savedPatterns).length === 0){
+    state.savedPatterns['Intro Flow'] = [{time:0,lane:0},{time:0.5,lane:1},{time:1.0,lane:2},{time:1.5,lane:3},{time:2.0,lane:2}];
+    state.savedPatterns['Spin Combo'] = [{time:0,lane:1},{time:0.4,lane:2},{time:0.8,lane:1},{time:1.2,lane:2},{time:1.6,lane:3}];
+    updateSavedPatternsUI();
+    saveState();
+  }
+  // start a light idle track for atmosphere
+  startTrack(state.selectedSong || 'ambient', 85);
+}
+
+/* ---------- Save on unload ---------- */
+window.addEventListener('beforeunload', ()=> saveState());
+
+init();
 </script>
-
 </body>
 </html>
+
