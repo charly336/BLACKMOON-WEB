@@ -1,192 +1,557 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Aerial Rhythm</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aerial Rhythm — DarkMoon (Integrable)</title>
 <style>
-    body{
-        margin:0;
-        background:#050010;
-        color:white;
-        font-family:Arial;
-        overflow:hidden;
-    }
+  :root{
+    --bg:#06030a;
+    --moon:#1b0b2a;
+    --neon1:#9b59ff;
+    --neon2:#ff66b2;
+    --glass: rgba(255,255,255,0.03);
+    --muted: rgba(255,255,255,0.12);
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#0a0812);color:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  /* Container for embedding */
+  section#aerial-rhythm-blackmoon{
+    max-width:1100px;margin:18px auto;padding:18px;border-radius:14px;position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.03);
+    box-shadow:0 20px 80px rgba(15,5,20,0.6);
+    overflow:hidden;
+  }
 
-    #game{
-        width:400px;
-        height:600px;
-        background:#111;
-        margin:20px auto;
-        position:relative;
-        border:3px solid #8800ff;
-        box-shadow:0 0 20px #a300ff;
-    }
+  /* Header */
+  .header{display:flex;align-items:center;gap:12px}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--neon1),var(--neon2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#07030a}
+  h2{margin:0;font-size:18px;letter-spacing:0.6px}
+  .sub{color:var(--muted);font-size:13px}
 
-    /* Columnas donde caen las notas */
-    .lane{
-        width:100px;
-        height:600px;
-        border-right:1px solid #333;
-        float:left;
-        position:relative;
-    }
+  /* Layout */
+  .wrap{display:grid;grid-template-columns:1fr 360px;gap:12px;margin-top:12px}
+  .main{padding:12px}
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.02)}
+  .right{padding:12px}
 
-    /* Notas que caen */
-    .note{
-        width:80px;
-        height:20px;
-        background:#ff00ff;
-        position:absolute;
-        left:10px;
-        top:-20px;
-        border-radius:5px;
-        animation:fall 2s linear forwards;
-    }
+  /* Stage */
+  .stage{
+    height:520px;border-radius:10px;position:relative;overflow:hidden;background:
+    radial-gradient(800px 200px at 10% 0%, rgba(155,89,255,0.04), transparent 20%),
+    radial-gradient(600px 160px at 90% 20%, rgba(255,102,178,0.03), transparent 18%),
+    linear-gradient(180deg, rgba(0,0,0,0.25), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.02);
+    display:flex;flex-direction:column;
+  }
+  /* moon background */
+  .moon {
+    position:absolute;right:-120px;top:-80px;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.04), rgba(0,0,0,0.45));
+    filter:blur(4px);opacity:0.55;mix-blend-mode:screen;
+  }
 
-    @keyframes fall{
-        from{ top:-40px; }
-        to{ top:580px; }
-    }
+  /* lanes */
+  .lanes{position:relative;display:flex;gap:10px;height:100%;align-items:flex-end;padding:22px;z-index:5}
+  .lane{flex:1;min-width:90px;max-width:180px;height:100%;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));border-radius:10px;position:relative;box-shadow:inset 0 8px 40px rgba(0,0,0,0.45)}
+  .label{position:absolute;top:12px;left:12px;font-size:12px;color:var(--muted)}
+  .hitline{position:absolute;left:10px;right:10px;bottom:84px;height:18px;border-radius:10px;border:2px dashed rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .note{
+    position:absolute;left:50%;transform:translateX(-50%);width:64px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#071021;
+    box-shadow:0 8px 30px rgba(155,89,255,0.06);z-index:6;
+    background:linear-gradient(90deg,var(--neon1),var(--neon2));
+  }
 
-    /* Zona de impacto */
-    #hitbar{
-        width:400px;
-        height:50px;
-        background:#222;
-        position:absolute;
-        bottom:0;
-        border-top:3px solid #f0f;
-    }
+  /* Silhouette / character */
+  .silhouette{
+    position:absolute;right:18px;bottom:18px;width:220px;height:300px;border-radius:18px;background:linear-gradient(180deg,#071021,#2b1936);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;box-shadow:0 20px 60px rgba(155,89,255,0.06);z-index:10
+  }
+  .silhouette .avatar{width:120px;height:120px;border-radius:60px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;font-weight:900;letter-spacing:1px}
+  .silhouette .pose{margin-top:8px;font-weight:700;color:var(--muted);font-size:13px}
 
-    /* Indicadores de teclas */
-    .key{
-        width:80px;
-        height:40px;
-        background:#440044;
-        border:2px solid #ff00ff;
-        border-radius:10px;
-        text-align:center;
-        line-height:40px;
-        position:absolute;
-        bottom:5px;
-        color:#fff;
-        font-weight:bold;
-    }
+  /* HUD */
+  .hud{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:6px}
+  .stat{padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);min-width:120px;text-align:center}
+  .progress{height:10px;border-radius:8px;background:rgba(255,255,255,0.04);overflow:hidden}
+  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--neon1),var(--neon2))}
 
-    #kLeft{ left:10px; }
-    #kUp{ left:110px; }
-    #kDown{ left:210px; }
-    #kRight{ left:310px; }
+  /* controls */
+  .controls{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .btn{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;cursor:pointer}
+  .btn.primary{background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#07030a;border:none}
 
-    #score{
-        text-align:center;
-        font-size:28px;
-        margin-top:10px;
-    }
+  /* editor */
+  .editor{display:flex;flex-direction:column;gap:6px}
+  textarea{width:100%;min-height:80px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px;border-radius:8px}
+
+  /* small responsive */
+  @media (max-width:980px){
+    .wrap{grid-template-columns:1fr}
+    .silhouette{right:8px;bottom:8px;width:160px;height:220px}
+  }
+
+  /* subtle glitch for DarkMoon */
+  .glitch {
+    position:absolute;left:6px;top:8px;font-weight:900;color:transparent;text-shadow:0 0 8px rgba(155,89,255,0.16);
+    mix-blend-mode:screen;z-index:4;
+  }
 </style>
 </head>
-
 <body>
 
-<h1 style="text-align:center;">Aerial Rhythm</h1>
-<div id="score">Puntos: 0</div>
+<section id="aerial-rhythm-blackmoon" aria-labelledby="title">
+  <div class="header">
+    <div class="logo">BM</div>
+    <div>
+      <h2 id="title">Aerial Rhythm — DarkMoon</h2>
+      <div class="sub">Integrable — Estética oscura, personajes en silueta y efectos neón</div>
+    </div>
+    <div style="margin-left:auto" class="glitch">● DARKMOON</div>
+  </div>
 
-<div id="game">
-    <div class="lane" id="lane0"></div>
-    <div class="lane" id="lane1"></div>
-    <div class="lane" id="lane2"></div>
-    <div class="lane" id="lane3"></div>
+  <div class="wrap">
+    <div class="main panel">
+      <div class="hud">
+        <div class="stat">Puntaje <div id="score" style="font-weight:900">0</div></div>
+        <div class="stat">Combo <div id="combo" style="font-weight:900">0</div></div>
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--muted)">Nivel <strong id="level">1</strong></div>
+          <div class="progress" style="margin-top:6px"><div id="prog" class="bar"></div></div>
+        </div>
+      </div>
 
-    <div id="hitbar"></div>
+      <div class="stage" id="stage" role="application" aria-label="Escenario de juego">
+        <div class="moon" aria-hidden="true"></div>
 
-    <!-- Botones visuales -->
-    <div id="kLeft" class="key">←</div>
-    <div id="kUp" class="key">↑</div>
-    <div id="kDown" class="key">↓</div>
-    <div id="kRight" class="key">→</div>
-</div>
+        <div class="lanes" id="lanes">
+          <!-- lanes injected by JS -->
+        </div>
+
+        <div class="silhouette" id="silhouette">
+          <div class="avatar" id="avatar">Isis</div>
+          <div class="pose" id="pose">Reposo</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="playBtn">Iniciar</button>
+        <button class="btn" id="pauseBtn">Pausa</button>
+        <button class="btn" id="menuBtn">Menú</button>
+
+        <div style="margin-left:auto;color:var(--muted);font-size:13px">Controles: ← ↑ ↓ → (teclado) · Toca columnas (móvil)</div>
+      </div>
+
+      <div style="margin-top:10px" class="note-tiny">Exporta/importa patrones con el editor de la derecha.</div>
+    </div>
+
+    <aside class="right panel">
+      <label><strong>Selección de canción</strong></label>
+      <select id="songSelect">
+        <option value="ambient">Ambient Flow (Synth)</option>
+        <option value="pulse">Pulse Aerial</option>
+        <option value="show">Showtime Heavy</option>
+      </select>
+
+      <label style="margin-top:8px">Skin color</label>
+      <input type="color" id="skinColor" value="#9b59ff" style="width:100%;height:40px;border-radius:8px;border:none;padding:4px" />
+
+      <div style="margin-top:10px" class="editor">
+        <label><strong>Editor — Patrón (JSON)</strong></label>
+        <textarea id="patternArea" placeholder='[{"time":0,"lane":0},{"time":0.5,"lane":2},...]'></textarea>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="loadPattern">Cargar</button>
+          <button class="btn" id="playPattern">Reproducir</button>
+          <button class="btn" id="savePattern">Guardar</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label><strong>Patrones guardados</strong></label>
+        <select id="savedList" size="4" style="width:100%;margin-top:6px"></select>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn" id="exportBtn">Export</button>
+          <button class="btn" id="importBtn">Import</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer style="margin-top:12px;text-align:center;color:var(--muted);font-size:13px">Black Moon • Aerial Rhythm — Sección integrable</footer>
+</section>
 
 <script>
-// ----------------------
-// MÚSICAS ROTATIVAS
-// ----------------------
-const songs = [
-    "https://cdn.pixabay.com/audio/2022/03/15/audio_2fe0ec1d6b.mp3",
-    "https://cdn.pixabay.com/audio/2023/03/19/audio_a1bbef3a8b.mp3",
-    "https://cdn.pixabay.com/audio/2022/10/26/audio_3fb5cace35.mp3"
-];
+/* ---------- Aerial Rhythm — DarkMoon (Single-file module) ---------- */
 
-let currentSong = 0;
-let audio = new Audio(songs[currentSong]);
-audio.volume = 0.5;
+/* Config */
+const LANE_COUNT = 4;
+const HIT_Y = 420; // visual reference for hit
+const HIT_WINDOW = 48; // px tolerance
+let skinColor = document.getElementById('skinColor').value;
+let running = false;
+let spawnTimer = null;
+let frameTimer = null;
+let audioCtx = null;
+let trackInterval = null;
 
-// Reproduce siguiente canción al terminar
-audio.onended = () => {
-    currentSong = (currentSong + 1) % songs.length;
-    audio = new Audio(songs[currentSong]);
-    audio.play();
+/* State */
+let GAME = {
+  score:0, combo:0, multi:1, level:1, progress:0, combosToClear:6,
+  notes:[], savedPatterns: {}
 };
 
-// ----------------------
-// NOTAS Y JUEGO
-// ----------------------
-let score = 0;
-const lanes = [0,1,2,3];
-const keyMap = { "ArrowLeft":0, "ArrowUp":1, "ArrowDown":2, "ArrowRight":3 };
+/* DOM */
+const lanesContainer = document.getElementById('lanes');
+const scoreEl = document.getElementById('score');
+const comboEl = document.getElementById('combo');
+const progEl = document.getElementById('prog');
+const levelEl = document.getElementById('level');
+const silhouette = document.getElementById('silhouette');
+const poseEl = document.getElementById('pose');
+const avatarEl = document.getElementById('avatar');
 
-function spawnNote(){
-    let lane = lanes[Math.floor(Math.random()*4)];
-    let div = document.createElement("div");
-    div.className = "note";
-    document.getElementById("lane"+lane).appendChild(div);
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const menuBtn = document.getElementById('menuBtn');
+const songSelect = document.getElementById('songSelect');
+const patternArea = document.getElementById('patternArea');
+const loadPatternBtn = document.getElementById('loadPattern');
+const playPatternBtn = document.getElementById('playPattern');
+const savePatternBtn = document.getElementById('savePattern');
+const savedList = document.getElementById('savedList');
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
 
-    // Cuando termine la animación, eliminar nota
-    setTimeout(() => div.remove(), 2100);
+/* Setup lanes */
+function initLanes(){
+  lanesContainer.innerHTML = '';
+  for(let i=0;i<LANE_COUNT;i++){
+    const l = document.createElement('div');
+    l.className = 'lane';
+    l.dataset.index = i;
+    l.innerHTML = `<div class="label">Lane ${i+1}</div><div class="hitline"></div>`;
+    // touch support: pointerdown
+    l.addEventListener('pointerdown', ()=> handleHit(i));
+    lanesContainer.appendChild(l);
+  }
+}
+initLanes();
+
+/* Note spawn/movement */
+function spawnNote(laneIndex, color){
+  const lane = lanesContainer.children[laneIndex];
+  const n = document.createElement('div');
+  n.className = 'note';
+  n.style.background = `linear-gradient(90deg, ${skinColor}, ${shadeColor(skinColor, 35)})`;
+  n.style.top = '-60px';
+  lane.appendChild(n);
+  const noteObj = { el: n, lane: laneIndex, y: -60, id: 'n'+Math.random().toString(36).slice(2,9) };
+  GAME.notes.push(noteObj);
 }
 
-// Crear notas constantemente
-setInterval(spawnNote, 600);
+/* Random spawner for arcade flow */
+function startSpawner(){
+  stopSpawner();
+  const base = Math.max(500, 900 - (GAME.level-1)*40);
+  spawnTimer = setInterval(()=> {
+    const lane = Math.floor(Math.random()*LANE_COUNT);
+    spawnNote(lane);
+  }, base);
+}
+function stopSpawner(){
+  if(spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
+}
 
-// ----------------------
-// DETECCIÓN DE IMPACTO
-// ----------------------
-document.addEventListener("keydown", e=>{
-    if(!(e.key in keyMap)) return;
-
-    let laneNum = keyMap[e.key];
-    let lane = document.getElementById("lane"+laneNum);
-    let notes = lane.getElementsByClassName("note");
-
-    for(let n of notes){
-        let pos = n.getBoundingClientRect().top;
-
-        // Área válida del hitbar
-        if(pos > 520 && pos < 580){
-            score += 100;
-            document.getElementById("score").innerHTML = "Puntos: " + score;
-            n.remove();
-            break;
-        }
+/* Frame tick */
+function tick(){
+  // move notes
+  for(let i=GAME.notes.length-1;i>=0;i--){
+    const n = GAME.notes[i];
+    n.y += 3 + (GAME.level-1)*0.25;
+    n.el.style.top = n.y + 'px';
+    if(n.y > 560){
+      // miss
+      n.el.remove();
+      GAME.notes.splice(i,1);
+      handleMiss();
     }
+  }
+  frameTimer = requestAnimationFrame(tick);
+}
 
-    flashKey(laneNum);
+/* Hit handling */
+function handleHit(laneIndex){
+  if(!running) return;
+  let bestIdx=-1, bestDist=9999;
+  for(let i=0;i<GAME.notes.length;i++){
+    if(GAME.notes[i].lane !== laneIndex) continue;
+    const dist = Math.abs(GAME.notes[i].y - HIT_Y);
+    if(dist < bestDist){ bestDist = dist; bestIdx = i; }
+  }
+  if(bestIdx >= 0 && bestDist <= HIT_WINDOW){
+    // success
+    const grade = gradeFromDist(bestDist);
+    handleSuccess(GAME.notes[bestIdx], grade);
+    GAME.notes[bestIdx].el.remove();
+    GAME.notes.splice(bestIdx,1);
+  } else {
+    handleMiss();
+  }
+}
+
+/* Grading */
+function gradeFromDist(d){
+  if(d < 14) return 'perfect';
+  if(d < 30) return 'great';
+  return 'good';
+}
+
+/* Success & Miss */
+function handleSuccess(note, grade){
+  const base = grade==='perfect'?300: grade==='great'?180:90;
+  GAME.score += Math.round(base * GAME.multi);
+  GAME.combo += 1;
+  if(GAME.combo % 8 === 0) GAME.multi += 1;
+  GAME.progress += 1;
+  flashSilhouette(grade);
+  playToneForGrade(grade);
+  updateHUD();
+  if(GAME.progress >= GAME.combosToClear){
+    levelUp();
+  }
+}
+function handleMiss(){
+  GAME.combo = 0; GAME.multi = 1; GAME.lives = (GAME.lives||3)-1;
+  poseEl.textContent = 'FALLÓ';
+  playToneForGrade('miss');
+  updateHUD();
+  if(GAME.lives <= 0) {
+    endRun();
+  }
+}
+
+/* HUD */
+function updateHUD(){
+  scoreEl.textContent = GAME.score;
+  comboEl.textContent = GAME.combo;
+  progEl.style.width = Math.min(100, Math.round((GAME.progress / GAME.combosToClear)*100)) + '%';
+  levelEl.textContent = GAME.level;
+}
+
+/* Level up & end */
+function levelUp(){
+  GAME.level += 1;
+  GAME.progress = 0;
+  GAME.combosToClear = 6 + Math.floor(GAME.level/1.6);
+  spawnBurst();
+  updateHUD();
+  saveState();
+}
+function spawnBurst(){
+  for(let i=0;i<6;i++){
+    spawnNote(Math.floor(Math.random()*LANE_COUNT));
+  }
+}
+function endRun(){
+  stopGame();
+  setTimeout(()=> alert('Run ended — Score: ' + GAME.score), 200);
+}
+
+/* Start / Stop game */
+function startGame(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  running = true;
+  GAME.progress = 0;
+  GAME.lives = 3;
+  GAME.notes = [];
+  GAME.score = GAME.score || 0;
+  startSpawner();
+  frameTimer = requestAnimationFrame(tick);
+  updateHUD();
+  startTrack(songSelect.value);
+}
+function stopGame(){
+  running = false;
+  stopSpawner();
+  if(frameTimer) cancelAnimationFrame(frameTimer);
+  // clear notes DOM
+  GAME.notes.forEach(n=> n.el.remove());
+  GAME.notes = [];
+  stopTrack();
+}
+
+/* Pause */
+playBtn.addEventListener('click', ()=> { if(!running) startGame(); });
+pauseBtn.addEventListener('click', ()=> { if(running) stopGame(); else startGame(); });
+menuBtn.addEventListener('click', ()=> { stopGame(); /* return to menu could be implemented */ });
+
+/* Keyboard */
+const keyToLane = {'ArrowLeft':0,'ArrowUp':1,'ArrowDown':2,'ArrowRight':3};
+document.addEventListener('keydown', (e) => {
+  if(keyToLane[e.key] !== undefined){
+    e.preventDefault();
+    handleHit(keyToLane[e.key]);
+    flashKey(keyToLane[e.key]);
+  }
 });
 
-// Animación del botón
-function flashKey(lane){
-    const ids = ["kLeft","kUp","kDown","kRight"];
-    let b = document.getElementById(ids[lane]);
-    b.style.background="#ff00ff";
-    setTimeout(()=>{ b.style.background="#440044"; },120);
+/* Touch visuals (flash lane) */
+function flashKey(l){
+  const lane = lanesContainer.children[l];
+  lane.animate([{filter:'brightness(1.3)'},{filter:'brightness(1)'}],{duration:160});
 }
 
-// Iniciar la música
-audio.play();
+/* Silhouette flash */
+function flashSilhouette(kind){
+  poseEl.textContent = kind.toUpperCase();
+  silhouette.classList.add('celebrate');
+  setTimeout(()=>{ silhouette.classList.remove('celebrate'); poseEl.textContent = 'Reposo'; }, 700);
+}
 
+/* Audio: small synth tones for feedback + simple dynamic track */
+function playToneForGrade(grade){
+  if(!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  if(grade==='perfect'){ o.type='sine'; o.frequency.value = 880; g.gain.value = 0.12; }
+  else if(grade==='great'){ o.type='triangle'; o.frequency.value = 660; g.gain.value = 0.1; }
+  else if(grade==='good'){ o.type='sawtooth'; o.frequency.value = 520; g.gain.value = 0.08; }
+  else { o.type='square'; o.frequency.value = 220; g.gain.value = 0.14; }
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(now);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+  setTimeout(()=> o.stop(), 160);
+}
+
+/* Track generator (ambient per selection) */
+function startTrack(name){
+  stopTrack();
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // simple pattern based on name and level
+  let base;
+  if(name==='ambient') base=[220,264,330,440];
+  else if(name==='pulse') base=[280,330,380,440];
+  else base=[320,400,480,560];
+  let idx = 0;
+  trackInterval = setInterval(()=> {
+    const f = base[idx % base.length] * (1 + (GAME.level-1)*0.03);
+    playSynth(f, 0.12);
+    idx++;
+  }, 300);
+}
+function stopTrack(){ if(trackInterval) clearInterval(trackInterval); trackInterval=null; }
+function playSynth(freq, dur=0.12){
+  if(!audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type='sine'; o.frequency.value = freq;
+  g.gain.value = 0.06;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  setTimeout(()=> o.stop(), dur*1000 + 40);
+}
+
+/* Pattern editor: parse/load/play/save */
+loadPatternBtn.addEventListener('click', ()=> {
+  try{
+    const arr = JSON.parse(patternArea.value || '[]');
+    GAME.editorPattern = arr;
+    alert('Patrón cargado ('+arr.length+' notas)');
+  }catch(e){ alert('JSON inválido'); }
+});
+playPatternBtn.addEventListener('click', ()=> {
+  try{
+    const arr = JSON.parse(patternArea.value || '[]');
+    playPattern(arr);
+  }catch(e){ alert('JSON inválido'); }
+});
+savePatternBtn.addEventListener('click', ()=> {
+  const name = prompt('Nombre para guardar el patrón');
+  if(!name) return;
+  try{
+    const arr = JSON.parse(patternArea.value || '[]');
+    GAME.savedPatterns[name] = arr;
+    updateSavedList();
+    saveState();
+    alert('Guardado: ' + name);
+  }catch(e){ alert('JSON inválido'); }
+});
+
+/* playPattern: spawn notes by time (seconds) */
+function playPattern(pattern){
+  if(!Array.isArray(pattern) || pattern.length===0) return alert('Patrón vacío');
+  stopGame();
+  const start = performance.now();
+  pattern.forEach(p => {
+    const t = Math.max(0, (p.time || 0) * 1000);
+    setTimeout(()=> spawnNote(p.lane), t);
+  });
+}
+
+/* persistence */
+const STORAGE_KEY = 'bm_darkmoon_rhythm_v1';
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ savedPatterns: GAME.savedPatterns, skinColor })); }
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw) {
+    try{
+      const o = JSON.parse(raw);
+      GAME.savedPatterns = o.savedPatterns || {};
+      skinColor = o.skinColor || skinColor;
+      document.getElementById('skinColor').value = skinColor;
+      updateSavedList();
+    }catch(e){}
+  }
+}
+function updateSavedList(){
+  savedList.innerHTML = '';
+  Object.keys(GAME.savedPatterns).forEach(k=>{
+    const o = document.createElement('option'); o.value=k; o.textContent=k; savedList.appendChild(o);
+  });
+}
+
+/* export/import */
+exportBtn.addEventListener('click', ()=> {
+  const data = JSON.stringify(GAME.savedPatterns, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'darkmoon_patterns.json'; a.click(); URL.revokeObjectURL(url);
+});
+importBtn.addEventListener('click', ()=> {
+  const raw = prompt('Pega JSON de patrones para importar');
+  if(!raw) return;
+  try{
+    const o = JSON.parse(raw);
+    GAME.savedPatterns = Object.assign(GAME.savedPatterns, o);
+    updateSavedList(); saveState(); alert('Importado');
+  }catch(e){ alert('JSON inválido'); }
+});
+
+/* UI skin change */
+document.getElementById('skinColor').addEventListener('input', (e)=> { skinColor = e.target.value; saveState(); });
+
+/* util shade */
+function shadeColor(hex, percent) {
+  const f = hex.slice(1), R = parseInt(f.slice(0,2),16), G = parseInt(f.slice(2,4),16), B = parseInt(f.slice(4,6),16);
+  const newR = Math.min(255, Math.round(R + (255 - R) * (percent/100)));
+  const newG = Math.min(255, Math.round(G + (255 - G) * (percent/100)));
+  const newB = Math.min(255, Math.round(B + (255 - B) * (percent/100)));
+  return '#' + [newR,newG,newB].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+/* init */
+loadState();
+updateHUD();
+
+/* Expose a small API for integration (global) */
+window.DarkMoonAerial = {
+  start: startGame,
+  stop: stopGame,
+  saveState: saveState,
+  loadState: loadState,
+  spawnNote: spawnNote,
+  setSkin: (c)=>{ document.getElementById('skinColor').value=c; skinColor=c; saveState(); }
+};
 </script>
-
 </body>
 </html>
-
-
-
