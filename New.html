@@ -2,44 +2,42 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Aerial Rhythm FIXED</title>
+<title>Aerial Rhythm – SAFE MODE</title>
 <style>
     body {
         margin: 0;
-        background: #0b0b1c;
+        background: #0f0f1f;
         font-family: Arial, sans-serif;
         color: #fff;
         text-align: center;
     }
 
-    h1 {
-        margin-top: 20px;
-    }
+    h1 { margin-top: 30px; }
 
     #menu, #gameUI {
         display: none;
     }
 
     button {
-        padding: 15px 25px;
+        padding: 15px 30px;
         margin: 10px;
         font-size: 18px;
-        border: none;
-        background: #7a00ff;
+        background: #6a00ff;
         color: #fff;
-        border-radius: 10px;
+        border: none;
+        border-radius: 8px;
         cursor: pointer;
     }
 
     #gameArea {
         width: 90%;
         height: 400px;
-        border: 2px solid #ffffff66;
+        background: rgba(255,255,255,0.05);
+        border: 2px solid #ffffff55;
+        border-radius: 10px;
         margin: 20px auto;
         position: relative;
         overflow: hidden;
-        background: rgba(255,255,255,0.05);
-        border-radius: 15px;
     }
 
     .note {
@@ -47,26 +45,26 @@
         height: 60px;
         border-radius: 50%;
         position: absolute;
-        top: -80px;
+        top: -70px;
+        color: #fff;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 28px;
+        font-size: 26px;
         font-weight: bold;
-        color: #fff;
     }
 
-    .up    { background: #6a00ff; }
-    .down  { background: #ff009d; }
-    .left  { background: #00d9ff; }
+    .up    { background: #7300ff; }
+    .down  { background: #ff0095; }
+    .left  { background: #00caff; }
     .right { background: #ffae00; }
 
     #hitLine {
         width: 100%;
-        height: 5px;
+        height: 4px;
         background: #ffffffaa;
         position: absolute;
-        bottom: 40px;
+        bottom: 50px;
     }
 </style>
 </head>
@@ -75,78 +73,50 @@
 <h1>Aerial Rhythm</h1>
 
 <div id="menu">
-    <h2>Elige canción</h2>
-    <button onclick="startGame('song1.mp3')">Canción 1</button>
-    <button onclick="startGame('song2.mp3')">Canción 2</button>
+    <h2>Menú Principal</h2>
+    <button onclick="startGame()">Iniciar Juego</button>
 </div>
 
 <div id="gameUI">
     <h3 id="score">Puntos: 0</h3>
     <h3 id="combo">Combo: 0</h3>
-    <h3 id="level">Nivel 1</h3>
 
     <div id="gameArea">
         <div id="hitLine"></div>
     </div>
-
-    <button onclick="pauseGame()">Pausa</button>
-    <button onclick="returnMenu()">Menú</button>
 </div>
 
 <script>
 let score = 0;
 let combo = 0;
-let level = 1;
-let speed = 1300;
-let gameInterval;
-let isPaused = false;
-let music;
+let dropping;
+let speed = 1200;
 
-function returnMenu() {
+// Mostrar menú al cargar
+window.onload = () => {
     document.getElementById("menu").style.display = "block";
-    document.getElementById("gameUI").style.display = "none";
-    clearInterval(gameInterval);
-    if (music) music.pause();
-}
+};
 
-function pauseGame() {
-    isPaused = !isPaused;
-    if (isPaused) music.pause();
-    else music.play();
-}
-
-function startGame(songFile) {
+function startGame() {
     document.getElementById("menu").style.display = "none";
     document.getElementById("gameUI").style.display = "block";
 
     score = 0;
     combo = 0;
-    level = 1;
-    speed = 1300;
-
     updateUI();
 
-    // Cargar música
-    music = new Audio(songFile);
-    music.loop = true;
-    music.volume = 0.7;
-    music.play();
-
-    clearInterval(gameInterval);
-    gameInterval = setInterval(spawnNote, speed);
+    clearInterval(dropping);
+    dropping = setInterval(spawnNote, speed);
 }
 
 function updateUI() {
-    document.getElementById("score").innerHTML = "Puntos: " + score;
-    document.getElementById("combo").innerHTML = "Combo: " + combo;
-    document.getElementById("level").innerHTML = "Nivel " + level;
+    document.getElementById("score").innerText = "Puntos: " + score;
+    document.getElementById("combo").innerText = "Combo: " + combo;
 }
 
 function spawnNote() {
-    if (isPaused) return;
-
     const dirs = ["up", "down", "left", "right"];
-    let dir = dirs[Math.floor(Math.random()*dirs.length)];
+    let dir = dirs[Math.floor(Math.random() * dirs.length)];
 
     let n = document.createElement("div");
     n.classList.add("note", dir);
@@ -165,10 +135,9 @@ function spawnNote() {
 
     document.getElementById("gameArea").appendChild(n);
 
-    let pos = -80;
+    let pos = -60;
     let fall = setInterval(() => {
-        if (isPaused) return;
-        pos += 3 + level * 0.6;
+        pos += 3;
         n.style.top = pos + "px";
 
         if (pos > 380) {
@@ -180,7 +149,7 @@ function spawnNote() {
     }, 20);
 }
 
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
     let dir =
         e.key === "ArrowUp" ? "up" :
         e.key === "ArrowDown" ? "down" :
@@ -194,17 +163,9 @@ document.addEventListener("keydown", e => {
 
     notes.forEach(n => {
         let t = parseInt(n.style.top);
-        if (n.dataset.direction === dir && t > 280 && t < 420) {
+        if (n.dataset.direction === dir && t > 260 && t < 420) {
             score += 10 + combo;
             combo++;
-            if (combo % 10 === 0) {
-                level++;
-                speed -= 150;
-                if (speed < 500) speed = 500;
-
-                clearInterval(gameInterval);
-                gameInterval = setInterval(spawnNote, speed);
-            }
             updateUI();
             n.remove();
         }
@@ -214,5 +175,6 @@ document.addEventListener("keydown", e => {
 
 </body>
 </html>
+
 
 
