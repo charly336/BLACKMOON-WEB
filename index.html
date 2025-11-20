@@ -1,178 +1,179 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>💻🌚 Blackmoon group 🌚💻</title>
- <style>
-			/* Ajusta el contenido a la pantalla */
-    body {
-      margin: auto;
-      padding: 10px 1px 15px 50px;
-      font-family: Arial, sans-serif;
-      text-align: justify;
-      background-image: url("GPO BKM 2.jpg");
-      color: #00ff66;
-        }
-      enlace-botón {
-  background-color: #00ff66;
-  border-color: #DEB84E;
-  color: #00ff66;
-  padding-block: 50px;
-  text-align: center;
-  text-decoration: underline overline dotted red;
-  display: inline-block;
-  font-size: 30px;
-  margin: 4px 2px;
-  cursor: zoom-in;
-  border-radius: 50px;
-  }
-        .espacio {
-            margin: 20px;
-        }
-        .imagen-mediana {
-            width: 200px;
-            height: 200px;
-            border: 2px solid #000;
-            border-radius: 10px;
-        }
-	     
-      
-	    h2 {
-            color: #2500FA;
-            font-weight: 800;
-         
-        }
-      
-      h1 {
-            color: #F5BE27;
-            font-family: Arial Black;
-            font-size: 100px;
-        }
-	   .logos-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 2px; /* espacio entre logos */
-    justify-items: left;
-  }
+<title>💻🌚 Blackmoon group 🌚💻</title>
 
-  .logos-container img {
-    width: 130px;
-    height: auto;
-    border-radius: 10px;
-    transition: transform 0.2s ease-in-out;
-  }
+<style>
 
-  .logos-container img:hover {
-    transform: scale(1.00);
-  }
+/* ------------------- AJUSTES GENERALES RESPONSIVE ------------------- */
+body {
+    margin: 0;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+    text-align: justify;
+    background-image: url("GPO BKM 2.jpg");
+    background-size: cover;
+    background-position: center;
+    color: #00ff66;
+}
 
-  a {
-    color: #00ff4c; /* color de los enlaces */
-    text-decoration-style: dotted;
+/* ------------------- BOTONES / LINKS ------------------- */
+.enlace-botón {
+    background-color: transparent;
+    color: var(--color-link, #00ff66);     /* ← puedes cambiarlo */
+    border: 2px solid var(--color-link, #00ff66);
+    padding: 15px 20px;
+    display: inline-block;
+    font-size: var(--size-link, 28px);     /* ← tamaño editable */
+    text-decoration: none;
     font-weight: bold;
-  }
+    border-radius: 12px;
+    margin: 10px 0;
+    transition: .3s;
+}
 
-  a:hover {
-    color: #ff4c00; /* color al pasar el cursor */
-  }
+.enlace-botón:hover {
+    color: #000;
+    background-color: var(--color-link, #00ff66);
+    transform: scale(1.05);
+}
 
-    </style>
-   </head>
-  <body>
-    <header>
+/* ------------------- IMÁGENES RESPONSIVE ------------------- */
+.imagen-mediana {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    border: 2px solid #000;
+    border-radius: 10px;
+    display: block;
+    margin-top: 5px;
+}
 
+/* ------------------- LISTA EN 2 COLUMNAS RESPONSIVE ------------------- */
+ul {
+    padding: 0;
+    list-style: none;
+    columns: 1;
+}
+
+@media(min-width: 700px) {
+    ul { columns: 2; }
+}
+
+/* ------------------- TITULOS ------------------- */
+h1 {
+    color: #F5BE27;
+    font-family: Arial Black;
+    font-size: 10vw;        /* responsive */
+    text-align: center;
+}
+
+h2 {
+    color: #2500FA;
+    font-weight: 800;
+}
+
+/* ------------------- MARQUEE ADAPTABLE ------------------- */
+marquee h1, marquee h2 {
+    font-size: 6vw;
+}
+
+/* ------------------- FOOTER RESPONSIVE ------------------- */
+footer {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
 
 <audio src="nudos de amor y traición [1].mp3" autoplay loop controls></audio>
 
-		
-	<marquee behavior="scroll" direction="above"><h1>BLACKMOON GROUP</h1></font></marquee>
-     
-		
-    <meta name="description" content="Descripción breve de mi sitio web">
-<body>
+<marquee behavior="scroll" direction="left">
+    <h1>BLACKMOON GROUP</h1>
+</marquee>
 
+</header>
 
+<ul>
 
-	
-   <ul style="columns: 2; list-style-position: inside;">
-	   
-	   <!-- boton aerial -->
-    <li><a href="AerialBM.HTML" class="enlace-botón">AERIAL BLACKMOON</a></il><br>
-    <a href="pagina1.html"></a>
-    <img src="aerial black moon.jpg" alt="Imagen 1" class="imagen-mediana">      
-    </div>
-    <div class="espacio"></li>
-	<!-- boton music -->	
-  <li><a href="Blackmoon music.html" class="enlace-botón">BLACKMOON RECORDS</a></il><br>
-  <a href="pagina1.html"></a>
-  <img src="Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg" alt="Imagen 1" class="imagen-mediana">    
-  </div>
-  <div class="espacio"></li>
-  <!-- Boton podcast -->  
-  <li><a href="PLATAFORMAS POD.HTML" class="enlace-botón">BLACKMOON PODCAST</a></il><br>
- <img src="BKM PODCAST 2.0.jpg" alt="Blackmoon podcast" class="imagen-mediana">
- </div>
-<div class="espacio"></li>
-<!-- Boton productos -->
-	<li><a href="REDES PBM.html" class="enlace-botón">PRODUCTOS BLACKMOON </a></il><br>
-    <img src="PRODUCTOS BKM 2.O.jpg" alt="Productos" class="imagen-mediana">
-     </div>
-    <div class="espacio"></li>
-<!-- Boton systems -->		
- <li><a href="SISTEMSBM.HTML" class="enlace-botón">BLACKMOON SYSTEMS</a></il><br>   
-	<a href="pagina4.html"></a>
-    <img src="bkm systerms 2.0.jpg" alt="Blacmoon Systems" class="imagen-mediana">
-    </div>
-    <div class="espacio"></li>
-<!-- Boton games-->
-<li><a href="Games List.html" class="enlace-botón">BLACKMOON GAMES</a></il><br>
-<img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" alt="games" class="imagen-mediana">
-</div>
-<div class="espacio"></li>
-<!-- Boton regalos -->    
- <a href="https://www.jotform.com/app/253047701093856" class="enlace-botón">BLACKMOON GIFT</a></il><br>
- <a href="https://www.jotform.com/app/253047701093856"></a>
- <img src="manualidades .jpg" alt="BLACKMOON GIFT" class="imagen-mediana">
- </div>
- <div class="espacio">
- <!-- Boton angeles de charly -->	
-  <li><il><a href="LADCH.HTML" class="enlace-botón">ANGELES DE CHARLY</a></il><br>
-  <a href="pagina4.html"></a>
-  <img src="ANGELESDE CHARLY.jpg" alt="Blacmoon Systems" class="imagen-mediana">
-  </div></li>
- <!-- Boton ayuda psicologica -->
-  <li><il><a href="https://eliza-03.github.io/Eliza-03.github.io./" class="enlace-botón">Acompañamiento psicologico</a></il><br>
-  <a href="pagina4.html"></a>
-  <img src="img_33.jpg" alt="Blacmoon Systems" class="imagen-mediana">
-  </div></li>
- <!-- Boton biker blackmoon -->
-  <li><il><a href="https://www.youtube.com/@BikerBlackmoon" class="enlace-botón">BIKER BLACKMOON</a></il><br>
-  <a href="pagina4.html"></a>
-  <img src="BIKER.jpg" alt="BIKER BLACKMOON" class="imagen-mediana">
-  </div></li>
+<!-- AERIAL -->
+<li>
+    <a href="AerialBM.HTML" class="enlace-botón">AERIAL BLACKMOON</a>
+    <img src="aerial black moon.jpg" class="imagen-mediana">
+</li>
+
+<!-- RECORDS -->
+<li>
+    <a href="Blackmoon music.html" class="enlace-botón">BLACKMOON RECORDS</a>
+    <img src="Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg" class="imagen-mediana">
+</li>
+
+<!-- PODCAST -->
+<li>
+    <a href="PLATAFORMAS POD.HTML" class="enlace-botón">BLACKMOON PODCAST</a>
+    <img src="BKM PODCAST 2.0.jpg" class="imagen-mediana">
+</li>
+
+<!-- PRODUCTOS -->
+<li>
+    <a href="REDES PBM.html" class="enlace-botón">PRODUCTOS BLACKMOON</a>
+    <img src="PRODUCTOS BKM 2.O.jpg" class="imagen-mediana">
+</li>
+
+<!-- SYSTEMS -->
+<li>
+    <a href="SISTEMSBM.HTML" class="enlace-botón">BLACKMOON SYSTEMS</a>
+    <img src="bkm systerms 2.0.jpg" class="imagen-mediana">
+</li>
+
+<!-- GAMES -->
+<li>
+    <a href="Games List.html" class="enlace-botón">BLACKMOON GAMES</a>
+    <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" class="imagen-mediana">
+</li>
+
+<!-- GIFTS -->
+<li>
+    <a href="https://www.jotform.com/app/253047701093856" class="enlace-botón">BLACKMOON GIFT</a>
+    <img src="manualidades .jpg" class="imagen-mediana">
+</li>
+
+<!-- ANGELES -->
+<li>
+    <a href="LADCH.HTML" class="enlace-botón">ANGELES DE CHARLY</a>
+    <img src="ANGELESDE CHARLY.jpg" class="imagen-mediana">
+</li>
+
+<!-- PSICOLOGICO -->
+<li>
+    <a href="https://eliza-03.github.io/Eliza-03.github.io./" class="enlace-botón">Acompañamiento psicologico</a>
+    <img src="img_33.jpg" class="imagen-mediana">
+</li>
+
+<!-- BIKER -->
+<li>
+    <a href="https://www.youtube.com/@BikerBlackmoon" class="enlace-botón">BIKER BLACKMOON</a>
+    <img src="BIKER.jpg" class="imagen-mediana">
+</li>
+
 </ul>
 
-	<footer class="pie de pagina">
-		<div class="grupo-1">
-		        <div class="box"></div>
-			<figure>
-				
-			</figure>
-		</div>	
-		 </header>
-			<div class="box">
-				<H2></H2>
-				
-				<marquee behavior="scroll" direction="left"><h2>&copy;©COPY; 2024, ING: Carlos Lezama</h2></font></marquee> 	 <!-- blanco -->
-				<marquee behavior="scroll" direction="left"><h2>&copy;5 Años Volando Alto</h2></font></marquee> 	 <!-- blanco -->
-                <marquee behavior="scroll" direction="left"><h2>&copy;Todos los Derechos Reservados </h2></font></marquee> 
-				
-		        </div>
-               <div id="sfckkagfddtrzmcett3q1lccnjk6lf4bmsx"></div><script type="text/javascript" src="https://counter4.optistats.ovh/private/counter.js?c=kkagfddtrzmcett3q1lccnjk6lf4bmsx&down=async" async></script><br><a href="https://www.contadorvisitasgratis.com">contador visitas blogger</a><noscript><a href="https://www.contadorvisitasgratis.com" title="contador visitas blogger"><img src="https://counter4.optistats.ovh/private/contadorvisitasgratis.php?c=kkagfddtrzmcett3q1lccnjk6lf4bmsx" border="0" title="contador visitas blogger" alt="contador visitas blogger"></a></noscript>
-            
-			
-</footer>    
+<footer>
+    <marquee behavior="scroll" direction="left"><h2>&copy;COPY; 2024, ING: Carlos Lezama</h2></marquee>
+    <marquee behavior="scroll" direction="left"><h2>5 Años Volando Alto</h2></marquee>
+    <marquee behavior="scroll" direction="left"><h2>Todos los Derechos Reservados</h2></marquee>
+</footer>
+
 </body>
 </html>
