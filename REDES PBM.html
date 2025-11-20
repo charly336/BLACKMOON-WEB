@@ -1,143 +1,189 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛒 PRODUCTOS BLACKMOON 🛒</title>
-    <style>
-        body {
-            background-image: url("02 podcast.jpg");
-            background-size: cover;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h2 {
-            font-weight: bold;
-            font-size: 35px;
-            color: #990000;
-        }
-      h1 {
-            font-weight: bold;
-            font-size: 35px;
-            color: #6600FF;
-        }
-      
-        a {
-            color: purple;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .espacio {
-            margin: 20px;
-        }
-      .carousel {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: auto;
-            overflow: hidden;
-            border: 2px solid #ddd;
-        }
-        .carousel-inner {
-            display: flex;
-            width: 300%;
-            transition: transform 0.5s ease;
-        }
-        .carousel-item {
-            width: 100%;
-            flex: 1 0 100%;
-        }
-        .carousel-item img {
-            width: 25%;
-            display: block;
-        }
-        .carousel-control {
-            position: absolute;
-            top: 50%;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transform: translateY(-50%);
-        }
-        .carousel-control.prev {
-            left: 10px;
-        }
-        .carousel-control.next {
-            right: 10px;
-        }
-      
-      .enlace-botón {
-  background-color: #CCCCFF;
-  border: none;
-  color: #6600FF;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 12px;
-  }
-      
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🛒 PRODUCTOS BLACKMOON 🛒</title>
+
+<style>
+
+/* ------------------ ESTILO GENERAL MINIMALISTA ------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: url("02 podcast.jpg") center/cover no-repeat fixed;
+    text-align: center;
+    color: #fff;
+}
+
+h1 {
+    font-size: clamp(28px, 5vw, 40px);
+    margin-top: 25px;
+    font-weight: bold;
+    color: #6600FF;
+}
+
+h2 {
+    font-size: clamp(20px, 4vw, 32px);
+    font-weight: bold;
+    color: #990000;
+}
+
+/* ------------------ BOTÓN ------------------ */
+.enlace-botón {
+    background-color: #CCCCFF;
+    border: none;
+    color: #6600FF;
+    padding: 14px 26px;
+    text-decoration: none;
+    font-size: clamp(18px, 2.5vw, 22px);
+    border-radius: 10px;
+    display: inline-block;
+    margin: 15px 0;
+    transition: .3s;
+}
+
+.enlace-botón:hover {
+    background: #e4ddff;
+    transform: scale(1.05);
+}
+
+/* ------------------ CARRUSEL RESPONSIVE ------------------ */
+.carousel {
+    position: relative;
+    width: 95%;
+    max-width: 350px;
+    margin: 20px auto;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.3);
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.carousel-item {
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 260px;             /* MISMA ALTURA PARA TODAS */
+    object-fit: cover;         /* recorte bonito */
+    border-radius: 10px;
+}
+
+/* Nombre debajo de la imagen */
+.img-name {
+    font-size: 18px;
+    margin-top: 8px;
+    color: #fff;
+}
+
+/* ------------------ FLECHAS DEL CARRUSEL ------------------ */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+.carousel-control:hover {
+    background: rgba(0,0,0,0.7);
+}
+
+</style>
 </head>
-	<title>Donde escucharnos | Inicio</title>
-    <meta name="description" content="Descripción breve de mi sitio web">
+
 <body>
-         <h1>PRODUCTOS BLACKMOON </h1><br>
-      
-<section>
-   <!-- boton informacion -->
-    
-<a href="https://wa.link/ni03b9" class="enlace-botón">INFORMACION</a></il><br>
-      
-      <!-- carrusel -->
-      
-      <div class="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item">
-   <img src="BREAS.jpg" alt="PAQUETE DE BREAS">
-            </div>
-            <div class="carousel-item">
-   <img src="BREAS 2.jpg" alt="Imagen 2">
-            </div>
-            <div class="carousel-item">
-   <img src="BREA SECA.jpg" alt="BREA SECA">
-            </div>
-            <div class="carousel-item">
-   <img src="02 BREAS.jpg" alt="BREAS">
-            </div>
-            <div class="carousel-item">
-   <img src="03 MAGNESIAS.jpg" alt="MAGNESIA">
-            </div>
-            <div class="carousel-item">
-   <img src="rec.jpg" alt="RECONOCIMIENTOS">
-            </div>
-            <div class="carousel-item">
-   <img src="pla.jpg" alt="PLAYERAS">
-            </div>
+
+<h1>PRODUCTOS BLACKMOON</h1>
+
+<a href="https://wa.link/ni03b9" class="enlace-botón">INFORMACIÓN</a>
+
+<!-- CARRUSEL MEJORADO -->
+<div class="carousel">
+    <div class="carousel-inner">
+
+        <div class="carousel-item">
+            <img src="BREAS.jpg" alt="PAQUETE DE BREAS">
+            <div class="img-name">PAQUETE DE BREAS</div>
         </div>
-        <button class="carousel-control prev" onclick="moveSlide(-1)">&#10094;</button>
-        <button class="carousel-control next" onclick="moveSlide(1)">&#10095;</button>
+
+        <div class="carousel-item">
+            <img src="BREAS 2.jpg" alt="Imagen 2">
+            <div class="img-name">BREAS 2</div>
+        </div>
+
+        <div class="carousel-item">
+            <img src="BREA SECA.jpg" alt="BREA SECA">
+            <div class="img-name">BREA SECA</div>
+        </div>
+
+        <div class="carousel-item">
+            <img src="02 BREAS.jpg" alt="BREAS">
+            <div class="img-name">BREAS</div>
+        </div>
+
+        <div class="carousel-item">
+            <img src="03 MAGNESIAS.jpg" alt="MAGNESIA">
+            <div class="img-name">MAGNESIA</div>
+        </div>
+
+        <div class="carousel-item">
+            <img src="rec.jpg" alt="RECONOCIMIENTOS">
+            <div class="img-name">RECONOCIMIENTOS</div>
+        </div>
+
+        <div class="carousel-item">
+            <img src="pla.jpg" alt="PLAYERAS">
+            <div class="img-name">PLAYERAS</div>
+        </div>
+
     </div>
 
-    <script>
-        let currentIndex = 0;
+    <button class="carousel-control prev" onclick="moveSlide(-1)">&#10094;</button>
+    <button class="carousel-control next" onclick="moveSlide(1)">&#10095;</button>
+</div>
 
-        function moveSlide(direction) {
-            const carouselInner = document.querySelector('.carousel-inner');
-            const totalItems = document.querySelectorAll('.carousel-item').length;
-            currentIndex = (currentIndex + direction + totalItems) % totalItems;
-            carouselInner.style.transform = `translateX(-${currentIndex * 100}%)`;
-        }
-    </script>
-   
-<marquee behavior="scroll" direction="left"><h2>&copy; Todos somos Blackmoon</h2></font></marquee> 	
-<marquee behavior="scroll" direction="left"><h2>&copy; Y..... VOLEMOS ALTO  </h2></font></marquee>
+<script>
+let currentIndex = 0;
+
+function moveSlide(direction) {
+    const items = document.querySelectorAll('.carousel-item');
+    const total = items.length;
+
+    currentIndex = (currentIndex + direction + total) % total;
+
+    document.querySelector('.carousel-inner').style.transform =
+        `translateX(-${currentIndex * 100}%)`;
+}
+</script>
+
+<marquee behavior="scroll" direction="left">
+    <h2>&copy; Todos somos Blackmoon</h2>
+</marquee>
+
+<marquee behavior="scroll" direction="left">
+    <h2>&copy; Y..... VOLEMOS ALTO</h2>
+</marquee>
+
+</body>
 </html>
