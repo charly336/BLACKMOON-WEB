@@ -104,6 +104,15 @@
     .app{flex-direction:column}
     .side{width:100%}
   }
+  body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+footer {
+  margin-top: auto;
+}
 </style>
 </head>
 <body>
@@ -172,9 +181,37 @@
         Consejo: Modo Ultra cambia tamaño para máximo reto.
       </div>
 
-      <footer>Black Moon — minimal glass</footer>
-    </aside>
-  </div>
+    footer {
+  margin-top: auto;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 14px;
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+
+  /* Degradado 3 colores */
+  background: linear-gradient(
+    90deg,
+    #9b5cff 0%,
+    #000000 50%,
+    #ff4fa7 100%
+  );
+
+  color: #ffffffcc;
+}
+
+footer a {
+  color: #ffffffee;
+  margin: 0 10px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+footer a:hover {
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(255,255,255,0.6);
+}
 
 <script>
 /* VARIABLES */
@@ -392,6 +429,11 @@ setupTimerByMode();
 
 /* 🔥 MEZCLA AUTOMÁTICA AL INICIAR 🔥 */
 shuffleBtn.click();
+  <footer>
+  <a href="#inicio">Inicio</a>
+  <a href="#juegos">Juegos</a>
+  <a href="#contacto">Contacto</a>
+</footer>
 
 </script>
 </body>
