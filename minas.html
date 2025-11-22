@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Black Moon Aerial — Aerial Mines (Buscaminas Aéreo)</title>
+  <style>
+    :root{
+      --bg1:#06030a; /* very dark */
+      --bg2:#0f0a14; /* dark purple */
+      --neon1:#9b59ff; /* neon purple */
+      --neon2:#6ee7b7; /* teal accent */
+      --glass: rgba(255,255,255,0.04);
+      --card: rgba(255,255,255,0.03);
+      --accent: linear-gradient(135deg,var(--neon1),#6b21a8);
+    }
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;}
+    body{
+      background: radial-gradient(ellipse at 20% 10%, rgba(155,89,255,0.06), transparent 8%),
+                  radial-gradient(circle at 80% 90%, rgba(110,231,183,0.03), transparent 10%),
+                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:#e6e6f0;
+      display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;
+    }
+
+    .app{
+      width:100%;max-width:1100px;background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,0.6);overflow:hidden;display:grid;grid-template-columns:340px 1fr;gap:0;
+      min-height:620px;
+    }
+
+    /* Left panel - controls */
+    .panel{
+      padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));backdrop-filter: blur(6px);
+      border-right:1px solid rgba(255,255,255,0.02);
+    }
+    h1{margin:0 0 8px 0;font-size:20px;letter-spacing:0.6px}
+    p.lead{margin:0 0 18px 0;opacity:0.9;font-size:13px}
+
+    .controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+    .row{display:flex;gap:8px;align-items:center}
+    select,input[type=number]{background:var(--card);border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:inherit}
+    button{background:var(--neon1);border:none;padding:10px 12px;border-radius:10px;color:#07060a;font-weight:700;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
+
+    .stats{display:flex;gap:8px;margin-top:8px}
+    .stat{background:linear-gradient(180deg, rgba(0,0,0,0.16), rgba(255,255,255,0.01));padding:8px;border-radius:8px;min-width:84px;text-align:center}
+    .stat b{display:block;font-size:20px}
+    .hint{font-size:12px;opacity:0.85;margin-top:12px}
+
+    /* Right - game area */
+    .game-wrap{padding:20px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:flex-start}
+    .board-wrap{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));padding:18px;border-radius:14px;display:flex;flex-direction:column;align-items:center}
+
+    .board{display:grid;gap:6px;background:transparent}
+    .cell{width:44px;height:44px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;user-select:none;border:1px solid rgba(255,255,255,0.02);box-shadow:inset 0 -6px 12px rgba(0,0,0,0.4)}
+    .cell.small{width:34px;height:34px;border-radius:6px}
+    .cell.revealed{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));cursor:default;box-shadow:none}
+    .cell.flag{position:relative}
+    .cell.flag::after{content:'⚑';position:absolute;top:6px;right:6px;font-size:14px}
+
+    /* numbers neon */
+    .n1{color:#9b59ff}
+    .n2{color:#6ee7b7}
+    .n3{color:#ffd166}
+    .n4{color:#ff6b6b}
+    .figure{font-size:11px;opacity:0.9}
+
+    /* responsive */
+    @media (max-width:880px){
+      .app{grid-template-columns:1fr}
+      .panel{order:2}
+    }
+
+    /* Moon and floating fabric decorative */
+    .decor{position:absolute;left:40px;top:20px;opacity:0.06;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #ffffff33, transparent 20%);filter:blur(8px)}
+    .fabric{position:absolute;right:40px;top:40%;width:280px;height:160px;background:linear-gradient(90deg, rgba(155,89,255,0.25), rgba(110,231,183,0.12));transform:rotate(-12deg);border-radius:60px;opacity:0.06}
+
+    /* modal */
+    .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(255,255,255,0.02));padding:18px;border-radius:12px;min-width:260px;border:1px solid rgba(155,89,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.8);display:none}
+    .modal.show{display:block}
+    .modal h3{margin:0 0 8px 0}
+    .modal p{margin:0}
+
+    .footer-note{font-size:12px;opacity:0.8;text-align:center;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="decor"></div>
+  <div class="fabric"></div>
+  <div class="app">
+    <div class="panel">
+      <h1>Black Moon — Aerial Mines</h1>
+      <p class="lead">Buscaminas inspirado en danza aérea. Las "minas" son <b>errores técnicos</b>. Revela casillas seguras para armar tu rutina.</p>
+
+      <div class="controls">
+        <div class="row">
+          <label for="size">Tamaño</label>
+          <select id="size">
+            <option value="8">8 × 8</option>
+            <option value="10" selected>10 × 10</option>
+            <option value="12">12 × 12</option>
+          </select>
+          <label for="mines">Errores</label>
+          <input id="mines" type="number" min="5" max="60" value="15" style="width:84px" />
+        </div>
+        <div class="row">
+          <button id="newBtn">Nueva Partida</button>
+          <button id="hintBtn" class="ghost">Mostrar Tip</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div>Errores</div>
+          <b id="mineCount">15</b>
+        </div>
+        <div class="stat">
+          <div>Tiempo</div>
+          <b id="timer">0s</b>
+        </div>
+      </div>
+
+      <div class="hint">Click izquierdo para revelar. Click derecho para marcar (flag). En lugar de perder, recibirás consejos técnicos.</div>
+      <div class="footer-note">Tema: <b>Glass BlackMoon</b> · Inspirado por tus clases de lunes/mié/vier.</div>
+    </div>
+
+    <div class="game-wrap">
+      <div class="board-wrap">
+        <div id="board" class="board" aria-hidden="false"></div>
+        <div style="margin-top:10px;text-align:center;font-size:13px;opacity:0.9">Rutina parcial: <span id="routine">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <h3 id="modalTitle">Error técnico detectado</h3>
+    <p id="modalText"></p>
+    <div style="height:8px"></div>
+    <div style="text-align:right"><button id="modalClose">Cerrar</button></div>
+  </div>
+
+  <script>
+    // --- Game logic adapted from classic Minesweeper but with educational twists ---
+    const boardEl = document.getElementById('board');
+    const sizeSel = document.getElementById('size');
+    const minesInput = document.getElementById('mines');
+    const newBtn = document.getElementById('newBtn');
+    const mineCountEl = document.getElementById('mineCount');
+    const timerEl = document.getElementById('timer');
+    const hintBtn = document.getElementById('hintBtn');
+    const routineEl = document.getElementById('routine');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalText = document.getElementById('modalText');
+    const modalClose = document.getElementById('modalClose');
+
+    let grid = [];
+    let size = parseInt(sizeSel.value);
+    let mineCount = parseInt(minesInput.value);
+    let revealed = 0;
+    let flags = 0;
+    let timer = 0; let timerInterval = null;
+
+    // sample dataset: figures + short descriptions
+    const FIGURES = [
+  {img:'figura1.jpg'},
+  {img:'figura2.jpg'},
+  {img:'figura3.jpg'},
+  {img:'figura4.jpg'},
+  {img:'figura5.jpg'}
+];
+
+    // errors (mines) tips
+    const ERRORS = [
+      {title:'Nudo suelto', text:'Revisa doblemente los nudos y el agarre antes de subir.'},
+      {title:'Tensión desigual', text:'Distribuye el peso y activa el core para mantener tensión.'},
+      {title:'Tela torcida', text:'Alinea la tela para evitar rozamiento y giros involuntarios.'},
+      {title:'Agarre débil', text:'Asegúrate de que las manos estén revisadas y secas.'},
+      {title:'Espacio insuficiente', text:'Verifica el espacio lateral para caídas y transiciones.'}
+    ];
+
+    function makeGrid(n){
+      grid = Array.from({length:n},()=>Array.from({length:n},()=>({mine:false,adj:0,revealed:false,flag:false,figure:null})));
+    }
+
+    function placeMines(nM){
+      let placed=0;const n=size;
+      while(placed < nM){
+        const r=Math.floor(Math.random()*n), c=Math.floor(Math.random()*n);
+        if(!grid[r][c].mine){grid[r][c].mine=true;placed++;}
+      }
+    }
+
+    function computeAdj(){
+      for(let r=0;r<size;r++){
+        for(let c=0;c<size;c++){
+          if(grid[r][c].mine) continue;
+          let count=0;
+          for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+            const nr=r+dr, nc=c+dc;
+            if(nr<0||nc<0||nr>=size||nc>=size) continue;
+            if(grid[nr][nc].mine) count++;
+          }
+          grid[r][c].adj=count;
+        }
+      }
+    }
+
+    function assignFigures(){
+      // assign figures randomly to safe cells so revealing teaches a figure
+      const safeCells=[];
+      for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(!grid[r][c].mine) safeCells.push([r,c]);
+      for(const f of FIGURES){
+        if(safeCells.length===0) break;
+        const idx=Math.floor(Math.random()*safeCells.length);
+        const [r,c]=safeCells.splice(idx,1)[0];
+        grid[r][c].figure=f;
+      }
+    }
+
+    function buildBoard(){
+      boardEl.innerHTML='';
+      boardEl.style.gridTemplateColumns = `repeat(${size}, auto)`;
+      for(let r=0;r<size;r++){
+        for(let c=0;c<size;c++){
+          const el=document.createElement('div');
+          el.className='cell';
+          el.dataset.r=r;el.dataset.c=c;
+          el.addEventListener('click', onCellClick);
+          el.addEventListener('contextmenu', onCellRight);
+          boardEl.appendChild(el);
+        }
+      }
+    }
+
+    function startGame(){
+      size = parseInt(sizeSel.value);
+      mineCount = Math.max(3, Math.min(parseInt(minesInput.value)||10, Math.floor(size*size*0.4)));
+      mineCountEl.textContent = mineCount;
+      revealed=0;flags=0;timer=0;timerEl.textContent='0s';clearInterval(timerInterval);
+
+      makeGrid(size);
+      placeMines(mineCount);
+      computeAdj();
+      assignFigures();
+      buildBoard();
+      routineEl.textContent='—';
+      startTimer();
+    }
+
+    function startTimer(){
+      clearInterval(timerInterval);
+      timerInterval = setInterval(()=>{timer++;timerEl.textContent = timer+'s';},1000);
+    }
+
+    function onCellClick(e){
+      const r=parseInt(this.dataset.r), c=parseInt(this.dataset.c);
+      const cell = grid[r][c];
+      if(cell.revealed || cell.flag) return;
+      revealCell(r,c);
+      updateRoutine();
+    }
+
+    function onCellRight(e){e.preventDefault();
+      const r=parseInt(this.dataset.r), c=parseInt(this.dataset.c);
+      const cell = grid[r][c];
+      if(cell.revealed) return;
+      cell.flag = !cell.flag;
+      this.classList.toggle('flag', cell.flag);
+      flags += cell.flag ? 1 : -1;
+      mineCountEl.textContent = Math.max(0, mineCount - flags);
+    }
+
+    function revealCell(r,c){
+      const cell=grid[r][c];
+      if(cell.revealed || cell.flag) return;
+      cell.revealed=true; revealed++;
+      const el = getEl(r,c);
+      el.classList.add('revealed');
+      if(cell.mine){
+        // educational modal instead of instant lose
+        const err = ERRORS[Math.floor(Math.random()*ERRORS.length)];
+        modalTitle.textContent = err.title;
+        modalText.textContent = err.text;
+        modal.classList.add('show');
+        playTone(120,0.12);
+        // reveal mine visually but don't end game
+        el.textContent = '✕'; el.style.color='#ff6b6b';
+        el.style.fontSize = '16px';
+        return;
+      }
+      // safe cell
+      if(cell.adj>0){
+        el.textContent = cell.adj;
+        el.classList.add('n'+Math.min(cell.adj,4));
+      } else {
+        // flood fill reveal
+        for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++){
+          const nr=r+dr, nc=c+dc;
+          if(nr<0||nc<0||nr>=size||nc>=size) continue;
+          if(!grid[nr][nc].revealed) revealCell(nr,nc);
+        }
+      }
+      // show figure if assigned
+      if(cell.figure){
+        const fig = document.createElement('div');
+        fig.className='figure';
+        fig.textContent = cell.figure.name + ' — ' + cell.figure.desc;
+        el.appendChild(fig);
+      }
+      playTone(440-(cell.adj*30),0.06);
+    }
+
+    function getEl(r,c){
+      const idx = r*size + c;
+      return boardEl.children[idx];
+    }
+
+    function updateRoutine(){
+      // simple: collect first 6 revealed safe figures into a mock routine
+      const seq=[];
+      for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+        const cell=grid[r][c];
+        if(cell.revealed && cell.figure) seq.push(cell.figure.name);
+        if(seq.length>=6) break;
+      }
+      routineEl.textContent = seq.length? seq.join(' → ') : '—';
+    }
+
+    // small web-audio tone for feedback
+    let audioCtx=null;
+    function initAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    function playTone(freq,dur){ initAudio(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.frequency.value = freq; o.type='sine'; g.gain.value=0.06; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + dur); }
+
+    // modal close
+    modalClose.addEventListener('click', ()=>{ modal.classList.remove('show'); });
+
+    // hint button provides a safe reveal or tip
+    hintBtn.addEventListener('click', ()=>{
+      // find a safe unrevealed cell and reveal
+      const candidates=[];
+      for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(!grid[r][c].revealed && !grid[r][c].mine) candidates.push([r,c]);
+      if(candidates.length===0) return;
+      const idx=Math.floor(Math.random()*candidates.length); const [r,c]=candidates[idx];
+      revealCell(r,c);
+      updateRoutine();
+    });
+
+    newBtn.addEventListener('click', startGame);
+
+    // initialize default
+    startGame();
+
+    // prevent context menu on board mobile long-press trick
+    boardEl.addEventListener('contextmenu', (e)=>{e.preventDefault();});
+
+    // keyboard controls: space for hint
+    window.addEventListener('keydown',(e)=>{ if(e.code==='Space'){ e.preventDefault(); hintBtn.click(); } });
+
+    // responsive reduction of cell size for smaller boards
+    function adjustCells(){
+      const w = window.innerWidth;
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach(c=>c.classList.toggle('small', w < 520));
+    }
+    window.addEventListener('resize', adjustCells);
+    adjustCells();
+
+  </script>
+</body>
+</html>
