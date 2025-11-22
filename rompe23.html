@@ -3,670 +3,397 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Black Moon Puzzle — Rompecabezas</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Black Moon Puzzle — Minimal Glass</title>
 <style>
   :root{
-    --bg:#04040a;
-    --panel: linear-gradient(180deg,#0f0f13,#08080a);
-    --accent:#9b5cff;
-    --accent-2:#5cf0ff;
-    --glass: rgba(255,255,255,0.03);
-    --muted:#aeb0c6;
-    --maxWidth:1100px;
+    --bg:#06060b;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.06);
+    --accent: #9b5cff;
+    --muted: #bfc3d6;
+    --card-radius: 12px;
   }
-  *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-  html,body{height:100%;margin:0;background:
-    radial-gradient(800px 400px at 10% 10%, rgba(155,92,255,0.06), transparent),
-    radial-gradient(600px 300px at 90% 90%, rgba(92,240,255,0.03), transparent),
-    var(--bg);
-    color:#e8e8ee;
+  *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    background:
+      radial-gradient(800px 400px at 10% 10%, rgba(155,92,255,0.04), transparent),
+      linear-gradient(180deg,#04040a,#070711);
+    color:#e8eaf6;
   }
 
-  .wrap{max-width:var(--maxWidth);margin:28px auto;padding:20px;display:grid;grid-template-columns:1fr 340px;gap:20px;}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-  h1{margin:0;font-size:20px;letter-spacing:0.6px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .logo{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 180deg at 50% 50%, #9b5cff, #5cf0ff, #001);box-shadow:0 6px 24px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#08080a}
-  .controls{background:var(--panel);padding:12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
-  .boardWrap{background:linear-gradient(180deg,#0b0b0f,#071018);padding:14px;border-radius:12px;box-shadow:0 8px 36px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:12px}
-  .topRow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  label{font-size:13px;color:var(--muted)}
-  select,input[type="number"]{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e8e8ee;padding:8px;border-radius:8px}
-  button{background:linear-gradient(180deg,var(--accent), #6e2bff);border:none;padding:8px 12px;border-radius:10px;color:white;cursor:pointer}
-  .secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--muted)}
-  .meta{display:flex;gap:12px;align-items:center;font-size:14px;color:#dfe0ff}
-  .meta .box{background:var(--glass);padding:8px 10px;border-radius:8px;border:1px solid rgba(155,92,255,0.06)}
-  .board{
+  .app{
+    width:100%;
+    max-width:980px;
+    display:flex;
+    gap:20px;
+  }
+
+  /* LEFT: board */
+  .panel{
+    flex:1;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--card-radius);
+    padding:14px;
+    border:1px solid var(--glass-border);
+    backdrop-filter: blur(8px);
+  }
+
+  .header{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+  }
+  .title{font-size:18px;margin:0}
+  .small{color:var(--muted);font-size:13px}
+
+  /* board grid */
+  #board{
     width:100%;
     aspect-ratio:1/1;
     display:grid;
     gap:6px;
     border-radius:10px;
-    background:#000;
-    overflow:hidden;
+    background:linear-gradient(180deg,#020214,#050513);
+    padding:8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px rgba(255,255,255,0.01);
     position:relative;
   }
+
   .tile{
     border-radius:8px;
     background-size:100% 100%;
     background-repeat:no-repeat;
     cursor:pointer;
-    user-select:none;
     transition: transform .12s ease, box-shadow .12s ease;
     box-shadow: 0 6px 18px rgba(0,0,0,0.55);
   }
   .tile:active{transform:scale(.98)}
-  .tile.blank{background:linear-gradient(180deg,#05050a,#0c0c0f);cursor:default;box-shadow:none}
+  .tile.blank{background:linear-gradient(180deg,#06060a,#03030a);cursor:default;box-shadow:none}
 
-  /* right column */
-  .side{display:flex;flex-direction:column;gap:12px}
-  .card{background:linear-gradient(180deg,#0f0f13,#08080a);padding:12px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.6)}
-  .small{font-size:13px;color:var(--muted)}
-  .controlsGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-  .leaderboard table{width:100%;border-collapse:collapse}
-  .leaderboard th,.leaderboard td{padding:6px;font-size:13px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
-  footer{grid-column:1 / -1;text-align:center;color:var(--muted);margin-top:12px;font-size:13px}
-
-  /* modal */
-  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.6));z-index:200;display:none}
-  .modal .box{background:#071018;padding:18px;border-radius:12px;min-width:300px;color:#e8e8ff}
-  .confettiCanvas{position:absolute;inset:0;pointer-events:none;z-index:100}
-
-  /* responsive */
-  @media (max-width:980px){
-    .wrap{grid-template-columns:1fr; padding:12px;}
-    .side{order:2}
+  /* RIGHT: controls */
+  .side{
+    width:320px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid var(--glass-border);
+    padding:12px;border-radius:12px;
+    backdrop-filter: blur(8px);
   }
 
+  select,input[type="number"],button{
+    width:100%;
+    padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    background:rgba(0,0,0,0.25);color:#eef;
+    font-size:14px;
+  }
+  .row{display:flex;gap:8px}
+  button.primary{background:linear-gradient(180deg,var(--accent), #6e2bff);border:none;color:white;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);cursor:pointer}
+
+  .meta{display:flex;gap:8px;justify-content:space-between;font-size:13px;color:var(--muted)}
+  footer{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+  @media (max-width:900px){
+    .app{flex-direction:column}
+    .side{width:100%}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header style="grid-column:1 / -1">
-    <div class="brand">
-      <div class="logo">BM</div>
-      <div>
-        <h1>Black Moon Puzzle</h1>
-        <div class="small">Rompecabezas deslizante • 10 imágenes • Black Moon</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <button id="musicToggle" class="secondary">▶︎ Música</button>
-      <button id="fxToggle" class="secondary">🔊 FX</button>
-    </div>
-  </header>
-
-  <div class="boardWrap">
-    <div class="controls">
-      <div class="topRow">
-        <label>Imagen:
-          <select id="imgSelect" aria-label="Seleccionar imagen">
-            <option value="bkm systerms 2.0.jpg1">sistems</option>
-            <option value="GPO BKM 2.jpg">grupop blackmoon</option>
-            <option value="aerial black moon.jpg">aerial blackmoon</option>
-            <option value="yo cadenas.jpg">charly</option>
-            <option value="Imagen de WhatsApp 2025-08-27 a las 15.54.56_06e917a6.jpg">amigos del aire</option>
-            <option value="f-01.png">media luna</option>
-            <option value="f-02.png">scorpion doble</option>
-            <option value="f-03.jpg">triangulo</option>
-            <option value="f-04.jpg9">arco</option>
-            <option value="f-05.jpg">split</option>
-            <option value="f-06.jpg">portor</option>
-            <option value="f-07.jpg">cama</option>
-            <option value="f-08.jpg">split2 </option>
-          </select>
-        </label>
-
-        <label>Tamaño (n×n):
-          <input id="gridSize" type="number" min="2" max="8" value="3" />
-        </label>
-
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="small">Modo:</label>
-          <select id="modeSelect">
-            <option value="normal">Normal</option>
-            <option value="hard">Difícil</option>
-            <option value="ultra">Ultra</option>
-          </select>
+  <div class="app">
+    <div class="panel">
+      <div class="header">
+        <div>
+          <h2 class="title">Black Moon Puzzle</h2>
+          <div class="small">Minimal • Efecto glass</div>
         </div>
-
+        <div class="small">v1 • Black Moon</div>
       </div>
 
-      <div class="controlsGrid">
-        <button id="shuffleBtn">Mezclar (animado)</button>
-        <button id="resetBtn" class="secondary">Reiniciar</button>
-        <button id="randomImgBtn" class="secondary">Imagen aleatoria</button>
-        <button id="autoShuffleBtn" class="secondary">Auto-mezclar</button>
+      <div id="board" aria-label="Tablero del rompecabezas"></div>
+
+      <div style="margin-top:10px" class="meta">
+        <div>Movimientos: <strong id="moves">0</strong></div>
+        <div>Tiempo: <strong id="time">00:00</strong></div>
+      </div>
+      <div id="msg" class="small" style="margin-top:8px;color:#a8f6ff"></div>
+    </div>
+
+    <aside class="side">
+      <div class="card">
+        <label class="small">Imagen</label>
+        <select id="imgSelect">
+          <!-- Mantuve exactamente los valores que tenías -->
+          <option value="bkm systerms 2.0.jpg1">sistems</option>
+          <option value="GPO BKM 2.jpg">grupop blackmoon</option>
+          <option value="aerial black moon.jpg">aerial blackmoon</option>
+          <option value="yo cadenas.jpg">charly</option>
+          <option value="Imagen de WhatsApp 2025-08-27 a las 15.54.56_06e917a6.jpg">amigos del aire</option>
+          <option value="f-01.png">media luna</option>
+          <option value="f-02.png">scorpion doble</option>
+          <option value="f-03.jpg">triangulo</option>
+          <option value="f-04.jpg9">arco</option>
+          <option value="f-05.jpg">split</option>
+          <option value="f-06.jpg">portor</option>
+          <option value="f-07.jpg">cama</option>
+          <option value="f-08.jpg">split2</option>
+        </select>
+
+        <label class="small" style="margin-top:8px">Tamaño (n×n)</label>
+        <input id="gridSize" type="number" min="2" max="8" value="3">
+
+        <label class="small" style="margin-top:8px">Modo</label>
+        <select id="modeSelect">
+          <option value="normal">Normal</option>
+          <option value="hard">Difícil</option>
+          <option value="ultra">Ultra</option>
+        </select>
       </div>
 
-      <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
-        <div class="meta">
-          <div class="box">Movimientos: <strong id="moves">0</strong></div>
-          <div class="box">Tiempo: <strong id="time">00:00</strong></div>
+      <div class="card">
+        <div class="row">
+          <button id="shuffleBtn" class="primary">Mezclar (animado)</button>
+          <button id="resetBtn" class="ghost">Reiniciar</button>
         </div>
-        <div style="margin-left:auto" class="small">Black Moon • v1</div>
+        <div style="height:8px"></div>
+        <div class="row">
+          <button id="autoShuffleBtn" class="ghost">Auto-mezclar</button>
+          <button id="randomImgBtn" class="ghost">Imagen aleatoria</button>
+        </div>
       </div>
-    </div>
 
-    <div id="board" class="board" aria-label="Tablero del rompecabezas">
-      <canvas id="confetti" class="confettiCanvas"></canvas>
-    </div>
+      <div class="card small">
+        Consejos: usa imágenes con contraste. Modo Ultra ajusta tamaño automáticamente para más reto.
+      </div>
 
-    <div id="message" class="small" style="text-align:center;color:#9be4ff"></div>
+      <footer>Black Moon — minimal glass</footer>
+    </aside>
   </div>
-
-  <aside class="side">
-    <div class="card">
-      <strong>Instrucciones</strong>
-      <p class="small">Selecciona imagen y tamaño. Pulsa <em>Mezclar</em> para iniciar (el botón realiza movimientos legales para asegurar solvencia). Modo Ultra aumenta dificultad y reduce tiempo.</p>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="scoreReset" class="secondary">Borrar ranking</button>
-        <button id="exportBtn" class="secondary">Exportar ranking</button>
-      </div>
-    </div>
-
-    <div class="card leaderboard">
-      <strong>Ranking (mejores tiempos)</strong>
-      <div class="small" style="margin-bottom:8px">Se guarda localmente por imagen/tamaño/modo</div>
-      <div style="max-height:220px;overflow:auto">
-        <table id="leaderTable">
-          <thead><tr><th>Pos</th><th>Nombre</th><th>Tiempo</th><th>Mov.</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <strong>Opciones extra</strong>
-      <p class="small">Puedes desactivar música y sonidos con los botones de arriba. El botón <em>Auto-mezclar</em> hace una mezcla completa con animación.</p>
-    </div>
-  </aside>
-
-  <footer>Hecho con ☽ Black Moon — copia y modifica como quieras.</footer>
-</div>
-
-<!-- Audio -->
-<audio id="music" loop preload="auto">
-  <source src="https://files.catbox.moe/2j7i6z.mp3" type="audio/mpeg">
-</audio>
-<audio id="fxMove" preload="auto">
-  <source src="https://files.catbox.moe/0b9q24.mp3" type="audio/mpeg">
-</audio>
-<audio id="fxWin" preload="auto">
-  <source src="https://files.catbox.moe/8y7w1q.mp3" type="audio/mpeg">
-</audio>
-
-<!-- Modal para guardar score -->
-<div id="modal" class="modal" aria-hidden="true">
-  <div class="box">
-    <h3>¡Felicidades! Puzzle resuelto 🎉</h3>
-    <p class="small" id="modalStats"></p>
-    <label class="small">Tu nombre:
-      <input id="playerName" type="text" placeholder="Tu nombre" style="width:100%;padding:8px;border-radius:8px;margin-top:6px" />
-    </label>
-    <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
-      <button id="saveScoreBtn">Guardar</button>
-      <button id="closeModalBtn" class="secondary">Cerrar</button>
-    </div>
-  </div>
-</div>
 
 <script>
-/* ----------------------
-   Variables y estado
-   ---------------------- */
-const boardEl = document.getElementById('board');
-const confettiCanvas = document.getElementById('confetti');
+/* Variables */
+const board = document.getElementById('board');
 const imgSelect = document.getElementById('imgSelect');
 const gridInput = document.getElementById('gridSize');
 const modeSelect = document.getElementById('modeSelect');
 const shuffleBtn = document.getElementById('shuffleBtn');
 const resetBtn = document.getElementById('resetBtn');
-const randomImgBtn = document.getElementById('randomImgBtn');
 const autoShuffleBtn = document.getElementById('autoShuffleBtn');
+const randomImgBtn = document.getElementById('randomImgBtn');
 const movesEl = document.getElementById('moves');
 const timeEl = document.getElementById('time');
-const messageEl = document.getElementById('message');
-const musicBtn = document.getElementById('musicToggle');
-const fxBtn = document.getElementById('fxToggle');
-const music = document.getElementById('music');
-const fxMove = document.getElementById('fxMove');
-const fxWin = document.getElementById('fxWin');
-const leaderTableBody = document.querySelector('#leaderTable tbody');
-const modal = document.getElementById('modal');
-const playerName = document.getElementById('playerName');
-const saveScoreBtn = document.getElementById('saveScoreBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const scoreResetBtn = document.getElementById('scoreReset');
-const exportBtn = document.getElementById('exportBtn');
+const msgEl = document.getElementById('msg');
 
 let gridSize = parseInt(gridInput.value,10) || 3;
 let imageSrc = imgSelect.value;
-let mode = modeSelect.value; // normal, hard, ultra
-let tiles = []; // array of {index, pos, el}
+let mode = modeSelect.value;
+let tiles = []; // {index,pos,el}
 let blankPos = null;
 let moves = 0;
 let timer = null;
 let secondsLeft = 0;
 let isShuffling = false;
-let musicOn = false;
-let fxOn = true;
-const LEADER_KEY = 'bm_puzzle_scores_v1';
 
-/* ----------------------
-   Helpers
-   ---------------------- */
-function formatTimeSec(s){
-  const mm = String(Math.floor(s/60)).padStart(2,'0');
-  const ss = String(s%60).padStart(2,'0');
-  return `${mm}:${ss}`;
-}
-function uid(){ return Math.random().toString(36).slice(2,9); }
+/* Helpers */
+function formatTime(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+function posToRC(pos){ return {r: Math.floor(pos/gridSize), c: pos % gridSize}; }
 
-/* ----------------------
-   Tablero: creación y render
-   ---------------------- */
+/* Create board */
 function setGrid(n){
   gridSize = n;
-  boardEl.style.gridTemplateColumns = `repeat(${n},1fr)`;
-  boardEl.style.gridTemplateRows = `repeat(${n},1fr)`;
+  board.style.gridTemplateColumns = `repeat(${n},1fr)`;
+  board.style.gridTemplateRows = `repeat(${n},1fr)`;
   createTiles();
 }
 
 function createTiles(){
-  // limpiar
-  boardEl.querySelectorAll('.tile')?.forEach(el=>el.remove());
+  // clear
+  board.innerHTML = '';
   tiles = [];
-  moves = 0;
-  movesEl.textContent = moves;
-  clearInterval(timer); timer = null;
+  moves = 0; movesEl.textContent = moves;
+  stopTimer();
   timeEl.textContent = '00:00';
-  messageEl.textContent = '';
-  modal.style.display = 'none';
+  msgEl.textContent = '';
 
   const total = gridSize * gridSize;
   for(let i=0;i<total;i++){
-    const el = document.createElement('div');
-    el.className = 'tile';
-    el.dataset.correct = i; // posición correcta
-    el.dataset.pos = i;     // posición actual
-    // estilo visual por defecto
-    el.style.backgroundColor = '#111';
-    el.addEventListener('click', onTileClick);
-    tiles.push({index:i,pos:i,el});
-    boardEl.appendChild(el);
+    const d = document.createElement('div');
+    d.className = 'tile';
+    d.dataset.index = i;
+    d.dataset.pos = i;
+    d.addEventListener('click', ()=> onTileClick(parseInt(d.dataset.pos,10)));
+    tiles.push({index:i, pos:i, el:d});
+    board.appendChild(d);
   }
   blankPos = total - 1;
   tiles[blankPos].el.classList.add('blank');
   applyImageToTiles();
 }
 
-/* Calcula y aplica backgroundPosition según index */
+/* Apply image slices */
 function applyImageToTiles(){
   const n = gridSize;
-  const total = n*n;
-  const sizePx = 800; // referencia para positioning (usamos background-size con %)
   const src = imageSrc || '';
   tiles.forEach(t=>{
     if(t.index === blankPos){
       t.el.classList.add('blank');
       t.el.style.backgroundImage = '';
+      t.el.style.backgroundColor = '#06060a';
       return;
     }
     t.el.classList.remove('blank');
     t.el.style.backgroundImage = `url("${src}")`;
-    // usar background-size en % para reusar la imagen
-    t.el.style.backgroundSize = `${n * 100}% ${n * 100}%`;
+    t.el.style.backgroundSize = `${n*100}% ${n*100}%`;
     const row = Math.floor(t.index / n);
     const col = t.index % n;
     const x = (col / (n-1)) * 100;
     const y = (row / (n-1)) * 100;
     t.el.style.backgroundPosition = `${x}% ${y}%`;
   });
-  // blank visual
-  tiles[blankPos].el.style.backgroundImage = '';
-  tiles[blankPos].el.style.backgroundColor = '#06060a';
 }
 
-/* ----------------------
-   Movimiento / lógica
-   ---------------------- */
-function posToRC(pos){
-  return {r: Math.floor(pos / gridSize), c: pos % gridSize};
-}
+/* Movement logic */
 function canMove(pos){
   const a = posToRC(pos), b = posToRC(blankPos);
   return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
 }
+
 function moveTile(pos, countMove=true){
   if(isShuffling) return;
   if(!canMove(pos)) return;
   const a = tiles.find(t=>t.pos===pos);
   const b = tiles.find(t=>t.pos===blankPos);
-  // swap pos
-  a.pos = blankPos;
-  b.pos = pos;
-  a.el.dataset.pos = a.pos;
-  b.el.dataset.pos = b.pos;
-  blankPos = pos;
+  if(!a||!b) return;
 
-  // reorder DOM by pos for simple placement
+  // swap positions
+  const apos = a.pos, bpos = b.pos;
+  a.pos = bpos; b.pos = apos;
+  a.el.dataset.pos = a.pos; b.el.dataset.pos = b.pos;
+  blankPos = bpos; // after swap, blank becomes old a.pos's location
+
+  // reorder DOM by pos
   const ordered = tiles.slice().sort((x,y)=>x.pos - y.pos);
-  ordered.forEach(t=>boardEl.appendChild(t.el));
+  ordered.forEach(t=>board.appendChild(t.el));
 
   if(countMove){
     moves++; movesEl.textContent = moves;
-    if(fxOn) fxMove.currentTime = 0, fxMove.play().catch(()=>{});
-    if(!timer) startTimerCountdown(); // start countdown when first move
-    if(checkSolved()) onWin();
+    if(!timer) startCountdown();
+    if(checkSolved()) win();
   }
 }
-function onTileClick(e){
-  const pos = parseInt(e.currentTarget.dataset.pos,10);
-  moveTile(pos);
-}
 
-/* ----------------------
-   Mezclar (legal & animado)
-   ---------------------- */
-async function shuffleAnimated(steps=200, delay=12){
+function onTileClick(pos){ moveTile(pos); }
+
+/* Shuffle: legal moves, animated */
+async function shuffleAnimated(steps=200, delay=8){
   if(isShuffling) return;
   isShuffling = true;
-  // perform legal random moves
   let last = -1;
   for(let i=0;i<steps;i++){
     const n = gridSize;
     const b = posToRC(blankPos);
-    const candidates = [];
-    const dirs = [{r:b.r-1,c:b.c},{r:b.r+1,c:b.c},{r:b.r,c:b.c-1},{r:b.r,c:b.c+1}];
-    for(const d of dirs){
+    const options = [];
+    const candidates = [{r:b.r-1,c:b.c},{r:b.r+1,c:b.c},{r:b.r,c:b.c-1},{r:b.r,c:b.c+1}];
+    for(const d of candidates){
       if(d.r>=0 && d.r<n && d.c>=0 && d.c<n){
-        const p = d.r * n + d.c;
-        if(p !== last) candidates.push(p);
+        const p = d.r*n + d.c;
+        if(p !== last) options.push(p);
       }
     }
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    const pick = options[Math.floor(Math.random() * options.length)];
     moveTile(pick, false);
     last = blankPos;
-    // little animation delay
-    await new Promise(r => setTimeout(r, delay));
+    await new Promise(r=>setTimeout(r, delay));
   }
-  // after mixing, reset counters
   moves = 0; movesEl.textContent = moves;
-  // reset timer based on mode
   setupTimerByMode();
   isShuffling = false;
 }
 
-/* ----------------------
-   Timer (countdown) y modos
-   ---------------------- */
+/* Timer & modes */
 function setupTimerByMode(){
-  const base = (() => {
-    if(mode === 'normal') return 180; // 3 min
-    if(mode === 'hard') return 120;   // 2 min
-    if(mode === 'ultra') return 60;   // 1 min
-    return 180;
-  })();
-  // if ultra, increase default size if user left default small
-  if(mode === 'ultra' && gridSize < 4){
-    gridInput.value = 5;
-    setGrid(5);
-  }
-  secondsLeft = base;
-  timeEl.textContent = formatTimeSec(secondsLeft);
+  if(mode === 'normal') secondsLeft = 180;
+  else if(mode === 'hard') secondsLeft = 120;
+  else if(mode === 'ultra') {
+    secondsLeft = 60;
+    if(gridSize < 4){ gridInput.value = 5; setGrid(5); }
+  } else secondsLeft = 180;
+  timeEl.textContent = formatTime(secondsLeft);
 }
-function startTimerCountdown(){
+
+function startCountdown(){
   if(timer) return;
   timer = setInterval(()=>{
     secondsLeft--;
-    timeEl.textContent = formatTimeSec(secondsLeft);
+    timeEl.textContent = formatTime(secondsLeft);
     if(secondsLeft <= 0){
       clearInterval(timer); timer = null;
-      onTimeOut();
+      msgEl.textContent = '⏳ Tiempo agotado. Reinicia o mezcla de nuevo.';
+      // small shake
+      board.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:300,iterations:1});
     }
   },1000);
 }
-function stopTimer(){
-  clearInterval(timer); timer = null;
-}
+function stopTimer(){ clearInterval(timer); timer = null; }
 
-/* ----------------------
-   Fin del juego / victoria
-   ---------------------- */
-function checkSolved(){
-  return tiles.every(t => t.pos === t.index);
-}
-function onWin(){
+/* Win detection */
+function checkSolved(){ return tiles.every(t => t.pos === t.index); }
+function win(){
   stopTimer();
-  const timeUsed = getModeBaseTime() - secondsLeft;
-  messageEl.textContent = `¡Resuelto! Tiempo: ${formatTimeSec(secondsLeft === 0 ? 0 : getModeBaseTime() - secondsLeft)} • Movimientos: ${moves}`;
-  if(fxOn){ fxWin.currentTime = 0; fxWin.play().catch(()=>{}); }
-  confettiBurst();
-  openSaveModal(timeUsed, moves);
-}
-function onTimeOut(){
-  messageEl.textContent = '⏳ Se agotó el tiempo. Reinicia o vuelve a mezclar.';
-  // small shake animation
-  boardEl.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:360,iterations:1});
+  msgEl.textContent = '🎉 ¡Resuelto!';
+  // simple confetti effect: quick flashes
+  board.animate([{filter:'brightness(1.0)'},{filter:'brightness(1.6)'},{filter:'brightness(1.0)'}],{duration:700,iterations:1});
 }
 
-/* ----------------------
-   Modal / Ranking (localStorage)
-   ---------------------- */
-function getModeBaseTime(){
-  if(mode === 'normal') return 180;
-  if(mode === 'hard') return 120;
-  if(mode === 'ultra') return 60;
-  return 180;
-}
-let lastResult = null;
-function openSaveModal(timeUsed, movesCount){
-  lastResult = {id:uid(), image:imageSrc, size:gridSize, mode, time:timeUsed, moves:movesCount, date:Date.now()};
-  document.getElementById('modalStats').textContent = `Tiempo: ${formatTimeSec(timeUsed)} • Movimientos: ${movesCount}`;
-  modal.style.display = 'flex';
-  modal.setAttribute('aria-hidden', 'false');
-  playerName.value = '';
-  playerName.focus();
-}
-function closeModal(){
-  modal.style.display = 'none';
-  modal.setAttribute('aria-hidden', 'true');
-}
-function saveScore(name){
-  if(!lastResult) return;
-  const list = JSON.parse(localStorage.getItem(LEADER_KEY) || '[]');
-  list.push({...lastResult, name: name || 'Anon'});
-  localStorage.setItem(LEADER_KEY, JSON.stringify(list));
-  closeModal();
-  renderLeaderboard();
-}
-function renderLeaderboard(){
-  const list = JSON.parse(localStorage.getItem(LEADER_KEY) || '[]');
-  // filter by current image+size+mode
-  const filtered = list.filter(s => s.image === imageSrc && s.size === gridSize && s.mode === mode);
-  filtered.sort((a,b) => a.time - b.time || a.moves - b.moves);
-  leaderTableBody.innerHTML = '';
-  for(let i=0;i<Math.min(12,filtered.length);i++){
-    const s = filtered[i];
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="width:26px">${i+1}</td><td>${escapeHtml(s.name)}</td><td>${formatTimeSec(s.time)}</td><td>${s.moves}</td>`;
-    leaderTableBody.appendChild(tr);
-  }
-  if(filtered.length === 0){
-    leaderTableBody.innerHTML = `<tr><td colspan="4" class="small">Sin registros para esta combinación.</td></tr>`;
-  }
-}
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]); }
-saveScoreBtn.addEventListener('click', ()=> saveScore(playerName.value.trim()));
-closeModalBtn.addEventListener('click', ()=> closeModal());
+/* Events wiring (fixed) */
+imgSelect.addEventListener('change', ()=>{
+  imageSrc = imgSelect.value;
+  applyImageToTiles();
+});
+gridInput.addEventListener('change', ()=>{
+  let v = parseInt(gridInput.value,10) || 3;
+  if(v<2) v=2; if(v>8) v=8;
+  gridInput.value = v;
+  setGrid(v);
+});
+modeSelect.addEventListener('change', ()=>{
+  mode = modeSelect.value;
+  setupTimerByMode();
+});
 
-/* ----------------------
-   Utilities: random image, export, delete scores
-   ---------------------- */
+shuffleBtn.addEventListener('click', ()=> {
+  // more steps for larger boards and harder modes
+  const factor = (mode === 'ultra') ? 80 : (mode === 'hard') ? 60 : 40;
+  const steps = Math.max(60, gridSize * gridSize * factor);
+  shuffleAnimated(steps, 10);
+});
+resetBtn.addEventListener('click', ()=> {
+  setGrid(gridSize);
+  setupTimerByMode();
+});
+autoShuffleBtn.addEventListener('click', ()=>{
+  shuffleBtn.click();
+  msgEl.textContent = 'Mezclando...';
+  setTimeout(()=> msgEl.textContent = '', 1200);
+});
 randomImgBtn.addEventListener('click', ()=>{
   const idx = Math.floor(Math.random() * imgSelect.options.length);
   imgSelect.selectedIndex = idx;
   imageSrc = imgSelect.value;
   applyImageToTiles();
-  renderLeaderboard();
 });
-scoreResetBtn.addEventListener('click', ()=>{
-  if(confirm('Borrar todo el ranking guardado localmente?')){
-    localStorage.removeItem(LEADER_KEY);
-    renderLeaderboard();
-  }
-});
-exportBtn.addEventListener('click', ()=>{
-  const data = localStorage.getItem(LEADER_KEY) || '[]';
-  const blob = new Blob([data], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'bm_puzzle_ranking.json'; a.click();
-  URL.revokeObjectURL(url);
-});
-
-/* ----------------------
-   Confetti (canvas particles)
-   ---------------------- */
-const confettiCtx = confettiCanvas.getContext?.('2d');
-let confettiParticles = [];
-function resizeConfetti(){
-  confettiCanvas.width = boardEl.clientWidth;
-  confettiCanvas.height = boardEl.clientHeight;
-  confettiCanvas.style.left = boardEl.offsetLeft + 'px';
-  confettiCanvas.style.top = boardEl.offsetTop + 'px';
-}
-window.addEventListener('resize', resizeConfetti);
-function confettiBurst(){
-  if(!confettiCtx) return;
-  resizeConfetti();
-  confettiParticles = [];
-  const W = confettiCanvas.width, H = confettiCanvas.height;
-  for(let i=0;i<80;i++){
-    confettiParticles.push({
-      x: W/2 + (Math.random()-0.5)*W*0.6,
-      y: H/2 + (Math.random()-0.5)*H*0.2,
-      vx: (Math.random()-0.5)*8,
-      vy: - (2 + Math.random()*6),
-      size: 6+Math.random()*8,
-      color: (Math.random()>.5) ? 'rgba(155,92,255,0.95)' : 'rgba(92,240,255,0.95)',
-      rot: Math.random()*360,
-      vr: (Math.random()-0.5)*10
-    });
-  }
-  let anim = true;
-  function draw(){
-    if(!anim) return;
-    confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
-    confettiParticles.forEach(p=>{
-      p.vy += 0.25; // gravity
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.vr;
-      confettiCtx.save();
-      confettiCtx.translate(p.x,p.y);
-      confettiCtx.rotate(p.rot * Math.PI/180);
-      confettiCtx.fillStyle = p.color;
-      confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
-      confettiCtx.restore();
-    });
-    // remove offscreen
-    confettiParticles = confettiParticles.filter(p => p.y < confettiCanvas.height + 60);
-    if(confettiParticles.length>0){
-      requestAnimationFrame(draw);
-    } else anim = false;
-  }
-  draw();
-}
-
-/* ----------------------
-   Event bindings
-   ---------------------- */
-imgSelect.addEventListener('change', ()=> {
-  imageSrc = imgSelect.value;
-  applyImageToTiles();
-  renderLeaderboard();
-});
-gridInput.addEventListener('change', ()=> {
-  let v = parseInt(gridInput.value,10) || 3;
-  if(v < 2) v = 2;
-  if(v > 8) v = 8;
-  gridInput.value = v;
-  setGrid(v);
-  renderLeaderboard();
-});
-modeSelect.addEventListener('change', ()=> {
-  mode = modeSelect.value;
-  setupTimerByMode();
-  renderLeaderboard();
-});
-
-shuffleBtn.addEventListener('click', ()=> {
-  // steps depend on size & mode
-  const base = gridSize * gridSize * (mode === 'ultra' ? 80 : (mode === 'hard' ? 60 : 40));
-  shuffleAnimated(base, 10);
-});
-autoShuffleBtn.addEventListener('click', ()=> {
-  // auto shuffle then start
-  shuffleBtn.click();
-  messageEl.textContent = 'Mezclando...';
-  setTimeout(()=>{ messageEl.textContent = ''; }, 1200);
-});
-resetBtn.addEventListener('click', ()=> {
-  setGrid(gridSize);
-  setupTimerByMode();
-  renderLeaderboard();
-});
-
-musicBtn.addEventListener('click', ()=> {
-  musicOn = !musicOn;
-  if(musicOn){
-    music.play().catch(()=>{});
-    musicBtn.textContent = '⏸ Música';
-    musicBtn.classList.remove('secondary');
-  } else {
-    music.pause();
-    musicBtn.textContent = '▶︎ Música';
-    musicBtn.classList.add('secondary');
-  }
-});
-fxBtn.addEventListener('click', ()=> {
-  fxOn = !fxOn;
-  fxBtn.textContent = fxOn ? '🔊 FX' : '🔈 FX';
-  fxBtn.classList.toggle('secondary', !fxOn);
-});
-
-/* ----------------------
-   Timeouts & helpers
-   ---------------------- */
-function onTimeOutReset(){
-  // intentionally brief
-  setGrid(gridSize);
-}
 
 /* Init */
 imageSrc = imgSelect.value;
 setGrid(gridSize);
 setupTimerByMode();
-renderLeaderboard();
-
-/* Save modal via Enter key */
-playerName.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter') saveScore(playerName.value.trim());
-});
-
-/* small: if user closes modal with ESC */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape') closeModal();
-});
-
-/* window click outside modal closes */
-modal.addEventListener('click', (ev)=>{
-  if(ev.target === modal) closeModal();
-});
-
 </script>
 </body>
 </html>
