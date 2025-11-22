@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Black Moon Aerial — Aerial Mines (Buscaminas Aéreo)</title>
+  <title> ♟️ Aerial Mines ♟️</title>
   <style>
     :root{
       --bg1:#06030a; /* very dark */
@@ -97,9 +97,11 @@
         <div class="row">
           <label for="size">Tamaño</label>
           <select id="size">
+            <option value="4">4 × 4</option>
             <option value="8">8 × 8</option>
             <option value="10" selected>10 × 10</option>
             <option value="12">12 × 12</option>
+            <option value="14">14 × 14</option>
           </select>
           <label for="mines">Errores</label>
           <input id="mines" type="number" min="5" max="60" value="15" style="width:84px" />
@@ -164,9 +166,12 @@
 
     // sample dataset: figures + short descriptions
     const FIGURES = [
-  {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA'},
-  {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUB'},
+  {img:'f-01.png'},
+  {img:'f-02.png'},
   {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUC'},
+  {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAADD'},
+  {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAADD'},
+  {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAADD'},
   {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAADD'},
   {img:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAABB'}
 ];
