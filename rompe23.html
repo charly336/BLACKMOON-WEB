@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Black Moon Puzzle — Drag & Drop (Modo C)</title>
+<title>Black Moon Puzzle — Final</title>
 <style>
   :root{
     --bg:#06060b;
@@ -11,14 +11,15 @@
     --accent:#9b5cff;
     --muted:#bfc3d6;
     --card-radius:12px;
+    --violet-glow: 0 0 40px rgba(155,92,255,0.14), 0 8px 30px rgba(155,92,255,0.06);
   }
   *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;}
   html,body{height:100%;margin:0;background:
-    radial-gradient(800px 400px at 10% 10%, rgba(155,92,255,0.04), transparent),
+    radial-gradient(900px 420px at 8% 10%, rgba(155,92,255,0.06), transparent),
     linear-gradient(180deg,#04040a,#070711);}
   body{
     display:flex;
-    flex-direction:column; /* footer sticky */
+    flex-direction:column;
     min-height:100vh;
     color:#e8eaf6;
     align-items:center;
@@ -27,7 +28,7 @@
 
   .app{
     width:100%;
-    max-width:980px;
+    max-width:1100px;
     display:flex;
     gap:20px;
     flex:1 0 auto;
@@ -48,16 +49,23 @@
   .small{color:var(--muted);font-size:13px}
 
   /* board grid */
+  .boardWrap{
+    position:relative;
+    padding:12px;
+    border-radius:12px;
+  }
   #board{
     width:100%;
     aspect-ratio:1/1;
     display:grid;
     gap:6px;
-    border-radius:10px;
+    border-radius:12px;
     background:linear-gradient(180deg,#020214,#050513);
-    padding:8px;
+    padding:10px;
     position:relative;
     overflow:hidden;
+    box-shadow: var(--violet-glow);
+    border: 1px solid rgba(155,92,255,0.06);
   }
 
   .tile{
@@ -89,7 +97,7 @@
 
   /* Right controls */
   .side{
-    width:320px;
+    width:340px;
     display:flex;
     flex-direction:column;
     gap:12px;
@@ -103,7 +111,7 @@
 
   select,input[type="number"],button{
     width:100%;
-    padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
     background:rgba(0,0,0,0.25);color:#eef;font-size:14px;
   }
   .row{display:flex;gap:8px}
@@ -129,9 +137,11 @@
   }
   footer a:hover { color: #fff; text-shadow:0 0 8px rgba(255,255,255,0.6); }
 
-  @media (max-width:900px){
+  /* small screens */
+  @media (max-width:920px){
     .app{flex-direction:column}
     .side{width:100%}
+    #board{height:calc(90vw); width:90vw}
   }
 </style>
 </head>
@@ -141,14 +151,16 @@
       <div class="header">
         <div>
           <h2 class="title">Black Moon Puzzle</h2>
-          <div class="small">Minimal • Efecto glass • Drag & Drop</div>
+          <div class="small">Minimal • Glass • Drag & Drop • Mezcla completa</div>
         </div>
         <div class="small">v1 • Black Moon</div>
       </div>
 
-      <div id="board" aria-label="Tablero del rompecabezas"></div>
+      <div class="boardWrap">
+        <div id="board" aria-label="Tablero del rompecabezas"></div>
+      </div>
 
-      <div style="margin-top:10px" class="meta">
+      <div style="margin-top:12px" class="meta">
         <div>Movimientos: <strong id="moves">0</strong></div>
         <div>Tiempo: <strong id="time">00:00</strong></div>
       </div>
@@ -159,25 +171,24 @@
       <div class="card">
         <label class="small">Imagen</label>
         <select id="imgSelect">
-          <!-- Mantengo tus opciones, y también añado la imagen que subiste localmente -->
-          <option value="bkm systerms 2.0.jpg1">sistems</option>
-          <option value="GPO BKM 2.jpg">grupop blackmoon</option>
-          <option value="aerial black moon.jpg">aerial blackmoon</option>
-          <option value="yo cadenas.jpg">charly</option>
-          <option value="Imagen de WhatsApp 2025-08-27 a las 15.54.56_06e917a6.jpg">amigos del aire</option>
-          <option value="f-01.png">media luna</option>
-          <option value="f-02.png">scorpion doble</option>
-          <option value="f-03.jpg">triangulo</option>
-          <option value="f-04.jpg9">arco</option>
-          <option value="f-05.jpg">split</option>
-          <!-- IMAGEN SUBIDA por ti (ruta local en el servidor): -->
+          <!-- Mantengo 10 opciones; la última es la imagen subida por ti -->
+          <option value="https://picsum.photos/800/800?random=1">Imagen 1</option>
+          <option value="https://picsum.photos/800/800?random=2">Imagen 2</option>
+          <option value="https://picsum.photos/800/800?random=3">Imagen 3</option>
+          <option value="https://picsum.photos/800/800?random=4">Imagen 4</option>
+          <option value="https://picsum.photos/800/800?random=5">Imagen 5</option>
+          <option value="https://picsum.photos/800/800?random=6">Imagen 6</option>
+          <option value="https://picsum.photos/800/800?random=7">Imagen 7</option>
+          <option value="https://picsum.photos/800/800?random=8">Imagen 8</option>
+          <option value="https://picsum.photos/800/800?random=9">Imagen 9</option>
+          <!-- IMAGEN SUBIDA por ti: usa la ruta local tal como está en tu entorno -->
           <option value="/mnt/data/A_promotional_digital_image_for_a_sliding_puzzle_g.png">Promocional Black Moon</option>
         </select>
 
-        <label class="small" style="margin-top:8px">Tamaño (n×n)</label>
+        <label class="small" style="margin-top:10px">Tamaño (n×n)</label>
         <input id="gridSize" type="number" min="2" max="8" value="3">
 
-        <label class="small" style="margin-top:8px">Modo</label>
+        <label class="small" style="margin-top:10px">Modo</label>
         <select id="modeSelect">
           <option value="normal">Normal</option>
           <option value="hard">Difícil</option>
@@ -198,7 +209,7 @@
       </div>
 
       <div class="card small">
-        Consejo: En <strong>Normal</strong> puedes intercambiar libremente, en <strong>Difícil/Ultra</strong> solo puedes mover piezas al hueco (sliding).
+        Consejo: En <strong>Normal</strong> puedes intercambiar libremente; en <strong>Difícil/Ultra</strong> sólo mover al hueco (sliding). El juego arranca mezclado.
       </div>
     </aside>
   </div>
@@ -211,7 +222,7 @@
 
 <script>
 /* ----------------------
-   Estado inicial
+   Estado y referencias
    ---------------------- */
 const board = document.getElementById('board');
 const imgSelect = document.getElementById('imgSelect');
@@ -234,6 +245,50 @@ let moves = 0;
 let timer = null;
 let secondsLeft = 0;
 let isShuffling = false;
+
+/* ----------------------
+   WebAudio — efectos (no archivos)
+   ---------------------- */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playMoveSound(){
+  try {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880 - Math.random()*120; // slight variance
+    g.gain.value = 0.0001;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    // quick envelope
+    const now = audioCtx.currentTime;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+    o.start(now);
+    o.stop(now + 0.13);
+  } catch(e){}
+}
+
+function playWinSound(){
+  try {
+    const now = audioCtx.currentTime;
+    const freqs = [660,880,1100];
+    freqs.forEach((f,i)=>{
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      g.gain.value = 0.001;
+      o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0.0001, now + i*0.08);
+      g.gain.exponentialRampToValueAtTime(0.12, now + i*0.08 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + i*0.08 + 0.26);
+      o.start(now + i*0.08);
+      o.stop(now + i*0.08 + 0.28);
+    });
+  } catch(e){}
+}
 
 /* ----------------------
    Util helpers
@@ -265,13 +320,13 @@ function createTiles(){
     d.className = 'tile';
     d.dataset.index = i;
     d.dataset.pos = i;
-    d.draggable = true; // enable native drag
-    // mouse drag events
+    d.draggable = true;
+    // mouse drag
     d.addEventListener('dragstart', onDragStart);
     d.addEventListener('dragend', onDragEnd);
     d.addEventListener('dragover', onDragOver);
     d.addEventListener('drop', onDrop);
-    // touch events for mobiles
+    // touch
     d.addEventListener('touchstart', onTouchStart, {passive:false});
     d.addEventListener('touchmove', onTouchMove, {passive:false});
     d.addEventListener('touchend', onTouchEnd, {passive:false});
@@ -296,7 +351,6 @@ function applyImageToTiles(){
       return;
     }
     t.el.classList.remove('blank');
-    // NOTE: if src is not a valid URL, the background won't load, but links are kept as you requested
     t.el.style.backgroundImage = `url("${src}")`;
     t.el.style.backgroundSize = `${n*100}% ${n*100}%`;
     const row = Math.floor(t.index / n);
@@ -332,6 +386,8 @@ function swapPositions(posA, posB, countMove=true){
 
   if(countMove){
     moves++; movesEl.textContent = moves;
+    // play move sound
+    playMoveSound();
     if(!timer) startCountdown(); // start timer on first move
     if(checkSolved()) onWin();
   }
@@ -342,9 +398,11 @@ function swapPositions(posA, posB, countMove=true){
    ---------------------- */
 let dragSrcPos = null;
 function onDragStart(e){
+  // ensure audio context resumed on user gesture
+  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
   const pos = parseInt(e.currentTarget.dataset.pos,10);
   dragSrcPos = pos;
-  // add dragging visual clone (we'll create a floating clone)
+  // create clone
   const rect = e.currentTarget.getBoundingClientRect();
   const clone = e.currentTarget.cloneNode(true);
   clone.classList.add('dragging');
@@ -352,13 +410,10 @@ function onDragStart(e){
   clone.style.height = rect.height + 'px';
   document.body.appendChild(clone);
   e.dataTransfer.setData('text/plain', String(pos));
-  // store clone reference
-  e.dataTransfer.setDragImage(new Image(), 0, 0); // hide default ghost
+  e.dataTransfer.setDragImage(new Image(), 0, 0);
   window._dragClone = clone;
-  // position clone under cursor
   clone.style.left = (e.pageX - rect.width/2) + 'px';
   clone.style.top = (e.pageY - rect.height/2) + 'px';
-  // track mouse move while dragging to follow pointer
   function follow(ev){
     if(!window._dragClone) return;
     window._dragClone.style.left = (ev.pageX - rect.width/2) + 'px';
@@ -367,9 +422,7 @@ function onDragStart(e){
   window.addEventListener('dragover', follow);
   window._dragFollow = follow;
 }
-function onDragOver(e){
-  e.preventDefault(); // allow drop
-}
+function onDragOver(e){ e.preventDefault(); }
 function onDrop(e){
   e.preventDefault();
   const targetPos = parseInt(e.currentTarget.dataset.pos,10);
@@ -378,27 +431,21 @@ function onDrop(e){
 }
 function onDragEnd(e){
   dragSrcPos = null;
-  if(window._dragClone){
-    window._dragClone.remove();
-    window._dragClone = null;
-  }
-  if(window._dragFollow){
-    window.removeEventListener('dragover', window._dragFollow);
-    window._dragFollow = null;
-  }
+  if(window._dragClone){ window._dragClone.remove(); window._dragClone = null; }
+  if(window._dragFollow){ window.removeEventListener('dragover', window._dragFollow); window._dragFollow = null; }
 }
 
 /* ----------------------
    Touch handlers (mobile)
    ---------------------- */
-let touchDragging = null; // {pos, clone, startRect, offsetX, offsetY}
+let touchDragging = null;
 function onTouchStart(e){
   e.preventDefault();
+  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
   const el = e.currentTarget;
   const pos = parseInt(el.dataset.pos,10);
   const rect = el.getBoundingClientRect();
   const t = e.touches[0];
-  // create clone visual
   const clone = el.cloneNode(true);
   clone.classList.add('dragging');
   clone.style.width = rect.width + 'px';
@@ -406,14 +453,7 @@ function onTouchStart(e){
   document.body.appendChild(clone);
   clone.style.left = (t.pageX - rect.width/2) + 'px';
   clone.style.top = (t.pageY - rect.height/2) + 'px';
-  touchDragging = {
-    pos,
-    clone,
-    el,
-    rect,
-    offsetX: t.pageX - rect.left,
-    offsetY: t.pageY - rect.top
-  };
+  touchDragging = { pos, clone, el, rect, offsetX: t.pageX - rect.left, offsetY: t.pageY - rect.top };
 }
 function onTouchMove(e){
   if(!touchDragging) return;
@@ -427,37 +467,28 @@ function onTouchMove(e){
 function onTouchEnd(e){
   if(!touchDragging) return;
   const clone = touchDragging.clone;
-  // determine element under touch end point
   const x = (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientX) || 0;
   const y = (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientY) || 0;
   const target = document.elementFromPoint(x, y);
-  // find nearest tile ancestor
   const tile = target ? target.closest && target.closest('.tile') : null;
   const targetPos = tile ? parseInt(tile.dataset.pos,10) : null;
   const src = touchDragging.pos;
-  if(typeof targetPos === 'number'){
-    handleDropByMode(src, targetPos);
-  }
-  // cleanup
+  if(typeof targetPos === 'number'){ handleDropByMode(src, targetPos); }
   clone.remove();
   touchDragging = null;
 }
 
 /* ----------------------
-   Drop behavior depending on mode C
+   Drop behavior (modo C)
    ---------------------- */
 function handleDropByMode(srcPos, targetPos){
   if(mode === 'normal'){
-    // free swap any two pieces (including swap with blank)
     if(srcPos === targetPos) return;
     swapPositions(srcPos, targetPos, true);
   } else {
-    // hard / ultra: only allow drop if target is blank (i.e., move into blank)
     if(targetPos === blankPos && canMoveToBlank(srcPos)){
-      // move src into blank
       swapPositions(srcPos, blankPos, true);
     } else {
-      // disallow: small shake feedback on target
       const tEl = tiles.find(t=>t.pos===targetPos)?.el;
       if(tEl) tEl.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:260});
     }
@@ -465,9 +496,9 @@ function handleDropByMode(srcPos, targetPos){
 }
 
 /* ----------------------
-   Shuffle legal moves (animated)
+   Shuffle (legal full mix, animated)
    ---------------------- */
-async function shuffleAnimated(steps=200, delay=10){
+async function shuffleAnimated(steps=300, delay=8){
   if(isShuffling) return;
   isShuffling = true;
   let last = -1;
@@ -498,13 +529,10 @@ async function shuffleAnimated(steps=200, delay=10){
 function setupTimerByMode(){
   if(mode === 'normal') secondsLeft = 180;
   else if(mode === 'hard') secondsLeft = 120;
-  else if(mode === 'ultra'){
-    secondsLeft = 60;
-    if(gridSize < 4){ gridInput.value = 5; setGrid(5); }
-  } else secondsLeft = 180;
+  else if(mode === 'ultra'){ secondsLeft = 60; if(gridSize < 4){ gridInput.value = 5; setGrid(5); } }
+  else secondsLeft = 180;
   timeEl.textContent = formatTime(secondsLeft);
 }
-
 function startCountdown(){
   if(timer) return;
   timer = setInterval(()=>{
@@ -522,14 +550,12 @@ function stopTimer(){ clearInterval(timer); timer = null; }
 /* ----------------------
    Win detection
    ---------------------- */
-function checkSolved(){
-  return tiles.every(t => t.pos === t.index);
-}
+function checkSolved(){ return tiles.every(t => t.pos === t.index); }
 function onWin(){
   stopTimer();
   msgEl.textContent = '🎉 ¡Resuelto!';
-  // quick glow
-  board.animate([{filter:'brightness(1)'},{filter:'brightness(1.5)'},{filter:'brightness(1)'}],{duration:700});
+  playWinSound();
+  board.animate([{filter:'brightness(1)'},{filter:'brightness(1.6)'},{filter:'brightness(1)'}],{duration:700});
 }
 
 /* ----------------------
@@ -552,16 +578,14 @@ modeSelect.addEventListener('change', ()=>{
 
 shuffleBtn.addEventListener('click', ()=>{
   const factor = (mode === 'ultra') ? 80 : (mode === 'hard') ? 60 : 40;
-  const steps = Math.max(60, gridSize * gridSize * factor);
+  const steps = Math.max(80, gridSize * gridSize * factor);
   shuffleAnimated(steps, 8);
 });
 resetBtn.addEventListener('click', ()=>{
   setGrid(gridSize);
   setupTimerByMode();
 });
-autoShuffleBtn.addEventListener('click', ()=>{
-  shuffleBtn.click();
-});
+autoShuffleBtn.addEventListener('click', ()=> shuffleBtn.click());
 randomImgBtn.addEventListener('click', ()=>{
   const idx = Math.floor(Math.random()*imgSelect.options.length);
   imgSelect.selectedIndex = idx;
@@ -581,4 +605,3 @@ shuffleBtn.click();
 </script>
 </body>
 </html>
-
