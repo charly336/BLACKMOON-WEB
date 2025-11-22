@@ -117,7 +117,7 @@
         <div class="small">v1 • Black Moon</div>
       </div>
 
-      <div id="board" aria-label="Tablero del rompecabezas"></div>
+      <div id="board"></div>
 
       <div style="margin-top:10px" class="meta">
         <div>Movimientos: <strong id="moves">0</strong></div>
@@ -130,7 +130,6 @@
       <div class="card">
         <label class="small">Imagen</label>
         <select id="imgSelect">
-          <!-- Mantuve exactamente los valores que tenías -->
           <option value="bkm systerms 2.0.jpg1">sistems</option>
           <option value="GPO BKM 2.jpg">grupop blackmoon</option>
           <option value="aerial black moon.jpg">aerial blackmoon</option>
@@ -170,7 +169,7 @@
       </div>
 
       <div class="card small">
-        Consejos: usa imágenes con contraste. Modo Ultra ajusta tamaño automáticamente para más reto.
+        Consejo: Modo Ultra cambia tamaño para máximo reto.
       </div>
 
       <footer>Black Moon — minimal glass</footer>
@@ -178,7 +177,7 @@
   </div>
 
 <script>
-/* Variables */
+/* VARIABLES */
 const board = document.getElementById('board');
 const imgSelect = document.getElementById('imgSelect');
 const gridInput = document.getElementById('gridSize');
@@ -194,7 +193,7 @@ const msgEl = document.getElementById('msg');
 let gridSize = parseInt(gridInput.value,10) || 3;
 let imageSrc = imgSelect.value;
 let mode = modeSelect.value;
-let tiles = []; // {index,pos,el}
+let tiles = [];
 let blankPos = null;
 let moves = 0;
 let timer = null;
@@ -205,7 +204,7 @@ let isShuffling = false;
 function formatTime(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
 function posToRC(pos){ return {r: Math.floor(pos/gridSize), c: pos % gridSize}; }
 
-/* Create board */
+/* Create grid */
 function setGrid(n){
   gridSize = n;
   board.style.gridTemplateColumns = `repeat(${n},1fr)`;
@@ -214,7 +213,6 @@ function setGrid(n){
 }
 
 function createTiles(){
-  // clear
   board.innerHTML = '';
   tiles = [];
   moves = 0; movesEl.textContent = moves;
@@ -237,7 +235,6 @@ function createTiles(){
   applyImageToTiles();
 }
 
-/* Apply image slices */
 function applyImageToTiles(){
   const n = gridSize;
   const src = imageSrc || '';
@@ -259,7 +256,7 @@ function applyImageToTiles(){
   });
 }
 
-/* Movement logic */
+/* Move piece */
 function canMove(pos){
   const a = posToRC(pos), b = posToRC(blankPos);
   return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
@@ -270,15 +267,15 @@ function moveTile(pos, countMove=true){
   if(!canMove(pos)) return;
   const a = tiles.find(t=>t.pos===pos);
   const b = tiles.find(t=>t.pos===blankPos);
-  if(!a||!b) return;
 
-  // swap positions
   const apos = a.pos, bpos = b.pos;
   a.pos = bpos; b.pos = apos;
-  a.el.dataset.pos = a.pos; b.el.dataset.pos = b.pos;
-  blankPos = bpos; // after swap, blank becomes old a.pos's location
 
-  // reorder DOM by pos
+  a.el.dataset.pos = a.pos;
+  b.el.dataset.pos = b.pos;
+
+  blankPos = bpos;
+
   const ordered = tiles.slice().sort((x,y)=>x.pos - y.pos);
   ordered.forEach(t=>board.appendChild(t.el));
 
@@ -289,9 +286,7 @@ function moveTile(pos, countMove=true){
   }
 }
 
-function onTileClick(pos){ moveTile(pos); }
-
-/* Shuffle: legal moves, animated */
+/* Shuffle */
 async function shuffleAnimated(steps=200, delay=8){
   if(isShuffling) return;
   isShuffling = true;
@@ -300,7 +295,12 @@ async function shuffleAnimated(steps=200, delay=8){
     const n = gridSize;
     const b = posToRC(blankPos);
     const options = [];
-    const candidates = [{r:b.r-1,c:b.c},{r:b.r+1,c:b.c},{r:b.r,c:b.c-1},{r:b.r,c:b.c+1}];
+    const candidates = [
+      {r:b.r-1,c:b.c},
+      {r:b.r+1,c:b.c},
+      {r:b.r,c:b.c-1},
+      {r:b.r,c:b.c+1}
+    ];
     for(const d of candidates){
       if(d.r>=0 && d.r<n && d.c>=0 && d.c<n){
         const p = d.r*n + d.c;
@@ -317,7 +317,7 @@ async function shuffleAnimated(steps=200, delay=8){
   isShuffling = false;
 }
 
-/* Timer & modes */
+/* Timer and modes */
 function setupTimerByMode(){
   if(mode === 'normal') secondsLeft = 180;
   else if(mode === 'hard') secondsLeft = 120;
@@ -335,24 +335,23 @@ function startCountdown(){
     timeEl.textContent = formatTime(secondsLeft);
     if(secondsLeft <= 0){
       clearInterval(timer); timer = null;
-      msgEl.textContent = '⏳ Tiempo agotado. Reinicia o mezcla de nuevo.';
-      // small shake
+      msgEl.textContent = '⏳ Tiempo agotado.';
       board.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:300,iterations:1});
     }
   },1000);
 }
+
 function stopTimer(){ clearInterval(timer); timer = null; }
 
-/* Win detection */
+/* Win */
 function checkSolved(){ return tiles.every(t => t.pos === t.index); }
 function win(){
   stopTimer();
   msgEl.textContent = '🎉 ¡Resuelto!';
-  // simple confetti effect: quick flashes
-  board.animate([{filter:'brightness(1.0)'},{filter:'brightness(1.6)'},{filter:'brightness(1.0)'}],{duration:700,iterations:1});
+  board.animate([{filter:'brightness(1)'},{filter:'brightness(1.6)'},{filter:'brightness(1)'}],{duration:700});
 }
 
-/* Events wiring (fixed) */
+/* Events */
 imgSelect.addEventListener('change', ()=>{
   imageSrc = imgSelect.value;
   applyImageToTiles();
@@ -367,21 +366,17 @@ modeSelect.addEventListener('change', ()=>{
   mode = modeSelect.value;
   setupTimerByMode();
 });
-
 shuffleBtn.addEventListener('click', ()=> {
-  // more steps for larger boards and harder modes
   const factor = (mode === 'ultra') ? 80 : (mode === 'hard') ? 60 : 40;
   const steps = Math.max(60, gridSize * gridSize * factor);
   shuffleAnimated(steps, 10);
 });
-resetBtn.addEventListener('click', ()=> {
+resetBtn.addEventListener('click', ()=>{
   setGrid(gridSize);
   setupTimerByMode();
 });
 autoShuffleBtn.addEventListener('click', ()=>{
   shuffleBtn.click();
-  msgEl.textContent = 'Mezclando...';
-  setTimeout(()=> msgEl.textContent = '', 1200);
 });
 randomImgBtn.addEventListener('click', ()=>{
   const idx = Math.floor(Math.random() * imgSelect.options.length);
@@ -390,10 +385,15 @@ randomImgBtn.addEventListener('click', ()=>{
   applyImageToTiles();
 });
 
-/* Init */
+/* INIT */
 imageSrc = imgSelect.value;
 setGrid(gridSize);
 setupTimerByMode();
+
+/* 🔥 MEZCLA AUTOMÁTICA AL INICIAR 🔥 */
+shuffleBtn.click();
+
 </script>
 </body>
 </html>
+
