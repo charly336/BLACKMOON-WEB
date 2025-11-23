@@ -1,607 +1,319 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Black Moon Puzzle — Final</title>
+<meta charset="UTF-8">
+<title>UNO PREMIUM GLASS</title>
+
 <style>
-  :root{
-    --bg:#06060b;
-    --glass-border: rgba(255,255,255,0.06);
-    --accent:#9b5cff;
-    --muted:#bfc3d6;
-    --card-radius:12px;
-    --violet-glow: 0 0 40px rgba(155,92,255,0.14), 0 8px 30px rgba(155,92,255,0.06);
-  }
-  *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;}
-  html,body{height:100%;margin:0;background:
-    radial-gradient(900px 420px at 8% 10%, rgba(155,92,255,0.06), transparent),
-    linear-gradient(180deg,#04040a,#070711);}
-  body{
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
-    color:#e8eaf6;
-    align-items:center;
-    padding:28px;
-  }
+/* ------------------ ESTILO GENERAL ------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #1b1b1b, #0f0f0f);
+    background-size: cover;
+    transition: background 0.8s ease;
+    color: #fff;
+}
 
-  .app{
-    width:100%;
-    max-width:1100px;
-    display:flex;
-    gap:20px;
-    flex:1 0 auto;
-  }
-
-  /* Left panel (board) */
-  .panel{
-    flex:1;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:var(--card-radius);
-    padding:14px;
-    border:1px solid var(--glass-border);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
-  }
-  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .title{font-size:18px;margin:0}
-  .small{color:var(--muted);font-size:13px}
-
-  /* board grid */
-  .boardWrap{
-    position:relative;
-    padding:12px;
-    border-radius:12px;
-  }
-  #board{
-    width:100%;
-    aspect-ratio:1/1;
-    display:grid;
-    gap:6px;
-    border-radius:12px;
-    background:linear-gradient(180deg,#020214,#050513);
-    padding:10px;
-    position:relative;
-    overflow:hidden;
-    box-shadow: var(--violet-glow);
-    border: 1px solid rgba(155,92,255,0.06);
-  }
-
-  .tile{
-    border-radius:8px;
-    background-size:100% 100%;
-    background-repeat:no-repeat;
-    cursor:grab;
-    user-select:none;
-    transition: transform .12s ease, box-shadow .12s ease;
-    box-shadow: 0 8px 26px rgba(0,0,0,0.55);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .tile:active{cursor:grabbing;transform:scale(.98);}
-  .tile.blank{background:linear-gradient(180deg,#06060a,#03030a);cursor:default;box-shadow:none}
-
-  /* Drag visual (glass lift) */
-  .dragging{
-    position: absolute;
-    pointer-events: none;
-    z-index:9999;
-    transform: scale(1.06) rotate(-2deg);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.65), 0 0 30px rgba(155,92,255,0.12) inset;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,0.07);
-    backdrop-filter: blur(6px) saturate(120%);
-  }
-
-  /* Right controls */
-  .side{
-    width:340px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .card{
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border:1px solid var(--glass-border);
-    padding:12px;border-radius:12px;
-    backdrop-filter: blur(8px);
-  }
-
-  select,input[type="number"],button{
-    width:100%;
-    padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
-    background:rgba(0,0,0,0.25);color:#eef;font-size:14px;
-  }
-  .row{display:flex;gap:8px}
-  button.primary{background:linear-gradient(180deg,var(--accent), #6e2bff);border:none;color:white;cursor:pointer}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);cursor:pointer}
-
-  .meta{display:flex;gap:8px;justify-content:space-between;font-size:13px;color:var(--muted)}
-  /* footer sticky to bottom of viewport */
-  footer {
-    margin-top: auto;
-    padding: 14px 0;
+/* ------------------ TÍTULO ------------------ */
+h1 {
     text-align: center;
-    font-size: 14px;
-    backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    background: linear-gradient(90deg, #9b5cff 0%, #000000 50%, #ff4fa7 100%);
-    color: #ffffffcc;
-    width:100%;
-  }
-  footer a {
-    color: #ffffffee; margin: 0 12px; text-decoration:none; font-weight:500;
-    transition: .15s;
-  }
-  footer a:hover { color: #fff; text-shadow:0 0 8px rgba(255,255,255,0.6); }
+    margin: 25px 0;
+    font-size: 48px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    text-shadow: 0 0 15px rgba(255,255,255,0.3);
+}
 
-  /* small screens */
-  @media (max-width:920px){
-    .app{flex-direction:column}
-    .side{width:100%}
-    #board{height:calc(90vw); width:90vw}
-  }
+/* ------------------ BOTONES GLASS ------------------ */
+.btn {
+    padding: 12px 28px;
+    margin: 10px;
+    border-radius: 25px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+.btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-3px);
+}
+
+/* ------------------ TABLERO ------------------ */
+#gameArea {
+    text-align: center;
+    padding: 20px;
+}
+
+.hand {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+/* ------------------ CARTAS GLASS ------------------ */
+.card {
+    width: 80px;
+    height: 120px;
+    border-radius: 18px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+    position: relative;
+    transition: transform 0.2s;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+.card:hover {
+    transform: translateY(-8px) rotate(-2deg);
+}
+.card span {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+
+/* ------------------ PILA ------------------ */
+#pile {
+    width: 110px;
+    height: 160px;
+    margin: 20px auto;
+    border-radius: 20px;
+    border: 3px solid rgba(255,255,255,0.5);
+    background-size: cover;
+    box-shadow: 0 0 25px rgba(255,255,255,0.4);
+}
+
+/* ------------------ FOOTER MULTICOLOR ------------------ */
+footer {
+    margin-top: 40px;
+    padding: 25px;
+    background: linear-gradient(90deg, red, yellow, lime, cyan);
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+    color: black;
+}
+footer a {
+    color: black;
+    text-shadow: none;
+}
 </style>
 </head>
 <body>
-  <div class="app">
-    <div class="panel">
-      <div class="header">
-        <div>
-          <h2 class="title">Black Moon Puzzle</h2>
-          <div class="small">Minimal • Glass • Drag & Drop • Mezcla completa</div>
-        </div>
-        <div class="small">v1 • Black Moon</div>
-      </div>
 
-      <div class="boardWrap">
-        <div id="board" aria-label="Tablero del rompecabezas"></div>
-      </div>
+<h1>UNO PREMIUM GLASS</h1>
 
-      <div style="margin-top:12px" class="meta">
-        <div>Movimientos: <strong id="moves">0</strong></div>
-        <div>Tiempo: <strong id="time">00:00</strong></div>
-      </div>
-      <div id="msg" class="small" style="margin-top:8px;color:#a8f6ff"></div>
-    </div>
+<div style="text-align:center;">
+    <button class="btn" onclick="startGame()">Iniciar Juego</button>
+    <button class="btn" onclick="resetGame()">Reiniciar</button>
+    <button class="btn" onclick="changeBackground()">Cambiar Fondo</button>
+</div>
 
-    <aside class="side">
-      <div class="card">
-        <label class="small">Imagen</label>
-        <select id="imgSelect">
-          <!-- Mantengo 10 opciones; la última es la imagen subida por ti -->
-          <option value="https://picsum.photos/800/800?random=1">Imagen 1</option>
-          <option value="https://picsum.photos/800/800?random=2">Imagen 2</option>
-          <option value="https://picsum.photos/800/800?random=3">Imagen 3</option>
-          <option value="https://picsum.photos/800/800?random=4">Imagen 4</option>
-          <option value="https://picsum.photos/800/800?random=5">Imagen 5</option>
-          <option value="https://picsum.photos/800/800?random=6">Imagen 6</option>
-          <option value="https://picsum.photos/800/800?random=7">Imagen 7</option>
-          <option value="https://picsum.photos/800/800?random=8">Imagen 8</option>
-          <option value="https://picsum.photos/800/800?random=9">Imagen 9</option>
-          <!-- IMAGEN SUBIDA por ti: usa la ruta local tal como está en tu entorno -->
-          <option value="/mnt/data/A_promotional_digital_image_for_a_sliding_puzzle_g.png">Promocional Black Moon</option>
-        </select>
+<!-- Selector de música -->
+<div style="text-align:center; margin:20px;">
+    <label>Música: </label>
+    <input type="file" id="musicInput" accept="audio/*">
+    <button class="btn" onclick="playMusic()">Reproducir</button>
+</div>
 
-        <label class="small" style="margin-top:10px">Tamaño (n×n)</label>
-        <input id="gridSize" type="number" min="2" max="8" value="3">
+<audio id="bgMusic"></audio>
 
-        <label class="small" style="margin-top:10px">Modo</label>
-        <select id="modeSelect">
-          <option value="normal">Normal</option>
-          <option value="hard">Difícil</option>
-          <option value="ultra">Ultra</option>
-        </select>
-      </div>
+<!-- TABLERO -->
+<div id="gameArea">
+    <div id="pile"></div>
 
-      <div class="card">
-        <div class="row">
-          <button id="shuffleBtn" class="primary">Mezclar (animado)</button>
-          <button id="resetBtn" class="ghost">Reiniciar</button>
-        </div>
-        <div style="height:8px"></div>
-        <div class="row">
-          <button id="autoShuffleBtn" class="ghost">Auto-mezclar</button>
-          <button id="randomImgBtn" class="ghost">Imagen aleatoria</button>
-        </div>
-      </div>
+    <h2>Tu mano</h2>
+    <div id="playerHand" class="hand"></div>
 
-      <div class="card small">
-        Consejo: En <strong>Normal</strong> puedes intercambiar libremente; en <strong>Difícil/Ultra</strong> sólo mover al hueco (sliding). El juego arranca mezclado.
-      </div>
-    </aside>
-  </div>
+    <h2>CPU 1</h2>
+    <div id="cpu1Hand" class="hand"></div>
 
-  <footer>
-    <a href="#inicio">Inicio</a>
-    <a href="#juegos">Juegos</a>
-    <a href="#contacto">Contacto</a>
-  </footer>
+    <h2>CPU 2 (si aplica)</h2>
+    <div id="cpu2Hand" class="hand"></div>
+</div>
+
+<!-- MODO DESARROLLADOR: subir imágenes personalizadas -->
+<div style="text-align:center; margin:20px;">
+    <h3>Subir imágenes personalizadas de cartas</h3>
+    <input type="file" id="imgUpload" multiple accept="image/*">
+    <button class="btn" onclick="loadCustomImages()">Cargar Imágenes</button>
+</div>
+
+<footer>
+    <a href="#">Política</a>
+    <a href="#">Contacto</a>
+    <a href="#">Términos</a>
+</footer>
 
 <script>
-/* ----------------------
-   Estado y referencias
-   ---------------------- */
-const board = document.getElementById('board');
-const imgSelect = document.getElementById('imgSelect');
-const gridInput = document.getElementById('gridSize');
-const modeSelect = document.getElementById('modeSelect');
-const shuffleBtn = document.getElementById('shuffleBtn');
-const resetBtn = document.getElementById('resetBtn');
-const autoShuffleBtn = document.getElementById('autoShuffleBtn');
-const randomImgBtn = document.getElementById('randomImgBtn');
-const movesEl = document.getElementById('moves');
-const timeEl = document.getElementById('time');
-const msgEl = document.getElementById('msg');
+/* ---------------------------- CONFIGURACIÓN UNO ---------------------------- */
 
-let gridSize = parseInt(gridInput.value,10) || 3;
-let imageSrc = imgSelect.value;
-let mode = modeSelect.value; // normal/hard/ultra
-let tiles = []; // {index,pos,el}
-let blankPos = null;
-let moves = 0;
-let timer = null;
-let secondsLeft = 0;
-let isShuffling = false;
+let colors = ["red", "yellow", "green", "blue"];
+let values = ["0","1","2","3","4","5","6","7","8","9","+2","↺","⇆"];
+let deck = [];
+let pile = [];
 
-/* ----------------------
-   WebAudio — efectos (no archivos)
-   ---------------------- */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let numCPUs = 2;
+let hands = {
+    player: [],
+    cpu1: [],
+    cpu2: []
+};
 
-function playMoveSound(){
-  try {
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = 'sine';
-    o.frequency.value = 880 - Math.random()*120; // slight variance
-    g.gain.value = 0.0001;
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    // quick envelope
-    const now = audioCtx.currentTime;
-    g.gain.setValueAtTime(0.0001, now);
-    g.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-    o.start(now);
-    o.stop(now + 0.13);
-  } catch(e){}
-}
+let customImages = {};
 
-function playWinSound(){
-  try {
-    const now = audioCtx.currentTime;
-    const freqs = [660,880,1100];
-    freqs.forEach((f,i)=>{
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = 'sine';
-      o.frequency.value = f;
-      g.gain.value = 0.001;
-      o.connect(g); g.connect(audioCtx.destination);
-      g.gain.setValueAtTime(0.0001, now + i*0.08);
-      g.gain.exponentialRampToValueAtTime(0.12, now + i*0.08 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + i*0.08 + 0.26);
-      o.start(now + i*0.08);
-      o.stop(now + i*0.08 + 0.28);
+/* ---------------------------- GENERAR MAZO ---------------------------- */
+function generateDeck() {
+    deck = [];
+    colors.forEach(color => {
+        values.forEach(value => {
+            deck.push({color, value, id: color+value});
+            deck.push({color, value, id: color+value+"_b"});
+        });
     });
-  } catch(e){}
+    deck.sort(() => Math.random() - 0.5);
 }
 
-/* ----------------------
-   Util helpers
-   ---------------------- */
-function formatTime(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
-function posToRC(pos){ return {r: Math.floor(pos/gridSize), c: pos % gridSize}; }
-
-/* ----------------------
-   Crear tablero y aplicar imagen
-   ---------------------- */
-function setGrid(n){
-  gridSize = n;
-  board.style.gridTemplateColumns = `repeat(${n},1fr)`;
-  board.style.gridTemplateRows = `repeat(${n},1fr)`;
-  createTiles();
-}
-
-function createTiles(){
-  board.innerHTML = '';
-  tiles = [];
-  moves = 0; movesEl.textContent = moves;
-  stopTimer();
-  timeEl.textContent = '00:00';
-  msgEl.textContent = '';
-
-  const total = gridSize * gridSize;
-  for(let i=0;i<total;i++){
-    const d = document.createElement('div');
-    d.className = 'tile';
-    d.dataset.index = i;
-    d.dataset.pos = i;
-    d.draggable = true;
-    // mouse drag
-    d.addEventListener('dragstart', onDragStart);
-    d.addEventListener('dragend', onDragEnd);
-    d.addEventListener('dragover', onDragOver);
-    d.addEventListener('drop', onDrop);
-    // touch
-    d.addEventListener('touchstart', onTouchStart, {passive:false});
-    d.addEventListener('touchmove', onTouchMove, {passive:false});
-    d.addEventListener('touchend', onTouchEnd, {passive:false});
-    tiles.push({index:i, pos:i, el:d});
-    board.appendChild(d);
-  }
-  blankPos = total - 1;
-  tiles[blankPos].el.classList.add('blank');
-  applyImageToTiles();
-}
-
-/* apply background slice to each tile */
-function applyImageToTiles(){
-  const n = gridSize;
-  const src = imageSrc || '';
-  tiles.forEach(t=>{
-    if(t.index === blankPos){
-      t.el.classList.add('blank');
-      t.el.style.backgroundImage = '';
-      t.el.style.backgroundColor = '#06060a';
-      t.el.textContent = '';
-      return;
+/* ---------------------------- REPARTIR ---------------------------- */
+function dealCards() {
+    for (let i = 0; i < 7; i++) {
+        hands.player.push(deck.pop());
+        hands.cpu1.push(deck.pop());
+        if (numCPUs === 3) hands.cpu2.push(deck.pop());
     }
-    t.el.classList.remove('blank');
-    t.el.style.backgroundImage = `url("${src}")`;
-    t.el.style.backgroundSize = `${n*100}% ${n*100}%`;
-    const row = Math.floor(t.index / n);
-    const col = t.index % n;
-    const x = (col / (n-1)) * 100;
-    const y = (row / (n-1)) * 100;
-    t.el.style.backgroundPosition = `${x}% ${y}%`;
-  });
+    pile.push(deck.pop());
+    updateUI();
 }
 
-/* ----------------------
-   Movimiento y swap
-   ---------------------- */
-function canMoveToBlank(pos){
-  const a = posToRC(pos), b = posToRC(blankPos);
-  return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+/* ---------------------------- UI ---------------------------- */
+function updateUI() {
+    renderHand("playerHand", hands.player, true);
+    renderHand("cpu1Hand", hands.cpu1, false);
+    if (numCPUs === 3) renderHand("cpu2Hand", hands.cpu2, false);
+
+    document.getElementById("pile").style.backgroundImage =
+        cardBG(pile.at(-1));
 }
 
-function swapPositions(posA, posB, countMove=true){
-  const A = tiles.find(t=>t.pos===posA);
-  const B = tiles.find(t=>t.pos===posB);
-  if(!A || !B) return;
-  // swap pos values
-  const pa = A.pos, pb = B.pos;
-  A.pos = pb; B.pos = pa;
-  A.el.dataset.pos = A.pos; B.el.dataset.pos = B.pos;
-  // reorder DOM by pos
-  const ordered = tiles.slice().sort((x,y)=>x.pos - y.pos);
-  ordered.forEach(t=>board.appendChild(t.el));
-  // update blankPos if needed
-  if(A.pos === blankPos) blankPos = A.pos;
-  if(B.pos === blankPos) blankPos = B.pos;
-
-  if(countMove){
-    moves++; movesEl.textContent = moves;
-    // play move sound
-    playMoveSound();
-    if(!timer) startCountdown(); // start timer on first move
-    if(checkSolved()) onWin();
-  }
+function renderHand(id, hand, playable) {
+    const zone = document.getElementById(id);
+    zone.innerHTML = "";
+    hand.forEach((card, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.style.backgroundImage = cardBG(card);
+        div.innerHTML = `<span>${card.value}</span>`;
+        if (playable) div.onclick = () => playCard("player", i);
+        zone.appendChild(div);
+    });
 }
 
-/* ----------------------
-   Drag & Drop (mouse)
-   ---------------------- */
-let dragSrcPos = null;
-function onDragStart(e){
-  // ensure audio context resumed on user gesture
-  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-  const pos = parseInt(e.currentTarget.dataset.pos,10);
-  dragSrcPos = pos;
-  // create clone
-  const rect = e.currentTarget.getBoundingClientRect();
-  const clone = e.currentTarget.cloneNode(true);
-  clone.classList.add('dragging');
-  clone.style.width = rect.width + 'px';
-  clone.style.height = rect.height + 'px';
-  document.body.appendChild(clone);
-  e.dataTransfer.setData('text/plain', String(pos));
-  e.dataTransfer.setDragImage(new Image(), 0, 0);
-  window._dragClone = clone;
-  clone.style.left = (e.pageX - rect.width/2) + 'px';
-  clone.style.top = (e.pageY - rect.height/2) + 'px';
-  function follow(ev){
-    if(!window._dragClone) return;
-    window._dragClone.style.left = (ev.pageX - rect.width/2) + 'px';
-    window._dragClone.style.top = (ev.pageY - rect.height/2) + 'px';
-  }
-  window.addEventListener('dragover', follow);
-  window._dragFollow = follow;
-}
-function onDragOver(e){ e.preventDefault(); }
-function onDrop(e){
-  e.preventDefault();
-  const targetPos = parseInt(e.currentTarget.dataset.pos,10);
-  const src = dragSrcPos !== null ? dragSrcPos : parseInt(e.dataTransfer.getData('text/plain'),10);
-  handleDropByMode(src, targetPos);
-}
-function onDragEnd(e){
-  dragSrcPos = null;
-  if(window._dragClone){ window._dragClone.remove(); window._dragClone = null; }
-  if(window._dragFollow){ window.removeEventListener('dragover', window._dragFollow); window._dragFollow = null; }
+/* ---------------------------- FONDO DE CARTA ---------------------------- */
+function cardBG(card) {
+    if (customImages[card.id]) return `url(${customImages[card.id]})`;
+    return `linear-gradient(135deg, ${card.color}, #111)`;
 }
 
-/* ----------------------
-   Touch handlers (mobile)
-   ---------------------- */
-let touchDragging = null;
-function onTouchStart(e){
-  e.preventDefault();
-  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-  const el = e.currentTarget;
-  const pos = parseInt(el.dataset.pos,10);
-  const rect = el.getBoundingClientRect();
-  const t = e.touches[0];
-  const clone = el.cloneNode(true);
-  clone.classList.add('dragging');
-  clone.style.width = rect.width + 'px';
-  clone.style.height = rect.height + 'px';
-  document.body.appendChild(clone);
-  clone.style.left = (t.pageX - rect.width/2) + 'px';
-  clone.style.top = (t.pageY - rect.height/2) + 'px';
-  touchDragging = { pos, clone, el, rect, offsetX: t.pageX - rect.left, offsetY: t.pageY - rect.top };
-}
-function onTouchMove(e){
-  if(!touchDragging) return;
-  e.preventDefault();
-  const t = e.touches[0];
-  const clone = touchDragging.clone;
-  const w = touchDragging.rect.width, h = touchDragging.rect.height;
-  clone.style.left = (t.pageX - w/2) + 'px';
-  clone.style.top = (t.pageY - h/2) + 'px';
-}
-function onTouchEnd(e){
-  if(!touchDragging) return;
-  const clone = touchDragging.clone;
-  const x = (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientX) || 0;
-  const y = (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientY) || 0;
-  const target = document.elementFromPoint(x, y);
-  const tile = target ? target.closest && target.closest('.tile') : null;
-  const targetPos = tile ? parseInt(tile.dataset.pos,10) : null;
-  const src = touchDragging.pos;
-  if(typeof targetPos === 'number'){ handleDropByMode(src, targetPos); }
-  clone.remove();
-  touchDragging = null;
+/* ---------------------------- VALIDAR ---------------------------- */
+function isValid(card) {
+    let top = pile.at(-1);
+    return card.color === top.color || card.value === top.value;
 }
 
-/* ----------------------
-   Drop behavior (modo C)
-   ---------------------- */
-function handleDropByMode(srcPos, targetPos){
-  if(mode === 'normal'){
-    if(srcPos === targetPos) return;
-    swapPositions(srcPos, targetPos, true);
-  } else {
-    if(targetPos === blankPos && canMoveToBlank(srcPos)){
-      swapPositions(srcPos, blankPos, true);
-    } else {
-      const tEl = tiles.find(t=>t.pos===targetPos)?.el;
-      if(tEl) tEl.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:260});
+/* ---------------------------- JUGAR ---------------------------- */
+function playCard(player, i) {
+    let card = hands[player][i];
+    if (!isValid(card)) return alert("No puedes jugar esta carta.");
+
+    pile.push(card);
+    hands[player].splice(i, 1);
+
+    updateUI();
+    setTimeout(cpuTurn, 600);
+}
+
+/* ---------------------------- CPU ---------------------------- */
+function cpuTurn() {
+    const bots = ["cpu1", "cpu2"].slice(0, numCPUs - 1);
+
+    for (let cpu of bots) {
+        let played = false;
+        for (let i = 0; i < hands[cpu].length; i++) {
+            if (isValid(hands[cpu][i])) {
+                pile.push(hands[cpu][i]);
+                hands[cpu].splice(i, 1);
+                played = true;
+                break;
+            }
+        }
+        if (!played && deck.length) hands[cpu].push(deck.pop());
     }
-  }
+
+    updateUI();
 }
 
-/* ----------------------
-   Shuffle (legal full mix, animated)
-   ---------------------- */
-async function shuffleAnimated(steps=300, delay=8){
-  if(isShuffling) return;
-  isShuffling = true;
-  let last = -1;
-  for(let i=0;i<steps;i++){
-    const n = gridSize;
-    const b = posToRC(blankPos);
-    const options = [];
-    const candidates = [{r:b.r-1,c:b.c},{r:b.r+1,c:b.c},{r:b.r,c:b.c-1},{r:b.r,c:b.c+1}];
-    for(const d of candidates){
-      if(d.r>=0 && d.r<n && d.c>=0 && d.c<n){
-        const p = d.r*n + d.c;
-        if(p !== last) options.push(p);
-      }
+/* ---------------------------- INICIO ---------------------------- */
+function startGame() {
+    generateDeck();
+    hands = { player: [], cpu1: [], cpu2: [] };
+    pile = [];
+
+    numCPUs = prompt("¿Jugar contra 1 o 2 CPUs?", "2") == "3" ? 3 : 2;
+
+    dealCards();
+}
+
+/* ---------------------------- REINICIO ---------------------------- */
+function resetGame() {
+    location.reload();
+}
+
+/* ---------------------------- FONDO ---------------------------- */
+function changeBackground() {
+    let fondos = [
+        "#0f0f0f",
+        "radial-gradient(circle, #1b2735, #090a0f)",
+        "linear-gradient(135deg, #1e3c72, #2a5298)",
+        "linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)",
+        "linear-gradient(135deg, #000428, #004e92)"
+    ];
+    document.body.style.background = fondos[Math.floor(Math.random() * fondos.length)];
+}
+
+/* ---------------------------- MÚSICA ---------------------------- */
+function playMusic() {
+    let file = document.getElementById("musicInput").files[0];
+    if (!file) return;
+    let audio = document.getElementById("bgMusic");
+    audio.src = URL.createObjectURL(file);
+    audio.play();
+}
+
+/* ---------------------------- IMÁGENES PERSONALIZADAS ---------------------------- */
+function loadCustomImages() {
+    let files = document.getElementById("imgUpload").files;
+    for (let f of files) {
+        let name = f.name.split(".")[0];
+        customImages[name] = URL.createObjectURL(f);
     }
-    const pick = options[Math.floor(Math.random()*options.length)];
-    swapPositions(pick, blankPos, false);
-    last = blankPos;
-    await new Promise(r=>setTimeout(r, delay));
-  }
-  moves = 0; movesEl.textContent = moves;
-  setupTimerByMode();
-  isShuffling = false;
+    alert("Imágenes cargadas.");
 }
-
-/* ----------------------
-   Timer and modes
-   ---------------------- */
-function setupTimerByMode(){
-  if(mode === 'normal') secondsLeft = 180;
-  else if(mode === 'hard') secondsLeft = 120;
-  else if(mode === 'ultra'){ secondsLeft = 60; if(gridSize < 4){ gridInput.value = 5; setGrid(5); } }
-  else secondsLeft = 180;
-  timeEl.textContent = formatTime(secondsLeft);
-}
-function startCountdown(){
-  if(timer) return;
-  timer = setInterval(()=>{
-    secondsLeft--;
-    timeEl.textContent = formatTime(secondsLeft);
-    if(secondsLeft <= 0){
-      clearInterval(timer); timer = null;
-      msgEl.textContent = '⏳ Tiempo agotado.';
-      board.animate([{transform:'translateY(0)'},{transform:'translateY(-6px)'},{transform:'translateY(0)'}],{duration:300,iterations:1});
-    }
-  },1000);
-}
-function stopTimer(){ clearInterval(timer); timer = null; }
-
-/* ----------------------
-   Win detection
-   ---------------------- */
-function checkSolved(){ return tiles.every(t => t.pos === t.index); }
-function onWin(){
-  stopTimer();
-  msgEl.textContent = '🎉 ¡Resuelto!';
-  playWinSound();
-  board.animate([{filter:'brightness(1)'},{filter:'brightness(1.6)'},{filter:'brightness(1)'}],{duration:700});
-}
-
-/* ----------------------
-   Events wiring
-   ---------------------- */
-imgSelect.addEventListener('change', ()=>{
-  imageSrc = imgSelect.value;
-  applyImageToTiles();
-});
-gridInput.addEventListener('change', ()=>{
-  let v = parseInt(gridInput.value,10) || 3;
-  if(v<2) v=2; if(v>8) v=8;
-  gridInput.value = v;
-  setGrid(v);
-});
-modeSelect.addEventListener('change', ()=>{
-  mode = modeSelect.value;
-  setupTimerByMode();
-});
-
-shuffleBtn.addEventListener('click', ()=>{
-  const factor = (mode === 'ultra') ? 80 : (mode === 'hard') ? 60 : 40;
-  const steps = Math.max(80, gridSize * gridSize * factor);
-  shuffleAnimated(steps, 8);
-});
-resetBtn.addEventListener('click', ()=>{
-  setGrid(gridSize);
-  setupTimerByMode();
-});
-autoShuffleBtn.addEventListener('click', ()=> shuffleBtn.click());
-randomImgBtn.addEventListener('click', ()=>{
-  const idx = Math.floor(Math.random()*imgSelect.options.length);
-  imgSelect.selectedIndex = idx;
-  imageSrc = imgSelect.value;
-  applyImageToTiles();
-});
-
-/* ----------------------
-   Init
-   ---------------------- */
-imageSrc = imgSelect.value;
-setGrid(gridSize);
-setupTimerByMode();
-/* Auto shuffle on start (animated) */
-shuffleBtn.click();
-
 </script>
+
 </body>
 </html>
+
