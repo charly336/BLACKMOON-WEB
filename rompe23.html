@@ -21,7 +21,7 @@
     #tablero {
         margin: 20px auto;
         padding: 20px;
-        width: 80%;
+        width: 90%;
         background-color: rgba(0,0,0,0.6);
         border-radius: 10px;
     }
@@ -35,17 +35,11 @@
     .carta {
         width: 80px;
         height: 120px;
-        background-color: #fff;
-        color: #000;
-        font-size: 14px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
         background-size: cover;
         background-position: center;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 0 5px #000;
     }
     footer {
         display: flex;
@@ -83,7 +77,10 @@
 <header>Juego UNO Personalizable</header>
 
 <audio id="musica" loop>
-    <source src="https://www.bensound.com/bensound-music/bensound-funkyelement.mp3" type"controles">
+    musica/fondo.mp3
+</audio>
+
+<div id="controles">
     <button onclick="cambiarFondo()">Cambiar Fondo Página</button>
     <button onclick="cambiarTablero()">Cambiar Fondo Tablero</button>
     <button onclick="toggleMusica()">Play/Pause Música</button>
@@ -99,19 +96,19 @@
     <div class="cartas" id="jugador"></div>
     <h2>Computadora</h2>
     <div class="cartas" id="computadora"></div>
-    <h3>Carta en mesa: <span id="mesa"></span></h3>
+    <h3>Carta en mesa:</h3>
+    <div class="cartas" id="mesaCarta"></div>
     <div id="ganador"></div>
 </div>
 
 <footer>
-    #Inicio</a>
-    #Reglas</a>
-    <a href="#">Contacto</a>
+    <a href="#">Inicioeglas</a>
+    #Contacto</a>
+</footer>
+
 <script>
     // ✅ BLOQUE PARA EDITAR CARTAS Y SUS IMÁGENES
-    // Cambia el valor "img" por la ruta de tu imagen .jpg
     const cartasPersonalizadas = [
-        {color: "azul", valor: "0", img: "0 azul (1).png"},
         {color: "Rojo", valor: "1", img: "imagenes/rojo1.jpg"},
         {color: "Rojo", valor: "2", img: "imagenes/rojo2.jpg"},
         {color: "Rojo", valor: "3", img: "imagenes/rojo3.jpg"},
@@ -124,8 +121,7 @@
         {color: "Rojo", valor: "Salta", img: "imagenes/rojosalta.jpg"},
         {color: "Rojo", valor: "Reversa", img: "imagenes/rojoreversa.jpg"},
         {color: "Rojo", valor: "+2", img: "imagenes/rojo+2.jpg"},
-        // Repite para Azul, Verde y Amarillo
-        // ...
+        // Repite para Azul, Verde y Amarillo con sus imágenes
     ];
 
     let mazo = [];
@@ -150,23 +146,31 @@
     function mostrarCartas() {
         const jugadorDiv = document.getElementById("jugador");
         const compDiv = document.getElementById("computadora");
+        const mesaDiv = document.getElementById("mesaCarta");
         jugadorDiv.innerHTML = "";
         compDiv.innerHTML = "";
+        mesaDiv.innerHTML = "";
+
         jugador.forEach((carta, i) => {
             const div = document.createElement("div");
             div.className = "carta";
-            div.style.backgroundImage = `url(${carta.img})`; // ✅ Aquí se usa la imagen .jpg
+            div.style.backgroundImage = `url(${carta.img})`;
             div.title = carta.color + " " + carta.valor;
             div.onclick = () => jugarCarta(i);
             jugadorDiv.appendChild(div);
         });
+
         computadora.forEach(() => {
             const div = document.createElement("div");
             div.className = "carta";
-            div.textContent = "???";
+            div.style.backgroundImage = "url('imagenes/back.jpg')"; // Imagen reverso
             compDiv.appendChild(div);
         });
-        document.getElementById("mesa").textContent = cartaMesa.color + " " + cartaMesa.valor;
+
+        const divMesa = document.createElement("div");
+        divMesa.className = "carta";
+        divMesa.style.backgroundImage = `url(${cartaMesa.img})`;
+        mesaDiv.appendChild(divMesa);
     }
 
     function jugarCarta(index) {
