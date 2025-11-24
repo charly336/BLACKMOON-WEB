@@ -1,316 +1,625 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>UNO PREMIUM GLASS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BlackMoon UNO - Demo</title>
+  <style>
+    /* Reset y layout */
+    :root{
+      --bg: linear-gradient(135deg,#0f0f12,#1b1b26);
+      --card-bg: #fff;
+      --glass-bg: rgba(10,10,12,0.45);
+      --accent: #8b5cf6; /* purple-ish */
+      --glass-border: rgba(255,255,255,0.06);
+      --glass-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      --glass-glow: 0 0 18px rgba(139,92,246,0.12);
+      --glass-text: #e8e8ec;
+      --footer-height: 70px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;color:var(--glass-text);background:var(--bg);}
+    .container{min-height:calc(100vh - var(--footer-height));display:flex;flex-direction:column;align-items:center;padding:18px;box-sizing:border-box}
 
-<style>
-/* ------------------ ESTILO GENERAL ------------------ */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, #1b1b1b, #0f0f0f);
-    background-size: cover;
-    transition: background 0.8s ease;
-    color: #fff;
-}
+    header{width:100%;max-width:1100px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    h1{margin:0;font-size:1.25rem;letter-spacing:0.6px}
 
-/* ------------------ TÍTULO ------------------ */
-h1 {
-    text-align: center;
-    margin: 25px 0;
-    font-size: 48px;
-    letter-spacing: 3px;
-    font-weight: 700;
-    text-shadow: 0 0 15px rgba(255,255,255,0.3);
-}
+    /* Blackmoon glass buttons */
+    .btn{background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:blur(8px) saturate(120%);padding:10px 14px;border-radius:12px;box-shadow:var(--glass-shadow);cursor:pointer;color:var(--glass-text);display:inline-flex;align-items:center;gap:8px;transition:transform .18s ease,box-shadow .18s ease}
+    .btn:active{transform:translateY(2px) scale(.995)}
+    .btn--accent{border-image:linear-gradient(90deg,var(--accent),#06b6d4) 1;background:linear-gradient(180deg, rgba(255,255,255,0.02), var(--glass-bg));}
 
-/* ------------------ BOTONES GLASS ------------------ */
-.btn {
-    padding: 12px 28px;
-    margin: 10px;
-    border-radius: 25px;
-    border: 1px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-}
-.btn:hover {
-    background: rgba(255,255,255,0.2);
-    transform: translateY(-3px);
-}
+    /* Layout del tablero */
+    .board{width:100%;max-width:1100px;height:520px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,0.6);display:grid;grid-template-columns:1fr 340px;gap:16px}
+    @media(max-width:900px){.board{grid-template-columns:1fr;height:auto}}
 
-/* ------------------ TABLERO ------------------ */
-#gameArea {
-    text-align: center;
-    padding: 20px;
-}
+    .play-area{background:transparent;border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .table-top{width:100%;display:flex;gap:12px;align-items:center;justify-content:center}
+    .pile{width:140px;height:190px;border-radius:10px;background:linear-gradient(180deg,#111,#0b0b0d);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .card{width:86px;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px}
 
-.hand {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin: 10px 0;
-}
+    .controls{padding:12px;display:flex;flex-direction:column;gap:10px}
+    .panel{background:rgba(255,255,255,0.02);border-radius:10px;padding:10px}
 
-/* ------------------ CARTAS GLASS ------------------ */
-.card {
-    width: 80px;
-    height: 120px;
-    border-radius: 18px;
-    background-size: cover;
-    background-position: center;
-    border: 2px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(10px);
-    position: relative;
-    transition: transform 0.2s;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-}
-.card:hover {
-    transform: translateY(-8px) rotate(-2deg);
-}
-.card span {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 22px;
-    font-weight: bold;
-    text-shadow: 0 0 8px rgba(0,0,0,0.5);
-}
+    /* mano de jugador e IA */
+    .hand{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:12px}
+    .hand .card{width:64px;height:92px;font-size:20px;cursor:pointer;user-select:none}
+    .card.red{background:linear-gradient(180deg,#ff6b6b,#d43f3f);color:white}
+    .card.blue{background:linear-gradient(180deg,#4da6ff,#1b6fd6);color:white}
+    .card.green{background:linear-gradient(180deg,#6ee7b7,#10b981);color:white}
+    .card.yellow{background:linear-gradient(180deg,#fde68a,#f59e0b);color:black}
+    .card.wild{background:linear-gradient(180deg,#333,#111);color:white}
 
-/* ------------------ PILA ------------------ */
-#pile {
-    width: 110px;
-    height: 160px;
-    margin: 20px auto;
-    border-radius: 20px;
-    border: 3px solid rgba(255,255,255,0.5);
-    background-size: cover;
-    box-shadow: 0 0 25px rgba(255,255,255,0.4);
-}
+    /* footer con 3 links de color */
+    footer{height:var(--footer-height);display:flex;align-items:center;justify-content:center}
+    .footer-inner{width:100%;max-width:1100px;display:flex;justify-content:space-between;align-items:center;padding:12px}
+    .footer-links{display:flex;gap:12px}
+    .f-link{padding:10px 14px;border-radius:10px;color:white;font-weight:600;text-decoration:none}
+    .f1{background:#ef4444}
+    .f2{background:#10b981}
+    .f3{background:#3b82f6}
 
-/* ------------------ FOOTER MULTICOLOR ------------------ */
-footer {
-    margin-top: 40px;
-    padding: 25px;
-    background: linear-gradient(90deg, red, yellow, lime, cyan);
-    display: flex;
-    justify-content: space-around;
-    font-weight: bold;
-    color: black;
-}
-footer a {
-    color: black;
-    text-shadow: none;
-}
-</style>
+    /* Animaciones inicio/fin */
+    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.6));z-index:40;backdrop-filter:blur(4px)}
+    .overlay .box{background:linear-gradient(180deg,#0b0b0d,#111);padding:24px;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.8);text-align:center}
+
+    /* responsive tweaks */
+    @media(max-width:600px){.card{width:56px;height:76px;font-size:16px}.pile{width:110px;height:150px}.board{padding:10px}}
+
+    /* small helpers */
+    .row{display:flex;gap:8px;align-items:center}
+    .muted{opacity:0.7;font-size:13px}
+    input[type=file]{display:none}
+
+    /* Dev uploader modal */
+    #devUploadCard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;min-width:320px}
+    #devUploadGrid{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;max-height:80vh;overflow:auto}
+    .slot-preview{width:100%;height:90px;object-fit:contain;border-radius:6px;background:#0b0b0b;margin-bottom:6px}
+  </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>BlackMoon UNO — vs Máquina</h1>
+        <div class="muted">Desarrollador: área marcada en el código para subir cartas</div>
+      </div>
+      <div class="row">
+        <button id="startBtn" class="btn btn--accent">Iniciar juego</button>
+        <button id="resetBtn" class="btn">Reiniciar</button>
+        <button id="musicToggle" class="btn">Pausar música</button>
+      </div>
+    </header>
 
-<h1>UNO PREMIUM GLASS</h1>
+    <main class="board">
+      <section class="play-area">
+        <div class="table-top">
+          <div>
+            <div class="muted">Descartes</div>
+            <div id="discardPile" class="pile">?</div>
+          </div>
+          <div>
+            <div class="muted">Mazo</div>
+            <div id="drawPile" class="pile">⇄</div>
+          </div>
+        </div>
 
-<div style="text-align:center;">
-    <button class="btn" onclick="startGame()">Iniciar Juego</button>
-    <button class="btn" onclick="resetGame()">Reiniciar</button>
-    <button class="btn" onclick="changeBackground()">Cambiar Fondo</button>
+        <div class="panel" style="width:100%;margin-top:12px">
+          <div class="muted">Mano de la IA</div>
+          <div id="aiHand" class="hand"></div>
+        </div>
+
+        <div class="panel" style="width:100%;margin-top:12px">
+          <div class="muted">Mano del Jugador</div>
+          <div id="playerHand" class="hand"></div>
+        </div>
+
+      </section>
+
+      <aside class="controls">
+        <div class="panel">
+          <div class="row" style="justify-content:space-between">
+            <div>
+              <div>Turno: <span id="turnLabel">-</span></div>
+              <div>Puntos Jugador: <span id="scorePlayer">0</span></div>
+              <div>Puntos IA: <span id="scoreAI">0</span></div>
+            </div>
+            <div>
+              <div>Tiempo: <span id="timer">00:00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row" style="justify-content:space-between;margin-bottom:8px">
+            <label class="btn" id="uploadCardsBtn">Subir cartas (Desarrollador)</label>
+            <input id="cardFileInput" type="file" accept="application/json">
+          </div>
+          <div class="muted">Nota: SOLO el desarrollador debería usar la función de subir cartas. En el código está marcada la zona para configurar el mazo inicial si deseas incluir las cartas directamente.</div>
+        </div>
+
+        <div class="panel">
+          <div class="row">
+            <label class="btn">Cargar música</label>
+            <input id="musicInput" type="file" accept="audio/*">
+          </div>
+          <div class="muted">También puedes pausar/reproducir con el botón "Pausar música"</div>
+        </div>
+
+        <div class="panel">
+          <div class="row" style="align-items:center">
+            <div class="muted">Tipo de mesa:</div>
+            <select id="tableSelect" class="btn" style="padding:8px;border-radius:10px">
+              <option value="classic">Clásica</option>
+              <option value="dark">Oscura</option>
+              <option value="wood">Madera</option>
+            </select>
+          </div>
+          <div style="margin-top:8px" class="row">
+            <button id="bgColorBtn" class="btn">Cambiar fondo (color)</button>
+            <input id="bgColorInput" type="color" style="display:none">
+            <button id="bgImgBtn" class="btn">Subir fondo (imagen)</button>
+            <input id="bgImgInput" type="file" accept="image/*" style="display:none">
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row">
+            <button id="drawBtn" class="btn">Robar carta</button>
+            <button id="unoBtn" class="btn btn--accent">¡UNO!</button>
+          </div>
+        </div>
+
+      </aside>
+    </main>
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="muted">BlackMoon - Demo UNO</div>
+      <div class="footer-links">
+        <a class="f-link f1" href="#">Link 1</a>
+        <a class="f-link f2" href="#">Link 2</a>
+        <a class="f-link f3" href="#">Link 3</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- overlay inicio/fin -->
+  <div id="startOverlay" class="overlay" style="display:flex">
+    <div class="box">
+      <h2>Bienvenido a BlackMoon UNO</h2>
+      <p>Presiona <strong>Iniciar juego</strong> para comenzar.</p>
+      <div style="margin-top:12px"><button id="overlayStart" class="btn btn--accent">Comenzar</button></div>
+    </div>
+  </div>
+
+  <!-- audio element for music -->
+  <audio id="bgAudio" loop></audio>
+
+  <script>
+    // -------------------------------------------------------------
+    // ZONA DEL DESARROLLADOR: Aquí puedes definir/subir el mazo por defecto
+    // Para seguridad del demo, la subida via UI está protegida por un prompt de contraseña
+    // Edita la variable `developerCards` abajo para cambiar directamente las cartas del juego.
+    // Estructura de cada carta: {color: 'red'|'blue'|'green'|'yellow'|'wild', value: '0'..'9'|'skip'|'reverse'|'draw2'|'wild'}
+    // Ejemplo mínimo:
+
+    let developerCards = [
+      {color:'red', value:'1'}, {color:'red', value:'3'}, {color:'red', value:'5'},
+      {color:'blue', value:'2'}, {color:'blue', value:'4'},
+      {color:'green', value:'7'}, {color:'yellow', value:'9'},
+      {color:'wild', value:'wild'}, {color:'wild', value:'wild'}
+    ];
+
+    // MARCADO: Si quieres subir un JSON con cartas, úsalo desde el botón "Subir cartas (Desarrollador)" en la UI
+    // El JSON debe contener un array con la misma estructura que developerCards.
+    // -------------------------------------------------------------
+
+    // Estado del juego
+    let deck = [];
+    let discard = [];
+    let playerHand = [];
+    let aiHand = [];
+    let currentTurn = 'player'; // 'player' o 'ai'
+    let timerInterval = null; let seconds = 0;
+    let scorePlayer = 0; let scoreAI = 0;
+
+    // Elementos
+    const playerHandEl = document.getElementById('playerHand');
+    const aiHandEl = document.getElementById('aiHand');
+    const drawPileEl = document.getElementById('drawPile');
+    const discardEl = document.getElementById('discardPile');
+    const turnLabel = document.getElementById('turnLabel');
+    const timerEl = document.getElementById('timer');
+    const scorePlayerEl = document.getElementById('scorePlayer');
+    const scoreAIEl = document.getElementById('scoreAI');
+
+    // audio
+    const bgAudio = document.getElementById('bgAudio');
+    const musicInput = document.getElementById('musicInput');
+    const musicToggle = document.getElementById('musicToggle');
+
+    // UI hooks
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const drawBtn = document.getElementById('drawBtn');
+    const unoBtn = document.getElementById('unoBtn');
+
+    // Upload cards (desarrollador)
+    const uploadBtn = document.getElementById('uploadCardsBtn');
+    const cardFileInput = document.getElementById('cardFileInput');
+
+    // Background & table
+    const tableSelect = document.getElementById('tableSelect');
+    const bgColorBtn = document.getElementById('bgColorBtn');
+    const bgColorInput = document.getElementById('bgColorInput');
+    const bgImgBtn = document.getElementById('bgImgBtn');
+    const bgImgInput = document.getElementById('bgImgInput');
+
+    // Overlay
+    const startOverlay = document.getElementById('startOverlay');
+    const overlayStart = document.getElementById('overlayStart');
+
+    // Helpers
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}
+      return arr;
+    }
+
+    function buildFullDeck(){
+      // Si tienes un mazo personalizado en developerCards, úsalo; si no, genera uno simple.
+      if(Array.isArray(developerCards) && developerCards.length>0){
+        // Duplicamos para tener más cartas
+        const base = developerCards.slice();
+        let big = [];
+        for(let i=0;i<8;i++) big = big.concat(base.map(c=>Object.assign({},c)));
+        return shuffle(big);
+      }
+      // fallback: generar un mazo sencillo
+      const colors=['red','blue','green','yellow'];
+      let d=[];
+      colors.forEach(col=>{for(let v=0;v<=9;v++){d.push({color:col,value:String(v)})}});
+      for(let i=0;i<4;i++) d.push({color:'wild',value:'wild'});
+      return shuffle(d);
+    }
+
+    function startGame(){
+      deck = buildFullDeck();
+      discard = [];
+      playerHand = [];
+      aiHand = [];
+      seconds = 0;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(()=>{seconds++;updateTimer()},1000);
+      // repartir
+      for(let i=0;i<7;i++){playerHand.push(drawCard()); aiHand.push(drawCard())}
+      // poner primera carta en descartes
+      discard.push(drawCard());
+      currentTurn='player';
+      updateAll();
+      startOverlay.style.display='none';
+      turnLabel.textContent='Jugador';
+      animateStart();
+    }
+
+    function resetGame(){
+      clearInterval(timerInterval);
+      seconds=0;updateTimer();
+      deck=[];discard=[];playerHand=[];aiHand=[];updateAll();
+      startOverlay.style.display='flex';
+      animateEnd();
+    }
+
+    function updateTimer(){
+      const mm = String(Math.floor(seconds/60)).padStart(2,'0');
+      const ss = String(seconds%60).padStart(2,'0');
+      timerEl.textContent = `${mm}:${ss}`;
+    }
+
+    function drawCard(){
+      if(deck.length===0){
+        // reshuffle discard except top
+        if(discard.length<=1) return null;
+        const top = discard.pop();
+        deck = shuffle(discard);
+        discard = [top];
+      }
+      return deck.pop();
+    }
+
+    function updateAll(){
+      // Mostrar manos y pila
+      playerHandEl.innerHTML=''; aiHandEl.innerHTML='';
+      playerHand.forEach((c,i)=>{const el=cardElement(c);el.addEventListener('click',()=>playCardFromPlayer(i));playerHandEl.appendChild(el)});
+      aiHand.forEach(c=>{const el=cardElement({color:c.color,value:'?' });aiHandEl.appendChild(el)});
+      discardEl.innerHTML = '';
+      if(discard.length>0){const top=discard[discard.length-1];discardEl.appendChild(cardElement(top))} else {discardEl.textContent='?'}
+      drawPileEl.textContent = deck.length;
+      scorePlayerEl.textContent = scorePlayer;scoreAIEl.textContent=scoreAI;
+    }
+
+    function cardElement(card){
+      const d = document.createElement('div'); d.className='card '+card.color; d.textContent = card.value;
+      d.title = (card.color)+' '+card.value;
+      return d;
+    }
+
+    function playCardFromPlayer(index){
+      if(currentTurn!=='player') return;
+      const card = playerHand[index];
+      const top = discard[discard.length-1];
+      if(canPlay(card, top)){
+        discard.push(card); playerHand.splice(index,1);
+        afterPlay('player',card);
+      } else {
+        alert('No puedes jugar esa carta');
+      }
+      updateAll();
+    }
+
+    function canPlay(card,top){
+      if(!card) return false;
+      if(card.color==='wild') return true;
+      return card.color===top.color || card.value===top.value;
+    }
+
+    function afterPlay(who,card){
+      // reglas simplificadas: si alguien se queda sin cartas gana la ronda
+      if(who==='player'){
+        if(playerHand.length===0){
+          scorePlayer += 10 + (60 - seconds); // ejemplo de puntos
+          alert('¡Ganaste la ronda!');
+          resetForNextRound();
+          return;
+        }
+        currentTurn='ai'; turnLabel.textContent='Máquina';
+        setTimeout(aiTurn,800);
+      } else {
+        if(aiHand.length===0){
+          scoreAI += 10 + (60 - seconds);
+          alert('La IA ganó la ronda');
+          resetForNextRound();
+          return;
+        }
+        currentTurn='player'; turnLabel.textContent='Jugador';
+      }
+      updateAll();
+    }
+
+    function resetForNextRound(){
+      // sencilla: reiniciar partidas pero conservar puntaje
+      clearInterval(timerInterval);
+      seconds=0;updateTimer();
+      deck = buildFullDeck(); discard = [];
+      for(let i=0;i<7;i++){playerHand[i]=drawCard(); aiHand[i]=drawCard()}
+      // simplificación: volver a dar
+      playerHand = []; aiHand = [];
+      for(let i=0;i<7;i++){playerHand.push(drawCard()); aiHand.push(drawCard())}
+      discard.push(drawCard());
+      currentTurn='player'; turnLabel.textContent='Jugador';
+      updateAll();
+      timerInterval = setInterval(()=>{seconds++;updateTimer()},1000);
+    }
+
+    function aiTurn(){
+      // IA muy simple: jugar la primera carta válida, si no, robar hasta 3 veces
+      const top = discard[discard.length-1];
+      let played=false;
+      for(let i=0;i<aiHand.length;i++){
+        if(canPlay(aiHand[i],top)){
+          const card = aiHand.splice(i,1)[0]; discard.push(card); played=true; break;
+        }
+      }
+      if(!played){
+        // robar 1 carta
+        const c = drawCard(); if(c) aiHand.push(c);
+      }
+      // terminar turno
+      afterPlay('ai');
+    }
+
+    // Botones
+    startBtn.addEventListener('click', ()=>{startGame()});
+    overlayStart.addEventListener('click', ()=>{startGame()});
+    resetBtn.addEventListener('click', ()=>{if(confirm('Reiniciar el juego (perderás el avance actual)?')) resetGame()});
+
+    drawBtn.addEventListener('click', ()=>{
+      if(currentTurn!=='player') return;
+      const c = drawCard(); if(c) playerHand.push(c); currentTurn='ai'; turnLabel.textContent='Máquina'; updateAll(); setTimeout(aiTurn,700);
+    });
+
+    unoBtn.addEventListener('click', ()=>{alert('¡Has cantado UNO! (sin comprobación en demo)')});
+
+    // Música
+    musicInput.addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return; const url = URL.createObjectURL(f); bgAudio.src = url; bgAudio.play(); musicToggle.textContent='Pausar música';
+    });
+    musicToggle.addEventListener('click', ()=>{
+      if(bgAudio.paused){bgAudio.play(); musicToggle.textContent='Pausar música'} else {bgAudio.pause(); musicToggle.textContent='Reproducir música'}
+    });
+
+    // Subir cartas (desarrollador) - protegido con prompt de contraseña simple
+    uploadBtn.addEventListener('click', ()=>{const pass = prompt('Contraseña de desarrollador:'); if(pass!=='blackmoonDev'){alert('Acceso denegado'); return;} cardFileInput.click();});
+    cardFileInput.addEventListener('change', async (e)=>{
+      const f = e.target.files[0]; if(!f) return; try{const text = await f.text(); const arr = JSON.parse(text); if(!Array.isArray(arr)) throw new Error('Formato inválido'); // reemplaza mazo
+        developerCards.length = 0; arr.forEach(c=>developerCards.push(c)); alert('Mazo importado correctamente. Reinicia el juego para aplicar.');
+      } catch(err){alert('Error al cargar JSON: '+err.message)}
+    });
+
+    // Fondo y mesa
+    tableSelect.addEventListener('change',(e)=>{
+      const v=e.target.value; if(v==='classic') document.body.style.setProperty('--bg','linear-gradient(135deg,#0f0f12,#1b1b26)');
+      if(v==='dark') document.body.style.setProperty('--bg','linear-gradient(135deg,#030303,#0b1020)');
+      if(v==='wood') document.body.style.setProperty('--bg','linear-gradient(135deg,#6b4f3a,#836046)');
+    });
+    bgColorBtn.addEventListener('click',()=>bgColorInput.click());
+    bgColorInput.addEventListener('input',(e)=>{document.body.style.background = e.target.value});
+    bgImgBtn.addEventListener('click',()=>bgImgInput.click());
+    bgImgInput.addEventListener('change',(e)=>{
+      const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f); document.body.style.background = `url(${url}) center/cover fixed`;
+    });
+
+    // pequeñas animaciones
+    function animateStart(){
+      // efecto simple: glow en botones
+      document.querySelectorAll('.btn').forEach(b=>{b.style.boxShadow = '0 8px 28px rgba(139,92,246,0.18)'});
+      setTimeout(()=>{document.querySelectorAll('.btn').forEach(b=>{b.style.boxShadow='var(--glass-shadow)'});},1200);
+    }
+    function animateEnd(){
+      // destello final
+      document.querySelectorAll('.btn').forEach(b=>{b.style.transform='scale(.98)';setTimeout(()=>b.style.transform='scale(1)',300)});
+    }
+
+    // inicialización visual
+    updateAll(); updateTimer();
+
+    // Accessibility: permitir jugar con flechas para mover selección (demo simple)
+    window.addEventListener('keydown',(e)=>{
+      if(e.key==='ArrowLeft') console.log('flecha izquierda');
+    });
+
+    // Nota: Este demo implementa reglas simplificadas de UNO. Para funcionalidad completa (cartas especiales, acumulados, reversas, penalizaciones) hay que ampliar la lógica de canPlay y afterPlay.
+
+  </script>
+
+  <!-- Panel de subida de cartas (Solo desarrollador) -->
+  <div id="devUploadCard" style="display:none; padding:20px; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); border-radius:20px; max-width:400px; margin:20px auto; color:white;">
+    <h2>Subir nueva carta</h2>
+    <label>Imagen de carta:</label>
+    <input type="file" id="cardImage" accept="image/*"><br><br>
+
+    <label>Color:</label>
+    <select id="cardColor">
+      <option value="rojo">Rojo</option>
+      <option value="verde">Verde</option>
+      <option value="azul">Azul</option>
+      <option value="amarillo">Amarillo</option>
+      <option value="comodin">Comodín</option>
+    </select><br><br>
+
+    <label>Valor:</label>
+    <select id="cardValue">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="+2">+2</option>
+      <option value="reversa">Reversa</option>
+      <option value="bloqueo">Bloqueo</option>
+      <option value="comodin">Comodín</option>
+      <option value="+4">+4</option>
+    </select><br><br>
+
+    <button id="addCardBtn">Agregar al mazo</button>
+  </div>
+
+  <script>
+  // Mostrar solo con contraseña simple
+  function openDevUploader(){
+    const pass = prompt('Contraseña de desarrollador:');
+    if(pass === 'blackmoonDev'){
+      document.getElementById('devUploadCard').style.display = 'block';
+    }
+  }
+
+  // Agregar carta al mazo
+  document.getElementById('addCardBtn').onclick = () => {
+    const fileInput = document.getElementById('cardImage');
+    const color = document.getElementById('cardColor').value;
+    const value = document.getElementById('cardValue').value;
+
+    if(!fileInput.files.length){
+      alert('Sube una imagen');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const newCard = {
+        img: reader.result,
+        color: color,
+        value: value
+      };
+      developerCards.push(newCard);
+      alert('Carta agregada al mazo');
+    };
+
+    reader.readAsDataURL(fileInput.files[0]);
+  };
+  </script>
+
+<!-- Panel de subida de cartas (Solo desarrollador) -->
+<div id="devUploadGrid" style="display:none; padding:20px; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); border-radius:20px; margin:20px auto; color:white; max-width:900px;">
+  <h2>Subir cartas (Desarrollador)</h2>
+  <p>Aquí puedes subir cada carta individualmente. Cada espacio representa una carta del mazo.</p>
+  <div id="cardSlots" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:15px;">
+    <!-- 52 espacios de ejemplo -->
+    <script>
+      for(let i=1;i<=52;i++){
+        document.write(`
+        <div style='background:#111;padding:10px;border-radius:12px;text-align:center;border:1px solid #444;'>
+          <p style="margin:5px 0;">Carta ${i}</p>
+          <input type='file' id='slotImg${i}' accept='image/*'><br><br>
+          <select id='slotColor${i}'>
+            <option value='rojo'>Rojo</option>
+            <option value='verde'>Verde</option>
+            <option value='azul'>Azul</option>
+            <option value='amarillo'>Amarillo</option>
+            <option value='comodin'>Comodín</option>
+          </select><br><br>
+          <select id='slotValue${i}'>
+            <option value='0'>0</option>
+            <option value='1'>1</option>
+            <option value='2'>2</option>
+            <option value='3'>3</option>
+            <option value='4'>4</option>
+            <option value='5'>5</option>
+            <option value='6'>6</option>
+            <option value='7'>7</option>
+            <option value='8'>8</option>
+            <option value='9'>9</option>
+            <option value='+2'>+2</option>
+            <option value='reversa'>Reversa</option>
+            <option value='bloqueo'>Bloqueo</option>
+            <option value='comodin'>Comodín</option>
+            <option value='+4'>+4</option>
+          </select><br><br>
+          <button onclick='addSlotCard(${i})'>Guardar</button>
+        </div>`);
+      }
+    </script>
+  </div>
 </div>
-
-<!-- Selector de música -->
-<div style="text-align:center; margin:20px;">
-    <label>Música: </label>
-    <input type="file" id="musicInput" accept="audio/*">
-    <button class="btn" onclick="playMusic()">Reproducir</button>
-</div>
-
-<audio id="bgMusic"></audio>
-
-<!-- TABLERO -->
-<div id="gameArea">
-    <div id="pile"></div>
-
-    <h2>Tu mano</h2>
-    <div id="playerHand" class="hand"></div>
-
-    <h2>CPU 1</h2>
-    <div id="cpu1Hand" class="hand"></div>
-
-    <h2>CPU 2 (si aplica)</h2>
-    <div id="cpu2Hand" class="hand"></div>
-</div>
-
-<!-- MODO DESARROLLADOR: subir imágenes personalizadas -->
-<div style="text-align:center; margin:20px;">
-    <h3>Subir imágenes personalizadas de cartas</h3>
-    <input type="file" id="imgUpload" multiple accept="image/*">
-    <button class="btn" onclick="loadCustomImages()">Cargar Imágenes</button>
-</div>
-
-<footer>
-    <a href="#">Política</a>
-    <a href="#">Contacto</a>
-    <a href="#">Términos</a>
-</footer>
 
 <script>
-/* ---------------------------- CONFIGURACIÓN UNO ---------------------------- */
+let developerCards = window.developerCards || [];
 
-let colors = ["red", "yellow", "green", "blue"];
-let values = ["0","1","2","3","4","5","6","7","8","9","+2","↺","⇆"];
-let deck = [];
-let pile = [];
-
-let numCPUs = 2;
-let hands = {
-    player: [],
-    cpu1: [],
-    cpu2: []
-};
-
-let customImages = {};
-
-/* ---------------------------- GENERAR MAZO ---------------------------- */
-function generateDeck() {
-    deck = [];
-    colors.forEach(color => {
-        values.forEach(value => {
-            deck.push({color, value, id: color+value});
-            deck.push({color, value, id: color+value+"_b"});
-        });
-    });
-    deck.sort(() => Math.random() - 0.5);
+function openDevUploader(){
+  const pass = prompt('Contraseña de desarrollador:');
+  if(pass === 'blackmoonDev'){
+    document.getElementById('devUploadGrid').style.display = 'block';
+  }
 }
 
-/* ---------------------------- REPARTIR ---------------------------- */
-function dealCards() {
-    for (let i = 0; i < 7; i++) {
-        hands.player.push(deck.pop());
-        hands.cpu1.push(deck.pop());
-        if (numCPUs === 3) hands.cpu2.push(deck.pop());
-    }
-    pile.push(deck.pop());
-    updateUI();
-}
+function addSlotCard(i){
+  const imgInput = document.getElementById(`slotImg${i}`);
+  const color = document.getElementById(`slotColor${i}`).value;
+  const value = document.getElementById(`slotValue${i}`).value;
+  if(!imgInput.files.length){ alert('Sube una imagen para esta carta'); return; }
 
-/* ---------------------------- UI ---------------------------- */
-function updateUI() {
-    renderHand("playerHand", hands.player, true);
-    renderHand("cpu1Hand", hands.cpu1, false);
-    if (numCPUs === 3) renderHand("cpu2Hand", hands.cpu2, false);
-
-    document.getElementById("pile").style.backgroundImage =
-        cardBG(pile.at(-1));
-}
-
-function renderHand(id, hand, playable) {
-    const zone = document.getElementById(id);
-    zone.innerHTML = "";
-    hand.forEach((card, i) => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.style.backgroundImage = cardBG(card);
-        div.innerHTML = `<span>${card.value}</span>`;
-        if (playable) div.onclick = () => playCard("player", i);
-        zone.appendChild(div);
-    });
-}
-
-/* ---------------------------- FONDO DE CARTA ---------------------------- */
-function cardBG(card) {
-    if (customImages[card.id]) return `url(${customImages[card.id]})`;
-    return `linear-gradient(135deg, ${card.color}, #111)`;
-}
-
-/* ---------------------------- VALIDAR ---------------------------- */
-function isValid(card) {
-    let top = pile.at(-1);
-    return card.color === top.color || card.value === top.value;
-}
-
-/* ---------------------------- JUGAR ---------------------------- */
-function playCard(player, i) {
-    let card = hands[player][i];
-    if (!isValid(card)) return alert("No puedes jugar esta carta.");
-
-    pile.push(card);
-    hands[player].splice(i, 1);
-
-    updateUI();
-    setTimeout(cpuTurn, 600);
-}
-
-/* ---------------------------- CPU ---------------------------- */
-function cpuTurn() {
-    const bots = ["cpu1", "cpu2"].slice(0, numCPUs - 1);
-
-    for (let cpu of bots) {
-        let played = false;
-        for (let i = 0; i < hands[cpu].length; i++) {
-            if (isValid(hands[cpu][i])) {
-                pile.push(hands[cpu][i]);
-                hands[cpu].splice(i, 1);
-                played = true;
-                break;
-            }
-        }
-        if (!played && deck.length) hands[cpu].push(deck.pop());
-    }
-
-    updateUI();
-}
-
-/* ---------------------------- INICIO ---------------------------- */
-function startGame() {
-    generateDeck();
-    hands = { player: [], cpu1: [], cpu2: [] };
-    pile = [];
-
-    numCPUs = prompt("¿Jugar contra 1 o 2 CPUs?", "2") == "3" ? 3 : 2;
-
-    dealCards();
-}
-
-/* ---------------------------- REINICIO ---------------------------- */
-function resetGame() {
-    location.reload();
-}
-
-/* ---------------------------- FONDO ---------------------------- */
-function changeBackground() {
-    let fondos = [
-        "#0f0f0f",
-        "radial-gradient(circle, #1b2735, #090a0f)",
-        "linear-gradient(135deg, #1e3c72, #2a5298)",
-        "linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b)",
-        "linear-gradient(135deg, #000428, #004e92)"
-    ];
-    document.body.style.background = fondos[Math.floor(Math.random() * fondos.length)];
-}
-
-/* ---------------------------- MÚSICA ---------------------------- */
-function playMusic() {
-    let file = document.getElementById("musicInput").files[0];
-    if (!file) return;
-    let audio = document.getElementById("bgMusic");
-    audio.src = URL.createObjectURL(file);
-    audio.play();
-}
-
-/* ---------------------------- IMÁGENES PERSONALIZADAS ---------------------------- */
-function loadCustomImages() {
-    let files = document.getElementById("imgUpload").files;
-    for (let f of files) {
-        let name = f.name.split(".")[0];
-        customImages[name] = URL.createObjectURL(f);
-    }
-    alert("Imágenes cargadas.");
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    developerCards.push({img:reader.result,color,value});
+    alert(`Carta ${i} guardada correctamente.`);
+  };
+  reader.readAsDataURL(imgInput.files[0]);
 }
 </script>
 
