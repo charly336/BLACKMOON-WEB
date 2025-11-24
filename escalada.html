@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🐍 Dark Snake -V.1- 🐍</title>
 
 <style>
-/* ===============================
-   COLORES EDITABLES
-   =============================== */
 body{
     margin:0;
-    background:#2c1c6d; /* CAMBIAR FONDO DE LA PÁGINA */
+    background:#1b103f;
     color:white;
     font-family:Arial;
     text-align:center;
 }
 
+/* CONTENEDOR GENERAL */
 .container{
     display:flex;
     flex-wrap:wrap;
@@ -25,76 +24,100 @@ body{
     margin-top:20px;
 }
 
+/* CAJA DEL JUEGO "GLASS VIEW" */
 .game-box{
-    background:#6d541c; /* CAMBIAR COLOR DEL MARCO DEL JUEGO */
+    background:rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     padding:20px;
     border-radius:18px;
-    box-shadow:0 0 20px #000;
-    position:relative;
+    box-shadow:0 0 25px rgba(0,0,0,0.6);
+    width:90%;
+    max-width:400px;
 }
 
+/* CANVAS RESPONSIVE */
 canvas{
-    background:#92da71; /* CAMBIAR COLOR DEL ÁREA DEL JUEGO */
-    border-radius:10px;
+    width:100% !important;
+    height:auto !important;
+    background:#92da71;
+    border-radius:12px;
 }
 
-button{
-    margin-top:10px;
-    padding:10px 20px;
-    border:none;
-    background:#1c68ff;
-    color:white;
-    border-radius:8px;
-    font-size:16px;
-}
-
+/* IMAGEN PROMO */
 .promo-box img{
-    width:300px; /* CAMBIAR TAMAÑO */
-    max-width:100%;
+    width:90%;
+    max-width:320px;
     border-radius:15px;
     box-shadow:0 0 10px #000;
 }
 
+/* BOTÓN */
+button{
+    margin-top:10px;
+    padding:12px 24px;
+    border:none;
+    background:rgba(255,255,255,0.18);
+    color:white;
+    border-radius:10px;
+    font-size:18px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:0 0 10px rgba(0,0,0,0.5);
+    cursor:pointer;
+}
+
+/* FOOTER RESPONSIVE GLASS */
 footer{
     margin-top:30px;
     width:100%;
-    bbackground-image: url('Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg');
     padding:20px;
     display:flex;
+    flex-wrap:wrap;
     justify-content:center;
-    gap:40px;
+    gap:25px;
+    background:rgba(0,0,0,0.25);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
 }
 
 footer a{
     color:white;
-    font-size:18px;
+    font-size:16px;
     text-decoration:none;
 }
 
 /* ANIMACIÓN SUAVE */
-.smooth {
+.smooth{
     transition: all 0.12s ease;
+}
+
+/* RESPONSIVE PARA TELÉFONOS */
+@media (max-width:480px){
+    h1{ font-size:24px; }
+    button{ font-size:16px; }
+    footer a{ font-size:14px; }
 }
 </style>
 </head>
 
 <body>
 
-<h1>Dark Snake -V.1- </h1>
+<h1>Dark Snake -V.1-</h1>
+
 <p>Puntos: <span id="score">0</span> — Nivel: <span id="level">1</span></p>
+<p>Visitas: <span id="visitas"></span></p>
 
 <button id="pauseBtn">Pausar</button>
 
 <div class="container">
 
     <div class="game-box">
-        <canvas id="gameCanvas" width="300" height="300"></canvas>
+        <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Imagen promocional editable -->
     <div class="promo-box">
         <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" alt="Games">
-        <!-- CAMBIAR AQUÍ LA IMAGEN -->
     </div>
 
 </div>
@@ -108,16 +131,28 @@ footer a{
 
 <script>
 /* ===============================
+         CONTADOR DE VISITAS
+   =============================== */
+let visitas = localStorage.getItem("visitasSnake");
+if(!visitas){ visitas = 1; }
+else{ visitas = parseInt(visitas) + 1; }
+localStorage.setItem("visitasSnake", visitas);
+document.getElementById("visitas").innerText = visitas;
+
+/* ===============================
          CONFIGURACIONES
    =============================== */
-const snakeColor = "#33ff55";  // CAMBIAR COLOR SERPIENTE
-const foodColor  = "#ff3333";  // CAMBIAR COLOR COMIDA
+const snakeColor = "#33ff55";
+const foodColor  = "#ff3333";
 
-let speed = 150;   // VELOCIDAD BASE — CAMBIAR
+let speed = 150;
 let currentLevel = 1;
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
+canvas.width = 300;
+canvas.height = 300;
 
 let box = 15;
 let snake = [{x:10, y:10}];
@@ -132,7 +167,7 @@ document.getElementById("pauseBtn").onclick = () => {
 };
 
 /* ===============================
-         DIBUJAR SNAKE CON ANIMACIÓN
+         DIBUJAR SNAKE
    =============================== */
 function drawSnake(){
     ctx.fillStyle = snakeColor;
@@ -149,7 +184,7 @@ function drawSnake(){
 function drawFood(){
     ctx.fillStyle = foodColor;
     ctx.shadowColor = foodColor;
-    ctx.shadowBlur = 10;  // EFECTO BRILLO
+    ctx.shadowBlur = 10;
     ctx.fillRect(food.x * box, food.y * box, box - 1, box - 1);
     ctx.shadowBlur = 0;
 }
@@ -158,12 +193,8 @@ function drawFood(){
              MOVIMIENTO
    =============================== */
 function moveSnake(){
-    let head = {
-        x: snake[0].x + dx,
-        y: snake[0].y + dy
-    };
+    let head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-    // Atravesar paredes
     if (head.x < 0) head.x = canvas.width / box - 1;
     if (head.x >= canvas.width / box) head.x = 0;
     if (head.y < 0) head.y = canvas.height / box - 1;
@@ -175,11 +206,10 @@ function moveSnake(){
         score++;
         document.getElementById("score").innerText = score;
 
-        // Sistema de niveles
         if (score % 5 === 0){
             currentLevel++;
             document.getElementById("level").innerText = currentLevel;
-            speed = Math.max(60, speed - 15); // Aumenta velocidad
+            speed = Math.max(60, speed - 15);
         }
 
         food = {
@@ -191,7 +221,7 @@ function moveSnake(){
 }
 
 /* ===============================
-          COLISIÓN CONSIGO MISMA
+         COLISIÓN CONSIGO MISMA
    =============================== */
 function checkCollision(){
     for (let i = 1; i < snake.length; i++){
@@ -231,4 +261,3 @@ gameLoop();
 
 </body>
 </html>
-
