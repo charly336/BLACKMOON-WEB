@@ -67,6 +67,33 @@ button{
     cursor:pointer;
 }
 
+/* BOTONES DE CONTROL */
+.controls{
+    margin-top:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+}
+
+.control-row{
+    display:flex;
+    gap:10px;
+}
+
+.ctrl-btn{
+    width:70px;
+    height:70px;
+    font-size:26px;
+    background:rgba(255,255,255,0.18);
+    border:none;
+    border-radius:15px;
+    color:white;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:0 0 10px rgba(0,0,0,0.5);
+}
+
 /* FOOTER RESPONSIVE GLASS */
 footer{
     margin-top:30px;
@@ -87,16 +114,13 @@ footer a{
     text-decoration:none;
 }
 
-/* ANIMACIÓN SUAVE */
-.smooth{
-    transition: all 0.12s ease;
-}
-
-/* RESPONSIVE PARA TELÉFONOS */
+/* RESPONSIVE */
 @media (max-width:480px){
-    h1{ font-size:24px; }
-    button{ font-size:16px; }
-    footer a{ font-size:14px; }
+    .ctrl-btn{
+        width:60px;
+        height:60px;
+        font-size:22px;
+    }
 }
 </style>
 </head>
@@ -122,6 +146,18 @@ footer a{
 
 </div>
 
+<!-- BOTONES TOUCH PARA MÓVILES -->
+<div class="controls">
+    <div class="control-row">
+        <button class="ctrl-btn" id="btnUp">▲</button>
+    </div>
+    <div class="control-row">
+        <button class="ctrl-btn" id="btnLeft">◀</button>
+        <button class="ctrl-btn" id="btnDown">▼</button>
+        <button class="ctrl-btn" id="btnRight">▶</button>
+    </div>
+</div>
+
 <footer>
     <a href="https://www.jotform.com/app/251536021952856">NUESTRA APP</a>
     <a href="https://charly336.github.io/BLACKMOON-WEB/Games%20List.html">MAS JUEGOS</a>
@@ -140,7 +176,7 @@ localStorage.setItem("visitasSnake", visitas);
 document.getElementById("visitas").innerText = visitas;
 
 /* ===============================
-         CONFIGURACIONES
+         CONFIGURACIÓN
    =============================== */
 const snakeColor = "#33ff55";
 const foodColor  = "#ff3333";
@@ -166,6 +202,20 @@ document.getElementById("pauseBtn").onclick = () => {
     document.getElementById("pauseBtn").innerText = paused ? "Continuar" : "Pausar";
 };
 
+/* BOTONES TÁCTILES */
+document.getElementById("btnUp").onclick = () => { if (dy === 0){ dx=0; dy=-1; } };
+document.getElementById("btnDown").onclick = () => { if (dy === 0){ dx=0; dy=1; } };
+document.getElementById("btnLeft").onclick = () => { if (dx === 0){ dx=-1; dy=0; } };
+document.getElementById("btnRight").onclick = () => { if (dx === 0){ dx=1; dy=0; } };
+
+/* TECLADO */
+document.addEventListener("keydown", e =>{
+    if (e.key === "ArrowUp"    && dy === 0){ dx=0; dy=-1; }
+    if (e.key === "ArrowDown"  && dy === 0){ dx=0; dy=1; }
+    if (e.key === "ArrowLeft"  && dx === 0){ dx=-1; dy=0; }
+    if (e.key === "ArrowRight" && dx === 0){ dx=1; dy=0; }
+});
+
 /* ===============================
          DIBUJAR SNAKE
    =============================== */
@@ -179,7 +229,7 @@ function drawSnake(){
 }
 
 /* ===============================
-            DIBUJAR COMIDA
+         DIBUJAR COMIDA
    =============================== */
 function drawFood(){
     ctx.fillStyle = foodColor;
@@ -190,7 +240,7 @@ function drawFood(){
 }
 
 /* ===============================
-             MOVIMIENTO
+           MOVIMIENTO
    =============================== */
 function moveSnake(){
     let head = { x: snake[0].x + dx, y: snake[0].y + dy };
@@ -221,7 +271,7 @@ function moveSnake(){
 }
 
 /* ===============================
-         COLISIÓN CONSIGO MISMA
+         COLISIÓN
    =============================== */
 function checkCollision(){
     for (let i = 1; i < snake.length; i++){
@@ -233,17 +283,7 @@ function checkCollision(){
 }
 
 /* ===============================
-          CONTROLES
-   =============================== */
-document.addEventListener("keydown", e =>{
-    if (e.key === "ArrowUp"    && dy === 0){ dx=0; dy=-1; }
-    if (e.key === "ArrowDown"  && dy === 0){ dx=0; dy=1; }
-    if (e.key === "ArrowLeft"  && dx === 0){ dx=-1; dy=0; }
-    if (e.key === "ArrowRight" && dx === 0){ dx=1; dy=0; }
-});
-
-/* ===============================
-         LOOP PRINCIPAL
+         BUCLE PRINCIPAL
    =============================== */
 function gameLoop(){
     if (!paused){
@@ -261,3 +301,4 @@ gameLoop();
 
 </body>
 </html>
+
