@@ -4,7 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Memorama  v2.0</title>
-<a href="https://www.contadorvisitasgratis.com" title="gadgets contador de visitas"><img src="https://counter1.optistats.ovh/private/contadorvisitasgratis.php?c=e4ter7d3tamrl93dlj286c1yz6wqyrcp" border="0" title="gadgets contador de visitas" alt="gadgets contador de visitas"></a><style>
+<a href="https://www.contadorvisitasgratis.com" title="gadgets contador de visitas"><img src="https://counter1.optistats.ovh/private/contadorvisitasgratis.php?c=e4ter7d3tamrl93dlj286c1yz6wqyrcp" border="0" title="gadgets contador de visitas" alt="gadgets contador de visitas"></a>
+<style>
   :root{
     --bg:#0b6623;
     --panel: rgba(255,255,255,0.04);
@@ -12,8 +13,15 @@
     --card-radius:12px;
     --shadow: 0 8px 22px rgba(0,0,0,0.45);
   }
+
   html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;color:var(--accent)}
-  body{background: #7B001C;display:flex;flex-direction:column;min-height:100vh}
+  body{
+    background: #0b6623;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+
   header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--panel);backdrop-filter:blur(6px)}
   .brand{display:flex;gap:12px;align-items:center}
   .logo{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff6,#0003);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000}
@@ -27,6 +35,7 @@
   .game-area{display:flex;gap:18px;align-items:flex-start;flex-direction:column;align-items:center}
   .table-area{width:100%;max-width:1100px;background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(0,0,0,0.06));padding:18px;border-radius:16px;box-shadow:var(--shadow)}
   #board{display:grid;gap:12px;justify-content:center}
+
   /* card 3D */
   .card{width:100%;aspect-ratio:1/1;perspective:1000px;cursor:pointer}
   .card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 500ms cubic-bezier(.2,.9,.3,1)}
@@ -36,11 +45,14 @@
   .card-front img{width:100%;height:100%;length:50%;object-fit:contain}
   .card-back{background:linear-gradient(135deg,#111111,#111111);color:#fff;font-weight:500}
   .card-back img{width:70%;height:auto;opacity:0.95}
+
   footer{padding:14px 20px;background:rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-between;gap:10px}
   footer a{color:var(--accent);text-decoration:underline}
+
   /* responsive columns will be set dynamically */
   @media(max-width:900px){ .table-area{padding:12px} }
   @media(max-width:600px){ header{padding:10px} .stats{flex-direction:column;align-items:flex-start} }
+
   /* developer-only UI (hidden by default) */
   #devPanel{position:fixed;right:18px;bottom:18px;background:rgba(0,0,0,0.6);padding:12px;border-radius:12px;z-index:999;display:none;max-width:360px}
   #devPanel label{display:block;font-size:0.85rem;margin-top:8px}
@@ -124,7 +136,6 @@
 
     <div style="font-size:12px;color:#ddd;margin-top:10px">El panel solo se activa con la contraseña definida en el código. No lo verá ningún jugador.</div>
   </div>
-
 <script>
 /* ==================== SECCIÓN DEL DESARROLLADOR (MODIFICABLE SOLO AQUÍ) ====================
    - Cambie los links de DEFAULT_CARDS por sus imágenes si quiere.
@@ -134,46 +145,46 @@
    - Los cambios desde el panel usan FileReader (datos en memoria) y NO exponen controles al jugador.
 =========================================================================================== */
 
-/* CONTRASEÑA para desbloquear el panel de desarrollador (cámbiela) */
+/* CONTRASEÑA para desbloquear el panel de desarrollador (cámbiela si desea) */
 const DEVELOPER_PASSWORD = '2426';
 
 /* Cartas por defecto (22 enlaces solicitados) — puede reemplazarlos */
 const DEFAULT_CARDS = [
   '00 the aerealist.jpg',
-    '01 ace of pentacles.jpg',
-    '02 kinigth of pentacles.jpg',
-    '03 the devil.jpg', 
-    '04 the hanged man.jpg', 
-    '05 the hermit.jpg',  
-    '06 the hirophant.jpg',
-    '07 the moon.jpg',
-    '08 the sun.jpg',
-    '09 wheel of fortune.jpg',
-    '10 ace of wands.jpg', 
-    '11 eigth of swords.jpg',
-    '12 five cups.jpg',
-    '13five of wands.jpg',
-    '14 five swords.jpg', 
-    '15 four of cups.jpg',
-    '16 four of swords.jpg',
-    '17 four of wands.jpg',
-    '18 judment.jpg',
-    '19 king of pentacles.jpg',
-    '20 king of swords.jpg',
-    '21 knigth of cups.jpg',
-    '22 nine of swords.jpg',
+  '01 ace of pentacles.jpg',
+  '02 kinigth of pentacles.jpg',
+  '03 the devil.jpg',
+  '04 the hanged man.jpg',
+  '05 the hermit.jpg',
+  '06 the hirophant.jpg',
+  '07 the moon.jpg',
+  '08 the sun.jpg',
+  '09 wheel of fortune.jpg',
+  '10 ace of wands.jpg',
+  '11 eigth of swords.jpg',
+  '12 five cups.jpg',
+  '13five of wands.jpg',
+  '14 five swords.jpg',
+  '15 four of cups.jpg',
+  '16 four of swords.jpg',
+  '17 four of wands.jpg',
+  '18 judment.jpg',
+  '19 king of pentacles.jpg',
+  '20 king of swords.jpg',
+  '21 knigth of cups.jpg',
+  '22 nine of swords.jpg',
 ];
 
 /* Pistas de música por bloques (placeholder para desarrollador) */
 const DEFAULT_TRACKS = [
-  "15.-En el aire soy todo.m4a", // niveles 1-4
-  "6.-Silencio de la Noche.m4a", // 5-8
-  "8.-Blackmoon podcast.mp3", // 9-12
-  "1.- Volando con Black Moon.m4a", // 13-16
-  "nudos de amor y traición [1].mp3", // 17-20
-  "9.-Soy un fénix en el aire.m4a", // 21-24
-  "1.- Bajo la noche (Blackmoon).mp3", // 25-28
-  "8.-Soy un Quetzal en el Viento.m4a"  // 29-30 (y sobrantes)
+  "15.-En el aire soy todo.m4a", // niveles 1-5
+  "6.-Silencio de la Noche.m4a", // 6-10
+  "8.-Blackmoon podcast.mp3",    // 11-15
+  "1.- Volando con Black Moon.m4a", // 16-20
+  "nudos de amor y traición [1].mp3", // 21-25
+  "9.-Soy un fénix en el aire.m4a", // 26-30
+  "1.- Bajo la noche (Blackmoon).mp3", // 31-35
+  "8.-Soy un Quetzal en el Viento.m4a"  // etc.
 ];
 
 /* Logo reverso por defecto (puede sobrescribirse con uploader) */
@@ -186,7 +197,7 @@ const CARD_BACK_LOGO = "GPO BKM 2.jpg";
 /* Estado del juego */
 let level = 1;
 let levelsTotal = 30;
-let timePerLevel = 90; // segundos por nivel
+let timePerLevel = 90; // segundos por nivel por defecto
 let score = 0;
 let timeLeft = 0;
 let timer = null;
@@ -217,12 +228,11 @@ const logoUpload = document.getElementById('logoUpload');
 const applyDev = document.getElementById('applyDev');
 const loadDefaultsBtn = document.getElementById('loadDefaults');
 
+/* Eventos UI */
 restartBtn.addEventListener('click', ()=>startLevel(level));
 nextBtn.addEventListener('click', ()=>{ if(level < levelsTotal) startLevel(level+1); });
 unlockDevBtn.addEventListener('click', unlockDeveloperPanel);
 closeDev.addEventListener('click', ()=>{ devPanel.style.display='none'; developerModeActive=false; });
-
-/* Dev uploads */
 cardUpload.addEventListener('change', handleCardFiles);
 musicUpload.addEventListener('change', handleMusicFiles);
 logoUpload.addEventListener('change', handleLogoFile);
@@ -235,7 +245,7 @@ function unlockDeveloperPanel(){
   if(p === DEVELOPER_PASSWORD){
     developerModeActive = true;
     devPanel.style.display = 'block';
-    devPanel.setAttribute('aria-hidden', 'false');
+    devPanel.setAttribute('aria-hidden','false');
     alert('Modo desarrollador activado (panel visible).');
   } else {
     alert('Contraseña incorrecta.');
@@ -253,7 +263,7 @@ function handleCardFiles(e){
     r.onerror = rej;
     r.readAsDataURL(f);
   }))).then(images => {
-    cardPool = images.slice(0, 50); // guardamos data URLs
+    cardPool = images.slice(0, 50);
     alert('Imágenes cargadas en memoria. Presione "Aplicar" para reiniciar con ellas.');
   }).catch(()=>alert('Error al leer imágenes.'));
 }
@@ -413,7 +423,106 @@ function updateUI(){
   timeEl.textContent = formatTime(timeLeft);
 }
 
-/* Timer & music */
+/* =========================
+   SISTEMA DE AUDIO MEJORADO
+   - Volumen por defecto 0.55
+   - Cambio por bloques de 5 niveles
+   - Fade out / fade in entre pistas
+   - No reinicia al cambiar de nivel si pertenece al mismo bloque
+   ========================= */
+
+bgm.volume = 0.55;
+bgm.loop = true;
+
+let currentTrackIndex = -1;
+let fading = false;
+
+function fadeToNewTrack(track) {
+    if (!track) {
+        // sin pista: hacer fade out y pausar
+        if (fading) return;
+        fading = true;
+        let vol = bgm.volume;
+        const fadeOut = setInterval(() => {
+            if (vol > 0.01) {
+                vol -= 0.02;
+                bgm.volume = Math.max(vol, 0);
+            } else {
+                clearInterval(fadeOut);
+                bgm.pause();
+                bgm.src = '';
+                fading = false;
+            }
+        }, 70);
+        return;
+    }
+
+    // Si ya es la misma src, intentar continuar (no reiniciar)
+    try {
+      const currentSrc = bgm.src || '';
+      // compare only filenames if musicPool contains relative names
+      const currentName = currentSrc.split('/').pop();
+      const newName = (typeof track === 'string') ? track.split('/').pop() : '';
+      if (currentName && newName && currentName === newName) {
+        // misma pista; si está pausada, reanudar; si ya suena, mantener
+        if (bgm.paused) bgm.play().catch(()=>{});
+        return;
+      }
+    } catch(e){ /* ignore */ }
+
+    if (fading) return;
+    fading = true;
+
+    // Fade OUT
+    let vol = bgm.volume;
+    const fadeOut = setInterval(() => {
+        if (vol > 0.01) {
+            vol -= 0.02;
+            bgm.volume = Math.max(vol, 0);
+        } else {
+            clearInterval(fadeOut);
+
+            // Cambiar pista (mantener loop true)
+            bgm.src = track;
+            bgm.play().catch(()=>{});
+
+            // Fade IN
+            let vol2 = 0;
+            bgm.volume = 0;
+            const target = 0.55;
+            const fadeIn = setInterval(() => {
+                if (vol2 < target - 0.01) {
+                    vol2 += 0.02;
+                    bgm.volume = Math.min(vol2, target);
+                } else {
+                    bgm.volume = target;
+                    clearInterval(fadeIn);
+                    fading = false;
+                }
+            }, 70);
+        }
+    }, 70);
+}
+
+function updateMusicForLevel(lv) {
+    if (!musicPool || !musicPool.length) {
+        fadeToNewTrack(null);
+        return;
+    }
+    const newIndex = Math.floor((lv - 1) / 5) % musicPool.length;
+    const newTrack = musicPool[newIndex];
+    if (newIndex !== currentTrackIndex) {
+        currentTrackIndex = newIndex;
+        fadeToNewTrack(newTrack);
+    } else {
+        // mismo bloque: asegurarnos que suene
+        if (bgm.paused && bgm.src) {
+            bgm.play().catch(()=>{});
+        }
+    }
+}
+
+/* Timer & music integrated */
 function startLevel(lv){
   clearInterval(timer);
   level = lv;
@@ -426,16 +535,8 @@ function startLevel(lv){
   const deck = pickCardsForLevel(level);
   renderBoard(deck);
 
-  // music per 4-level blocks
-  const idx = Math.floor((level-1)/4) % Math.max(1, musicPool.length);
-  const track = musicPool[idx] || '';
-  if(track){
-    bgm.src = track;
-    bgm.play().catch(()=>{ /* autoplay blocked */ });
-  } else {
-    bgm.pause(); bgm.src = '';
-  }
-
+  // Música continua + cambio cada 5 niveles + fade
+  updateMusicForLevel(level);
 
   timer = setInterval(()=>{
     timeLeft--; updateUI();
@@ -451,8 +552,7 @@ function checkLevelComplete(){
   if(matchedPairs >= totalPairs){
     clearInterval(timer);
     setTimeout(()=> {
-      alert(`¡Nivel ${level} 
-      ¡¡¡Bien hecho Aerealista 😍¡¡¡ Vamos al siguiente nivel!🥇`);
+      alert(`¡Nivel ${level} \n\n¡¡¡Bien hecho Aerealista 😍!!!\nVamos al siguiente nivel!🥇`);
       if(level < levelsTotal) startLevel(level+1); else {
         alert(`¡🥇Juego completado🥇! Puntaje final: ${score}`);
         // reiniciar o detener según preferencia
@@ -463,8 +563,11 @@ function checkLevelComplete(){
   }
 }
 
-/* Inicialización */
-document.addEventListener('keydown', (e)=>{ if(e.key==='r') startLevel(level); if(e.key==='n') { if(level<levelsTotal) startLevel(level+1);} });
+/* Inicialización: atajos de teclado */
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='r') startLevel(level);
+  if(e.key==='n') { if(level<levelsTotal) startLevel(level+1); }
+});
 
 /* START */
 startLevel(1);
@@ -474,23 +577,29 @@ startLevel(1);
 </script>
   <!-- pagina principal -->
   <div style="display: inline-block;">
-  <a href="https://charly336.github.io/BLACKMOON-WEB/" style="text-decoration: none;">
- <img src="bkm systerms 2.0.jpg" alt="Pagina principal" width="70" height="80" style="vertical-align: middle; border-radius: 18px;">
-  <span>Regresar a nuestra pagina principal</span>
-   </a> 
+    <a href="https://charly336.github.io/BLACKMOON-WEB/" style="text-decoration: none;">
+      <img src="bkm systerms 2.0.jpg" alt="Pagina principal" width="70" height="80" style="vertical-align: middle; border-radius: 18px;">
+      <span>Regresar a nuestra pagina principal</span>
+    </a> 
+
     <a href="https://charly336.github.io/BLACKMOON-WEB/Games%20List.html" style="text-decoration: none;">
- <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" alt="Mas juegos" width="70" height="80" style="vertical-align: middle; border-radius: 18px;">
-  <span>Nuestros Juegos</span>
-   </a> 
+      <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" alt="Mas juegos" width="70" height="80" style="vertical-align: middle; border-radius: 18px;">
+      <span>Nuestros Juegos</span>
+    </a> 
+
     <a href="https://www.jotform.com/app/251536021952856" style="text-decoration: none;">
- <img src="systems2.jpg" alt="Mas juegos" width="70" height="80" style="vertical-align: middle; border-radius: 18px;">
-  <span>Nuestra App</span>
-   </a> 
-</div>
-    <!-- Footer con imagen y texto -->
-<footer style="text-align:center; padding:10px; background: linear-gradient(to right, #000000, #333333, #007CF0)">
-  <img src="GPO BKM 2.jpg" alt="Logo" style="width:70px; vertical-align:middle; margin-right:20px;">
-  <span>© 2025-2026 Grupo Black Moon - Todos los derechos reservados</span>
-</footer>
+      <img src="systems2.jpg" alt="Mas juegos" width="70" height="80" style="vertical-align: middle; border-radius: 18px;">
+      <span>Nuestra App</span>
+    </a> 
+  </div>
+
+  <!-- Footer con imagen y texto -->
+  <footer style="text-align:center; padding:10px; background: linear-gradient(to right, #000000, #333333, #007CF0)">
+    <img src="GPO BKM 2.jpg" alt="Logo" style="width:70px; vertical-align:middle; margin-right:20px;">
+    <span>© 2025-2026 Grupo Black Moon - Todos los derechos reservados</span>
+  </footer>
+
 </body>
 </html>
+
+
