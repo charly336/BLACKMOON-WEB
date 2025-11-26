@@ -3,88 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Blackmoon Systems</title>
 
 <style>
 
-/* ------------------ ESTILO GLOBAL MINIMALISTA ------------------ */
+/* ------------------ ESTILO GLOBAL MODERNO ------------------ */
 body {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-    background: url("systems2.jpg") center/cover no-repeat fixed;
-    color: #fff;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #0e0e0e;
+    color: #ffffff;
     text-align: center;
+    line-height: 1.6;
 }
 
+/* Contenedor principal */
+.container {
+    width: 92%;
+    max-width: 900px;
+    margin: auto;
+    padding-top: 40px;
+}
+
+/* ------------------ TIPOGRAFÍA MODERNA ------------------ */
 h1 {
-    font-size: clamp(26px, 5vw, 42px);
-    margin-top: 25px;
-    color: #B46DE1;
-    font-weight: 800;
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 700;
+    margin: 25px 0 10px;
+    letter-spacing: 1px;
 }
 
 h2 {
-    font-size: clamp(20px, 4vw, 32px);
-    color: #A52A2A;
-    margin: 10px 0;
+    font-size: clamp(18px, 3.5vw, 26px);
+    opacity: 0.8;
+    margin-top: 15px;
 }
 
-p {
-    width: 90%;
-    max-width: 700px;
-    margin: 20px auto;
-    padding: 15px;
-    background: rgba(0,0,0,0.45);
-    border-radius: 10px;
-    font-size: clamp(16px, 2.3vw, 22px);
-    font-weight: 500;
-    line-height: 1.4;
+/* ------------------ TARJETAS MINIMALISTAS ------------------ */
+.section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 28px;
+    margin-top: 40px;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 18px rgba(255,255,255,0.05);
+    transition: 0.35s ease;
 }
 
-/* ------------------ IMÁGENES RESPONSIVE ------------------ */
+.section:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 26px rgba(255,255,255,0.10);
+}
+
+/* ------------------ IMÁGENES ------------------ */
 .imagen-mediana {
-    width: 90%;
-    max-width: 280px;
-    border-radius: 12px;
-    display: block;
-    margin: 15px auto;
-}
-
-/* ------------------ BOTÓN MINIMALISTA ------------------ */
-.enlace-boton {
-    display: inline-block;
-    margin: 30px 0;
-    padding: 12px 28px;
-    border-radius: 40px;
-    font-size: clamp(20px, 3vw, 28px);
-    font-weight: bold;
-    text-decoration: none;
-    color: #fff;
-    background: #7d3c98;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 14px;
+    margin-top: 20px;
     transition: 0.3s;
 }
 
+.imagen-mediana:hover {
+    transform: scale(1.02);
+}
+
+/* ------------------ BOTÓN ELEGANTE ------------------ */
+.enlace-boton {
+    display: inline-block;
+    margin: 40px auto;
+    padding: 14px 40px;
+    border-radius: 40px;
+    font-size: clamp(20px, 3.2vw, 26px);
+    font-weight: 600;
+    background: linear-gradient(135deg, #7d3c98, #b46de1);
+    color: #fff;
+    text-decoration: none;
+    transition: 0.35s ease;
+    box-shadow: 0 0 18px rgba(180,109,225,0.25);
+}
+
 .enlace-boton:hover {
-    background: #9d4fc0;
-    transform: scale(1.08);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 26px rgba(180,109,225,0.45);
 }
 
-/* ------------------ MARQUEES ------------------ */
-marquee h2 {
-    font-size: clamp(18px, 3vw, 26px);
+/* ------------------ BANNERS SCROLL (REWORK MINIMALISTA) ------------------ */
+.marquee-box {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 25px;
 }
 
-/* ------------------ ESPACIADO SUAVE ------------------ */
-.section {
-    margin-bottom: 40px;
+.marquee-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll 15s linear infinite;
+    font-size: clamp(18px, 3vw, 24px);
+    opacity: 0.7;
 }
 
-/* ------------------ RESPONSIVE EXTRA ------------------ */
-@media (min-width: 900px){
-    p {
-        font-size: 22px;
+@keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+/* ------------------ RESPONSIVE ------------------ */
+@media (min-width: 900px) {
+    .section {
+        padding: 40px;
     }
 }
 
@@ -93,52 +121,54 @@ marquee h2 {
 
 <body>
 
-<h1>BLACKMOON SYSTEMS</h1>
+<div class="container">
 
-<h1>PAGINA WEB Y NUESTRA APLICACION WEB</h1>
+    <h1>BLACKMOON SYSTEMS</h1>
+    <h1>Página Web y Aplicación Web</h1>
 
-<p>Somos miembros del Grupo Blackmoon.  
-Ayudamos a la creación de esta página desde la idea principal hasta hacerla realidad.  
-Actualmente sigue en crecimiento y en actualizaciones constantes.</p>
+    <p>Somos miembros del Grupo Blackmoon. Apoyamos desde la idea inicial hasta hacerla realidad.  
+    La plataforma sigue creciendo y se actualiza constantemente.</p>
 
-<img src="4.jpeg" class="imagen-mediana">
+    <img src="4.jpeg" class="imagen-mediana">
 
-<div class="section">
-    <h1>SITIOS QUE AYUDAMOS EN SU CREACION</h1>
-    <p>Ayudamos con el Instagram de Ángeles de Charly, gracias a la gente de "Los Ángeles de Charly" por su empeño y su iniciativa.</p>
-    <p>También ayudamos en la página de la LIC. Elizabeth Calderón y en sus redes de psicología.</p>
-    <img src="PRODUCTOS BLACKMOON.png" class="imagen-mediana">
+    <div class="section">
+        <h1>SITIOS QUE APOYAMOS</h1>
+        <p>Ayudamos con el Instagram de Ángeles de Charly.  
+        También colaboramos en la página y redes de psicología de la LIC. Elizabeth Calderón.</p>
+        <img src="PRODUCTOS BLACKMOON.png" class="imagen-mediana">
+    </div>
+
+    <div class="section">
+        <h1>PODCAST Y REDES</h1>
+        <p>Colaboramos con Blackmoon Podcast en edición, musicalización, redes y manejo de contenido.  
+        También apoyamos a Aerial Blackmoon.</p>
+        <img src="02 podcast.jpg" class="imagen-mediana">
+    </div>
+
+    <div class="section">
+        <h1>EDICIÓN DE AUDIO</h1>
+        <p>Apoyamos a academias con edición de audios para eventos, competencias y más.</p>
+        <img src="EDITAR CANCONES.png" class="imagen-mediana">
+    </div>
+
+    <div class="section">
+        <h1>MANTENIMIENTO Y SERVICIO</h1>
+        <p>Servicio a computadoras, laptops, actualizaciones de Windows y más.</p>
+        <img src="5 mac.jpg" class="imagen-mediana">
+        <img src="3 windiws.jpg" class="imagen-mediana">
+    </div>
+
+    <a href="https://wa.me/521556069356?text=Hola%20deseo%20más%20información" class="enlace-boton">Contacto</a>
+
+    <div class="marquee-box">
+        <span class="marquee-text">&copy; Todos somos Blackmoon •</span>
+    </div>
+
+    <div class="marquee-box">
+        <span class="marquee-text">&copy; Y... Volemos Alto •</span>
+    </div>
+
 </div>
-
-<div class="section">
-    <h1>PODCAST Y REDES</h1>
-    <p>Ayudamos a nuestra filial Blackmoon Podcast en la edición, musicalización, subida a plataformas y manejo de redes.  
-    También colaboramos con Aerial Blackmoon en redes y más.</p>
-    <img src="02 podcast.jpg" class="imagen-mediana">
-</div>
-
-<div class="section">
-    <h1>EDICIÓN DE AUDIO</h1>
-    <p>Apoyamos a varias academias con la edición de audios para eventos, competencias y más.</p>
-    <img src="EDITAR CANCONES.png" class="imagen-mediana">
-</div>
-
-<div class="section">
-    <h1>MANTENIMIENTO Y SERVICIO</h1>
-    <p>También damos servicio a portátiles y computadoras de escritorio; actualización de Windows y más.</p>
-    <img src="5 mac.jpg" class="imagen-mediana">
-    <img src="3 windiws.jpg" class="imagen-mediana">
-</div>
-
-<a href="https://wa.me/521556069356?text=Hola%20deseo%20más%20información" class="enlace-boton">Contacto</a>
-
-<marquee behavior="scroll" direction="left">
-    <h2>&copy; Todos somos Blackmoon</h2>
-</marquee>
-
-<marquee behavior="scroll" direction="right">
-    <h2>&copy; Y... Volemos Alto</h2>
-</marquee>
 
 </body>
 </html>
