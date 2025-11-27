@@ -1,116 +1,318 @@
 <!DOCTYPE html>
 <html lang="es">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🦻El podcast🦻</title>
- <meta name="description" content="Descripción breve de mi sitio web">
-  <head> 
-    <style>
-        body {
-            background-image: url("BKM PODCAST 2.0.jpg");
-            background-size: cover;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            font-weight: bold;
-            font-size: 35px;
-            color: #9966FF;
-        }
-      h2 {
-            font-weight: bold;
-            font-size: 40px;
-            color: #9966FF;
-        }
-      
-        a:hover {
-            text-decoration: underline;
-        }
-        .espacio {
-            margin: 20px;
-        }
-        .imagen-mediana {
-            width: 200px;
-            height: 200px;
-            border: 2px solid #000;
-            border-radius: 10px;
-        }
-      .enlace-botón {
-  background-color: rgba(0,0,0,0.6);
-  border: none;
-  color: #1717EE;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 12px;
-  }
-      
-      
-    </style>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aerial Blackmoon — Night Mist Edition</title>
+
+<style>
+
+/* ------------------ MODO NOCHE PROFUNDO ------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+    color: #fff;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+/* ------------------ NEBLINA ANIMADA ------------------ */
+.neblina {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 140%;
+    height: 140%;
+    background: url('https://i.ibb.co/zHByp9k/fog.png') repeat;
+    opacity: 0.19;
+    mix-blend-mode: screen;
+    animation: moverNiebla 35s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes moverNiebla {
+    0% { transform: translate(-10%, -10%) scale(1.2); }
+    50% { transform: translate(-4%, -6%) scale(1.3); }
+    100% { transform: translate(-10%, -10%) scale(1.2); }
+}
+
+/* ------------------ PARTÍCULAS ------------------ */
+#particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+/* ------------------ NAVBAR GLASS ------------------ */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 14px 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.navbar a {
+    color: #ffddaa;
+    font-weight: 700;
+    font-size: 20px;
+    text-decoration: none;
+    opacity: .85;
+    transition: .3s;
+}
+.navbar a:hover {
+    opacity: 1;
+    transform: translateY(-3px);
+}
+
+/* ------------------ CAJAS GLASS ------------------ */
+.glass-box {
+    margin: 120px auto 30px;
+    width: 92%;
+    max-width: 900px;
+    padding: 25px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    animation: fadeIn 1.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to   { opacity: 1; transform: translateY(0);}
+}
+
+/* ------------------ TEXTOS ------------------ */
+h1 {
+    font-size: clamp(32px, 7vw, 70px);
+    color: #ffddaa;
+    text-shadow: 0 0 25px rgba(255,200,150,0.5);
+}
+h2 {
+    color: #cc99ff;
+    text-shadow: 0 0 20px rgba(204,153,255,0.6);
+}
+
+/* ------------------ GRID DE REDES ------------------ */
+ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* ------------------ ICONOS ------------------ */
+.icono-red {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 14px rgba(0,0,0,0.6));
+    transition: .3s;
+}
+.icono-red:hover {
+    transform: scale(1.08);
+}
+
+/* ------------------ BOTONES GLASS ------------------ */
+.enlace-botón {
+    display: block;
+    background: rgba(255,255,255,0.16);
+    padding: 12px;
+    border-radius: 16px;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    margin-top: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(8px);
+    transition: .3s;
+}
+.enlace-botón:hover {
+    transform: scale(1.07);
+    background: rgba(255,255,255,0.33);
+    box-shadow: 0 0 28px rgba(204,153,255,0.6);
+}
+
+/* ------------------ IFRAME ------------------ */
+iframe {
+    width: 100%;
+    border-radius: 18px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+}
+
+/* ------------------ WHATSAPP ------------------ */
+.boton-ws {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 3000;
+    background: #25d366;
+    padding: 12px;
+    border-radius: 50%;
+    transition: .35s ease;
+}
+.boton-ws:hover {
+    transform: scale(1.15) translateY(-4px);
+}
+.boton-ws img {
+    width: 45px;
+}
+
+/* ------------------ FOOTER ------------------ */
+footer {
+    margin-top: 40px;
+    padding: 25px;
+    background: rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+}
+
+</style>
 </head>
-	
+
 <body>
 
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/4YF4cMkyvbhBIj1rkHnJDG?utm_source=generator&theme=0" width="80%" height="200" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>      
- 
+<!-- Neblina -->
+<div class="neblina"></div>
 
-<marquee behavior="scroll" direction="left"><h1>Escuchanos en tus plataformas de podcast preferidas</h1></font></marquee><br><br>
-   
-                       
-       
-             <div style="display: flex-wrap: wrap; font-size:50px;">
-             <ol>
-               
-               <!-- Boton spotify -->
-<br><il><img src="spotify.png" style="width: 150px"></il><br><br><il><a href="https://open.spotify.com/show/1Jw4Vem2XkNuCG9pKqHRXy?si=skH15ttFT1yrXz-ma5Rrpw" class="enlace-botón">Spotify</a></il><br>
-      
-                <!-- Boton apple -->
-   
-<br><il><img src="apple podcast.png" style="width: 150px"></il><br><br><il><a href="https://podcasts.apple.com/mx/podcast/blackmoon-podcast-2-0/id1749141836" class="enlace-botón">Apple Podcast</a></il><br>
-               
-               <!-- Boton iheart -->
-               
-<br><il><img src="descarga.png" style="width: 150px"></il><br><br><il><a href="https://www.iheart.com/podcast/269-blackmoon-podcast-20-181181103?cmp=ios_share&sc=ios_social_share&pr=false&autoplay=true" class="enlace-botón">IHeart</a></il><br>
-               
-               
-               <!-- Boton youtube -->
+<!-- Partículas -->
+<canvas id="particles"></canvas>
 
-<br><il><img src="youtube.png"style="width: 150px"></il><br><br><il><a href="https://youtube.com/@Blackmoonpodcast?si=FPBLandM1I_P7Ooj"class="enlace-botón">Youtube</a></il><br>
-   
-   
-   <!-- Boton telegram -->
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="#">Inicio</a>
+    <a href="#">Redes</a>
+    <a href="#">Ubicación</a>
+</nav>
 
-<br><il><img src="telegram_img.jpg"style="width: 150px"></il><br><br><il><a href="https://t.me/+j69o0rHVHBM3YmQx"class="enlace-botón">telegram</a></il><br>
-   
-               
-               <!-- Boton youtube podcast -->
-            
-             <br><il><img src="MUSIC_IMG.jpg" style="width: 150px"></il><br><br><il><a><a href="https://music.youtube.com/playlist?list=PLBVMXUQpoQH21WZWciXqGH6LS-1xen0e-"class="enlace-botón">Youtube music</a></il><br>
-               
-               <!-- Boton Amazon -->
-               
-<br><il><img src="amazon music.png" style="width: 150px"></il><br><br><il><a><a href="https://music.amazon.com.mx/podcasts/25fb835a-55be-47a3-a6e2-c1629cd68b11/blackmoon-podcast-2-0?ref=dm_sh_1UtRoWUpK3IFNLco2XYe5K91I"class="enlace-botón">Amazon Music</a></il><br>
-               
-               
-            <!-- Boton podimo -->
-            
-<br><il><img src="OIP (5).jpeg" style="width: 150px"></il><br><br><il><a><a  href="https://share.podimo.com/s/c6KU0cFN"class="enlace-botón">Podimo podcast</a></il><br>
-         
-         
-       
-            
-             </div>
- <marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Recuerda compartir y ponerle me gusta a cualquier platafoma que nos escuches, nos ayudarias mucho:</h1></font></marquee>
+<!-- Spotify -->
+<div class="glass-box">
+<iframe src="https://open.spotify.com/embed/episode/3rBdq7EUIwOGkQv94thAM1?utm_source=generator&theme=0"
+height="350" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+</iframe>
+</div>
 
-<marquee behavior="alternate" direction="left"><FONT SIZE=7><h2>&copy; Todos somos Blackmoon</h2></font></marquee> 	
+<!-- Título -->
+<marquee><h1>REDES DE CONTACTO DE LA ACADEMIA</h1></marquee>
 
-<marquee behavior="alternate" direction="left"><FONT SIZE=7><h2>&copy; 2 años compartiendo con ustedes </h2></font></marquee> 	
+<!-- Redes -->
+<section class="glass-box">
+<ul>
 
-<marquee behavior="scroll"direction="right"><FONT SIZE=7><h2>&copy; Y..... VOLEMOS ALTO  </h2></font></marquee> 
+<li>
+    <img src="INSTA.png" class="icono-red">
+    <a href="https://instagram.com/blackmoonofi" class="enlace-botón">INSTAGRAM</a>
+</li>
+
+<li>
+    <img src="FACE.png" class="icono-red">
+    <a href="https://www.facebook.com/charly.blackmoon" class="enlace-botón">META</a>
+</li>
+
+<li>
+    <img src="plaza.jpg" class="icono-red">
+    <a href="https://maps.app.goo.gl/6jr3Rf4ZQPkJEBGG7" class="enlace-botón">MAPS</a>
+</li>
+
+<li>
+    <img src="06 camara.png" class="icono-red">
+    <a href="https://drive.google.com/drive/folders/1LUNE-NfE2IIrMaRpCEIqA_Njj5fhRCTN" class="enlace-botón">FOTOS</a>
+</li>
+
+<li>
+    <img src="cursor 1.png" class="icono-red">
+    <a href="https://drive.google.com/drive/folders/1uL5IXjza-84T_JtaTC7muq-YHDxYiK5c" class="enlace-botón">CLASES</a>
+</li>
+
+<li>
+    <img src="d8de9499498d71ca521a14399c496846.jpg" class="icono-red">
+    <a href="https://drive.google.com/drive/folders/1CIF-zw5LlsId1ioWO1ImEau1bYZrEtOW" class="enlace-botón">EVENTOS</a>
+</li>
+
+</ul>
+</section>
+
+<!-- Footer -->
+<footer>
+    <marquee><h2>&copy; Todos Somos Blackmoon</h2></marquee>
+</footer>
+
+<!-- WhatsApp -->
+<a href="https://wa.me/521556069356?text=Hola%20Aerial%20Blackmoon" class="boton-ws">
+    <img src="whatsapp.png">
+</a>
+
+<!-- SCRIPT PARTÍCULAS -->
+<script>
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+const particles=[];
+const particleCount=85;
+
+class Particle{
+ constructor(){
+  this.x=Math.random()*canvas.width;
+  this.y=Math.random()*canvas.height;
+  this.size=Math.random()*2+1;
+  this.speedX=(Math.random()-.5)*0.6;
+  this.speedY=(Math.random()-.5)*0.6;
+ }
+ update(){
+  this.x+=this.speedX;
+  this.y+=this.speedY;
+  if(this.x<0||this.x>canvas.width) this.speedX*=-1;
+  if(this.y<0||this.y>canvas.height) this.speedY*=-1;
+ }
+ draw(){
+  ctx.fillStyle="rgba(180,109,225,0.9)";
+  ctx.shadowColor="#b46de1";
+  ctx.shadowBlur=12;
+  ctx.beginPath();
+  ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+  ctx.fill();
+ }
+}
+
+function initParticles(){
+ for(let i=0;i<particleCount;i++){
+  particles.push(new Particle());
+ }
+}
+
+function animate(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ particles.forEach(p=>{p.update();p.draw();});
+ requestAnimationFrame(animate);
+}
+
+window.addEventListener("resize",()=>{
+ canvas.width=window.innerWidth;
+ canvas.height=window.innerHeight;
+});
+
+initParticles();
+animate();
+</script>
 
 </body>
+</html>
+
 </html>
