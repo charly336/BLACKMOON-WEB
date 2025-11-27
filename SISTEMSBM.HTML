@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackmoon Systems</title>
+<title>💻Blackmoon Systems💻</title>
 
 <style>
 
-/* ------------------ ESTILO GLOBAL MODERNO ------------------ */
+/* ------------------ ESTILO GLOBAL ------------------ */
 body {
     margin: 0;
     padding: 0;
@@ -16,31 +16,72 @@ body {
     color: #ffffff;
     text-align: center;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
-/* Contenedor principal */
+/* ------------------ CANVA DE PARTÍCULAS ------------------ */
+#particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* ------------------ NAVBAR FIJA ------------------ */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 12px 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 17px;
+    transition: 0.3s;
+    opacity: 0.75;
+}
+
+.navbar a:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* ------------------ CONTENEDOR PRINCIPAL ------------------ */
 .container {
     width: 92%;
     max-width: 900px;
     margin: auto;
-    padding-top: 40px;
+    padding-top: 120px;
 }
 
-/* ------------------ TIPOGRAFÍA MODERNA ------------------ */
+/* ------------------ TIPOGRAFÍA ------------------ */
 h1 {
     font-size: clamp(28px, 5vw, 40px);
     font-weight: 700;
     margin: 25px 0 10px;
     letter-spacing: 1px;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards;
 }
 
-h2 {
-    font-size: clamp(18px, 3.5vw, 26px);
-    opacity: 0.8;
-    margin-top: 15px;
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
 }
 
-/* ------------------ TARJETAS MINIMALISTAS ------------------ */
+/* ------------------ SECCIONES ------------------ */
 .section {
     background: rgba(255, 255, 255, 0.05);
     padding: 28px;
@@ -49,11 +90,17 @@ h2 {
     backdrop-filter: blur(8px);
     box-shadow: 0 0 18px rgba(255,255,255,0.05);
     transition: 0.35s ease;
+    animation: fadeIn 1.5s ease;
 }
 
 .section:hover {
     transform: translateY(-4px);
     box-shadow: 0 0 26px rgba(255,255,255,0.10);
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
 }
 
 /* ------------------ IMÁGENES ------------------ */
@@ -62,14 +109,14 @@ h2 {
     max-width: 300px;
     border-radius: 14px;
     margin-top: 20px;
-    transition: 0.3s;
+    transition: 0.4s;
 }
 
 .imagen-mediana:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
 }
 
-/* ------------------ BOTÓN ELEGANTE ------------------ */
+/* ------------------ BOTÓN PRINCIPAL ------------------ */
 .enlace-boton {
     display: inline-block;
     margin: 40px auto;
@@ -89,7 +136,7 @@ h2 {
     box-shadow: 0 0 26px rgba(180,109,225,0.45);
 }
 
-/* ------------------ BANNERS SCROLL (REWORK MINIMALISTA) ------------------ */
+/* ------------------ TEXTO DESLIZANTE ------------------ */
 .marquee-box {
     width: 100%;
     overflow: hidden;
@@ -109,11 +156,79 @@ h2 {
     to { transform: translateX(-100%); }
 }
 
-/* ------------------ RESPONSIVE ------------------ */
-@media (min-width: 900px) {
-    .section {
-        padding: 40px;
-    }
+/* ------------------ BOTÓN FLOTANTE WHATSAPP ------------------ */
+.boton-ws {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 2000;
+    background: #25d366;
+    padding: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 18px rgba(0,0,0,0.4);
+    transition: 0.35s ease;
+    backdrop-filter: blur(8px);
+}
+
+.boton-ws:hover {
+    transform: scale(1.12) translateY(-4px);
+    box-shadow: 0 0 26px rgba(37,211,102,0.6);
+}
+
+.boton-ws img {
+    width: 45px;
+}
+
+/* ------------------ FOOTER GLASS ------------------ */
+.footer-bm {
+    margin-top: 60px;
+    padding: 30px 0;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    border-top: 2px solid rgba(255,255,255,0.15);
+    animation: fadeInFooter 1.7s ease;
+}
+
+@keyframes fadeInFooter {
+    from {opacity: 0; transform: translateY(25px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.footer-inner {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+.footer-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    transition: 0.35s ease;
+    opacity: 0.85;
+}
+
+.footer-link:hover {
+    transform: translateY(-3px) scale(1.07);
+    opacity: 1;
+}
+
+.footer-link img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.25));
+    transition: 0.35s;
+}
+
+.footer-link img:hover {
+    transform: scale(1.15);
 }
 
 </style>
@@ -121,7 +236,18 @@ h2 {
 
 <body>
 
-<div class="container">
+<!-- ---------------- PARTÍCULAS ---------------- -->
+<canvas id="particles"></canvas>
+
+<!-- ---------------- NAVBAR ---------------- -->
+<nav class="navbar">
+    <a href="#inicio">Inicio</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#contacto">Contacto</a>
+</nav>
+
+<!-- ---------------- CONTENIDO ---------------- -->
+<div class="container" id="inicio">
 
     <h1>BLACKMOON SYSTEMS</h1>
     <h1>Página Web y Aplicación Web</h1>
@@ -131,7 +257,7 @@ h2 {
 
     <img src="4.jpeg" class="imagen-mediana">
 
-    <div class="section">
+    <div class="section" id="servicios">
         <h1>SITIOS QUE APOYAMOS</h1>
         <p>Ayudamos con el Instagram de Ángeles de Charly.  
         También colaboramos en la página y redes de psicología de la LIC. Elizabeth Calderón.</p>
@@ -158,7 +284,7 @@ h2 {
         <img src="3 windiws.jpg" class="imagen-mediana">
     </div>
 
-    <a href="https://wa.me/521556069356?text=Hola%20deseo%20más%20información" class="enlace-boton">Contacto</a>
+    <a href="https://wa.me/521556069356?text=Hola%20deseo%20más%20información" class="enlace-boton" id="contacto">Contacto</a>
 
     <div class="marquee-box">
         <span class="marquee-text">&copy; Todos somos Blackmoon •</span>
@@ -169,6 +295,94 @@ h2 {
     </div>
 
 </div>
+
+<!-- ---------------- BOTÓN WHATSAPP ---------------- -->
+<a href="https://wa.me/521556069356?text=Hola%20Blackmoon,%20quiero%20información" class="boton-ws">
+    <img src="whatsapp.png" alt="WhatsApp">
+</a>
+
+<!-- ---------------- FOOTER ---------------- -->
+<footer class="footer-bm">
+    <div class="footer-inner">
+
+        <a href="#" class="footer-link">
+            <img src="icon1.png" alt="Enlace 1">
+            <span>Link 1</span>
+        </a>
+
+        <a href="#" class="footer-link">
+            <img src="icon2.png" alt="Enlace 2">
+            <span>Link 2</span>
+        </a>
+
+        <a href="#" class="footer-link">
+            <img src="icon3.png" alt="Enlace 3">
+            <span>Link 3</span>
+        </a>
+
+    </div>
+</footer>
+
+<!-- ---------------- SCRIPT DE PARTÍCULAS ---------------- -->
+<script>
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = [];
+const particleCount = 75;
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(180,109,225,0.9)";
+        ctx.shadowColor = "#b46de1";
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function initParticles() {
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+initParticles();
+animateParticles();
+</script>
 
 </body>
 </html>
