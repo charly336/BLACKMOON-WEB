@@ -1,8 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>💻🌚 Blackmoon Group  🌚💻</title>
 
 <style>
@@ -144,30 +148,51 @@ li:hover {
     transform: scale(1.05);
 }
 
-/* ------------------ BOTÓN WHATSAPP ------------------ */
+/* ------------------ BOTÓN WHATSAPP: LATIDO + FLOTE ------------------ */
+
 .boton-ws {
     position: fixed;
     bottom: 28px;
     right: 28px;
     z-index: 2000;
-    background: #25d366;
-    padding: 12px;
+    background: none;
+    padding: 0;
     border-radius: 50%;
-    box-shadow: 0 0 18px rgba(0,0,0,0.4);
     transition: 0.35s ease;
-    backdrop-filter: blur(8px);
-}
 
-.boton-ws:hover {
-    transform: scale(1.15) translateY(-4px);
-    box-shadow: 0 0 26px rgba(37,211,102,0.6);
+    animation: wsHeartBeat 1.9s infinite ease-in-out,
+               wsFloat 3.5s infinite ease-in-out;
 }
 
 .boton-ws img {
-    width: 45px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    box-shadow: 0 0 22px rgba(37, 211, 102, 0.55);
+    transition: 0.25s;
 }
 
-/* ------------------ FOOTER GLASS PREMIUM ------------------ */
+@keyframes wsHeartBeat {
+    0%   { transform: scale(1); }
+    20%  { transform: scale(1.22); }
+    40%  { transform: scale(1); }
+    60%  { transform: scale(1.18); }
+    80%  { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes wsFloat {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+}
+
+.boton-ws:hover img {
+    transform: scale(1.22);
+    box-shadow: 0 0 32px rgba(37,211,102,0.85);
+}
+
+/* ------------------ FOOTER ------------------ */
 footer {
     margin-top: 50px;
     padding: 25px 0;
@@ -184,33 +209,25 @@ footer marquee h2 {
 }
 
 </style>
+
 </head>
 
 <body>
 
-<!-- ---------------- PARTICULAS ---------------- -->
 <canvas id="particles"></canvas>
 
-<!-- ---------------- NAVBAR ---------------- -->
 <nav class="navbar">
     <a href="#">.</a>
     <a href="https://www.jotform.com/app/251536021952856">Nuestra app</a>
     <a href="https://charly336.github.io/BLACKMOON-WEB/Game%20fly%20and%20flyp.html">Memorama atajo rapido</a>
     <a href="#">.</a>
 </nav>
-<!-- ---- AUDIO FUNCIONANDO ---- -->
+
 <audio controls autoplay loop style="margin-top:120px;">
     <source src="nudos de amor y traición [1].mp3" type="audio/mpeg">
-    Tu navegador no soporta audio HTML5.
 </audio>
 
-
-    
-</div>
-
-
 <div class="container">
-
     <marquee behavior="scroll" direction="left">
         <h1 class="marquee-title">🎭🌚 BLACKMOON GROUP 🌚🎭</h1>
     </marquee>
@@ -271,12 +288,11 @@ footer marquee h2 {
 
 </div>
 
-<!-- ---------------- BOTÓN WHATSAPP ---------------- -->
+<!-- ---------------- BOTÓN WHATSAPP CON LATIDO ---------------- -->
 <a href="https://wa.me/5215560693556?text=Hola%20Blackmoon,%20quiero%20información" class="boton-ws">
     <img src="img_WTTS.jpeg">
 </a>
 
-<!-- ---------------- FOOTER ---------------- -->
 <footer>
     <marquee behavior="scroll" direction="left"><h2>&copy; 2024 - 2026, Ing. Carlos Lezama</h2></marquee>
     <marquee behavior="scroll" direction="left"><h2>5 Años Volando Alto — Aerial Blackmoon</h2></marquee>
@@ -284,7 +300,6 @@ footer marquee h2 {
     <marquee behavior="scroll" direction="left"><h2>Todos Los Derechos Reservados</h2></marquee>
 </footer>
 
-<!-- ---------------- SCRIPT PARTÍCULAS ---------------- -->
 <script>
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
@@ -344,3 +359,4 @@ animateParticles();
 
 </body>
 </html>
+
