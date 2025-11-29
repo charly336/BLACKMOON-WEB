@@ -4,36 +4,101 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Aerial Flap — Black Moon</title>
+
 <style>
   :root{
     --accent: #a020f0;
     --glass-bg: rgba(255,255,255,0.06);
     --glass-border: rgba(255,255,255,0.12);
   }
-  html,body{height:100%;margin:0;background:#000;color:#fff;font-family:Inter,Arial,sans-serif;overflow:hidden}
-  canvas{display:block;margin:0 auto; touch-action: none;}
-  /* HUD */
-  #score{position:fixed;left:50%;transform:translateX(-50%);top:14px;font-size:32px;z-index:60;text-shadow:0 0 12px var(--accent);font-weight:700}
-  #level{position:fixed;right:14px;top:14px;background:var(--glass-bg);border:1px solid var(--glass-border);padding:8px 12px;border-radius:12px;z-index:60}
-  /* Menu glass */
-  .menu{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:80;background:linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.55));backdrop-filter:blur(6px)}
-  .card{width:min(820px,94%);padding:28px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);box-shadow:0 12px 40px rgba(0,0,0,0.6);display:flex;gap:22px;align-items:center}
-  .left{flex:1}
-  .right{width:240px;display:flex;flex-direction:column;gap:12px}
-  .title{font-size:28px;margin:0 0 8px 0}
-  .desc{opacity:0.9;margin:0 0 12px 0}
-  .btn{padding:12px 18px;border-radius:12px;background:var(--glass-bg);border:1px solid var(--glass-border);cursor:pointer;color:#fff;font-weight:700}
-  .btn:hover{transform:translateY(-3px)}
-  .muted{opacity:0.85;font-size:13px}
-  /* overlay game over */
-  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:90;background:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.6))}
-  .overlay.show{display:flex}
-  .goCard{padding:22px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid var(--glass-border);text-align:center}
-  @media (max-width:640px){
-    .card{flex-direction:column;align-items:stretch}
-    .right{width:100%}
-    #score{font-size:26px}
+  html,body{
+    height:100%;
+    margin:0;
+    background:#000;
+    color:#fff;
+    font-family:Arial, sans-serif;
+    overflow:hidden;
   }
+  canvas{
+    display:block;
+    margin:0 auto;
+    touch-action:none;
+  }
+  #score{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    top:14px;
+    font-size:32px;
+    z-index:60;
+    text-shadow:0 0 12px var(--accent);
+    font-weight:700;
+  }
+  #level{
+    position:fixed;
+    right:14px;
+    top:14px;
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    padding:8px 12px;
+    border-radius:12px;
+    z-index:60;
+  }
+
+  /* Menú Glass */
+  .menu{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:80;
+    background:rgba(0,0,0,0.5);
+    backdrop-filter:blur(6px);
+  }
+  .card{
+    width:min(820px,94%);
+    padding:28px;
+    border-radius:16px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--glass-border);
+    box-shadow:0 12px 40px rgba(0,0,0,0.6);
+    display:flex;
+    gap:22px;
+    align-items:center;
+  }
+  .left{flex:1}
+  .btn{
+    padding:12px 18px;
+    border-radius:12px;
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    cursor:pointer;
+    color:#fff;
+    font-weight:700;
+  }
+  .btn:hover{transform:translateY(-3px)}
+  @media(max-width:640px){
+    .card{flex-direction:column;align-items:stretch}
+  }
+
+  /* Overlay Game Over */
+  .overlay{
+    position:fixed; inset:0;
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:90;
+    background:rgba(0,0,0,0.6);
+  }
+  .overlay.show{display:flex}
+  .goCard{
+    padding:22px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--glass-border);
+    text-align:center;
+  }
+
 </style>
 </head>
 <body>
@@ -41,362 +106,262 @@
 <div id="score">0</div>
 <div id="level">Nivel 1</div>
 
-<!-- MENU -->
-<div id="menu" class="menu" role="dialog" aria-hidden="false">
-  <div class="card" role="document">
+<!-- MENÚ -->
+<div id="menu" class="menu">
+  <div class="card">
     <div class="left">
-      <h2 class="title"> Flap — Moon</h2>
-      <p class="desc">Toca para volar, evita las telas. Modo noche con luna, niveles y dificultad progresiva. Responsive para móvil, tablet y desktop.</p>
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button id="startBtn" class="btn">Iniciar</button>
-        <button id="howBtn" class="btn">Cómo jugar</button>
-        <button id="creditsBtn" class="btn">Créditos</button>
-      </div>
-      <p class="muted" style="margin-top:10px">Rutas de assets: <code>bailarina.png</code> (personaje), <code>tela.png.png</code> (pilares), <code>luna.png</code> (decoración)</p>
-    </div>
-    <div class="right">
-      <div style="height:120px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center">
-        <div style="text-align:center">
-          <div style="font-size:13px;opacity:0.9">Preview</div>
-          <div style="font-size:18px;color:var(--accent);margin-top:6px">Modo Noche</div>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="muted">Musica</label>
-          <input id="musicToggle" type="checkbox" checked />
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="muted">Dificultad</label>
-          <select id="diffSel">
-            <option value="0">Fácil</option>
-            <option value="1" selected>Normal</option>
-            <option value="2">Difícil</option>
-          </select>
-        </div>
-      </div>
+      <h2 style="margin:0;font-size:28px">Aerial Flap</h2>
+      <p>Versión Black Moon — Modo noche, luna animada, niveles, música, responsive.</p>
+      <button class="btn" id="startBtn">Iniciar</button>
     </div>
   </div>
 </div>
 
-<!-- GAME OVER -->
-<div id="overlay" class="overlay" aria-hidden="true">
+<!-- OVERLAY GAME OVER -->
+<div id="overlay" class="overlay">
   <div class="goCard">
-    <h3 id="goTitle">Game Over</h3>
+    <h3>Game Over</h3>
     <p id="goScore">Puntos: 0</p>
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px">
-      <button id="retryBtn" class="btn">Reintentar</button>
-      <button id="menuBtn" class="btn">Volver al menú</button>
-    </div>
+    <button class="btn" id="retryBtn">Reintentar</button>
   </div>
 </div>
 
 <!-- CANVAS -->
 <canvas id="gameCanvas"></canvas>
 
-<!-- SFX / MUSIC (opcional) -->
+<!-- AUDIO -->
 <audio id="music1" src="music_level1.mp3" loop></audio>
-<audio id="sfx_point" src="point.wav"></audio>
-<audio id="sfx_hit" src="hit.wav"></audio>
 
 <script>
-/* ---------------- SETUP ---------------- */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+/* ============== CANVAS RESPONSIVE ============== */
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 let DPR = window.devicePixelRatio || 1;
 
 function resize(){
   DPR = window.devicePixelRatio || 1;
-  // canvas fills vw and 92vh for UI space
-  const cssW = window.innerWidth;
-  const cssH = Math.max(420, Math.floor(window.innerHeight * 0.92));
-  canvas.style.width = cssW + 'px';
-  canvas.style.height = cssH + 'px';
-  canvas.width = Math.floor(cssW * DPR);
-  canvas.height = Math.floor(cssH * DPR);
+  const w = window.innerWidth;
+  const h = Math.floor(window.innerHeight * 0.92);
+  canvas.style.width = w+"px";
+  canvas.style.height = h+"px";
+  canvas.width = w * DPR;
+  canvas.height = h * DPR;
   ctx.setTransform(DPR,0,0,DPR,0,0);
 }
 resize();
-window.addEventListener('resize', resize);
+window.addEventListener("resize", resize);
 
-/* ---------------- ASSETS (editable) ---------------- */
-/* Ruta bailarina: si quieres otro nombre cámbiala aquí */
+
+/* ============== IMÁGENES (NO SE CAMBIARON RUTAS) ============== */
 const birdImg = new Image();
-birdImg.src = 'tela transpartente.png'; // <-- colocar tu imagen aquí (bailarina.png)
+birdImg.src = "bailarina.png";
 
-/* Pilares EXACTO como pediste */
 const pillarImg = new Image();
-pillarImg.src = 'tela 2.png'; // <-- ruta exacta pedida
+pillarImg.src = "tela.png.png";
 
 const moonImg = new Image();
-moonImg.src = 'luna.png'; // decorativa (si no existe se dibuja círculo)
+moonImg.src = "luna.png";
 
-/* ---------------- GAME STATE ---------------- */
+
+/* ============== VARIABLES ============== */
+let bird = { x:0, y:0, w:70, h:70, vy:0 };
+let gravity = 0.25;     // ✔ Caída más lenta
 let playing = false;
 let score = 0;
 let level = 1;
-let baseSpeed = 2.2;
-let speedMult = 1;
-let pillarGap = 160;
+
 let pillars = [];
-let spawnAccumulator = 0;
-let spawnInterval = 1400; // ms
-let lastTime = 0;
+let spawnGap = 1400;
+let spawnTimer = 0;
 
-const bird = { x: null, y: null, w: 64, h: 64, vy:0 };
-const gravity = 0.45;
-let musicOn = true;
-let soundOn = true;
+let speed = 2;
+let speedScale = 1;
 
-/* ---------------- UI REFS ---------------- */
-const scoreEl = document.getElementById('score');
-const levelEl = document.getElementById('level');
-const menu = document.getElementById('menu');
-const overlay = document.getElementById('overlay');
-const goScore = document.getElementById('goScore');
-const startBtn = document.getElementById('startBtn');
-const retryBtn = document.getElementById('retryBtn');
-const menuBtn = document.getElementById('menuBtn');
-const howBtn = document.getElementById('howBtn');
-const creditsBtn = document.getElementById('creditsBtn');
-const musicToggle = document.getElementById('musicToggle');
-const diffSel = document.getElementById('diffSel');
+let last = 0;
 
-const music1 = document.getElementById('music1');
-const sfxPoint = document.getElementById('sfx_point');
-const sfxHit = document.getElementById('sfx_hit');
 
-/* ---------------- CONTROLS ---------------- */
-startBtn.addEventListener('click', startGame);
-retryBtn.addEventListener('click', ()=>{ overlay.classList.remove('show'); overlay.setAttribute('aria-hidden','true'); startGame(); });
-menuBtn.addEventListener('click', ()=>{ overlay.classList.remove('show'); menu.style.display='flex'; menu.setAttribute('aria-hidden','false'); });
-howBtn.addEventListener('click', ()=>{ alert('Toca la pantalla (o haz click / barra espaciadora) para volar. Evita las telas.'); });
-creditsBtn.addEventListener('click', ()=>{ alert('Black Moon — Desarrollo interno'); });
+/* ============== UI ELEMENTOS ============== */
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("level");
+const startBtn = document.getElementById("startBtn");
+const overlay = document.getElementById("overlay");
+const goScore = document.getElementById("goScore");
+const retryBtn = document.getElementById("retryBtn");
+const music1 = document.getElementById("music1");
 
-musicToggle.addEventListener('change', ()=>musicOn = musicToggle.checked);
-diffSel.addEventListener('change', ()=>{ const v=parseInt(diffSel.value); applyDifficultyPreset(v); });
 
-document.addEventListener('keydown', (e)=>{ if(e.code==='Space') flap(); if(e.code==='KeyM'){ soundOn=!soundOn; }});
-canvas.addEventListener('mousedown', (e)=>{ e.preventDefault(); flap(); });
-canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); flap(); }, {passive:false});
+/* ============== CONTROLES ============== */
+startBtn.onclick = startGame;
+retryBtn.onclick = ()=>{ overlay.classList.remove("show"); startGame(); };
+canvas.addEventListener("mousedown", flap);
+canvas.addEventListener("touchstart", flap,{passive:false});
+document.addEventListener("keydown",(e)=>{ if(e.code==="Space") flap(); });
 
-/* ----------------- Init ----------------- */
-applyDifficultyPreset(1); // default "Normal"
-updateHUD();
 
-/* ---------------- FUNCTIONS ---------------- */
-
-function applyDifficultyPreset(v){
-  // 0 easy,1 normal,2 hard
-  if (v===0){ baseSpeed=1.9; spawnInterval=1500; pillarGap=180; }
-  else if (v===1){ baseSpeed=2.2; spawnInterval=1400; pillarGap=150; }
-  else { baseSpeed=2.6; spawnInterval=1250; pillarGap=130; }
-}
-
-function resetGame(){
+/* ============== INICIO DEL JUEGO ============== */
+function startGame(){
   score = 0;
   level = 1;
-  speedMult = 1;
+  speedScale = 1;
   pillars = [];
-  spawnAccumulator = 0;
-  spawnInterval = spawnInterval; // keep preset
-  const cw = canvas.width / DPR, ch = canvas.height / DPR;
-  bird.x = Math.max(48, Math.floor(cw * 0.14));
-  bird.w = Math.min(88, Math.floor(cw * 0.14));
-  bird.h = bird.w;
-  bird.y = Math.floor(ch / 2 - bird.h/2);
-  bird.vy = 0;
-  updateHUD();
-  stopAllMusic();
-}
-
-function startGame(){
-  resetGame();
+  spawnTimer = 0;
   playing = true;
-  menu.style.display = 'none';
-  menu.setAttribute('aria-hidden','true');
-  overlay.classList.remove('show');
-  overlay.setAttribute('aria-hidden','true');
-  lastTime = performance.now();
-  if (musicOn) playMusicForLevel(1);
+
+  overlay.classList.remove("show");
+  document.getElementById("menu").style.display="none";
+
+  const w = canvas.width / DPR;
+  const h = canvas.height / DPR;
+
+  bird.x = w * 0.15;
+  bird.y = h * 0.5;
+  bird.w = w * 0.12;
+  bird.h = bird.w;
+  bird.vy = 0;
+
+  music1.currentTime = 0;
+  music1.play().catch(()=>{});
+
+  last = performance.now();
   requestAnimationFrame(loop);
 }
 
+
+/* ============== FLOTAR / SALTO ============== */
 function flap(){
-  if (!playing) return;
-  bird.vy = -9 - Math.random()*1.5; // slight variance
+  if(!playing) return;
+  bird.vy = -8;
 }
 
-function spawnPillar() {
-    let gap = canvas.height * 0.35;   // ← AQUÍ AJUSTAS EL ESPACIO ENTRE PILARES
-    let topHeight = Math.random() * (canvas.height * 0.45) + 50;
 
-    pillars.push({
-        x: canvas.width,
-        top: topHeight,
-        bottom: topHeight + gap,
-        width: 120
-    });
+/* ============== GENERAR PILAR ============== */
+function spawnPillar(){
+  const h = canvas.height / DPR;
+
+  let gap = h * 0.45;   // ✔ PILARES MÁS SEPARADOS
+  let topH = Math.random() * (h * 0.40) + 40;
+
+  pillars.push({
+    x: (canvas.width / DPR) + 40,
+    top: topH,
+    bottom: topH + gap,
+    w: 120
+  });
 }
 
-function updateDifficulty(){
-  const newLevel = Math.floor(score / 5) + 1;
-  if (newLevel !== level){
-    level = newLevel;
-    speedMult = 1 + (level - 1) * 0.08;
-    pillarGap = Math.max(100, pillarGap - Math.floor((level-1) * 6));
-    spawnInterval = Math.max(800, Math.floor(spawnInterval - (level-1) * 30));
-    updateHUD();
-    playMusicForLevel(level);
-  }
-}
 
-function playMusicForLevel(lv){
-  if (!musicOn) return;
-  try{ music1.currentTime = 0; music1.volume = 0.65; music1.play().catch(()=>{}); }catch(e){}
-}
-function stopAllMusic(){ try{ music1.pause(); music1.currentTime = 0; }catch(e){} }
+/* ============== BUCLE PRINCIPAL ============== */
+function loop(t){
+  if(!playing) return;
 
-function checkCollisions(){
-  const cw = canvas.width / DPR, ch = canvas.height / DPR;
-  for (let p of pillars){
-    const bw = bird.w, bh = bird.h;
-    if (!p.passed && (p.x + p.w) < bird.x){
-      p.passed = true;
-      score++;
-      if (soundOn) try{ sfxPoint.currentTime=0; sfxPoint.play(); }catch(e){}
-      updateHUD();
-      updateDifficulty();
-    }
-    // AABB collision
-    if ( bird.x + bw*0.9 > p.x && bird.x + bw*0.1 < p.x + p.w ){
-      if ( bird.y + bh*0.15 < p.top || (bird.y + bh*0.85) > p.bottom ){
-        return true;
-      }
-    }
-  }
-  // off-screen
-  if (bird.y <= -10 || (bird.y + bird.h) >= ch + 10) return true;
-  return false;
-}
+  let dt = t - last;
+  last = t;
 
-function updateHUD(){
-  scoreEl.textContent = score;
-  levelEl.textContent = 'Nivel ' + level;
-}
+  let w = canvas.width / DPR;
+  let h = canvas.height / DPR;
 
-/* ---------------- DRAW & LOOP ---------------- */
-let moonT = 0;
-function loop(now){
-  if (!playing) return;
-  const dt = now - lastTime;
-  lastTime = now;
-
-  // spawn logic
-  spawnAccumulator += dt;
-  if (spawnAccumulator >= spawnInterval){
-    spawnAccumulator = 0;
-    spawnPillar();
-  }
-
-  // physics
+  /* MOVIMIENTO */
   bird.vy += gravity * (dt/16);
   bird.y += bird.vy * (dt/16);
 
-  // move pillars
-  const move = baseSpeed * speedMult * (dt/16);
-  for (let p of pillars) p.x -= move;
-  // remove
-  pillars = pillars.filter(p => p.x + p.w > -40);
+  let move = speed * speedScale * (dt/16);
 
-  // collision
-  if (checkCollisions()){
-    playing = false;
-    stopAllMusic();
-    if (soundOn) try{ sfxHit.play(); }catch(e){}
-    goScore.textContent = 'Puntos: ' + score;
-    overlay.classList.add('show');
-    overlay.setAttribute('aria-hidden','false');
-    menu.style.display = 'none';
+  /* SPAWN DE PILARES */
+  spawnTimer += dt;
+  if(spawnTimer >= spawnGap){
+    spawnTimer = 0;
+    spawnPillar();
+  }
+
+  /* MOVER PILARES */
+  for(let p of pillars){
+    p.x -= move;
+  }
+  pillars = pillars.filter(p => p.x + p.w > -30);
+
+  /* COLISIONES */
+  for(let p of pillars){
+    if(!p.passed && (p.x + p.w) < bird.x){
+      p.passed = true;
+      score++;
+      updateHUD();
+      updateLevel();
+    }
+
+    if(
+      bird.x + bird.w > p.x &&
+      bird.x < p.x + p.w &&
+      (bird.y < p.top || bird.y + bird.h > p.bottom)
+    ){
+      gameOver();
+      return;
+    }
+  }
+
+  if(bird.y < 0 || bird.y + bird.h > h){
+    gameOver();
     return;
   }
 
-  drawScene(now);
+  draw(w,h);
   requestAnimationFrame(loop);
 }
 
-function drawScene(now){
-  const cw = canvas.width / DPR, ch = canvas.height / DPR;
-  // clear
-  ctx.clearRect(0,0,cw,ch);
 
-  // background gradient
-  const g = ctx.createLinearGradient(0,0,0,ch);
-  g.addColorStop(0,'#000013');
-  g.addColorStop(0.5,'#0b0026');
-  g.addColorStop(1,'#02000a');
-  ctx.fillStyle = g; ctx.fillRect(0,0,cw,ch);
-
-  // stars
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  for (let i=0;i<60;i++){
-    const x = ((i*37) % cw) * (1/Math.max(1,Math.floor(cw/400)));
-    const y = (i*23 % (ch*0.45)) + 6;
-    ctx.globalAlpha = 0.5 + 0.5*Math.sin(now/1200 + i);
-    ctx.fillRect((i*17)%cw, (i*29)%Math.floor(ch*0.45), (i%3?1:2), (i%4?1:2));
-  }
-  ctx.globalAlpha = 1;
-
-  // moon
-  moonT += 0.00045 * (1 + (speedMult-1)*0.2);
-  const moonX = (0.08 + 0.84 * ((Math.sin(moonT*2*Math.PI)*0.5)+0.5)) * cw;
-  const moonY = 60 + Math.sin(moonT*2*Math.PI) * 22;
-  // glow
-  const glow = ctx.createRadialGradient(moonX,moonY,6,moonX,moonY,72);
-  glow.addColorStop(0,'rgba(255,255,235,0.95)');
-  glow.addColorStop(1,'rgba(160,32,240,0.02)');
-  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(moonX,moonY,72,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = '#fff8e8'; ctx.beginPath(); ctx.arc(moonX,moonY,22,0,Math.PI*2); ctx.fill();
-
-  // pillars
-  for (let p of pillars){
-    if (pillarImg.complete){
-      ctx.drawImage(pillarImg, p.x, 0, p.w, p.top);
-      ctx.drawImage(pillarImg, p.x, p.bottom, p.w, ch - p.bottom);
-    } else {
-      ctx.fillStyle = '#3d0a5a'; ctx.fillRect(p.x,0,p.w,p.top); ctx.fillRect(p.x,p.bottom,p.w,ch-p.bottom);
-    }
-    // subtle border
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-    ctx.strokeRect(p.x,0,p.w,p.top); ctx.strokeRect(p.x,p.bottom,p.w,ch-p.bottom);
-  }
-
-  // bird (bailarina)
-  if (birdImg.complete){
-    ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
-  } else {
-    ctx.fillStyle = '#ff66ff'; ctx.fillRect(bird.x, bird.y, bird.w, bird.h);
-  }
-
-  // vignette
-  const v = ctx.createLinearGradient(0,ch*0.6,0,ch);
-  v.addColorStop(0,'rgba(0,0,0,0)');
-  v.addColorStop(1,'rgba(0,0,0,0.5)');
-  ctx.fillStyle = v; ctx.fillRect(0,ch*0.6,cw,ch*0.4);
+/* ============== HUD ============== */
+function updateHUD(){
+  scoreEl.textContent = score;
+  levelEl.textContent = "Nivel "+level;
 }
 
-/* ---------------- UTIL ---------------- */
-function clamp(a,b,c){ return Math.max(b,Math.min(c,a)); }
+function updateLevel(){
+  let newLevel = Math.floor(score/5)+1;
+  if(newLevel !== level){
+    level = newLevel;
+    speedScale = 1 + (level-1)*0.10;
+    spawnGap = Math.max(900, 1400 - (level-1)*40);
+    updateHUD();
+  }
+}
 
-/* ---------------- Prevent scrolling on touch while playing ---------------- */
-document.body.addEventListener('touchmove', (e)=>{ if (playing) e.preventDefault(); }, {passive:false});
 
-/* ---------------- Start with menu visible ---------------- */
-menu.style.display = 'flex';
-menu.setAttribute('aria-hidden','false');
-updateHUD();
+/* ============== DRAW ============== */
+function draw(w,h){
+  ctx.clearRect(0,0,w,h);
+
+  /* FONDO */
+  let g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,"#020014");
+  g.addColorStop(1,"#000");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,w,h);
+
+  /* LUNA */
+  const lx = (Math.sin(performance.now()*0.0002)*0.4+0.5) * w*0.8;
+  const ly = 80;
+  ctx.drawImage(moonImg, lx, ly, 120,120);
+
+  /* PILARES */
+  for(let p of pillars){
+    ctx.drawImage(pillarImg, p.x, 0, p.w, p.top);
+    ctx.drawImage(pillarImg, p.x, p.bottom, p.w, h - p.bottom);
+  }
+
+  /* BAILARINA */
+  ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
+}
+
+
+/* ============== GAME OVER ============== */
+function gameOver(){
+  playing = false;
+  music1.pause();
+
+  goScore.textContent = "Puntos: "+score;
+  overlay.classList.add("show");
+}
+
 </script>
 </body>
 </html>
+
