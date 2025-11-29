@@ -25,7 +25,6 @@
         border-bottom: 2px solid #5900ff;
     }
 
-    /* Botones Glass */
     .glassBtn {
         position: absolute;
         padding: 18px 40px;
@@ -104,17 +103,19 @@ resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 /* ---------- IMÁGENES ---------- */
-let birdImg = new Image();
-birdImg.src = "bailarina.png";
 
-// *AQUÍ ESTÁ EL CAMBIO QUE PEDISTE*
+/* 👉 AQUÍ PONES LA RUTA DE LA BAILARINA */
+let birdImg = new Image();
+birdImg.src = "RUTA/DE/TU/BAILARINA.png";  // ← PÉGALA AQUÍ
+
+/* 👉 PILARES con tu nombre EXACTO */
 let pillarImg = new Image();
-pillarImg.src = "tela 2.png";  // ← Ruta EXACTA nueva
+pillarImg.src = "tela.png.png";  // ← YA ACTUALIZADO
 
 let moonImg = new Image();
-moonImg.src = "luna.png"; // Luna decorativa en movimiento
+moonImg.src = "luna.png";
 
-/* ---------- VARIABLES DEL JUEGO ---------- */
+/* ---------- VARIABLES ---------- */
 let birdX = 80;
 let birdY = 200;
 let gravity = 0.45;
@@ -124,22 +125,20 @@ let moonX = 0;
 
 let playing = false;
 let score = 0;
-
-/* NIVEL AUTOMÁTICO */
-let levelSpeed = 2;  
+let levelSpeed = 2;
 let levelTimer = 0;
 
-/* ---------- BOTÓN ---------- */
+/* ---------- CONTROLES ---------- */
 document.getElementById("startBtn").onclick = startGame;
 canvas.addEventListener("mousedown", flap);
 canvas.addEventListener("touchstart", flap);
 
-/* ---------- FUNCIONES PRINCIPALES ---------- */
 function flap() {
     if (!playing) return;
     velocity = -8;
 }
 
+/* ---------- INICIO ---------- */
 function startGame() {
     playing = true;
     score = 0;
@@ -155,7 +154,7 @@ function startGame() {
     loop();
 }
 
-/* ---------- DIBUJO DE LUNA ANIMADA ---------- */
+/* ---------- LUNA ANIMADA ---------- */
 function drawMoon() {
     moonX += 0.2;
     if (moonX > canvas.width + 200) moonX = -200;
@@ -163,7 +162,7 @@ function drawMoon() {
     ctx.drawImage(moonImg, moonX, 50, 150, 150);
 }
 
-/* ---------- CREACIÓN DE PILARES ---------- */
+/* ---------- PILARES ---------- */
 function spawnPillar() {
     let gap = canvas.height * 0.27;
     let topHeight = Math.random() * (canvas.height * 0.45) + 50;
@@ -185,7 +184,7 @@ function drawPillars() {
     });
 }
 
-/* ---------- DIBUJO DEL PERSONAJE ---------- */
+/* ---------- BAILARINA ---------- */
 function drawBird() {
     ctx.drawImage(birdImg, birdX, birdY, 90, 90);
 }
@@ -207,7 +206,7 @@ function checkCollision() {
     }
 }
 
-/* ---------- SCORE & NIVELES ---------- */
+/* ---------- SCORE ---------- */
 function updateScore() {
     pillars.forEach(p => {
         if (p.x + p.width === birdX) {
@@ -217,7 +216,7 @@ function updateScore() {
     });
 }
 
-/* ---------- AUMENTO DE DIFICULTAD ---------- */
+/* ---------- DIFICULTAD AUTOMÁTICA ---------- */
 function updateDifficulty() {
     levelTimer++;
 
@@ -262,5 +261,3 @@ function loop() {
 
 </body>
 </html>
-
-
