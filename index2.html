@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,85 +6,111 @@
 <title>Aerial Flap</title>
 
 <style>
+    :root {
+        --glass: rgba(255, 255, 255, 0.12);
+    }
+
     body {
         margin: 0;
         background: #000;
         overflow: hidden;
-        font-family: Arial;
-        color: #fff;
+        font-family: Arial, sans-serif;
+        user-select: none;
     }
 
     #gameCanvas {
-        background: linear-gradient(180deg, #000 0%, #1b0033 100%);
         display: block;
         margin: 0 auto;
+        background: linear-gradient(180deg, #000 0%, #1a0033 100%);
+        border-bottom: 2px solid #5900ff;
     }
 
-    /* BOTÓN GLASS */
+    /* Botón Glass */
     .glassBtn {
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 16px 35px;
+        padding: 18px 40px;
         font-size: 22px;
-        border-radius: 20px;
-        backdrop-filter: blur(12px);
-        background: rgba(255,255,255,0.10);
-        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 18px;
+        background: var(--glass);
         color: #fff;
+        border: 1px solid rgba(255,255,255,0.25);
+        backdrop-filter: blur(10px);
         cursor: pointer;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
         transition: 0.2s;
-        text-shadow: 0 0 5px #a020f0;
+        text-shadow: 0 0 8px #a020f0;
     }
+
     .glassBtn:hover {
-        background: rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.20);
         transform: translate(-50%, -50%) scale(1.05);
     }
 
     #score {
-        position: absolute;
+        position: fixed;
         top: 15px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 32px;
-        text-shadow: 0 0 10px #a020f0;
+        font-size: 36px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 0 15px #a020f0;
+        z-index: 10;
     }
 </style>
 </head>
 <body>
 
-<canvas id="gameCanvas" width="380" height="600"></canvas>
+<canvas id="gameCanvas"></canvas>
+
+<div id="score">0</div>
 
 <button id="startBtn" class="glassBtn">Iniciar</button>
-<div id="score">0</div>
 
 <audio id="music" src="music.mp3" loop></audio>
 
 <script>
+/* ---------- CANVAS RESPONSIVE ---------- */
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight * 0.9;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+/* ---------- IMÁGENES EDITABLES ---------- */
 let birdImg = new Image();
-birdImg.src = "bailarina.png"; // ← CAMBIA EL PAJARITO AQUÍ
+birdImg.src = "bailarina.png"; // Cambia aquí tu personaje
 
 let pillarImg = new Image();
-pillarImg.src = "tela.png"; // ← CAMBIA LOS PILARES AQUÍ
+pillarImg.src = "tela.png"; // Cambia aquí tus pilares/telas
 
-let birdX = 60, birdY = 250, gravity = 0.25, velocity = 0;
+/* ---------- VARIABLES DE JUEGO ---------- */
+let birdX = 80;
+let birdY = 200;
+let gravity = 0.4;
+let velocity = 0;
 let pillars = [];
 let playing = false;
 let score = 0;
 
+/* ---------- CONTROLES ---------- */
 document.getElementById("startBtn").onclick = startGame;
-document.addEventListener("mousedown", flap);
+canvas.addEventListener("mousedown", flap);
+canvas.addEventListener("touchstart", flap);
+
+/* ---------- FUNCIONES ---------- */
 
 function startGame() {
     playing = true;
-    birdX = 60;
-    birdY = 250;
-    velocity = 0;
     score = 0;
+    birdY = canvas.height / 2;
+    velocity = 0;
     pillars = [];
     document.getElementById("score").textContent = score;
     document.getElementById("startBtn").style.display = "none";
@@ -95,71 +120,89 @@ function startGame() {
 
 function flap() {
     if (!playing) return;
-    velocity = -6;
+    velocity = -7;
 }
 
+function spawnPillar() {
+    let gap = canvas.height * 0.28;
+    let topHeight = Math.random() * (canvas.height * 0.45) + 50;
+
+    pillars.push({
+        x: canvas.width,
+        top: topHeight,
+        bottom: topHeight + gap,
+        width: canvas.width * 0.18
+    });
+}
+
+function drawBird() {
+    ctx.drawImage(birdImg, birdX, birdY, canvas.width * 0.12, canvas.width * 0.12);
+}
+
+function drawPillars() {
+    pillars.forEach(p => {
+        p.x -= canvas.width * 0.004;
+
+        ctx.drawImage(pillarImg, p.x, 0, p.width, p.top);
+        ctx.drawImage(pillarImg, p.x, p.bottom, p.width, canvas.height - p.bottom);
+    });
+}
+
+function checkCollision() {
+    for (let p of pillars) {
+        let birdSize = canvas.width * 0.12;
+
+        if (
+            birdX + birdSize > p.x &&
+            birdX < p.x + p.width &&
+            (birdY < p.top || birdY + birdSize > p.bottom)
+        ) {
+            gameOver();
+        }
+    }
+
+    if (birdY <= 0 || birdY >= canvas.height - 20) {
+        gameOver();
+    }
+}
+
+function updateScore() {
+    pillars.forEach(p => {
+        if (p.x + p.width === birdX) {
+            score++;
+            document.getElementById("score").textContent = score;
+        }
+    });
+}
+
+function gameOver() {
+    playing = false;
+    document.getElementById("startBtn").textContent = "Reiniciar";
+    document.getElementById("startBtn").style.display = "block";
+}
+
+/* ---------- LOOP PRINCIPAL ---------- */
 function loop() {
     if (!playing) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Bird
     velocity += gravity;
     birdY += velocity;
 
-    ctx.drawImage(birdImg, birdX, birdY, 40, 40);
+    drawBird();
 
-    // Generate pillars
-    if (pillars.length === 0 || pillars[pillars.length - 1].x < 150) {
-        let gap = 150;
-        let topHeight = Math.random() * 250 + 50;
-        pillars.push({
-            x: canvas.width,
-            top: topHeight,
-            bottom: topHeight + gap
-        });
+    if (pillars.length === 0 || pillars[pillars.length - 1].x < canvas.width * 0.6) {
+        spawnPillar();
     }
 
-    // Move & draw pillars
-    for (let i = 0; i < pillars.length; i++) {
-        let p = pillars[i];
-        p.x -= 2;
-
-        // Top pillar
-        ctx.drawImage(pillarImg, p.x, 0, 80, p.top);
-
-        // Bottom pillar
-        ctx.drawImage(pillarImg, p.x, p.bottom, 80, canvas.height - p.bottom);
-
-        // Collision
-        if (
-            birdX + 30 > p.x &&
-            birdX < p.x + 80 &&
-            (birdY < p.top || birdY + 30 > p.bottom)
-        ) {
-            gameOver();
-        }
-
-        // Score
-        if (p.x === 58) {
-            score++;
-            document.getElementById("score").textContent = score;
-        }
-    }
-
-    // Bird falls off screen
-    if (birdY > canvas.height || birdY < -50) {
-        gameOver();
-    }
+    drawPillars();
+    checkCollision();
+    updateScore();
 
     requestAnimationFrame(loop);
 }
 
-function gameOver() {
-    playing = false;
-    document.getElementById("startBtn").innerText = "Reiniciar";
-    document.getElementById("startBtn").style.display = "block";
-}
 </script>
 
 </body>
