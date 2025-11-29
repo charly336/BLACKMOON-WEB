@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aerial Rhythm Tap</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        text-align: center;
+    }
+
+    h1 {
+        margin-top: 20px;
+        font-size: 28px;
+    }
+
+    #gameArea {
+        margin-top: 40px;
+    }
+
+    #circle {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: #444;
+        margin: 0 auto;
+        transition: 0.2s;
+        box-shadow: 0 0 20px #8a2be2;
+    }
+
+    #circle.active {
+        background: #a020f0;
+        transform: scale(1.2);
+        box-shadow: 0 0 25px #b060ff;
+    }
+
+    #figureArea {
+        margin-top: 40px;
+        font-size: 24px;
+        height: 40px;
+    }
+
+    #progressBar {
+        width: 90%;
+        height: 15px;
+        background: #333;
+        margin: 30px auto;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    #progress {
+        height: 100%;
+        width: 0%;
+        background: #a020f0;
+    }
+</style>
+</head>
+<body>
+
+<h1>Aerial Rhythm Tap</h1>
+
+<div id="gameArea">
+    <div id="circle"></div>
+    <div id="figureArea">Figura: Ninguna</div>
+
+    <div id="progressBar"><div id="progress"></div></div>
+
+    <audio id="music" src="music.mp3" autoplay loop></audio>
+</div>
+
+<script>
+let score = 0;
+let active = false;
+
+// Activación rítmica
+setInterval(() => {
+    active = !active;
+    const c = document.getElementById("circle");
+    c.classList.toggle("active", active);
+}, 800);
+
+// Tap
+document.getElementById("circle").addEventListener("click", () => {
+    if (active) {
+        score++;
+        updateProgress();
+        updateFigure();
+        flashEffect();
+    }
+});
+
+// Barra de progreso
+function updateProgress() {
+    let p = (score / 20) * 100;
+    if (p > 100) p = 100;
+    document.getElementById("progress").style.width = p + "%";
+}
+
+// Figuras
+function updateFigure() {
+    let fig = "Ninguna";
+
+    if (score >= 5 && score < 10) fig = "Giro";
+    if (score >= 10 && score < 15) fig = "Straddle";
+    if (score >= 15 && score < 20) fig = "Superman";
+    if (score >= 20) fig = "Amazon";
+
+    document.getElementById("figureArea").textContent = "Figura: " + fig;
+}
+
+// Efecto visual al acertar
+function flashEffect() {
+    document.body.style.background = "#190033";
+    setTimeout(() => {
+        document.body.style.background = "#000";
+    }, 150);
+}
+</script>
+
+</body>
+</html>
