@@ -1,126 +1,167 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Aerial Rhythm Tap</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aerial Flap</title>
 
 <style>
     body {
         margin: 0;
         background: #000;
-        font-family: Arial, sans-serif;
-        color: #fff;
-        text-align: center;
-    }
-
-    h1 {
-        margin-top: 20px;
-        font-size: 28px;
-    }
-
-    #gameArea {
-        margin-top: 40px;
-    }
-
-    #circle {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        background: #444;
-        margin: 0 auto;
-        transition: 0.2s;
-        box-shadow: 0 0 20px #8a2be2;
-    }
-
-    #circle.active {
-        background: #a020f0;
-        transform: scale(1.2);
-        box-shadow: 0 0 25px #b060ff;
-    }
-
-    #figureArea {
-        margin-top: 40px;
-        font-size: 24px;
-        height: 40px;
-    }
-
-    #progressBar {
-        width: 90%;
-        height: 15px;
-        background: #333;
-        margin: 30px auto;
-        border-radius: 10px;
         overflow: hidden;
+        font-family: Arial;
+        color: #fff;
     }
-    #progress {
-        height: 100%;
-        width: 0%;
-        background: #a020f0;
+
+    #gameCanvas {
+        background: linear-gradient(180deg, #000 0%, #1b0033 100%);
+        display: block;
+        margin: 0 auto;
+    }
+
+    /* BOTÓN GLASS */
+    .glassBtn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 16px 35px;
+        font-size: 22px;
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        cursor: pointer;
+        transition: 0.2s;
+        text-shadow: 0 0 5px #a020f0;
+    }
+    .glassBtn:hover {
+        background: rgba(255,255,255,0.18);
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    #score {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 32px;
+        text-shadow: 0 0 10px #a020f0;
     }
 </style>
 </head>
 <body>
 
-<h1>Aerial Rhythm Tap</h1>
+<canvas id="gameCanvas" width="380" height="600"></canvas>
 
-<div id="gameArea">
-    <div id="circle"></div>
-    <div id="figureArea">Figura: Ninguna</div>
+<button id="startBtn" class="glassBtn">Iniciar</button>
+<div id="score">0</div>
 
-    <div id="progressBar"><div id="progress"></div></div>
-
-    <audio id="music" src="music.mp3" autoplay loop></audio>
-</div>
+<audio id="music" src="music.mp3" loop></audio>
 
 <script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let birdImg = new Image();
+birdImg.src = "bailarina.png"; // ← CAMBIA EL PAJARITO AQUÍ
+
+let pillarImg = new Image();
+pillarImg.src = "tela.png"; // ← CAMBIA LOS PILARES AQUÍ
+
+let birdX = 60, birdY = 250, gravity = 0.25, velocity = 0;
+let pillars = [];
+let playing = false;
 let score = 0;
-let active = false;
 
-// Activación rítmica
-setInterval(() => {
-    active = !active;
-    const c = document.getElementById("circle");
-    c.classList.toggle("active", active);
-}, 800);
+document.getElementById("startBtn").onclick = startGame;
+document.addEventListener("mousedown", flap);
 
-// Tap
-document.getElementById("circle").addEventListener("click", () => {
-    if (active) {
-        score++;
-        updateProgress();
-        updateFigure();
-        flashEffect();
+function startGame() {
+    playing = true;
+    birdX = 60;
+    birdY = 250;
+    velocity = 0;
+    score = 0;
+    pillars = [];
+    document.getElementById("score").textContent = score;
+    document.getElementById("startBtn").style.display = "none";
+    document.getElementById("music").play();
+    loop();
+}
+
+function flap() {
+    if (!playing) return;
+    velocity = -6;
+}
+
+function loop() {
+    if (!playing) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Bird
+    velocity += gravity;
+    birdY += velocity;
+
+    ctx.drawImage(birdImg, birdX, birdY, 40, 40);
+
+    // Generate pillars
+    if (pillars.length === 0 || pillars[pillars.length - 1].x < 150) {
+        let gap = 150;
+        let topHeight = Math.random() * 250 + 50;
+        pillars.push({
+            x: canvas.width,
+            top: topHeight,
+            bottom: topHeight + gap
+        });
     }
-});
 
-// Barra de progreso
-function updateProgress() {
-    let p = (score / 20) * 100;
-    if (p > 100) p = 100;
-    document.getElementById("progress").style.width = p + "%";
+    // Move & draw pillars
+    for (let i = 0; i < pillars.length; i++) {
+        let p = pillars[i];
+        p.x -= 2;
+
+        // Top pillar
+        ctx.drawImage(pillarImg, p.x, 0, 80, p.top);
+
+        // Bottom pillar
+        ctx.drawImage(pillarImg, p.x, p.bottom, 80, canvas.height - p.bottom);
+
+        // Collision
+        if (
+            birdX + 30 > p.x &&
+            birdX < p.x + 80 &&
+            (birdY < p.top || birdY + 30 > p.bottom)
+        ) {
+            gameOver();
+        }
+
+        // Score
+        if (p.x === 58) {
+            score++;
+            document.getElementById("score").textContent = score;
+        }
+    }
+
+    // Bird falls off screen
+    if (birdY > canvas.height || birdY < -50) {
+        gameOver();
+    }
+
+    requestAnimationFrame(loop);
 }
 
-// Figuras
-function updateFigure() {
-    let fig = "Ninguna";
-
-    if (score >= 5 && score < 10) fig = "Giro";
-    if (score >= 10 && score < 15) fig = "Straddle";
-    if (score >= 15 && score < 20) fig = "Superman";
-    if (score >= 20) fig = "Amazon";
-
-    document.getElementById("figureArea").textContent = "Figura: " + fig;
-}
-
-// Efecto visual al acertar
-function flashEffect() {
-    document.body.style.background = "#190033";
-    setTimeout(() => {
-        document.body.style.background = "#000";
-    }, 150);
+function gameOver() {
+    playing = false;
+    document.getElementById("startBtn").innerText = "Reiniciar";
+    document.getElementById("startBtn").style.display = "block";
 }
 </script>
 
 </body>
 </html>
+
