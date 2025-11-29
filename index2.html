@@ -229,13 +229,16 @@ function flap(){
   bird.vy = -9 - Math.random()*1.5; // slight variance
 }
 
-function spawnPillar(){
-  const cw = canvas.width / DPR, ch = canvas.height / DPR;
-  const w = Math.max(48, Math.floor(cw * 0.14));
-  const topMin = 48;
-  const topMax = ch - pillarGap - 80;
-  const top = Math.max(topMin, Math.random() * (topMax - topMin) + topMin);
-  pillars.push({ x: cw + 20, top: Math.floor(top), bottom: Math.floor(top + pillarGap), w: w, passed:false });
+function spawnPillar() {
+    let gap = canvas.height * 0.35;   // ← AQUÍ AJUSTAS EL ESPACIO ENTRE PILARES
+    let topHeight = Math.random() * (canvas.height * 0.45) + 50;
+
+    pillars.push({
+        x: canvas.width,
+        top: topHeight,
+        bottom: topHeight + gap,
+        width: 120
+    });
 }
 
 function updateDifficulty(){
