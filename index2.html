@@ -1,210 +1,462 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aerial Flap</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aerial Flap — Black Moon</title>
 <style>
-    :root {
-        --glass: rgba(255, 255, 255, 0.12);
-    }
-
-    body {
-        margin: 0;
-        background: #000;
-        overflow: hidden;
-        font-family: Arial, sans-serif;
-        user-select: none;
-    }
-
-    #gameCanvas {
-        display: block;
-        margin: 0 auto;
-        background: linear-gradient(180deg, #000 0%, #1a0033 100%);
-        border-bottom: 2px solid #5900ff;
-    }
-
-    /* Botón Glass */
-    .glassBtn {
-        position: absolute;
-        padding: 18px 40px;
-        font-size: 22px;
-        border-radius: 18px;
-        background: var(--glass);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.25);
-        backdrop-filter: blur(10px);
-        cursor: pointer;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        transition: 0.2s;
-        text-shadow: 0 0 8px #a020f0;
-    }
-
-    .glassBtn:hover {
-        background: rgba(255,255,255,0.20);
-        transform: translate(-50%, -50%) scale(1.05);
-    }
-
-    #score {
-        position: fixed;
-        top: 15px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 36px;
-        font-weight: bold;
-        color: #fff;
-        text-shadow: 0 0 15px #a020f0;
-        z-index: 10;
-    }
+  :root{
+    --glass: rgba(255,255,255,0.08);
+    --accent: #a020f0;
+    --glass-border: rgba(255,255,255,0.18);
+  }
+  html,body{height:100%;margin:0;background:#000;font-family:Inter,Arial,sans-serif;color:#fff;overflow:hidden}
+  canvas{display:block;margin:0 auto;background:linear-gradient(180deg,#020012 0%, #0b0026 65%, #050008 100%);}
+  /* Score */
+  #score{
+    position:fixed;left:50%;transform:translateX(-50%);top:14px;font-size:34px;z-index:40;
+    text-shadow:0 0 12px var(--accent);font-weight:700;
+  }
+  /* Glass menu */
+  .menu{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;
+    background:linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55));
+    backdrop-filter: blur(6px);
+  }
+  .card{
+    width:min(760px,94%);max-width:920px;border-radius:18px;padding:28px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid var(--glass-border); box-shadow:0 10px 40px rgba(0,0,0,0.7);
+    display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:center;
+  }
+  .left h1{margin:0;font-size:32px;letter-spacing:0.6px;}
+  .left p{opacity:0.85;margin-top:8px}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+  .btn{
+    padding:12px 20px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-border);
+    cursor:pointer;color:#fff;font-weight:600;backdrop-filter: blur(6px);text-shadow:0 0 6px var(--accent);
+  }
+  .btn:hover{transform:translateY(-3px);transition:all .18s}
+  .right{display:flex;flex-direction:column;gap:14px;align-items:center}
+  .small{
+    font-size:13px;color:#ddd;opacity:0.9;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+    width:100%;text-align:left;
+  }
+  .label{font-size:12px;opacity:0.9;margin-bottom:6px}
+  /* HUD bottom */
+  #hud{
+    position:fixed;left:16px;bottom:16px;z-index:45;display:flex;gap:12px;align-items:center;
+  }
+  .glassIcon{padding:10px 14px;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border);cursor:pointer}
+  .levelBox{padding:10px 14px;border-radius:12px;background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.03)}
+  /* Game over overlay */
+  .overlay{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:60;
+    background:linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6));
+  }
+  .overlay.show{display:flex}
+  .gameoverCard{
+    width:min(520px,94%);padding:28px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid var(--glass-border);text-align:center;
+  }
+  .muted{opacity:0.7;font-size:14px}
+  /* responsive adjustments */
+  @media (max-width:720px){
+    .card{grid-template-columns:1fr;gap:14px}
+    .right{order:3;width:100%}
+    .left{order:1}
+  }
 </style>
 </head>
 <body>
 
-<canvas id="gameCanvas"></canvas>
-
 <div id="score">0</div>
 
-<button id="startBtn" class="glassBtn">Iniciar</button>
+<!-- Menu Premium -->
+<div id="menu" class="menu" aria-hidden="false">
+  <div class="card">
+    <div class="left">
+      <h1> Aerial Flap — Black Moon </h1>
+      <p>Juego minimalista inspirado en Flappy Bird, con telas en vez de pilares y una bailarina como protagonista. Modo noche con luna animada, niveles y dificultad progresiva.</p>
 
-<audio id="music" src="music.mp3" loop></audio>
+      <div class="controls">
+        <button id="startBtn" class="btn">Iniciar partida</button>
+        <button id="howBtn" class="btn">Cómo jugar</button>
+        <button id="creditsBtn" class="btn">Créditos</button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="label">Ajustes</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="small">Sonido: <select id="soundSel" style="float:right;background:transparent;color:#fff;border:0;outline:none">
+            <option value="on">ON</option><option value="off">OFF</option>
+          </select></div>
+          <div class="small">Música por nivel: <input id="musicToggle" type="checkbox" checked style="float:right"/></div>
+          <div class="small">Dificultad inicial:
+            <select id="diffSel" style="float:right;background:transparent;color:#fff;border:0;outline:none">
+              <option value="0">Fácil</option><option value="1">Normal</option><option value="2">Difícil</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div style="width:200px;height:200px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));">
+        <!-- Placeholder preview (canvas will take full screen) -->
+        <div style="text-align:center">
+          <div style="font-size:14px;opacity:0.9">Preview</div>
+          <div style="font-size:22px;margin-top:8px;color:var(--accent)">Modo Noche</div>
+        </div>
+      </div>
+
+      <div style="width:100%;display:flex;flex-direction:column;gap:8px;margin-top:6px">
+        <div class="small">Niveles: Avanza cada 5 puntos. La velocidad aumenta y el gap se reduce.</div>
+        <div class="small">Personaliza: cambia <code>bailarina.png</code> y <code>tela.png</code> en la carpeta del juego.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="glassIcon muted" id="muteBtn" title="Toggle sonido">🔊</div>
+  <div class="levelBox" id="levelBox">Nivel 1</div>
+</div>
+
+<!-- Game Over overlay -->
+<div id="overlay" class="overlay" role="dialog" aria-hidden="true">
+  <div class="gameoverCard">
+    <h2 id="goTitle">Game Over</h2>
+    <p id="goScore" style="font-size:18px;margin:8px 0">Puntos: 0</p>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:14px">
+      <button id="retryBtn" class="btn">Reintentar</button>
+      <button id="menuBtn" class="btn">Volver al menú</button>
+    </div>
+    <p class="muted" style="margin-top:12px">Gracias por jugar — Grupo Black Moon</p>
+  </div>
+</div>
+
+<!-- Canvas -->
+<canvas id="gameCanvas"></canvas>
+
+<!-- Audios (cambia por tus archivos si quieres) -->
+<audio id="music_level_1" src="music_level1.mp3" loop></audio>
+<audio id="music_level_2" src="music_level2.mp3" loop></audio>
+<audio id="music_level_3" src="music_level3.mp3" loop></audio>
+<audio id="sfx_point" src="point.wav"></audio>
+<audio id="sfx_hit" src="hit.wav"></audio>
 
 <script>
-/* ---------- CANVAS RESPONSIVE ---------- */
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+/* -------------------- Setup -------------------- */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let DPR = window.devicePixelRatio || 1;
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.9;
+function resize(){
+  DPR = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(window.innerWidth * DPR);
+  canvas.height = Math.floor(window.innerHeight * 0.94 * DPR);
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = Math.floor(window.innerHeight * 0.94) + 'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
 }
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+resize();
+window.addEventListener('resize', resize);
 
-/* ---------- IMÁGENES EDITABLES ---------- */
-let birdImg = new Image();
-birdImg.src = "bailarina.png"; // Cambia aquí tu personaje
+/* -------------------- Assets (editable) -------------------- */
+const birdImg = new Image(); birdImg.src = 'bailarina.png'; // reemplaza
+const pillarImg = new Image(); pillarImg.src = 'tela.png'; // reemplaza
 
-let pillarImg = new Image();
-pillarImg.src = "tela.png"; // Cambia aquí tus pilares/telas
-
-/* ---------- VARIABLES DE JUEGO ---------- */
-let birdX = 80;
-let birdY = 200;
-let gravity = 0.4;
-let velocity = 0;
-let pillars = [];
+/* -------------------- Game state -------------------- */
 let playing = false;
 let score = 0;
+let level = 1;
+let baseSpeed = 2.2;   // base horizontal speed
+let speedMultiplier = 1; // increases with level
+let pillarGap = 160;   // px, will shrink per level
+let pillars = [];
+let spawnTimer = 0;
+let spawnInterval = 1200; // ms
+let bird = { x: 80, y: 200, w: 48, h: 48, vy: 0 };
+let gravity = 0.45;
+let lastTime = 0;
+let musicOn = true;
+let soundOn = true;
+let difficultyOffset = 0; // 0 easy, 1 normal, 2 hard
 
-/* ---------- CONTROLES ---------- */
-document.getElementById("startBtn").onclick = startGame;
-canvas.addEventListener("mousedown", flap);
-canvas.addEventListener("touchstart", flap);
+/* -------------------- Moon & Stars (night effect) -------------------- */
+let moon = { t: 0 }; // parameter to animate across screen
+const stars = Array.from({length: 80}, () => ({ x: Math.random(), y: Math.random()*0.45, r: Math.random()*1.2 }));
 
-/* ---------- FUNCIONES ---------- */
+/* -------------------- DOM refs -------------------- */
+const scoreEl = document.getElementById('score');
+const startBtn = document.getElementById('startBtn');
+const menu = document.getElementById('menu');
+const overlay = document.getElementById('overlay');
+const goScore = document.getElementById('goScore');
+const levelBox = document.getElementById('levelBox');
+const muteBtn = document.getElementById('muteBtn');
+const musicToggle = document.getElementById('musicToggle');
+const soundSel = document.getElementById('soundSel');
+const diffSel = document.getElementById('diffSel');
 
-function startGame() {
-    playing = true;
-    score = 0;
-    birdY = canvas.height / 2;
-    velocity = 0;
-    pillars = [];
-    document.getElementById("score").textContent = score;
-    document.getElementById("startBtn").style.display = "none";
-    document.getElementById("music").play();
-    loop();
+/* Audio elements (per level) */
+const musicTracks = [
+  document.getElementById('music_level_1'),
+  document.getElementById('music_level_2'),
+  document.getElementById('music_level_3')
+];
+const sfxPoint = document.getElementById('sfx_point');
+const sfxHit = document.getElementById('sfx_hit');
+
+/* -------------------- Controls -------------------- */
+startBtn.addEventListener('click', ()=>startGame());
+document.getElementById('howBtn').addEventListener('click', ()=>alert('Toca o haz click para volar. Evita las telas. Suma puntos al pasar entre telas.'))
+document.getElementById('creditsBtn').addEventListener('click', ()=>alert('Black Moon — Desarrollo interno'));
+document.getElementById('retryBtn').addEventListener('click', ()=>{ overlay.classList.remove('show'); startGame(); });
+document.getElementById('menuBtn').addEventListener('click', ()=>{ overlay.classList.remove('show'); menu.style.display='flex'; menu.setAttribute('aria-hidden','false'); });
+
+muteBtn.addEventListener('click', ()=>{ soundOn = !soundOn; muteBtn.textContent = soundOn ? '🔊' : '🔇'; });
+document.addEventListener('keydown', e => { if(e.code==='Space') flap(); if(e.code==='KeyM') muteBtn.click(); });
+canvas.addEventListener('mousedown', flap);
+canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); flap(); }, {passive:false});
+
+/* settings */
+musicToggle.addEventListener('change', ()=>musicOn = musicToggle.checked);
+soundSel.addEventListener('change', ()=>{ soundOn = soundSel.value === 'on'; muteBtn.textContent = soundOn ? '🔊' : '🔇'; });
+diffSel.addEventListener('change', ()=>{ difficultyOffset = parseInt(diffSel.value); });
+
+/* -------------------- Game functions -------------------- */
+
+function resetGame(){
+  score = 0; level = 1;
+  speedMultiplier = 1;
+  pillarGap = 160 - (difficultyOffset*10);
+  spawnInterval = 1200 - (difficultyOffset*120);
+  pillars = [];
+  bird.x = Math.max(60, window.innerWidth * 0.12);
+  bird.y = canvas.height / DPR / 2;
+  bird.vy = 0;
+  spawnTimer = 0;
+  updateHUD();
+  stopAllMusic();
 }
 
-function flap() {
-    if (!playing) return;
-    velocity = -7;
+function startGame(){
+  resetGame();
+  playing = true;
+  menu.style.display='none'; menu.setAttribute('aria-hidden','true');
+  overlay.classList.remove('show');
+  lastTime = performance.now();
+  playMusicForLevel(level);
+  requestAnimationFrame(loop);
 }
 
-function spawnPillar() {
-    let gap = canvas.height * 0.28;
-    let topHeight = Math.random() * (canvas.height * 0.45) + 50;
-
-    pillars.push({
-        x: canvas.width,
-        top: topHeight,
-        bottom: topHeight + gap,
-        width: canvas.width * 0.18
-    });
+function flap(){
+  if (!playing) return;
+  bird.vy = -9;
 }
 
-function drawBird() {
-    ctx.drawImage(birdImg, birdX, birdY, canvas.width * 0.12, canvas.width * 0.12);
+function spawnPillar(){
+  const cw = canvas.width / DPR;
+  const width = Math.max(54, cw * 0.16);
+  // adjust top range with difficulty and level
+  const topMin = 40;
+  const topMax = (canvas.height/DPR) - pillarGap - 40;
+  const top = Math.max(topMin, Math.random() * (topMax - topMin) + topMin);
+  pillars.push({ x: cw + 10, top: top, bottom: top + pillarGap, w: width, passed:false });
 }
 
-function drawPillars() {
-    pillars.forEach(p => {
-        p.x -= canvas.width * 0.004;
-
-        ctx.drawImage(pillarImg, p.x, 0, p.width, p.top);
-        ctx.drawImage(pillarImg, p.x, p.bottom, p.width, canvas.height - p.bottom);
-    });
+function updateDifficulty(){
+  // level increases every 5 points
+  const newLevel = Math.floor(score / 5) + 1;
+  if (newLevel !== level){
+    level = newLevel;
+    // make game harder
+    speedMultiplier = 1 + (level - 1) * 0.08 + difficultyOffset*0.06;
+    pillarGap = Math.max(100, 160 - (level - 1) * 6 - (difficultyOffset*8));
+    spawnInterval = Math.max(780, 1200 - (level - 1) * 40 - (difficultyOffset*40));
+    updateHUD();
+    playMusicForLevel(level);
+  }
 }
 
-function checkCollision() {
-    for (let p of pillars) {
-        let birdSize = canvas.width * 0.12;
+function playMusicForLevel(lv){
+  if (!musicOn) return;
+  stopAllMusic();
+  const idx = Math.min(musicTracks.length - 1, lv - 1);
+  const track = musicTracks[idx];
+  if (track) { track.currentTime = 0; track.volume = 0.6; track.play().catch(()=>{}); }
+}
 
-        if (
-            birdX + birdSize > p.x &&
-            birdX < p.x + p.width &&
-            (birdY < p.top || birdY + birdSize > p.bottom)
-        ) {
-            gameOver();
-        }
+function stopAllMusic(){ musicTracks.forEach(t=>{ try{t.pause(); t.currentTime=0;}catch(e){} }); }
+
+function updateHUD(){
+  scoreEl.textContent = score;
+  levelBox.textContent = 'Nivel ' + level;
+}
+
+/* -------------------- Collision & Score -------------------- */
+function checkCollisions(){
+  const cw = canvas.width / DPR;
+  const ch = canvas.height / DPR;
+  const birdW = bird.w * (Math.min(window.innerWidth,600)/600); // scale a bit with width
+  for (let p of pillars){
+    if (!p.passed && (p.x + p.w) < bird.x){
+      p.passed = true;
+      score += 1;
+      if (soundOn) { try{ sfxPoint.currentTime = 0; sfxPoint.play(); }catch(e){} }
+      updateHUD();
+      updateDifficulty();
     }
-
-    if (birdY <= 0 || birdY >= canvas.height - 20) {
-        gameOver();
+    // collision detection (AABB)
+    if ( bird.x + birdW > p.x && bird.x < p.x + p.w ){
+      if ( bird.y < p.top || (bird.y + bird.h) > p.bottom ){
+        return true;
+      }
     }
+  }
+  // floor/ceiling
+  if (bird.y <= 0 || (bird.y + bird.h) >= ch) return true;
+  return false;
 }
 
-function updateScore() {
-    pillars.forEach(p => {
-        if (p.x + p.width === birdX) {
-            score++;
-            document.getElementById("score").textContent = score;
-        }
-    });
-}
+/* -------------------- Loop & Draw -------------------- */
+function loop(now){
+  if (!playing) return;
+  const dt = now - lastTime;
+  lastTime = now;
 
-function gameOver() {
+  // spawn timer
+  spawnTimer += dt;
+  if (spawnTimer >= spawnInterval){
+    spawnTimer = 0;
+    spawnPillar();
+  }
+
+  // physics
+  bird.vy += gravity;
+  bird.y += bird.vy * (dt/16); // scale by frame delta for stability
+
+  // move pillars
+  const move = (baseSpeed * speedMultiplier) * (dt/16);
+  for (let p of pillars){ p.x -= move; }
+  // remove off-screen
+  pillars = pillars.filter(p=> p.x + p.w > -20);
+
+  // check collisions
+  if (checkCollisions()){
+    // game over
     playing = false;
-    document.getElementById("startBtn").textContent = "Reiniciar";
-    document.getElementById("startBtn").style.display = "block";
+    stopAllMusic();
+    if (soundOn) try{ sfxHit.play(); }catch(e){}
+    goScore.textContent = 'Puntos: ' + score;
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+    document.getElementById('goTitle').textContent = 'Game Over';
+    document.getElementById('startBtn').textContent = 'Iniciar partida';
+    document.getElementById('menu').style.display = 'none';
+    return;
+  }
+
+  // draw scene
+  drawScene(now);
+
+  requestAnimationFrame(loop);
 }
 
-/* ---------- LOOP PRINCIPAL ---------- */
-function loop() {
-    if (!playing) return;
+/* -------------------- Draw helpers -------------------- */
+function drawScene(now){
+  const cw = canvas.width / DPR;
+  const ch = canvas.height / DPR;
+  // clear
+  ctx.clearRect(0,0,cw,ch);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // sky gradient (slightly dynamic)
+  const g = ctx.createLinearGradient(0,0,0,ch);
+  g.addColorStop(0, '#000014');
+  g.addColorStop(0.5, '#0b0026');
+  g.addColorStop(1, '#03000a');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,cw,ch);
 
-    velocity += gravity;
-    birdY += velocity;
+  // stars
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  for (let s of stars){
+    ctx.globalAlpha = 0.6 * (0.6 + Math.sin((now/1200)+s.x*10)*0.4);
+    ctx.beginPath();
+    ctx.arc(s.x * cw, s.y * ch, s.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 
-    drawBird();
+  // moon (move across top with sine bob)
+  moon.t += 0.00045 * (Math.max(0.6, speedMultiplier)); // speed slightly tied to difficulty
+  const mt = moon.t;
+  const moonX = (0.08 + 0.84 * ((Math.sin(mt*2*Math.PI)*0.5)+0.5)) * cw;
+  const moonY = 60 + Math.sin(mt*2*Math.PI) * 22;
+  // glow
+  const glow = ctx.createRadialGradient(moonX, moonY, 6, moonX, moonY, 72);
+  glow.addColorStop(0, 'rgba(255,255,240,0.95)');
+  glow.addColorStop(1, 'rgba(160,32,240,0.02)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(moonX, moonY, 72, 0, Math.PI*2); ctx.fill();
+  // moon body
+  ctx.fillStyle = '#fff8e8';
+  ctx.beginPath(); ctx.arc(moonX, moonY, 22, 0, Math.PI*2); ctx.fill();
 
-    if (pillars.length === 0 || pillars[pillars.length - 1].x < canvas.width * 0.6) {
-        spawnPillar();
+  // draw pillars (telas)
+  for (let p of pillars){
+    // top
+    if (pillarImg.complete){
+      ctx.drawImage(pillarImg, p.x, 0, p.w, p.top);
+      // bottom
+      ctx.drawImage(pillarImg, p.x, p.bottom, p.w, ch - p.bottom);
+    } else {
+      ctx.fillStyle = '#3d0a5a';
+      ctx.fillRect(p.x, 0, p.w, p.top);
+      ctx.fillRect(p.x, p.bottom, p.w, ch - p.bottom);
     }
+    // subtle border
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.strokeRect(p.x, 0, p.w, p.top);
+    ctx.strokeRect(p.x, p.bottom, p.w, ch - p.bottom);
+  }
 
-    drawPillars();
-    checkCollision();
-    updateScore();
+  // draw bird (bailarina)
+  const birdW = Math.min(80, canvas.width / DPR * 0.14);
+  const birdH = birdW;
+  if (birdImg.complete){
+    ctx.drawImage(birdImg, bird.x, bird.y, birdW, birdH);
+  } else {
+    ctx.fillStyle = '#ff66ff';
+    ctx.fillRect(bird.x, bird.y, birdW, birdH);
+  }
 
-    requestAnimationFrame(loop);
+  // foreground tint / vignette
+  const v = ctx.createLinearGradient(0,ch*0.6,0,ch);
+  v.addColorStop(0,'rgba(0,0,0,0)');
+  v.addColorStop(1,'rgba(0,0,0,0.45)');
+  ctx.fillStyle = v; ctx.fillRect(0, ch*0.6, cw, ch*0.4);
+
+  // update HUD text positions (score & level already DOM elements)
 }
+
+/* -------------------- Utilities -------------------- */
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+/* -------------------- Init UI -------------------- */
+updateHUD();
+menu.style.display = 'flex';
+
+/* Prevent scrolling on touch */
+document.body.addEventListener('touchmove', (e)=>{ if (playing) e.preventDefault(); }, {passive:false});
 
 </script>
-
 </body>
 </html>
+
 
