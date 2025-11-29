@@ -1,125 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aerial Flap — Black Moon</title>
 
 <style>
   :root{
-    --accent: #a020f0;
-    --glass-bg: rgba(255,255,255,0.06);
-    --glass-border: rgba(255,255,255,0.12);
+    --accent:#a020f0;
+    --glass:rgba(255,255,255,0.06);
+    --border:rgba(255,255,255,0.12);
   }
   html,body{
-    height:100%;
     margin:0;
     background:#000;
     color:#fff;
-    font-family:Arial, sans-serif;
     overflow:hidden;
+    font-family:Arial;
   }
   canvas{
     display:block;
     margin:0 auto;
     touch-action:none;
   }
+
+  /* HUD */
   #score{
-    position:fixed;
-    left:50%;
+    position:fixed;top:14px;left:50%;
     transform:translateX(-50%);
-    top:14px;
-    font-size:32px;
-    z-index:60;
-    text-shadow:0 0 12px var(--accent);
-    font-weight:700;
-  }
-  #level{
-    position:fixed;
-    right:14px;
-    top:14px;
-    background:var(--glass-bg);
-    border:1px solid var(--glass-border);
-    padding:8px 12px;
-    border-radius:12px;
-    z-index:60;
+    font-size:32px;font-weight:700;
+    text-shadow:0 0 10px var(--accent);
+    z-index:50;
   }
 
-  /* Menú Glass */
-  .menu{
+  #level{
+    position:fixed;top:14px;right:14px;
+    background:var(--glass);
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:12px;
+    z-index:50;
+  }
+
+  /* Neblina */
+  #fog{
     position:fixed;
     inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:80;
-    background:rgba(0,0,0,0.5);
-    backdrop-filter:blur(6px);
-  }
-  .card{
-    width:min(820px,94%);
-    padding:28px;
-    border-radius:16px;
-    background:rgba(255,255,255,0.03);
-    border:1px solid var(--glass-border);
-    box-shadow:0 12px 40px rgba(0,0,0,0.6);
-    display:flex;
-    gap:22px;
-    align-items:center;
-  }
-  .left{flex:1}
-  .btn{
-    padding:12px 18px;
-    border-radius:12px;
-    background:var(--glass-bg);
-    border:1px solid var(--glass-border);
-    cursor:pointer;
-    color:#fff;
-    font-weight:700;
-  }
-  .btn:hover{transform:translateY(-3px)}
-  @media(max-width:640px){
-    .card{flex-direction:column;align-items:stretch}
+    pointer-events:none;
+    background:url("neblina.png");
+    background-size:cover;
+    opacity:0.23;
+    mix-blend-mode:screen;
+    animation:fogMove 22s linear infinite;
+    z-index:40;
   }
 
-  /* Overlay Game Over */
-  .overlay{
-    position:fixed; inset:0;
-    display:none;
-    align-items:center; justify-content:center;
-    z-index:90;
-    background:rgba(0,0,0,0.6);
+  @keyframes fogMove{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-600px);}
   }
-  .overlay.show{display:flex}
-  .goCard{
-    padding:22px;
-    border-radius:12px;
-    background:rgba(255,255,255,0.03);
-    border:1px solid var(--glass-border);
+
+  /* Menú */
+  .menu{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,0.7);
+    backdrop-filter:blur(8px);
+    z-index:90;
+  }
+  .card{
+    padding:30px;
+    width:min(500px,92%);
+    border-radius:16px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--border);
     text-align:center;
   }
+  .btn{
+    padding:14px 22px;
+    margin-top:16px;
+    border-radius:14px;
+    background:var(--glass);
+    color:#fff;cursor:pointer;
+    border:1px solid var(--border);
+    font-size:18px;
+  }
+
+  .btn:hover{transform:scale(1.05);}
+
+  /* Game Over */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.65);
+    display:none;align-items:center;justify-content:center;
+    z-index:90;
+  }
+  .overlay.show{display:flex;}
 
 </style>
 </head>
 <body>
 
+<!-- HUD -->
 <div id="score">0</div>
 <div id="level">Nivel 1</div>
+<div id="fog"></div>
 
 <!-- MENÚ -->
 <div id="menu" class="menu">
   <div class="card">
-    <div class="left">
-      <h2 style="margin:0;font-size:28px">Aerial Flap</h2>
-      <p>Versión Black Moon — Modo noche, luna animada, niveles, música, responsive.</p>
-      <button class="btn" id="startBtn">Iniciar</button>
-    </div>
+    <h2>Aerial Flap</h2>
+    <p>Modo Noche • Neblina • Música • Partículas</p>
+
+    <button class="btn" id="startBtn">Iniciar</button>
+    <br>
+    <label style="opacity:0.8;font-size:14px;">
+      <input type="checkbox" id="menuMusicToggle" checked>
+      Música del Menú
+    </label>
   </div>
 </div>
 
-<!-- OVERLAY GAME OVER -->
+<!-- GAME OVER -->
 <div id="overlay" class="overlay">
-  <div class="goCard">
+  <div class="card">
     <h3>Game Over</h3>
     <p id="goScore">Puntos: 0</p>
     <button class="btn" id="retryBtn">Reintentar</button>
@@ -130,234 +134,238 @@
 <canvas id="gameCanvas"></canvas>
 
 <!-- AUDIO -->
+<audio id="menuMusic" src="menu.mp3" loop></audio>
 <audio id="music1" src="music_level1.mp3" loop></audio>
 
 <script>
-/* ============== CANVAS RESPONSIVE ============== */
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-let DPR = window.devicePixelRatio || 1;
+/* ====== CANVAS ====== */
+const canvas=document.getElementById("gameCanvas");
+const ctx=canvas.getContext("2d");
+let DPR=window.devicePixelRatio||1;
 
 function resize(){
-  DPR = window.devicePixelRatio || 1;
-  const w = window.innerWidth;
-  const h = Math.floor(window.innerHeight * 0.92);
-  canvas.style.width = w+"px";
-  canvas.style.height = h+"px";
-  canvas.width = w * DPR;
-  canvas.height = h * DPR;
+  DPR=window.devicePixelRatio||1;
+  const w=innerWidth, h=innerHeight;
+  canvas.style.width=w+"px";
+  canvas.style.height=h+"px";
+  canvas.width=w*DPR;
+  canvas.height=h*DPR;
   ctx.setTransform(DPR,0,0,DPR,0,0);
 }
 resize();
-window.addEventListener("resize", resize);
+addEventListener("resize",resize);
 
+/* ====== IMÁGENES ====== */
+const birdImg=new Image();
+birdImg.src="bailarina.png";
 
-/* ============== IMÁGENES (NO SE CAMBIARON RUTAS) ============== */
-const birdImg = new Image();
-birdImg.src = "tela transpartente.png";
+const pillarImg=new Image();
+pillarImg.src="tela.png.png";
 
-const pillarImg = new Image();
-pillarImg.src = "tela 2.png";
+const moonImg=new Image();
+moonImg.src="luna.png";
 
-const moonImg = new Image();
-moonImg.src = "luna.png";
+/* ====== VARIABLES ====== */
+let playing=false;
+let score=0,level=1;
+let gravity=0.25;
+let speed=2, speedScale=1;
+let pillars=[];
+let spawnTimer=0,spawnGap=1400;
 
+let bird={x:0,y:0,w:70,h:70,vy:0};
+const particles=[];
 
-/* ============== VARIABLES ============== */
-let bird = { x:0, y:0, w:70, h:70, vy:0 };
-let gravity = 0.25;     // ✔ Caída más lenta
-let playing = false;
-let score = 0;
-let level = 1;
+/* ====== ELEMENTOS ====== */
+const menu=document.getElementById("menu");
+const overlay=document.getElementById("overlay");
+const startBtn=document.getElementById("startBtn");
+const retryBtn=document.getElementById("retryBtn");
+const scoreEl=document.getElementById("score");
+const levelEl=document.getElementById("level");
+const goScore=document.getElementById("goScore");
+const menuMusic=document.getElementById("menuMusic");
+const menuMusicToggle=document.getElementById("menuMusicToggle");
+const music1=document.getElementById("music1");
 
-let pillars = [];
-let spawnGap = 1400;
-let spawnTimer = 0;
-
-let speed = 2;
-let speedScale = 1;
-
-let last = 0;
-
-
-/* ============== UI ELEMENTOS ============== */
-const scoreEl = document.getElementById("score");
-const levelEl = document.getElementById("level");
-const startBtn = document.getElementById("startBtn");
-const overlay = document.getElementById("overlay");
-const goScore = document.getElementById("goScore");
-const retryBtn = document.getElementById("retryBtn");
-const music1 = document.getElementById("music1");
-
-
-/* ============== CONTROLES ============== */
-startBtn.onclick = startGame;
-retryBtn.onclick = ()=>{ overlay.classList.remove("show"); startGame(); };
+/* ====== CONTROLES ====== */
+startBtn.onclick=startGame;
+retryBtn.onclick=()=>{overlay.classList.remove("show");startGame();};
 canvas.addEventListener("mousedown", flap);
-canvas.addEventListener("touchstart", flap,{passive:false});
-document.addEventListener("keydown",(e)=>{ if(e.code==="Space") flap(); });
+canvas.addEventListener("touchstart",(e)=>{e.preventDefault();flap();},{passive:false});
+document.addEventListener("keydown",(e)=>{if(e.code==="Space") flap();});
 
+menuMusicToggle.onchange=()=>{
+  if(menuMusicToggle.checked) menuMusic.play();
+  else menuMusic.pause();
+};
 
-/* ============== INICIO DEL JUEGO ============== */
+/* ====== INICIO ====== */
+menuMusic.volume=0.6;
+menuMusic.play().catch(()=>{});
+
+/* ====== FUNCIONES ====== */
 function startGame(){
-  score = 0;
-  level = 1;
-  speedScale = 1;
-  pillars = [];
-  spawnTimer = 0;
-  playing = true;
-
+  score=0;level=1;speedScale=1;
+  pillars=[];spawnTimer=0;
+  playing=true;
   overlay.classList.remove("show");
-  document.getElementById("menu").style.display="none";
+  menu.style.display="none";
 
-  const w = canvas.width / DPR;
-  const h = canvas.height / DPR;
+  const w=canvas.width/DPR, h=canvas.height/DPR;
+  bird.x=w*0.15;
+  bird.y=h*0.5;
+  bird.w=w*0.12;
+  bird.h=bird.w;
+  bird.vy=0;
 
-  bird.x = w * 0.15;
-  bird.y = h * 0.5;
-  bird.w = w * 0.12;
-  bird.h = bird.w;
-  bird.vy = 0;
-
-  music1.currentTime = 0;
+  music1.currentTime=0;
   music1.play().catch(()=>{});
+  menuMusic.pause();
 
-  last = performance.now();
+  last=performance.now();
   requestAnimationFrame(loop);
 }
 
-
-/* ============== FLOTAR / SALTO ============== */
 function flap(){
   if(!playing) return;
-  bird.vy = -8;
+  bird.vy=-8;
+
+  // ⭐ partículas moradas
+  for(let i=0;i<14;i++){
+    particles.push({
+      x:bird.x+bird.w/2,
+      y:bird.y+bird.h/2,
+      vx:(Math.random()*2-1),
+      vy:(Math.random()*2-1.5),
+      size:4+Math.random()*4,
+      alpha:1
+    });
+  }
 }
 
-
-/* ============== GENERAR PILAR ============== */
 function spawnPillar(){
-  const h = canvas.height / DPR;
-
-  let gap = h * 0.45;   // ✔ PILARES MÁS SEPARADOS
-  let topH = Math.random() * (h * 0.40) + 40;
+  const h=canvas.height/DPR;
+  let gap=h*0.45;  // separación mayor
+  let topH=Math.random()*(h*0.40)+40;
 
   pillars.push({
-    x: (canvas.width / DPR) + 40,
-    top: topH,
-    bottom: topH + gap,
-    w: 120
+    x:(canvas.width/DPR)+40,
+    top:topH,
+    bottom:topH+gap,
+    w:120,
+    passed:false
   });
 }
 
+function updateParticles(dt){
+  for(let p of particles){
+    p.x+=p.vx*(dt/16);
+    p.y+=p.vy*(dt/16);
+    p.vy+=0.05;
+    p.alpha-=0.02;
+  }
+  particles.splice(0,particles.length, ...particles.filter(p=>p.alpha>0));
+}
 
-/* ============== BUCLE PRINCIPAL ============== */
+/* ====== LOOP ====== */
+let last=0;
 function loop(t){
   if(!playing) return;
+  let dt=t-last; last=t;
 
-  let dt = t - last;
-  last = t;
+  let w=canvas.width/DPR, h=canvas.height/DPR;
 
-  let w = canvas.width / DPR;
-  let h = canvas.height / DPR;
+  bird.vy+=gravity*(dt/16);
+  bird.y+=bird.vy*(dt/16);
 
-  /* MOVIMIENTO */
-  bird.vy += gravity * (dt/16);
-  bird.y += bird.vy * (dt/16);
+  let move=speed*speedScale*(dt/16);
 
-  let move = speed * speedScale * (dt/16);
-
-  /* SPAWN DE PILARES */
-  spawnTimer += dt;
-  if(spawnTimer >= spawnGap){
-    spawnTimer = 0;
+  spawnTimer+=dt;
+  if(spawnTimer>=spawnGap){
+    spawnTimer=0;
     spawnPillar();
   }
 
-  /* MOVER PILARES */
-  for(let p of pillars){
-    p.x -= move;
-  }
-  pillars = pillars.filter(p => p.x + p.w > -30);
+  for(let p of pillars) p.x-=move;
+  pillars=pillars.filter(p=>p.x+p.w>-40);
 
-  /* COLISIONES */
   for(let p of pillars){
-    if(!p.passed && (p.x + p.w) < bird.x){
-      p.passed = true;
+    if(!p.passed && p.x+p.w<bird.x){
+      p.passed=true;
       score++;
       updateHUD();
       updateLevel();
     }
-
     if(
-      bird.x + bird.w > p.x &&
-      bird.x < p.x + p.w &&
-      (bird.y < p.top || bird.y + bird.h > p.bottom)
+      bird.x+bird.w>p.x &&
+      bird.x<p.x+p.w &&
+      (bird.y<p.top || bird.y+bird.h>p.bottom)
     ){
-      gameOver();
-      return;
+      return gameOver();
     }
   }
+  if(bird.y<0||bird.y+bird.h>h) return gameOver();
 
-  if(bird.y < 0 || bird.y + bird.h > h){
-    gameOver();
-    return;
-  }
-
+  updateParticles(dt);
   draw(w,h);
   requestAnimationFrame(loop);
 }
 
-
-/* ============== HUD ============== */
 function updateHUD(){
-  scoreEl.textContent = score;
-  levelEl.textContent = "Nivel "+level;
+  scoreEl.textContent=score;
+  levelEl.textContent="Nivel "+level;
 }
 
 function updateLevel(){
-  let newLevel = Math.floor(score/5)+1;
-  if(newLevel !== level){
-    level = newLevel;
-    speedScale = 1 + (level-1)*0.10;
-    spawnGap = Math.max(900, 1400 - (level-1)*40);
+  let newLvl=Math.floor(score/5)+1;
+  if(newLvl!==level){
+    level=newLvl;
+    speedScale=1+(level-1)*0.10;
+    spawnGap=Math.max(900,1400-(level-1)*40);
     updateHUD();
   }
 }
 
-
-/* ============== DRAW ============== */
 function draw(w,h){
   ctx.clearRect(0,0,w,h);
 
-  /* FONDO */
-  let g = ctx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0,"#020014");
-  g.addColorStop(1,"#000");
-  ctx.fillStyle = g;
+  let bg=ctx.createLinearGradient(0,0,0,h);
+  bg.addColorStop(0,"#020014");
+  bg.addColorStop(1,"#000");
+  ctx.fillStyle=bg;
   ctx.fillRect(0,0,w,h);
 
-  /* LUNA */
-  const lx = (Math.sin(performance.now()*0.0002)*0.4+0.5) * w*0.8;
-  const ly = 80;
-  ctx.drawImage(moonImg, lx, ly, 120,120);
+  // Luna
+  const lx=(Math.sin(performance.now()*0.0002)*0.4+0.5)*w*0.8;
+  ctx.drawImage(moonImg,lx,60,120,120);
 
-  /* PILARES */
+  // Pilares
   for(let p of pillars){
-    ctx.drawImage(pillarImg, p.x, 0, p.w, p.top);
-    ctx.drawImage(pillarImg, p.x, p.bottom, p.w, h - p.bottom);
+    ctx.drawImage(pillarImg,p.x,0,p.w,p.top);
+    ctx.drawImage(pillarImg,p.x,p.bottom,p.w,h-p.bottom);
   }
 
-  /* BAILARINA */
-  ctx.drawImage(birdImg, bird.x, bird.y, bird.w, bird.h);
+  // Partículas
+  for(let pt of particles){
+    ctx.globalAlpha=pt.alpha;
+    ctx.fillStyle="#b020ff";
+    ctx.beginPath();
+    ctx.arc(pt.x,pt.y,pt.size,0,Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // BAILARINA
+  ctx.drawImage(birdImg,bird.x,bird.y,bird.w,bird.h);
 }
 
-
-/* ============== GAME OVER ============== */
 function gameOver(){
-  playing = false;
+  playing=false;
   music1.pause();
+  menuMusic.play().catch(()=>{});
 
-  goScore.textContent = "Puntos: "+score;
+  goScore.textContent="Puntos: "+score;
   overlay.classList.add("show");
 }
 
