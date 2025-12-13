@@ -6,7 +6,6 @@
   <title>Ruleta Danza Aérea</title>
   <style>
     :root{
-      /* === ZONA TOTALMENTE PERSONALIZABLE POR EL PROGRAMADOR === */
       --bg-externo: radial-gradient(circle at top, #1a0026, #000);
       --bg-juego: linear-gradient(135deg, #12001a, #1f0033);
       --color-primario: #b85cff;
@@ -41,7 +40,6 @@
       justify-content:center;
     }
 
-    /* ====== ZONA DEL JUEGO ====== */
     .zona-juego{
       background: var(--bg-juego);
       padding:30px;
@@ -54,6 +52,19 @@
       width:320px;
       height:320px;
       margin:auto;
+    }
+
+    .flecha{
+      position:absolute;
+      top:-18px;
+      left:50%;
+      transform:translateX(-50%);
+      width:0;
+      height:0;
+      border-left:15px solid transparent;
+      border-right:15px solid transparent;
+      border-bottom:25px solid red;
+      z-index:10;
     }
 
     canvas{
@@ -89,7 +100,6 @@
       margin-bottom:10px;
     }
 
-    /* ====== IMAGEN PROMOCIONAL ====== */
     .promo{
       max-width:280px;
       text-align:center;
@@ -128,8 +138,9 @@
 
   <div class="zona-juego">
     <div class="ruleta-container">
+      <div class="flecha"></div>
       <canvas id="ruleta" width="320" height="320"></canvas>
-      <button class="btn-girar" onclick="girar()">GIRAR</button>
+      <button class="btn-girar" id="btnGirar">GIRAR</button>
     </div>
 
     <div class="resultado" id="resultado">
@@ -138,7 +149,6 @@
   </div>
 
   <div class="promo">
-    <!-- Imagen promocional editable -->
     <img src="promo.jpg" alt="Imagen promocional danza aérea">
     <p>Promoción / Evento / Escuela</p>
   </div>
@@ -152,96 +162,136 @@
   <a href="#">Contacto</a>
 </footer>
 
+<audio id="spinSound" src="spin.mp3" preload="auto"></audio>
+<audio id="stopSound" src="stop.mp3" preload="auto"></audio>
+
 <script>
-  /* ====== CONFIGURACIÓN TOTALMENTE EDITABLE ====== */
-  const espacios = [
-    { tipo:'imagen', texto:'Figura 1', img:'fig1.png' },
-    { tipo:'imagen', texto:'Figura 2', img:'fig2.png' },
-    { tipo:'imagen', texto:'Figura 3', img:'fig3.png' },
-    { tipo:'imagen', texto:'Figura 4', img:'fig4.png' },
-    { tipo:'imagen', texto:'Figura 5', img:'fig5.png' },
-    { tipo:'imagen', texto:'Figura 6', img:'fig6.png' },
-    { tipo:'imagen', texto:'Figura 7', img:'fig7.png' },
-    { tipo:'imagen', texto:'Figura 8', img:'fig8.png' },
-    { tipo:'imagen', texto:'Figura 9', img:'fig9.png' },
-    { tipo:'imagen', texto:'Figura 10', img:'fig10.png' },
-    { tipo:'imagen', texto:'Figura 11', img:'fig11.png' },
-    { tipo:'imagen', texto:'Figura 12', img:'fig12.png' },
-    { tipo:'imagen', texto:'Figura 13', img:'fig13.png' },
-    { tipo:'imagen', texto:'Figura 14', img:'fig14.png' },
-    { tipo:'imagen', texto:'Figura 15', img:'fig15.png' },
-    { tipo:'imagen', texto:'Figura 16', img:'fig16.png' },
-    { tipo:'especial', texto:'TE SALVASTE 🎉' },
-    { tipo:'especial', texto:'TE SALVASTE 🎉' },
-    { tipo:'especial', texto:'REPITE FIGURA 🔁' },
-    { tipo:'especial', texto:'REPITE FIGURA 🔁' }
-  ];
+/* ================= LÓGICA ================= */
+const canvas = document.getElementById('ruleta');
+const ctx = canvas.getContext('2d');
+const btnGirar = document.getElementById('btnGirar');
 
-  const canvas = document.getElementById('ruleta');
-  const ctx = canvas.getContext('2d');
-  const total = espacios.length;
-  const angulo = (2 * Math.PI) / total;
-  let rotacion = 0;
+let modo = 'normal'; // normal | castigo | entrenamiento
+let historial = [];
 
-  function dibujarRuleta(){
-    for(let i=0;i<total;i++){
-      ctx.beginPath();
-      ctx.moveTo(160,160);
-      ctx.arc(160,160,160, angulo*i, angulo*(i+1));
-      ctx.fillStyle = i%2===0 ? '#3a005c' : '#1b002b';
-      ctx.fill();
+const retos = {
+  castigo: '10 segundos colgado en invertido',
+  entrenamiento: 'Repite la figura 2 veces con control'
+};
 
-      ctx.save();
-      ctx.translate(160,160);
-      ctx.rotate(angulo*i + angulo/2);
-      ctx.textAlign='right';
-      ctx.fillStyle='#fff';
-      ctx.font='12px Arial';
-      ctx.fillText(espacios[i].texto, 150, 5);
-      ctx.restore();
+const espacios = [
+  { tipo:'imagen', texto:'Figura 1', img:'fig1.png' },
+  { tipo:'imagen', texto:'Figura 2', img:'fig2.png' },
+  { tipo:'imagen', texto:'Figura 3', img:'fig3.png' },
+  { tipo:'imagen', texto:'Figura 4', img:'fig4.png' },
+  { tipo:'especial', texto:'TE SALVASTE 🎉' },
+  { tipo:'imagen', texto:'Figura 5', img:'fig5.png' },
+  { tipo:'imagen', texto:'Figura 6', img:'fig6.png' },
+  { tipo:'imagen', texto:'Figura 7', img:'fig7.png' },
+  { tipo:'imagen', texto:'Figura 8', img:'fig8.png' },
+  { tipo:'especial', texto:'TE SALVASTE 🎉' },
+  { tipo:'imagen', texto:'Figura 9', img:'fig9.png' },
+  { tipo:'imagen', texto:'Figura 10', img:'fig10.png' },
+  { tipo:'imagen', texto:'Figura 11', img:'fig11.png' },
+  { tipo:'imagen', texto:'Figura 12', img:'fig12.png' },
+  { tipo:'especial', texto:'REPITE FIGURA 🔁' },
+  { tipo:'imagen', texto:'Figura 13', img:'fig13.png' },
+  { tipo:'imagen', texto:'Figura 14', img:'fig14.png' },
+  { tipo:'imagen', texto:'Figura 15', img:'fig15.png' },
+  { tipo:'imagen', texto:'Figura 16', img:'fig16.png' },
+  { tipo:'especial', texto:'REPITE FIGURA 🔁' }
+];
+
+const total = espacios.length;
+const angulo = (2 * Math.PI) / total;
+let rotacion = 0;
+
+function dibujarRuleta(){
+  ctx.clearRect(0,0,320,320);
+  for(let i=0;i<total;i++){
+    ctx.beginPath();
+    ctx.moveTo(160,160);
+    ctx.arc(160,160,160, angulo*i, angulo*(i+1));
+    ctx.fillStyle = i%2===0 ? '#3a005c' : '#1b002b';
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(160,160);
+    ctx.rotate(angulo*i + angulo/2);
+    ctx.textAlign='right';
+    ctx.fillStyle='#fff';
+    ctx.font='12px Arial';
+    ctx.fillText(espacios[i].texto, 150, 5);
+    ctx.restore();
+  }
+}
+
+dibujarRuleta();
+
+function girar(){
+  document.getElementById('spinSound').play();
+  const vueltas = Math.random()*5 + 5;
+  const destino = rotacion + vueltas * 2 * Math.PI;
+  const inicio = performance.now();
+  const duracion = 3000;
+
+  function animar(t){
+    const progreso = Math.min((t - inicio) / duracion, 1);
+    const ease = 1 - Math.pow(1 - progreso, 3);
+    rotacion = rotacion + (destino - rotacion) * ease;
+
+    ctx.save();
+    ctx.translate(160,160);
+    ctx.rotate(rotacion);
+    ctx.translate(-160,-160);
+    dibujarRuleta();
+    ctx.restore();
+
+    if(progreso < 1){
+      requestAnimationFrame(animar);
+    } else {
+      document.getElementById('stopSound').play();
+      mostrarResultado();
     }
   }
 
-  dibujarRuleta();
+  requestAnimationFrame(animar);
+}
 
-  function girar(){
-    const vueltas = Math.random()*5 + 5;
-    const destino = rotacion + vueltas * 2 * Math.PI;
-    const inicio = performance.now();
-    const duracion = 3000;
+function mostrarResultado(){
+  const index = Math.floor(((2*Math.PI - (rotacion % (2*Math.PI))) / (2*Math.PI)) * total) % total;
+  const res = espacios[index];
+  const cont = document.getElementById('resultado');
+  historial.push(res.texto);
 
-    function animar(t){
-      const progreso = Math.min((t - inicio) / duracion, 1);
-      const ease = 1 - Math.pow(1 - progreso, 3);
-      rotacion = rotacion + (destino - rotacion) * ease;
-
-      ctx.clearRect(0,0,320,320);
-      ctx.save();
-      ctx.translate(160,160);
-      ctx.rotate(rotacion);
-      ctx.translate(-160,-160);
-      dibujarRuleta();
-      ctx.restore();
-
-      if(progreso < 1){ requestAnimationFrame(animar); }
-      else mostrarResultado();
-    }
-
-    requestAnimationFrame(animar);
+  let extra = '';
+  if(modo !== 'normal'){
+    extra = `<p><strong>Reto:</strong> ${retos[modo]}</p>`;
   }
 
-  function mostrarResultado(){
-    const index = Math.floor(((2*Math.PI - (rotacion % (2*Math.PI))) / (2*Math.PI)) * total) % total;
-    const res = espacios[index];
-    const cont = document.getElementById('resultado');
-
-    if(res.tipo === 'imagen'){
-      cont.innerHTML = `<img src="${res.img}"><h3>${res.texto}</h3>`;
-    }else{
-      cont.innerHTML = `<h2>${res.texto}</h2>`;
-    }
+  if(res.tipo === 'imagen'){
+    cont.innerHTML = `<img src="${res.img}"><h3>${res.texto}</h3>${extra}`;
+  } else {
+    cont.innerHTML = `<h2>${res.texto}</h2>${extra}`;
   }
+}
+
+btnGirar.addEventListener('click', girar);
+
+// Neblina Black Moon
+const fog = document.createElement('div');
+fog.style.position='fixed';
+fog.style.top=0;
+fog.style.left=0;
+fog.style.width='100%';
+fog.style.height='100%';
+fog.style.pointerEvents='none';
+fog.style.background='radial-gradient(circle at 50% 50%, rgba(184,92,255,0.15), rgba(0,0,0,0.9))';
+document.body.appendChild(fog);
+
+window.verHistorial = ()=>console.table(historial);
 </script>
 
 </body>
 </html>
+
