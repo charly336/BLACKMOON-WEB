@@ -56,15 +56,40 @@
 
     .flecha{
       position:absolute;
-      top:-18px;
-      left:50%;
-      transform:translateX(-50%);
+      top:50%;
+      right:-28px;
+      transform:translateY(-50%);
       width:0;
       height:0;
-      border-left:15px solid transparent;
-      border-right:15px solid transparent;
-      border-bottom:25px solid red;
-      z-index:10;
+      border-top:18px solid transparent;
+      border-bottom:18px solid transparent;
+      border-left:32px solid red;
+      z-index:20;
+    }
+
+    .flecha::after{
+      content:'SELECCIÓN';
+      position:absolute;
+      right:-4px;
+      top:50%;
+      transform:translate(100%, -50%);
+      font-size:10px;
+      color:red;
+      font-weight:bold;
+      letter-spacing:1px;
+      white-space:nowrap;
+    }
+
+    .flecha::after{
+      content:'SELECCIÓN';
+      position:absolute;
+      top:-22px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:10px;
+      color:red;
+      font-weight:bold;
+      letter-spacing:1px;
     }
 
     canvas{
@@ -180,27 +205,30 @@ const retos = {
 };
 
 const espacios = [
-  { tipo:'imagen', texto:'Figura 1', img:'fig1.png' },
+  { tipo:'imagen', texto:'split', img:'da split.jpg' },
   { tipo:'imagen', texto:'Figura 2', img:'fig2.png' },
   { tipo:'imagen', texto:'Figura 3', img:'fig3.png' },
-  { tipo:'imagen', texto:'Figura 4', img:'fig4.png' },
+  { tipo:'imagen', texto:'5 subidas sin tocar piso', img:'fig4.png' },
   { tipo:'especial', texto:'TE SALVASTE 🎉' },
   { tipo:'imagen', texto:'Figura 5', img:'fig5.png' },
   { tipo:'imagen', texto:'Figura 6', img:'fig6.png' },
   { tipo:'imagen', texto:'Figura 7', img:'fig7.png' },
-  { tipo:'imagen', texto:'Figura 8', img:'fig8.png' },
-  { tipo:'especial', texto:'TE SALVASTE 🎉' },
+  { tipo:'imagen', texto:'5 abdominales x 1 subida 5 veces', img:'fig8.png' },
+  { tipo:'especial', texto:'REPITE FIGURA 🔁' },
   { tipo:'imagen', texto:'Figura 9', img:'fig9.png' },
   { tipo:'imagen', texto:'Figura 10', img:'fig10.png' },
   { tipo:'imagen', texto:'Figura 11', img:'fig11.png' },
-  { tipo:'imagen', texto:'Figura 12', img:'fig12.png' },
-  { tipo:'especial', texto:'REPITE FIGURA 🔁' },
+  { tipo:'imagen', texto:'5 subidas diferentes', img:'fig12.png' },
+  { tipo:'especial', texto:'TE SALVASTE 🎉' },
   { tipo:'imagen', texto:'Figura 13', img:'fig13.png' },
   { tipo:'imagen', texto:'Figura 14', img:'fig14.png' },
   { tipo:'imagen', texto:'Figura 15', img:'fig15.png' },
-  { tipo:'imagen', texto:'Figura 16', img:'fig16.png' },
+  { tipo:'imagen', texto:'abdominales de cabeza', img:'fig16.png' },
   { tipo:'especial', texto:'REPITE FIGURA 🔁' }
-];
+  ];
+  
+  
+  
 
 const total = espacios.length;
 const angulo = (2 * Math.PI) / total;
@@ -294,4 +322,3 @@ window.verHistorial = ()=>console.table(historial);
 
 </body>
 </html>
-
