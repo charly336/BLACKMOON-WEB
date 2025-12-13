@@ -318,6 +318,53 @@ fog.style.background='radial-gradient(circle at 50% 50%, rgba(184,92,255,0.15), 
 document.body.appendChild(fog);
 
 window.verHistorial = ()=>console.table(historial);
+  // ====== MÚSICA AMBIENTAL (6 PISTAS EN BUCLE) ======
+const playlist = [
+'music1.mp3',
+'music2.mp3',
+'music3.mp3',
+'music4.mp3',
+'music5.mp3',
+'music6.mp3'
+];
+
+
+let trackActual = Math.floor(Math.random()*playlist.length);
+const bgMusic = document.getElementById('bgMusic');
+
+
+function reproducirMusica(){
+bgMusic.src = playlist[trackActual];
+bgMusic.volume = 0.4;
+bgMusic.play();
+}
+
+
+bgMusic.addEventListener('ended', ()=>{
+trackActual = (trackActual + 1) % playlist.length;
+reproducirMusica();
+});
+
+
+// inicia música con primera interacción
+btnGirar.addEventListener('click', ()=>{
+if(bgMusic.paused){ reproducirMusica(); }
+}, { once:true });
+
+
+// Neblina Black Moon
+const fog = document.createElement('div');
+fog.style.position='fixed';
+fog.style.top=0;
+fog.style.left=0;
+fog.style.width='100%';
+fog.style.height='100%';
+fog.style.pointerEvents='none';
+fog.style.background='radial-gradient(circle at 50% 50%, rgba(184,92,255,0.15), rgba(0,0,0,0.9))';
+document.body.appendChild(fog);
+
+
+window.verHistorial = ()=>console.table(historial);
 </script>
 
 </body>
