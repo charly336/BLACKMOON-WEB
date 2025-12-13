@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruleta Danza Aérea</title>
+  <style>
+    :root{
+      /* === ZONA TOTALMENTE PERSONALIZABLE POR EL PROGRAMADOR === */
+      --bg-externo: radial-gradient(circle at top, #1a0026, #000);
+      --bg-juego: linear-gradient(135deg, #12001a, #1f0033);
+      --color-primario: #b85cff;
+      --color-secundario: #00e0ff;
+      --texto: #ffffff;
+    }
+
+    *{box-sizing:border-box; font-family:Arial, Helvetica, sans-serif;}
+
+    body{
+      margin:0;
+      background: var(--bg-externo);
+      color: var(--texto);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    header{
+      padding:20px;
+      text-align:center;
+      font-size:1.5rem;
+      letter-spacing:2px;
+    }
+
+    .layout{
+      flex:1;
+      display:flex;
+      gap:30px;
+      padding:30px;
+      align-items:flex-start;
+      justify-content:center;
+    }
+
+    /* ====== ZONA DEL JUEGO ====== */
+    .zona-juego{
+      background: var(--bg-juego);
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 0 40px rgba(184,92,255,0.4);
+    }
+
+    .ruleta-container{
+      position:relative;
+      width:320px;
+      height:320px;
+      margin:auto;
+    }
+
+    canvas{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+    }
+
+    .btn-girar{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      width:90px;
+      height:90px;
+      border-radius:50%;
+      border:none;
+      cursor:pointer;
+      background: radial-gradient(circle, var(--color-secundario), var(--color-primario));
+      color:#000;
+      font-weight:bold;
+      text-transform:uppercase;
+      box-shadow:0 0 25px rgba(0,224,255,0.8);
+    }
+
+    .resultado{
+      margin-top:25px;
+      text-align:center;
+    }
+
+    .resultado img{
+      max-width:140px;
+      margin-bottom:10px;
+    }
+
+    /* ====== IMAGEN PROMOCIONAL ====== */
+    .promo{
+      max-width:280px;
+      text-align:center;
+    }
+
+    .promo img{
+      width:100%;
+      border-radius:20px;
+      box-shadow:0 0 30px rgba(0,0,0,0.6);
+    }
+
+    footer{
+      display:flex;
+      justify-content:space-around;
+      padding:20px;
+      background:rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    footer a{
+      color:var(--color-secundario);
+      text-decoration:none;
+      font-weight:bold;
+    }
+
+    @media(max-width:900px){
+      .layout{flex-direction:column; align-items:center;}
+    }
+  </style>
+</head>
+<body>
+
+<header>🎪 Ruleta Aérea – Black Moon Style</header>
+
+<div class="layout">
+
+  <div class="zona-juego">
+    <div class="ruleta-container">
+      <canvas id="ruleta" width="320" height="320"></canvas>
+      <button class="btn-girar" onclick="girar()">GIRAR</button>
+    </div>
+
+    <div class="resultado" id="resultado">
+      <p>Resultado aparecerá aquí</p>
+    </div>
+  </div>
+
+  <div class="promo">
+    <!-- Imagen promocional editable -->
+    <img src="promo.jpg" alt="Imagen promocional danza aérea">
+    <p>Promoción / Evento / Escuela</p>
+  </div>
+
+</div>
+
+<footer>
+  <a href="#">Escuela</a>
+  <a href="#">Eventos</a>
+  <a href="#">Podcast</a>
+  <a href="#">Contacto</a>
+</footer>
+
+<script>
+  /* ====== CONFIGURACIÓN TOTALMENTE EDITABLE ====== */
+  const espacios = [
+    { tipo:'imagen', texto:'Figura 1', img:'fig1.png' },
+    { tipo:'imagen', texto:'Figura 2', img:'fig2.png' },
+    { tipo:'imagen', texto:'Figura 3', img:'fig3.png' },
+    { tipo:'imagen', texto:'Figura 4', img:'fig4.png' },
+    { tipo:'imagen', texto:'Figura 5', img:'fig5.png' },
+    { tipo:'imagen', texto:'Figura 6', img:'fig6.png' },
+    { tipo:'imagen', texto:'Figura 7', img:'fig7.png' },
+    { tipo:'imagen', texto:'Figura 8', img:'fig8.png' },
+    { tipo:'imagen', texto:'Figura 9', img:'fig9.png' },
+    { tipo:'imagen', texto:'Figura 10', img:'fig10.png' },
+    { tipo:'imagen', texto:'Figura 11', img:'fig11.png' },
+    { tipo:'imagen', texto:'Figura 12', img:'fig12.png' },
+    { tipo:'imagen', texto:'Figura 13', img:'fig13.png' },
+    { tipo:'imagen', texto:'Figura 14', img:'fig14.png' },
+    { tipo:'imagen', texto:'Figura 15', img:'fig15.png' },
+    { tipo:'imagen', texto:'Figura 16', img:'fig16.png' },
+    { tipo:'especial', texto:'TE SALVASTE 🎉' },
+    { tipo:'especial', texto:'TE SALVASTE 🎉' },
+    { tipo:'especial', texto:'REPITE FIGURA 🔁' },
+    { tipo:'especial', texto:'REPITE FIGURA 🔁' }
+  ];
+
+  const canvas = document.getElementById('ruleta');
+  const ctx = canvas.getContext('2d');
+  const total = espacios.length;
+  const angulo = (2 * Math.PI) / total;
+  let rotacion = 0;
+
+  function dibujarRuleta(){
+    for(let i=0;i<total;i++){
+      ctx.beginPath();
+      ctx.moveTo(160,160);
+      ctx.arc(160,160,160, angulo*i, angulo*(i+1));
+      ctx.fillStyle = i%2===0 ? '#3a005c' : '#1b002b';
+      ctx.fill();
+
+      ctx.save();
+      ctx.translate(160,160);
+      ctx.rotate(angulo*i + angulo/2);
+      ctx.textAlign='right';
+      ctx.fillStyle='#fff';
+      ctx.font='12px Arial';
+      ctx.fillText(espacios[i].texto, 150, 5);
+      ctx.restore();
+    }
+  }
+
+  dibujarRuleta();
+
+  function girar(){
+    const vueltas = Math.random()*5 + 5;
+    const destino = rotacion + vueltas * 2 * Math.PI;
+    const inicio = performance.now();
+    const duracion = 3000;
+
+    function animar(t){
+      const progreso = Math.min((t - inicio) / duracion, 1);
+      const ease = 1 - Math.pow(1 - progreso, 3);
+      rotacion = rotacion + (destino - rotacion) * ease;
+
+      ctx.clearRect(0,0,320,320);
+      ctx.save();
+      ctx.translate(160,160);
+      ctx.rotate(rotacion);
+      ctx.translate(-160,-160);
+      dibujarRuleta();
+      ctx.restore();
+
+      if(progreso < 1){ requestAnimationFrame(animar); }
+      else mostrarResultado();
+    }
+
+    requestAnimationFrame(animar);
+  }
+
+  function mostrarResultado(){
+    const index = Math.floor(((2*Math.PI - (rotacion % (2*Math.PI))) / (2*Math.PI)) * total) % total;
+    const res = espacios[index];
+    const cont = document.getElementById('resultado');
+
+    if(res.tipo === 'imagen'){
+      cont.innerHTML = `<img src="${res.img}"><h3>${res.texto}</h3>`;
+    }else{
+      cont.innerHTML = `<h2>${res.texto}</h2>`;
+    }
+  }
+</script>
+
+</body>
+</html>
