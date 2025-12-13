@@ -1,287 +1,323 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ruleta Danza Aérea</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruleta Danza Aérea</title>
+  <style>
+    :root{
+      --bg-externo: radial-gradient(circle at top, #1a0026, #000);
+      --bg-juego: linear-gradient(135deg, #12001a, #1f0033);
+      --color-primario: #b85cff;
+      --color-secundario: #00e0ff;
+      --texto: #ffffff;
+    }
 
-<style>
-:root{
---bg-externo: radial-gradient(circle at top, #1a0026, #000);
---bg-juego: linear-gradient(135deg, #12001a, #1f0033);
---color-primario: #b85cff;
---color-secundario: #00e0ff;
---texto: #ffffff;
-}
+    *{box-sizing:border-box; font-family:Arial, Helvetica, sans-serif;}
 
-*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+    body{
+      margin:0;
+      background: var(--bg-externo);
+      color: var(--texto);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
 
-body{
-margin:0;
-background:var(--bg-externo);
-color:var(--texto);
-min-height:100vh;
-display:flex;
-flex-direction:column;
-overflow:hidden;
-}
+    header{
+      padding:20px;
+      text-align:center;
+      font-size:1.5rem;
+      letter-spacing:2px;
+    }
 
-header{
-padding:20px;
-text-align:center;
-font-size:1.5rem;
-letter-spacing:2px;
-}
+    .layout{
+      flex:1;
+      display:flex;
+      gap:30px;
+      padding:30px;
+      align-items:flex-start;
+      justify-content:center;
+    }
 
-.layout{
-flex:1;
-display:flex;
-gap:30px;
-padding:30px;
-align-items:flex-start;
-justify-content:center;
-}
+    .zona-juego{
+      background: var(--bg-juego);
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 0 40px rgba(184,92,255,0.4);
+    }
 
-.zona-juego{
-background:var(--bg-juego);
-padding:30px;
-border-radius:20px;
-box-shadow:0 0 40px rgba(184,92,255,0.4);
-}
+    .ruleta-container{
+      position:relative;
+      width:320px;
+      height:320px;
+      margin:auto;
+    }
 
-/* 🔥 RUETA MÁS GRANDE */
-.ruleta-container{
-position:relative;
-width:420px;
-height:420px;
-margin:auto;
-}
+    .flecha{
+      position:absolute;
+      top:50%;
+      right:-28px;
+      transform:translateY(-50%);
+      width:0;
+      height:0;
+      border-top:18px solid transparent;
+      border-bottom:18px solid transparent;
+      border-left:32px solid red;
+      z-index:20;
+    }
 
-canvas{
-width:100%;
-height:100%;
-border-radius:50%;
-}
+    .flecha::after{
+      content:'SELECCIÓN';
+      position:absolute;
+      right:-4px;
+      top:50%;
+      transform:translate(100%, -50%);
+      font-size:10px;
+      color:red;
+      font-weight:bold;
+      letter-spacing:1px;
+      white-space:nowrap;
+    }
 
-.flecha{
-position:absolute;
-top:50%;
-right:-34px;
-transform:translateY(-50%);
-width:0;
-height:0;
-border-top:22px solid transparent;
-border-bottom:22px solid transparent;
-border-left:38px solid red;
-z-index:20;
-}
+    .flecha::after{
+      content:'SELECCIÓN';
+      position:absolute;
+      top:-22px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:10px;
+      color:red;
+      font-weight:bold;
+      letter-spacing:1px;
+    }
 
-.btn-girar{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-width:110px;
-height:110px;
-border-radius:50%;
-border:none;
-cursor:pointer;
-background:radial-gradient(circle,var(--color-secundario),var(--color-primario));
-color:#000;
-font-weight:bold;
-box-shadow:0 0 30px rgba(0,224,255,0.9);
-}
+    canvas{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+    }
 
-.resultado{
-margin-top:25px;
-text-align:center;
-}
+    .btn-girar{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%);
+      width:90px;
+      height:90px;
+      border-radius:50%;
+      border:none;
+      cursor:pointer;
+      background: radial-gradient(circle, var(--color-secundario), var(--color-primario));
+      color:#000;
+      font-weight:bold;
+      text-transform:uppercase;
+      box-shadow:0 0 25px rgba(0,224,255,0.8);
+    }
 
-.resultado img{
-max-width:180px;
-margin-bottom:10px;
-}
+    .resultado{
+      margin-top:25px;
+      text-align:center;
+    }
 
-.promo{
-max-width:280px;
-text-align:center;
-}
+    .resultado img{
+      max-width:140px;
+      margin-bottom:10px;
+    }
 
-.promo img{
-width:100%;
-border-radius:20px;
-box-shadow:0 0 30px rgba(0,0,0,0.6);
-}
+    .promo{
+      max-width:280px;
+      text-align:center;
+    }
 
-footer{
-display:flex;
-justify-content:space-around;
-padding:20px;
-background:rgba(0,0,0,0.6);
-backdrop-filter:blur(10px);
-}
+    .promo img{
+      width:100%;
+      border-radius:20px;
+      box-shadow:0 0 30px rgba(0,0,0,0.6);
+    }
 
-footer a{
-color:var(--color-secundario);
-text-decoration:none;
-font-weight:bold;
-}
+    footer{
+      display:flex;
+      justify-content:space-around;
+      padding:20px;
+      background:rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
 
-@media(max-width:900px){
-.layout{flex-direction:column;align-items:center;}
-.ruleta-container{width:320px;height:320px;}
-}
-</style>
+    footer a{
+      color:var(--color-secundario);
+      text-decoration:none;
+      font-weight:bold;
+    }
+
+    @media(max-width:900px){
+      .layout{flex-direction:column; align-items:center;}
+    }
+  </style>
 </head>
-
 <body>
 
 <header>🎪 Ruleta Aérea – Black Moon Style</header>
 
 <div class="layout">
 
-<div class="zona-juego">
-<div class="ruleta-container">
-<div class="flecha"></div>
-<canvas id="ruleta" width="420" height="420"></canvas>
-<button class="btn-girar" id="btnGirar">GIRAR</button>
-</div>
+  <div class="zona-juego">
+    <div class="ruleta-container">
+      <div class="flecha"></div>
+      <canvas id="ruleta" width="320" height="320"></canvas>
+      <button class="btn-girar" id="btnGirar">GIRAR</button>
+    </div>
 
-<div class="resultado" id="resultado">
-<p>Resultado aparecerá aquí</p>
-</div>
-</div>
+    <div class="resultado" id="resultado">
+      <p>Resultado aparecerá aquí</p>
+    </div>
+  </div>
 
-<div class="promo">
-<img src="promo.jpg">
-<p>Promoción / Evento / Escuela</p>
-</div>
+  <div class="promo">
+    <img src="promo.jpg" alt="Imagen promocional danza aérea">
+    <p>Promoción / Evento / Escuela</p>
+  </div>
 
 </div>
 
 <footer>
-<a href="#">Escuela</a>
-<a href="#">Eventos</a>
-<a href="#">Podcast</a>
-<a href="#">Contacto</a>
+  <a href="#">Escuela</a>
+  <a href="#">Eventos</a>
+  <a href="#">Podcast</a>
+  <a href="#">Contacto</a>
 </footer>
 
-<!-- 🎵 MUSICA EN BUCLE 6 CANCIONES -->
-<audio id="musicPlayer" autoplay></audio>
 <audio id="spinSound" src="spin.mp3" preload="auto"></audio>
 <audio id="stopSound" src="stop.mp3" preload="auto"></audio>
 
 <script>
-/* 🎵 PLAYLIST */
-const playlist=[
-"15.-En el aire soy todo.m4a",
-"6.-Silencio de la Noche.m4a",
-"1.- Volando con Black Moon.m4a",
-"9.-Soy un fénix en el aire.m4a",
-"8.-Soy un Quetzal en el Viento.m4a",
-"8.-Blackmoon podcast.mp3"
-];
+/* ================= LÓGICA ================= */
+const canvas = document.getElementById('ruleta');
+const ctx = canvas.getContext('2d');
+const btnGirar = document.getElementById('btnGirar');
 
-let track=0;
-const player=document.getElementById("musicPlayer");
-player.src=playlist[track];
-player.volume=0.5;
-player.play();
+let modo = 'normal'; // normal | castigo | entrenamiento
+let historial = [];
 
-player.addEventListener("ended",()=>{
-track=(track+1)%playlist.length;
-player.src=playlist[track];
-player.play();
-});
-
-/* ================= LÓGICA RULETA ================= */
-const canvas=document.getElementById('ruleta');
-const ctx=canvas.getContext('2d');
-const btnGirar=document.getElementById('btnGirar');
-
-const espacios=[ /* ⛔ NO TOCADO */ 
-{tipo:'imagen',texto:'split',img:'da split.jpg'},
-{tipo:'imagen',texto:'arco',img:'da  arco hacia adelante.jpg'},
-{tipo:'imagen',texto:'angel-sirena',img:'da angel-sirena.jpg'},
-{tipo:'imagen',texto:'5 subidas sin tocar piso',img:'aerial black moon.jpg'},
-{tipo:'especial',texto:'TE SALVASTE 🎉'},
-{tipo:'imagen',texto:'Figura 5',img:'fig5.png'},
-{tipo:'imagen',texto:'Figura 6',img:'fig6.png'},
-{tipo:'imagen',texto:'Figura 7',img:'fig7.png'},
-{tipo:'imagen',texto:'5 abdominales x 1 subida',img:'GPO BKM 2.jpg'},
-{tipo:'especial',texto:'REPITE FIGURA 🔁'},
-{tipo:'imagen',texto:'Figura 9',img:'fig9.png'},
-{tipo:'imagen',texto:'Figura 10',img:'fig10.png'},
-{tipo:'imagen',texto:'Figura 11',img:'fig11.png'},
-{tipo:'imagen',texto:'5 subidas diferentes',img:'aerial black moon.jpg'},
-{tipo:'especial',texto:'TE SALVASTE 🎉'},
-{tipo:'imagen',texto:'Figura 13',img:'fig13.png'},
-{tipo:'imagen',texto:'Figura 14',img:'da scuad.jpg'},
-{tipo:'imagen',texto:'split de pared',img:'split de pared.jpg'},
-{tipo:'imagen',texto:'abdominales de cabeza',img:'GPO BKM 2.jpg'},
-{tipo:'especial',texto:'REPITE FIGURA 🔁'}
-];
-
-const total=espacios.length;
-const angulo=2*Math.PI/total;
-let rotacion=0;
-
-function dibujar(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-for(let i=0;i<total;i++){
-ctx.beginPath();
-ctx.moveTo(210,210);
-ctx.arc(210,210,210,angulo*i,angulo*(i+1));
-ctx.fillStyle=i%2?'#1b002b':'#3a005c';
-ctx.fill();
-
-ctx.save();
-ctx.translate(210,210);
-ctx.rotate(angulo*i+angulo/2);
-ctx.fillStyle="#fff";
-ctx.font="14px Arial";
-ctx.textAlign="right";
-ctx.fillText(espacios[i].texto,200,5);
-ctx.restore();
-}
-}
-
-dibujar();
-
-btnGirar.onclick=()=>{
-document.getElementById("spinSound").play();
-let destino=rotacion+(Math.random()*5+5)*2*Math.PI;
-let inicio=performance.now();
-
-function animar(t){
-let p=Math.min((t-inicio)/3000,1);
-rotacion+= (destino-rotacion)*p;
-ctx.save();
-ctx.translate(210,210);
-ctx.rotate(rotacion);
-ctx.translate(-210,-210);
-dibujar();
-ctx.restore();
-p<1?requestAnimationFrame(animar):document.getElementById("stopSound").play();
-}
-requestAnimationFrame(animar);
+const retos = {
+  castigo: '10 segundos colgado en invertido',
+  entrenamiento: 'Repite la figura 2 veces con control'
 };
 
-/* 🌫️ NIEBLA ANIMADA */
-const fog=document.createElement("div");
-fog.style.cssText=`
-position:fixed;
-top:0;left:0;
-width:100%;height:100%;
-pointer-events:none;
-background:radial-gradient(circle at 50% 50%,rgba(184,92,255,.25),rgba(0,0,0,.95));
-animation:fog 20s linear infinite;
-`;
+const espacios = [
+  { tipo:'imagen', texto:'split', img:'da split.jpg' },
+  { tipo:'imagen', texto:'arco', img:'da  arco hacia adelante.jpg' },
+  { tipo:'imagen', texto:'angel-sirena', img:'da angel-sirena.jpg' },
+  { tipo:'imagen', texto:'       5 subidas sin tocar piso', img:'fig4.png' },
+  { tipo:'especial', texto:'TE SALVASTE 🎉' },
+  { tipo:'imagen', texto:'Figura 5', img:'fig5.png' },
+  { tipo:'imagen', texto:'Figura 6', img:'fig6.png' },
+  { tipo:'imagen', texto:'Figura 7', img:'fig7.png' },
+  { tipo:'imagen', texto:'       5 abdominales x 1 subida 5 veces', img:'fig8.png' },
+  { tipo:'especial', texto:'     REPITE FIGURA 🔁' },
+  { tipo:'imagen', texto:'Figura 9', img:'fig9.png' },
+  { tipo:'imagen', texto:'Figura 10', img:'fig10.png' },
+  { tipo:'imagen', texto:'Figura 11', img:'fig11.png' },
+  { tipo:'imagen', texto:'       5 subidas diferentes', img:'fig12.png' },
+  { tipo:'especial', texto:'TE SALVASTE 🎉' },
+  { tipo:'imagen', texto:'Figura 13', img:'fig13.png' },
+  { tipo:'scuad', texto:'Figura 14', img:'da scuad.jpg' },
+  { tipo:'imagen', texto:'split de pared', img:'split de pared.jpg' },
+  { tipo:'imagen', texto:'        abdominales de cabeza', img:'fig16.png' },
+  { tipo:'especial', texto:'      REPITE FIGURA 🔁' }
+  ];
+  
+  
+  
+
+const total = espacios.length;
+const angulo = (2 * Math.PI) / total;
+let rotacion = 0;
+
+function dibujarRuleta(){
+  ctx.clearRect(0,0,320,320);
+  for(let i=0;i<total;i++){
+    ctx.beginPath();
+    ctx.moveTo(160,160);
+    ctx.arc(160,160,160, angulo*i, angulo*(i+1));
+    ctx.fillStyle = i%2===0 ? '#3a005c' : '#1b002b';
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(160,160);
+    ctx.rotate(angulo*i + angulo/2);
+    ctx.textAlign='right';
+    ctx.fillStyle='#fff';
+    ctx.font='12px Arial';
+    ctx.fillText(espacios[i].texto, 150, 5);
+    ctx.restore();
+  }
+}
+
+dibujarRuleta();
+
+function girar(){
+  document.getElementById('spinSound').play();
+  const vueltas = Math.random()*5 + 5;
+  const destino = rotacion + vueltas * 2 * Math.PI;
+  const inicio = performance.now();
+  const duracion = 3000;
+
+  function animar(t){
+    const progreso = Math.min((t - inicio) / duracion, 1);
+    const ease = 1 - Math.pow(1 - progreso, 3);
+    rotacion = rotacion + (destino - rotacion) * ease;
+
+    ctx.save();
+    ctx.translate(160,160);
+    ctx.rotate(rotacion);
+    ctx.translate(-160,-160);
+    dibujarRuleta();
+    ctx.restore();
+
+    if(progreso < 1){
+      requestAnimationFrame(animar);
+    } else {
+      document.getElementById('stopSound').play();
+      mostrarResultado();
+    }
+  }
+
+  requestAnimationFrame(animar);
+}
+
+function mostrarResultado(){
+  const index = Math.floor(((2*Math.PI - (rotacion % (2*Math.PI))) / (2*Math.PI)) * total) % total;
+  const res = espacios[index];
+  const cont = document.getElementById('resultado');
+  historial.push(res.texto);
+
+  let extra = '';
+  if(modo !== 'normal'){
+    extra = `<p><strong>Reto:</strong> ${retos[modo]}</p>`;
+  }
+
+  if(res.tipo === 'imagen'){
+    cont.innerHTML = `<img src="${res.img}"><h3>${res.texto}</h3>${extra}`;
+  } else {
+    cont.innerHTML = `<h2>${res.texto}</h2>${extra}`;
+  }
+}
+
+btnGirar.addEventListener('click', girar);
+
+// Neblina Black Moon
+const fog = document.createElement('div');
+fog.style.position='fixed';
+fog.style.top=0;
+fog.style.left=0;
+fog.style.width='100%';
+fog.style.height='100%';
+fog.style.pointerEvents='none';
+fog.style.background='radial-gradient(circle at 50% 50%, rgba(184,92,255,0.15), rgba(0,0,0,0.9))';
 document.body.appendChild(fog);
 
-const style=document.createElement("style");
-style.innerHTML=`@keyframes fog{0%{opacity:.3}50%{opacity:.6}100%{opacity:.3}}`;
-document.head.appendChild(style);
+window.verHistorial = ()=>console.table(historial);
 </script>
 
 </body>
