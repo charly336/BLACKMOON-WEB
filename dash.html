@@ -17,7 +17,7 @@ body{background:#000;overflow:hidden;color:white}
  justify-content:center;align-items:center;
  z-index:10;
 }
-#menu h1{font-size:2.3rem;margin-bottom:15px}
+#menu h1{font-size:2.2rem;margin-bottom:20px}
 #menu button{
  padding:14px 45px;border:none;border-radius:30px;
  background:#7f00ff;color:white;font-size:1.1rem;
@@ -26,7 +26,7 @@ body{background:#000;overflow:hidden;color:white}
 /* HUD */
 #hud{
  position:fixed;top:10px;left:10px;
- background:rgba(0,0,0,.5);
+ background:rgba(0,0,0,.55);
  padding:10px 14px;border-radius:14px;
  z-index:5;
 }
@@ -38,8 +38,8 @@ canvas{display:block}
 #controls{
  position:fixed;bottom:60px;right:15px;
  display:grid;
- grid-template-columns:repeat(3,80px);
- grid-template-rows:repeat(2,80px);
+ grid-template-columns:repeat(3,70px);
+ grid-template-rows:repeat(2,70px);
  gap:10px;z-index:5;
 }
 .btn{
@@ -47,6 +47,7 @@ canvas{display:block}
  background:rgba(127,0,255,.85);
  color:white;font-size:.75rem;
 }
+
 #pause,#reset{
  position:fixed;top:10px;right:10px;
  width:60px;height:60px;border-radius:50%;
@@ -69,16 +70,16 @@ footer a{color:white;font-size:.75rem;text-decoration:none}
 <!-- MENU -->
 <div id="menu">
  <h1>🌙 Aerial Dash</h1>
- <button id="start">INICIAR RITUAL</button>
+ <button id="startBtn">INICIAR RITUAL</button>
 </div>
 
 <!-- HUD -->
 <div id="hud">
- Fase Lunar: <span id="phase">I</span><br>
+ Fase Lunar: <span id="phase">1</span><br>
  Récord: <span id="record">0</span>
 </div>
 
-<!-- JUEGO -->
+<!-- CANVAS -->
 <canvas id="canvas"></canvas>
 
 <!-- BOTONES -->
@@ -94,7 +95,6 @@ footer a{color:white;font-size:.75rem;text-decoration:none}
  <div></div>
 </div>
 
-<!-- FOOTER -->
 <footer>
  <a href="#">Podcast</a>
  <a href="#">Escuela</a>
@@ -103,107 +103,139 @@ footer a{color:white;font-size:.75rem;text-decoration:none}
 </footer>
 
 <script>
-/* =====================================================
-   🔒 CONFIGURACIÓN SOLO DESARROLLADOR
-   Cambia AQUÍ las imágenes de fondo
-===================================================== */
-const DEV_BACKGROUND = {
-  skyDay: "#87CEEB",
-  skyNight: "#0a0018",
-  clouds: "nubes.png",
-  mountains: "montanas.png",
-  moon: "luna.png",
-  sun: "sol.png"
+/* ================= CONFIG DESARROLLADOR ================= */
+const DEV_BG = {
+ skyDay:"#87CEEB",
+ skyNight:"#0a0018",
+ clouds:"nubes.png",
+ mountains:"montanas.png",
+ moon:"luna.png",
+ sun:"sol.png"
 };
-/* ===================================================== */
+/* ======================================================== */
 
-/* CANVAS */
+/* DOM */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
-resize();addEventListener("resize",resize);
+const menu = document.getElementById("menu");
+const startBtn = document.getElementById("startBtn");
+const phaseSpan = document.getElementById("phase");
+const recordSpan = document.getElementById("record");
 
-/* IMÁGENES (si no existen, el juego sigue) */
-const clouds = new Image(); clouds.src = DEV_BACKGROUND.clouds;
-const mountains = new Image(); mountains.src = DEV_BACKGROUND.mountains;
-const moon = new Image(); moon.src = DEV_BACKGROUND.moon;
-const sun = new Image(); sun.src = DEV_BACKGROUND.sun;
+const leftBtn = document.getElementById("left");
+const rightBtn = document.getElementById("right");
+const jumpBtn = document.getElementById("jump");
+const pauseBtn = document.getElementById("pause");
+const resetBtn = document.getElementById("reset");
+
+/* CANVAS */
+function resize(){
+ canvas.width = window.innerWidth;
+ canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+/* IMÁGENES (opcionales) */
+const cloudsImg = new Image(); cloudsImg.src = DEV_BG.clouds;
+const mountainsImg = new Image(); mountainsImg.src = DEV_BG.mountains;
+const moonImg = new Image(); moonImg.src = DEV_BG.moon;
+const sunImg = new Image(); sunImg.src = DEV_BG.sun;
 
 /* ESTADO */
 let running=false, paused=false;
-let frame=0, phase=1, speed=6, score=0;
+let frame=0, phase=1, score=0;
 let record = localStorage.getItem("bm_record") || 0;
-recordSpan.innerText = record;
+recordSpan.textContent = record;
 
 /* JUGADOR */
-let player={x:80,y:0,w:50,h:50,vy:0,onGround:false};
+let player = {
+ x:80,
+ y:0,
+ w:45,
+ h:45,
+ vy:0,
+ gravity:0.9,
+ jump:-18,
+ onGround:false
+};
+
 let moveL=false, moveR=false;
 
 /* CONTROLES */
-left.onpointerdown=()=>moveL=true;
-left.onpointerup=()=>moveL=false;
-right.onpointerdown=()=>moveR=true;
-right.onpointerup=()=>moveR=false;
-jump.onclick=()=>jumpPlayer();
+leftBtn.onpointerdown = ()=>moveL=true;
+leftBtn.onpointerup = ()=>moveL=false;
+rightBtn.onpointerdown = ()=>moveR=true;
+rightBtn.onpointerup = ()=>moveR=false;
 
-addEventListener("keydown",e=>{
- if(e.key==="ArrowLeft")moveL=true;
- if(e.key==="ArrowRight")moveR=true;
- if(e.key===" "||e.key==="ArrowUp")jumpPlayer();
-});
-addEventListener("keyup",e=>{
- if(e.key==="ArrowLeft")moveL=false;
- if(e.key==="ArrowRight")moveR=false;
-});
-
-/* PAUSA / RESET */
-pause.onclick=()=>{
- paused=!paused;
- pause.innerText=paused?"PLAY":"PAUSA";
+jumpBtn.onclick = jump;
+pauseBtn.onclick = ()=>{
+ paused = !paused;
+ pauseBtn.textContent = paused ? "PLAY" : "PAUSA";
  if(!paused) loop();
 };
-reset.onclick=()=>location.reload();
+resetBtn.onclick = ()=>location.reload();
 
-function jumpPlayer(){
+document.addEventListener("keydown",e=>{
+ if(e.key==="ArrowLeft") moveL=true;
+ if(e.key==="ArrowRight") moveR=true;
+ if(e.key===" "||e.key==="ArrowUp") jump();
+});
+document.addEventListener("keyup",e=>{
+ if(e.key==="ArrowLeft") moveL=false;
+ if(e.key==="ArrowRight") moveR=false;
+});
+
+function jump(){
  if(player.onGround && !paused){
-  player.vy=-18;
-  player.onGround=false;
+  player.vy = player.jump;
+  player.onGround = false;
  }
 }
 
-/* LOOP PRINCIPAL */
+/* LOOP */
 function loop(){
- if(!running||paused)return;
+ if(!running || paused) return;
+
  ctx.clearRect(0,0,canvas.width,canvas.height);
 
  /* CIELO */
- ctx.fillStyle = phase%2 ? DEV_BACKGROUND.skyNight : DEV_BACKGROUND.skyDay;
+ ctx.fillStyle = phase%2 ? DEV_BG.skyNight : DEV_BG.skyDay;
  ctx.fillRect(0,0,canvas.width,canvas.height);
 
- /* SOL / LUNA */
- ctx.drawImage(phase%2?moon:sun,canvas.width-100,20,70,70);
+ /* ASTRO */
+ if(phase%2 && moonImg.complete){
+  ctx.drawImage(moonImg,canvas.width-100,20,70,70);
+ }else if(!phase%2 && sunImg.complete){
+  ctx.drawImage(sunImg,canvas.width-100,20,70,70);
+ }
 
  /* NUBES */
- ctx.drawImage(clouds,(frame*-0.3)%canvas.width,60,canvas.width,120);
+ if(cloudsImg.complete){
+  ctx.drawImage(cloudsImg,(frame*-0.3)%canvas.width,50,canvas.width,120);
+ }
 
  /* MONTAÑAS */
- ctx.drawImage(mountains,0,canvas.height-200,canvas.width,200);
+ if(mountainsImg.complete){
+  ctx.drawImage(mountainsImg,0,canvas.height-200,canvas.width,200);
+ }
 
  /* SUELO */
  ctx.fillStyle="#111";
  ctx.fillRect(0,canvas.height-60,canvas.width,60);
 
  /* MOVIMIENTO */
- if(moveL)player.x-=6;
- if(moveR)player.x+=6;
- player.x=Math.max(0,Math.min(canvas.width-player.w,player.x));
+ if(moveL) player.x -= 6;
+ if(moveR) player.x += 6;
+ player.x = Math.max(0,Math.min(canvas.width-player.w,player.x));
 
- player.vy+=0.9;
- player.y+=player.vy;
- if(player.y+player.h>=canvas.height-60){
-  player.y=canvas.height-60-player.h;
-  player.vy=0;
-  player.onGround=true;
+ player.vy += player.gravity;
+ player.y += player.vy;
+
+ if(player.y + player.h >= canvas.height-60){
+  player.y = canvas.height-60-player.h;
+  player.vy = 0;
+  player.onGround = true;
  }
 
  /* JUGADOR */
@@ -212,20 +244,19 @@ function loop(){
 
  frame++; score++;
 
- if(score%1200===0){
+ if(score % 1200 === 0){
   phase++;
-  speed++;
-  phaseSpan.innerText = phase;
+  phaseSpan.textContent = phase;
  }
 
  requestAnimationFrame(loop);
 }
 
 /* START */
-start.onclick=()=>{
+startBtn.onclick = ()=>{
  menu.style.display="none";
- player.y = canvas.height-110;
- running=true;
+ player.y = canvas.height-105;
+ running = true;
  loop();
 };
 </script>
