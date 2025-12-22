@@ -7,7 +7,6 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-
 body{background:#000;overflow:hidden;color:white}
 
 /* MENU */
@@ -18,17 +17,29 @@ body{background:#000;overflow:hidden;color:white}
   justify-content:center;align-items:center;
   z-index:10;
 }
-#menu h1{font-size:2.5rem;margin-bottom:20px}
+#menu h1{font-size:2.3rem;margin-bottom:10px}
+#menu p{opacity:.8;margin-bottom:20px}
 #menu button{
-  padding:15px 50px;border:none;border-radius:30px;
-  background:#7f00ff;color:white;font-size:1.2rem;
+  padding:12px 40px;border:none;border-radius:30px;
+  background:#7f00ff;color:white;font-size:1rem;margin-top:15px;
 }
+
+/* PERSONAJES */
+#chars{display:flex;gap:15px}
+.char{
+  width:90px;height:90px;border-radius:15px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.8rem;text-align:center;
+  background:rgba(255,255,255,.1);
+  border:2px solid transparent;
+}
+.char.active{border-color:#b400ff}
 
 /* HUD */
 #hud{
   position:fixed;top:10px;left:10px;
   background:rgba(0,0,0,.5);
-  padding:12px 16px;border-radius:16px;z-index:5;
+  padding:10px 14px;border-radius:14px;z-index:5;
 }
 
 /* CANVAS */
@@ -36,16 +47,22 @@ canvas{display:block}
 
 /* CONTROLES */
 #controls{
-  position:fixed;bottom:70px;right:15px;
-  display:flex;flex-direction:column;gap:10px;z-index:5;
+  position:fixed;bottom:60px;right:15px;
+  display:grid;
+  grid-template-columns:repeat(3,80px);
+  grid-template-rows:repeat(2,80px);
+  gap:10px;z-index:5;
 }
-.controlBtn{
-  width:85px;height:85px;border-radius:50%;
-  border:none;color:white;font-size:.8rem;
+.btn{
+  border:none;border-radius:50%;
+  background:rgba(127,0,255,.85);
+  color:white;font-size:.75rem;
 }
-#jumpBtn{background:rgba(127,0,255,.85)}
-#pauseBtn{background:rgba(0,150,255,.85)}
-#resetBtn{background:rgba(255,0,80,.85)}
+#pause,#reset{
+  position:fixed;top:10px;right:10px;
+  width:60px;height:60px;border-radius:50%;
+}
+#reset{right:80px;background:rgba(255,0,80,.85)}
 
 /* FOOTER */
 footer{
@@ -53,7 +70,7 @@ footer{
   background:#000;display:flex;
   justify-content:space-around;align-items:center;z-index:5;
 }
-footer a{color:white;font-size:.8rem;text-decoration:none}
+footer a{color:white;font-size:.75rem;text-decoration:none}
 </style>
 </head>
 
@@ -61,20 +78,34 @@ footer a{color:white;font-size:.8rem;text-decoration:none}
 
 <div id="menu">
   <h1>🌙 Aerial Dash</h1>
-  <button id="startBtn">INICIAR RITUAL</button>
+  <p>Elige tu guardián del aire</p>
+
+  <div id="chars">
+    <div class="char active" data-char="isis">Isis Moon</div>
+    <div class="char" data-char="soul">Aerial Soul</div>
+    <div class="char" data-char="disciple">Luna Discípula</div>
+  </div>
+
+  <button id="start">INICIAR RITUAL</button>
 </div>
 
 <div id="hud">
-  Fase Lunar: <span id="phase">I</span><br>
-  Altura Máxima: <span id="record">0</span>
+  Fase: <span id="phase">I</span><br>
+  Récord: <span id="record">0</span>
 </div>
 
 <canvas id="canvas"></canvas>
 
+<button id="pause" class="btn">PAUSA</button>
+<button id="reset" class="btn">RESET</button>
+
 <div id="controls">
-  <button id="jumpBtn" class="controlBtn">IMPULSO</button>
-  <button id="pauseBtn" class="controlBtn">PAUSA</button>
-  <button id="resetBtn" class="controlBtn">REINICIAR</button>
+  <button id="left" class="btn">⬅️</button>
+  <div></div>
+  <button id="right" class="btn">➡️</button>
+  <div></div>
+  <button id="jump" class="btn">⬆️</button>
+  <div></div>
 </div>
 
 <footer>
@@ -84,128 +115,114 @@ footer a{color:white;font-size:.8rem;text-decoration:none}
   <a href="#">Black Moon</a>
 </footer>
 
-<audio id="music" loop></audio>
-
 <script>
 /* CANVAS */
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
 resize();addEventListener("resize",resize);
 
-/* AUDIO */
-const music=document.getElementById("music");
-const tracks=[
- "bm_luna_nueva.mp3",
- "bm_creciente.mp3",
- "bm_llena.mp3",
- "bm_roja.mp3",
- "bm_eclipse.mp3"
-];
-
 /* ESTADO */
-let running=false, paused=false;
-let frame=0,speed=6,phase=1,score=0;
-let record=localStorage.getItem("blackmoonRecord")||0;
-recordSpan=document.getElementById("record");
+let running=false,paused=false;
+let frame=0,phase=1,speed=6,score=0;
+let record=localStorage.getItem("bm_record")||0;
 recordSpan.innerText=record;
 
-/* JUGADOR */
-let player={
- x:80,y:0,w:50,h:50,vy:0,
- jump:-18,gravity:.9,onGround:false
+/* PERSONAJES */
+let characters={
+  isis:{color:"#b400ff",jump:-18,move:6},
+  soul:{color:"#00c8ff",jump:-16,move:8},
+  disciple:{color:"#ff4fd8",jump:-20,move:5}
 };
+let current=characters.isis;
 
-/* OBSTÁCULOS */
-let obstacles=[],particles=[];
+/* SELECTOR */
+document.querySelectorAll(".char").forEach(c=>{
+  c.onclick=()=>{
+    document.querySelectorAll(".char").forEach(x=>x.classList.remove("active"));
+    c.classList.add("active");
+    current=characters[c.dataset.char];
+  }
+});
+
+/* JUGADOR */
+let player={x:80,y:0,w:50,h:50,vy:0,onGround:false};
+
+/* INPUT */
+let moveL=false,moveR=false;
 
 /* CONTROLES */
-function jump(){
- if(player.onGround && !paused){
-  player.vy=player.jump;player.onGround=false;
- }
-}
-jumpBtn.onclick=jump;
+left.onpointerdown=()=>moveL=true;
+left.onpointerup=()=>moveL=false;
+right.onpointerdown=()=>moveR=true;
+right.onpointerup=()=>moveR=false;
+jump.onclick=()=>doJump();
 
-pauseBtn.onclick=()=>{
- paused=!paused;
- pauseBtn.innerText=paused?"CONTINUAR":"PAUSA";
- if(!paused) loop();
-};
-
-resetBtn.onclick=()=>location.reload();
-
-/* TECLADO */
 addEventListener("keydown",e=>{
- if(e.code==="Space"||e.code==="ArrowUp") jump();
- if(e.key==="p"||e.key==="P") pauseBtn.click();
- if(e.key==="r"||e.key==="R") resetBtn.click();
+  if(e.key==="ArrowLeft") moveL=true;
+  if(e.key==="ArrowRight") moveR=true;
+  if(e.key===" "||e.key==="ArrowUp") doJump();
 });
+addEventListener("keyup",e=>{
+  if(e.key==="ArrowLeft") moveL=false;
+  if(e.key==="ArrowRight") moveR=false;
+});
+
+/* PAUSA */
+pause.onclick=()=>{
+  paused=!paused;
+  pause.innerText=paused?"PLAY":"PAUSA";
+  if(!paused) loop();
+};
+reset.onclick=()=>location.reload();
+
+function doJump(){
+  if(player.onGround&&!paused){
+    player.vy=current.jump;
+    player.onGround=false;
+  }
+}
 
 /* LOOP */
 function loop(){
- if(!running||paused) return;
- ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!running||paused) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
- ctx.fillStyle=phase%2===0?"#87CEEB":"#0a0018";
- ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle=phase%2?"#0a0018":"#87ceeb";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
- ctx.fillStyle="#111";
- ctx.fillRect(0,canvas.height-60,canvas.width,60);
+  ctx.fillStyle="#111";
+  ctx.fillRect(0,canvas.height-60,canvas.width,60);
 
- player.vy+=player.gravity;
- player.y+=player.vy;
- if(player.y+player.h>=canvas.height-60){
-  player.y=canvas.height-60-player.h;
-  player.vy=0;player.onGround=true;
- }
- ctx.fillStyle="#b400ff";
- ctx.fillRect(player.x,player.y,player.w,player.h);
+  if(moveL) player.x-=current.move;
+  if(moveR) player.x+=current.move;
+  player.x=Math.max(0,Math.min(canvas.width-player.w,player.x));
 
- if(frame%120===0){
-  obstacles.push({x:canvas.width,y:canvas.height-110,w:40,h:50});
- }
- obstacles.forEach((o,i)=>{
-  o.x-=speed;
-  ctx.fillStyle="#ff0055";
-  ctx.fillRect(o.x,o.y,o.w,o.h);
-  if(player.x<o.x+o.w&&player.x+player.w>o.x&&
-     player.y<o.y+o.h&&player.y+player.h>o.y){
-    endGame();
+  player.vy+=0.9;
+  player.y+=player.vy;
+  if(player.y+player.h>=canvas.height-60){
+    player.y=canvas.height-60-player.h;
+    player.vy=0;player.onGround=true;
   }
-  if(o.x+o.w<0) obstacles.splice(i,1);
- });
 
- frame++;score++;
- if(score%1200===0){
-  phase++;speed++;
-  document.getElementById("phase").innerText=phase;
-  loadMusic();
- }
+  ctx.fillStyle=current.color;
+  ctx.fillRect(player.x,player.y,player.w,player.h);
 
- requestAnimationFrame(loop);
-}
+  frame++;score++;
+  if(score%1200===0){
+    phase++;speed++;
+    phaseSpan.innerText=phase;
+  }
 
-/* AUDIO */
-function loadMusic(){
- music.src=tracks[(phase-1)%tracks.length];
- music.volume=.5;music.play();
+  requestAnimationFrame(loop);
 }
 
 /* START */
-startBtn.onclick=()=>{
- menu.style.display="none";
- player.y=canvas.height-110;
- running=true;loadMusic();loop();
+start.onclick=()=>{
+  menu.style.display="none";
+  player.y=canvas.height-110;
+  running=true;loop();
 };
-
-/* GAME OVER */
-function endGame(){
- running=false;
- if(score>record) localStorage.setItem("blackmoonRecord",score);
- alert("🌙 El aire te soltó… vuelve a intentarlo");
- location.reload();
-}
 </script>
 
 </body>
