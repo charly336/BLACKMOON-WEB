@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Black Moon Test con Obstáculos</title>
+<title>Aerial Dash · Black Moon</title>
 
 <style>
 body{
   margin:0;
-  background:#111;
-  color:white;
-  font-family:Arial;
+  background:#000;
   overflow:hidden;
+  font-family:Arial;
+  color:white;
 }
 
 /* MENU */
@@ -24,10 +24,9 @@ body{
   align-items:center;
   z-index:10;
 }
-
-button{
-  padding:15px 30px;
-  font-size:18px;
+#menu button{
+  padding:16px 40px;
+  font-size:20px;
 }
 
 /* HUD */
@@ -35,6 +34,7 @@ button{
   position:fixed;
   top:10px;
   left:10px;
+  z-index:5;
 }
 
 /* CONTROLES */
@@ -42,14 +42,13 @@ button{
   position:fixed;
   bottom:20px;
   right:20px;
-  display:flex;
-  gap:10px;
+  z-index:5;
 }
-.ctrl{
-  width:70px;
-  height:70px;
+#jump{
+  width:90px;
+  height:90px;
   border-radius:50%;
-  font-size:20px;
+  font-size:22px;
 }
 </style>
 </head>
@@ -57,17 +56,18 @@ button{
 <body>
 
 <div id="menu">
-  <button id="start">INICIAR</button>
+  <button id="start">INICIAR RITUAL</button>
 </div>
 
-<div id="hud">Salta los obstáculos</div>
+<div id="hud">
+  🌙 Isis Moon<br>
+  Salta las telas
+</div>
 
 <canvas id="game"></canvas>
 
 <div id="controls">
-  <button class="ctrl" id="left">⬅️</button>
-  <button class="ctrl" id="jump">⬆️</button>
-  <button class="ctrl" id="right">➡️</button>
+  <button id="jump">⬆️</button>
 </div>
 
 <script>
@@ -82,44 +82,30 @@ function resize(){
 resize();
 window.addEventListener("resize", resize);
 
-/* ===== JUGADOR ===== */
-let player = {
+/* ===== JUGADOR (ISIS MOON) ===== */
+const player = {
   x:120,
   y:0,
   w:40,
   h:40,
   vy:0,
-  gravity:0.8,
-  jump:-15,
+  gravity:0.9,
+  jump:-16,
   onGround:false
 };
 
 /* ===== ESTADO ===== */
-let running = false;
-let moveL = false;
-let moveR = false;
-let speed = 5;
+let running=false;
+let speed=6;
 
-/* ===== OBSTÁCULOS ===== */
-let obstacles = [];
-let spawnTimer = 0;
+/* ===== TELAS AÉREAS ===== */
+let telas=[];
+let spawnTimer=0;
 
 /* ===== CONTROLES ===== */
-document.getElementById("left").onpointerdown = ()=>moveL=true;
-document.getElementById("left").onpointerup = ()=>moveL=false;
-document.getElementById("right").onpointerdown = ()=>moveR=true;
-document.getElementById("right").onpointerup = ()=>moveR=false;
-
 document.getElementById("jump").onclick = jump;
-
 document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft") moveL=true;
-  if(e.key==="ArrowRight") moveR=true;
-  if(e.key===" "||e.key==="ArrowUp") jump();
-});
-document.addEventListener("keyup",e=>{
-  if(e.key==="ArrowLeft") moveL=false;
-  if(e.key==="ArrowRight") moveR=false;
+  if(e.code==="Space"||e.code==="ArrowUp") jump();
 });
 
 function jump(){
@@ -135,23 +121,50 @@ function loop(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  /* Fondo */
-  ctx.fillStyle="#222";
+  /* ===== FONDO BLACK MOON ===== */
+
+  // cielo
+  ctx.fillStyle="#0a0018";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  /* Suelo */
+  // luna
+  ctx.fillStyle="#ddd";
+  ctx.beginPath();
+  ctx.arc(canvas.width-100,80,35,0,Math.PI*2);
+  ctx.fill();
+
+  // nubes
+  ctx.fillStyle="rgba(255,255,255,0.15)";
+  for(let i=0;i<5;i++){
+    ctx.beginPath();
+    ctx.arc((i*300 + Date.now()/50)%canvas.width,120,40,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // montañas
+  ctx.fillStyle="#1a0033";
+  ctx.beginPath();
+  ctx.moveTo(0,canvas.height);
+  ctx.lineTo(200,canvas.height-200);
+  ctx.lineTo(400,canvas.height);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(300,canvas.height);
+  ctx.lineTo(600,canvas.height-250);
+  ctx.lineTo(900,canvas.height);
+  ctx.fill();
+
+  /* ===== SUELO ===== */
   ctx.fillStyle="#000";
-  ctx.fillRect(0,canvas.height-50,canvas.width,50);
+  ctx.fillRect(0,canvas.height-60,canvas.width,60);
 
-  /* Jugador */
-  if(moveL) player.x -= 4;
-  if(moveR) player.x += 4;
-
+  /* ===== JUGADOR ===== */
   player.vy += player.gravity;
   player.y += player.vy;
 
-  if(player.y + player.h >= canvas.height-50){
-    player.y = canvas.height-50-player.h;
+  if(player.y + player.h >= canvas.height-60){
+    player.y = canvas.height-60-player.h;
     player.vy = 0;
     player.onGround = true;
   }
@@ -159,36 +172,38 @@ function loop(){
   ctx.fillStyle="#b400ff";
   ctx.fillRect(player.x,player.y,player.w,player.h);
 
-  /* Obstáculos */
+  /* ===== TELAS (OBSTÁCULOS) ===== */
   spawnTimer++;
-  if(spawnTimer > 90){
-    obstacles.push({
+  if(spawnTimer > 100){
+    telas.push({
       x:canvas.width,
-      y:canvas.height-80,
+      y:canvas.height-60-120,
       w:30,
-      h:30
+      h:120
     });
     spawnTimer = 0;
   }
 
-  obstacles.forEach((o,index)=>{
-    o.x -= speed;
-    ctx.fillStyle="#ff0055";
-    ctx.fillRect(o.x,o.y,o.w,o.h);
+  telas.forEach((t,i)=>{
+    t.x -= speed;
 
-    /* Colisión */
+    // tela
+    ctx.fillStyle="#7f00ff";
+    ctx.fillRect(t.x,t.y,t.w,t.h);
+
+    // colisión
     if(
-      player.x < o.x + o.w &&
-      player.x + player.w > o.x &&
-      player.y < o.y + o.h &&
-      player.y + player.h > o.y
+      player.x < t.x + t.w &&
+      player.x + player.w > t.x &&
+      player.y < t.y + t.h &&
+      player.y + player.h > t.y
     ){
-      alert("💥 Choque");
+      alert("🌙 El aire te soltó…");
       location.reload();
     }
 
-    if(o.x + o.w < 0){
-      obstacles.splice(index,1);
+    if(t.x + t.w < 0){
+      telas.splice(i,1);
     }
   });
 
@@ -198,7 +213,7 @@ function loop(){
 /* ===== START ===== */
 document.getElementById("start").onclick = ()=>{
   document.getElementById("menu").style.display="none";
-  player.y = canvas.height-90;
+  player.y = canvas.height-100;
   running = true;
   loop();
 };
