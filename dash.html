@@ -11,35 +11,24 @@ body{background:#000;overflow:hidden;color:white}
 
 /* MENU */
 #menu{
-  position:fixed;inset:0;
-  background:linear-gradient(to top,#000,#16002e);
-  display:flex;flex-direction:column;
-  justify-content:center;align-items:center;
-  z-index:10;
+ position:fixed;inset:0;
+ background:linear-gradient(to top,#000,#16002e);
+ display:flex;flex-direction:column;
+ justify-content:center;align-items:center;
+ z-index:10;
 }
-#menu h1{font-size:2.3rem;margin-bottom:10px}
-#menu p{opacity:.8;margin-bottom:20px}
+#menu h1{font-size:2.3rem;margin-bottom:15px}
 #menu button{
-  padding:12px 40px;border:none;border-radius:30px;
-  background:#7f00ff;color:white;font-size:1rem;margin-top:15px;
+ padding:14px 45px;border:none;border-radius:30px;
+ background:#7f00ff;color:white;font-size:1.1rem;
 }
-
-/* PERSONAJES */
-#chars{display:flex;gap:15px}
-.char{
-  width:90px;height:90px;border-radius:15px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:.8rem;text-align:center;
-  background:rgba(255,255,255,.1);
-  border:2px solid transparent;
-}
-.char.active{border-color:#b400ff}
 
 /* HUD */
 #hud{
-  position:fixed;top:10px;left:10px;
-  background:rgba(0,0,0,.5);
-  padding:10px 14px;border-radius:14px;z-index:5;
+ position:fixed;top:10px;left:10px;
+ background:rgba(0,0,0,.5);
+ padding:10px 14px;border-radius:14px;
+ z-index:5;
 }
 
 /* CANVAS */
@@ -47,28 +36,29 @@ canvas{display:block}
 
 /* CONTROLES */
 #controls{
-  position:fixed;bottom:60px;right:15px;
-  display:grid;
-  grid-template-columns:repeat(3,80px);
-  grid-template-rows:repeat(2,80px);
-  gap:10px;z-index:5;
+ position:fixed;bottom:60px;right:15px;
+ display:grid;
+ grid-template-columns:repeat(3,80px);
+ grid-template-rows:repeat(2,80px);
+ gap:10px;z-index:5;
 }
 .btn{
-  border:none;border-radius:50%;
-  background:rgba(127,0,255,.85);
-  color:white;font-size:.75rem;
+ border:none;border-radius:50%;
+ background:rgba(127,0,255,.85);
+ color:white;font-size:.75rem;
 }
 #pause,#reset{
-  position:fixed;top:10px;right:10px;
-  width:60px;height:60px;border-radius:50%;
+ position:fixed;top:10px;right:10px;
+ width:60px;height:60px;border-radius:50%;
 }
 #reset{right:80px;background:rgba(255,0,80,.85)}
 
 /* FOOTER */
 footer{
-  position:fixed;bottom:0;width:100%;height:45px;
-  background:#000;display:flex;
-  justify-content:space-around;align-items:center;z-index:5;
+ position:fixed;bottom:0;width:100%;height:45px;
+ background:#000;display:flex;
+ justify-content:space-around;align-items:center;
+ z-index:5;
 }
 footer a{color:white;font-size:.75rem;text-decoration:none}
 </style>
@@ -76,152 +66,167 @@ footer a{color:white;font-size:.75rem;text-decoration:none}
 
 <body>
 
+<!-- MENU -->
 <div id="menu">
-  <h1>🌙 Aerial Dash</h1>
-  <p>Elige tu guardián del aire</p>
-
-  <div id="chars">
-    <div class="char active" data-char="isis">Isis Moon</div>
-    <div class="char" data-char="soul">Aerial Soul</div>
-    <div class="char" data-char="disciple">Luna Discípula</div>
-  </div>
-
-  <button id="start">INICIAR RITUAL</button>
+ <h1>🌙 Aerial Dash</h1>
+ <button id="start">INICIAR RITUAL</button>
 </div>
 
+<!-- HUD -->
 <div id="hud">
-  Fase: <span id="phase">I</span><br>
-  Récord: <span id="record">0</span>
+ Fase Lunar: <span id="phase">I</span><br>
+ Récord: <span id="record">0</span>
 </div>
 
+<!-- JUEGO -->
 <canvas id="canvas"></canvas>
 
+<!-- BOTONES -->
 <button id="pause" class="btn">PAUSA</button>
 <button id="reset" class="btn">RESET</button>
 
 <div id="controls">
-  <button id="left" class="btn">⬅️</button>
-  <div></div>
-  <button id="right" class="btn">➡️</button>
-  <div></div>
-  <button id="jump" class="btn">⬆️</button>
-  <div></div>
+ <button id="left" class="btn">⬅️</button>
+ <div></div>
+ <button id="right" class="btn">➡️</button>
+ <div></div>
+ <button id="jump" class="btn">⬆️</button>
+ <div></div>
 </div>
 
+<!-- FOOTER -->
 <footer>
-  <a href="#">Podcast</a>
-  <a href="#">Escuela</a>
-  <a href="#">Records</a>
-  <a href="#">Black Moon</a>
+ <a href="#">Podcast</a>
+ <a href="#">Escuela</a>
+ <a href="#">Records</a>
+ <a href="#">Black Moon</a>
 </footer>
 
 <script>
+/* =====================================================
+   🔒 CONFIGURACIÓN SOLO DESARROLLADOR
+   Cambia AQUÍ las imágenes de fondo
+===================================================== */
+const DEV_BACKGROUND = {
+  skyDay: "#87CEEB",
+  skyNight: "#0a0018",
+  clouds: "nubes.png",
+  mountains: "montanas.png",
+  moon: "luna.png",
+  sun: "sol.png"
+};
+/* ===================================================== */
+
 /* CANVAS */
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
 resize();addEventListener("resize",resize);
 
+/* IMÁGENES (si no existen, el juego sigue) */
+const clouds = new Image(); clouds.src = DEV_BACKGROUND.clouds;
+const mountains = new Image(); mountains.src = DEV_BACKGROUND.mountains;
+const moon = new Image(); moon.src = DEV_BACKGROUND.moon;
+const sun = new Image(); sun.src = DEV_BACKGROUND.sun;
+
 /* ESTADO */
-let running=false,paused=false;
-let frame=0,phase=1,speed=6,score=0;
-let record=localStorage.getItem("bm_record")||0;
-recordSpan.innerText=record;
-
-/* PERSONAJES */
-let characters={
-  isis:{color:"#b400ff",jump:-18,move:6},
-  soul:{color:"#00c8ff",jump:-16,move:8},
-  disciple:{color:"#ff4fd8",jump:-20,move:5}
-};
-let current=characters.isis;
-
-/* SELECTOR */
-document.querySelectorAll(".char").forEach(c=>{
-  c.onclick=()=>{
-    document.querySelectorAll(".char").forEach(x=>x.classList.remove("active"));
-    c.classList.add("active");
-    current=characters[c.dataset.char];
-  }
-});
+let running=false, paused=false;
+let frame=0, phase=1, speed=6, score=0;
+let record = localStorage.getItem("bm_record") || 0;
+recordSpan.innerText = record;
 
 /* JUGADOR */
 let player={x:80,y:0,w:50,h:50,vy:0,onGround:false};
-
-/* INPUT */
-let moveL=false,moveR=false;
+let moveL=false, moveR=false;
 
 /* CONTROLES */
 left.onpointerdown=()=>moveL=true;
 left.onpointerup=()=>moveL=false;
 right.onpointerdown=()=>moveR=true;
 right.onpointerup=()=>moveR=false;
-jump.onclick=()=>doJump();
+jump.onclick=()=>jumpPlayer();
 
 addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft") moveL=true;
-  if(e.key==="ArrowRight") moveR=true;
-  if(e.key===" "||e.key==="ArrowUp") doJump();
+ if(e.key==="ArrowLeft")moveL=true;
+ if(e.key==="ArrowRight")moveR=true;
+ if(e.key===" "||e.key==="ArrowUp")jumpPlayer();
 });
 addEventListener("keyup",e=>{
-  if(e.key==="ArrowLeft") moveL=false;
-  if(e.key==="ArrowRight") moveR=false;
+ if(e.key==="ArrowLeft")moveL=false;
+ if(e.key==="ArrowRight")moveR=false;
 });
 
-/* PAUSA */
+/* PAUSA / RESET */
 pause.onclick=()=>{
-  paused=!paused;
-  pause.innerText=paused?"PLAY":"PAUSA";
-  if(!paused) loop();
+ paused=!paused;
+ pause.innerText=paused?"PLAY":"PAUSA";
+ if(!paused) loop();
 };
 reset.onclick=()=>location.reload();
 
-function doJump(){
-  if(player.onGround&&!paused){
-    player.vy=current.jump;
-    player.onGround=false;
-  }
+function jumpPlayer(){
+ if(player.onGround && !paused){
+  player.vy=-18;
+  player.onGround=false;
+ }
 }
 
-/* LOOP */
+/* LOOP PRINCIPAL */
 function loop(){
-  if(!running||paused) return;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+ if(!running||paused)return;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle=phase%2?"#0a0018":"#87ceeb";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+ /* CIELO */
+ ctx.fillStyle = phase%2 ? DEV_BACKGROUND.skyNight : DEV_BACKGROUND.skyDay;
+ ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle="#111";
-  ctx.fillRect(0,canvas.height-60,canvas.width,60);
+ /* SOL / LUNA */
+ ctx.drawImage(phase%2?moon:sun,canvas.width-100,20,70,70);
 
-  if(moveL) player.x-=current.move;
-  if(moveR) player.x+=current.move;
-  player.x=Math.max(0,Math.min(canvas.width-player.w,player.x));
+ /* NUBES */
+ ctx.drawImage(clouds,(frame*-0.3)%canvas.width,60,canvas.width,120);
 
-  player.vy+=0.9;
-  player.y+=player.vy;
-  if(player.y+player.h>=canvas.height-60){
-    player.y=canvas.height-60-player.h;
-    player.vy=0;player.onGround=true;
-  }
+ /* MONTAÑAS */
+ ctx.drawImage(mountains,0,canvas.height-200,canvas.width,200);
 
-  ctx.fillStyle=current.color;
-  ctx.fillRect(player.x,player.y,player.w,player.h);
+ /* SUELO */
+ ctx.fillStyle="#111";
+ ctx.fillRect(0,canvas.height-60,canvas.width,60);
 
-  frame++;score++;
-  if(score%1200===0){
-    phase++;speed++;
-    phaseSpan.innerText=phase;
-  }
+ /* MOVIMIENTO */
+ if(moveL)player.x-=6;
+ if(moveR)player.x+=6;
+ player.x=Math.max(0,Math.min(canvas.width-player.w,player.x));
 
-  requestAnimationFrame(loop);
+ player.vy+=0.9;
+ player.y+=player.vy;
+ if(player.y+player.h>=canvas.height-60){
+  player.y=canvas.height-60-player.h;
+  player.vy=0;
+  player.onGround=true;
+ }
+
+ /* JUGADOR */
+ ctx.fillStyle="#b400ff";
+ ctx.fillRect(player.x,player.y,player.w,player.h);
+
+ frame++; score++;
+
+ if(score%1200===0){
+  phase++;
+  speed++;
+  phaseSpan.innerText = phase;
+ }
+
+ requestAnimationFrame(loop);
 }
 
 /* START */
 start.onclick=()=>{
-  menu.style.display="none";
-  player.y=canvas.height-110;
-  running=true;loop();
+ menu.style.display="none";
+ player.y = canvas.height-110;
+ running=true;
+ loop();
 };
 </script>
 
