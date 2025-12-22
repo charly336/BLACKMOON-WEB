@@ -3,261 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aerial Dash · Black Moon</title>
+<title>Black Moon Test</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{background:#000;overflow:hidden;color:white}
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:Arial;
+  overflow:hidden;
+}
 
-/* MENU */
 #menu{
- position:fixed;inset:0;
- background:linear-gradient(to top,#000,#16002e);
- display:flex;flex-direction:column;
- justify-content:center;align-items:center;
- z-index:10;
-}
-#menu h1{font-size:2.2rem;margin-bottom:20px}
-#menu button{
- padding:14px 45px;border:none;border-radius:30px;
- background:#7f00ff;color:white;font-size:1.1rem;
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
 }
 
-/* HUD */
+button{
+  padding:15px 30px;
+  font-size:18px;
+}
+
 #hud{
- position:fixed;top:10px;left:10px;
- background:rgba(0,0,0,.55);
- padding:10px 14px;border-radius:14px;
- z-index:5;
+  position:fixed;
+  top:10px;
+  left:10px;
 }
 
-/* CANVAS */
-canvas{display:block}
-
-/* CONTROLES */
 #controls{
- position:fixed;bottom:60px;right:15px;
- display:grid;
- grid-template-columns:repeat(3,70px);
- grid-template-rows:repeat(2,70px);
- gap:10px;z-index:5;
-}
-.btn{
- border:none;border-radius:50%;
- background:rgba(127,0,255,.85);
- color:white;font-size:.75rem;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  display:flex;
+  gap:10px;
 }
 
-#pause,#reset{
- position:fixed;top:10px;right:10px;
- width:60px;height:60px;border-radius:50%;
+.ctrl{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  font-size:20px;
 }
-#reset{right:80px;background:rgba(255,0,80,.85)}
-
-/* FOOTER */
-footer{
- position:fixed;bottom:0;width:100%;height:45px;
- background:#000;display:flex;
- justify-content:space-around;align-items:center;
- z-index:5;
-}
-footer a{color:white;font-size:.75rem;text-decoration:none}
 </style>
 </head>
 
 <body>
 
-<!-- MENU -->
 <div id="menu">
- <h1>🌙 Aerial Dash</h1>
- <button id="startBtn">INICIAR RITUAL</button>
+  <button id="start">INICIAR</button>
 </div>
 
-<!-- HUD -->
-<div id="hud">
- Fase Lunar: <span id="phase">1</span><br>
- Récord: <span id="record">0</span>
-</div>
+<div id="hud">JUGANDO…</div>
 
-<!-- CANVAS -->
-<canvas id="canvas"></canvas>
-
-<!-- BOTONES -->
-<button id="pause" class="btn">PAUSA</button>
-<button id="reset" class="btn">RESET</button>
+<canvas id="game"></canvas>
 
 <div id="controls">
- <button id="left" class="btn">⬅️</button>
- <div></div>
- <button id="right" class="btn">➡️</button>
- <div></div>
- <button id="jump" class="btn">⬆️</button>
- <div></div>
+  <button class="ctrl" id="left">⬅️</button>
+  <button class="ctrl" id="jump">⬆️</button>
+  <button class="ctrl" id="right">➡️</button>
 </div>
 
-<footer>
- <a href="#">Podcast</a>
- <a href="#">Escuela</a>
- <a href="#">Records</a>
- <a href="#">Black Moon</a>
-</footer>
-
 <script>
-/* ================= CONFIG DESARROLLADOR ================= */
-const DEV_BG = {
- skyDay:"#87CEEB",
- skyNight:"#0a0018",
- clouds:"nubes.png",
- mountains:"montanas.png",
- moon:"luna.png",
- sun:"sol.png"
-};
-/* ======================================================== */
-
-/* DOM */
-const canvas = document.getElementById("canvas");
+/* ===== DOM ===== */
+const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const menu = document.getElementById("menu");
-const startBtn = document.getElementById("startBtn");
-const phaseSpan = document.getElementById("phase");
-const recordSpan = document.getElementById("record");
 
-const leftBtn = document.getElementById("left");
-const rightBtn = document.getElementById("right");
-const jumpBtn = document.getElementById("jump");
-const pauseBtn = document.getElementById("pause");
-const resetBtn = document.getElementById("reset");
-
-/* CANVAS */
 function resize(){
- canvas.width = window.innerWidth;
- canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 resize();
 window.addEventListener("resize", resize);
 
-/* IMÁGENES (opcionales) */
-const cloudsImg = new Image(); cloudsImg.src = DEV_BG.clouds;
-const mountainsImg = new Image(); mountainsImg.src = DEV_BG.mountains;
-const moonImg = new Image(); moonImg.src = DEV_BG.moon;
-const sunImg = new Image(); sunImg.src = DEV_BG.sun;
-
-/* ESTADO */
-let running=false, paused=false;
-let frame=0, phase=1, score=0;
-let record = localStorage.getItem("bm_record") || 0;
-recordSpan.textContent = record;
-
-/* JUGADOR */
+/* ===== JUGADOR ===== */
 let player = {
- x:80,
- y:0,
- w:45,
- h:45,
- vy:0,
- gravity:0.9,
- jump:-18,
- onGround:false
+  x:100,
+  y:0,
+  w:40,
+  h:40,
+  vy:0,
+  gravity:0.8,
+  jump:-15,
+  onGround:false
 };
 
-let moveL=false, moveR=false;
+let running = false;
+let moveL = false;
+let moveR = false;
 
-/* CONTROLES */
-leftBtn.onpointerdown = ()=>moveL=true;
-leftBtn.onpointerup = ()=>moveL=false;
-rightBtn.onpointerdown = ()=>moveR=true;
-rightBtn.onpointerup = ()=>moveR=false;
-
-jumpBtn.onclick = jump;
-pauseBtn.onclick = ()=>{
- paused = !paused;
- pauseBtn.textContent = paused ? "PLAY" : "PAUSA";
- if(!paused) loop();
+/* ===== CONTROLES ===== */
+document.getElementById("left").onpointerdown = ()=>moveL=true;
+document.getElementById("left").onpointerup = ()=>moveL=false;
+document.getElementById("right").onpointerdown = ()=>moveR=true;
+document.getElementById("right").onpointerup = ()=>moveR=false;
+document.getElementById("jump").onclick = ()=>{
+  if(player.onGround){
+    player.vy = player.jump;
+    player.onGround = false;
+  }
 };
-resetBtn.onclick = ()=>location.reload();
 
 document.addEventListener("keydown",e=>{
- if(e.key==="ArrowLeft") moveL=true;
- if(e.key==="ArrowRight") moveR=true;
- if(e.key===" "||e.key==="ArrowUp") jump();
+  if(e.key==="ArrowLeft") moveL=true;
+  if(e.key==="ArrowRight") moveR=true;
+  if(e.key===" "||e.key==="ArrowUp"){
+    if(player.onGround){
+      player.vy = player.jump;
+      player.onGround=false;
+    }
+  }
 });
 document.addEventListener("keyup",e=>{
- if(e.key==="ArrowLeft") moveL=false;
- if(e.key==="ArrowRight") moveR=false;
+  if(e.key==="ArrowLeft") moveL=false;
+  if(e.key==="ArrowRight") moveR=false;
 });
 
-function jump(){
- if(player.onGround && !paused){
-  player.vy = player.jump;
-  player.onGround = false;
- }
-}
-
-/* LOOP */
+/* ===== LOOP ===== */
 function loop(){
- if(!running || paused) return;
+  if(!running) return;
 
- ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
- /* CIELO */
- ctx.fillStyle = phase%2 ? DEV_BG.skyNight : DEV_BG.skyDay;
- ctx.fillRect(0,0,canvas.width,canvas.height);
+  // fondo
+  ctx.fillStyle="#222";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
- /* ASTRO */
- if(phase%2 && moonImg.complete){
-  ctx.drawImage(moonImg,canvas.width-100,20,70,70);
- }else if(!phase%2 && sunImg.complete){
-  ctx.drawImage(sunImg,canvas.width-100,20,70,70);
- }
+  // suelo
+  ctx.fillStyle="#000";
+  ctx.fillRect(0,canvas.height-50,canvas.width,50);
 
- /* NUBES */
- if(cloudsImg.complete){
-  ctx.drawImage(cloudsImg,(frame*-0.3)%canvas.width,50,canvas.width,120);
- }
+  // movimiento lateral
+  if(moveL) player.x -= 5;
+  if(moveR) player.x += 5;
 
- /* MONTAÑAS */
- if(mountainsImg.complete){
-  ctx.drawImage(mountainsImg,0,canvas.height-200,canvas.width,200);
- }
+  // física
+  player.vy += player.gravity;
+  player.y += player.vy;
 
- /* SUELO */
- ctx.fillStyle="#111";
- ctx.fillRect(0,canvas.height-60,canvas.width,60);
+  if(player.y + player.h >= canvas.height-50){
+    player.y = canvas.height-50-player.h;
+    player.vy = 0;
+    player.onGround = true;
+  }
 
- /* MOVIMIENTO */
- if(moveL) player.x -= 6;
- if(moveR) player.x += 6;
- player.x = Math.max(0,Math.min(canvas.width-player.w,player.x));
+  // jugador
+  ctx.fillStyle="#b400ff";
+  ctx.fillRect(player.x,player.y,player.w,player.h);
 
- player.vy += player.gravity;
- player.y += player.vy;
-
- if(player.y + player.h >= canvas.height-60){
-  player.y = canvas.height-60-player.h;
-  player.vy = 0;
-  player.onGround = true;
- }
-
- /* JUGADOR */
- ctx.fillStyle="#b400ff";
- ctx.fillRect(player.x,player.y,player.w,player.h);
-
- frame++; score++;
-
- if(score % 1200 === 0){
-  phase++;
-  phaseSpan.textContent = phase;
- }
-
- requestAnimationFrame(loop);
+  requestAnimationFrame(loop);
 }
 
-/* START */
-startBtn.onclick = ()=>{
- menu.style.display="none";
- player.y = canvas.height-105;
- running = true;
- loop();
+/* ===== START ===== */
+document.getElementById("start").onclick = ()=>{
+  menu.style.display="none";
+  player.y = canvas.height-90;
+  running = true;
+  loop();
 };
 </script>
 
