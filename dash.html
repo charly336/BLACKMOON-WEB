@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Black Moon Test</title>
+<title>Black Moon Test con Obstáculos</title>
 
 <style>
 body{
@@ -14,6 +14,7 @@ body{
   overflow:hidden;
 }
 
+/* MENU */
 #menu{
   position:fixed;
   inset:0;
@@ -29,12 +30,14 @@ button{
   font-size:18px;
 }
 
+/* HUD */
 #hud{
   position:fixed;
   top:10px;
   left:10px;
 }
 
+/* CONTROLES */
 #controls{
   position:fixed;
   bottom:20px;
@@ -42,7 +45,6 @@ button{
   display:flex;
   gap:10px;
 }
-
 .ctrl{
   width:70px;
   height:70px;
@@ -58,7 +60,7 @@ button{
   <button id="start">INICIAR</button>
 </div>
 
-<div id="hud">JUGANDO…</div>
+<div id="hud">Salta los obstáculos</div>
 
 <canvas id="game"></canvas>
 
@@ -69,10 +71,9 @@ button{
 </div>
 
 <script>
-/* ===== DOM ===== */
+/* ===== CANVAS ===== */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const menu = document.getElementById("menu");
 
 function resize(){
   canvas.width = window.innerWidth;
@@ -83,7 +84,7 @@ window.addEventListener("resize", resize);
 
 /* ===== JUGADOR ===== */
 let player = {
-  x:100,
+  x:120,
   y:0,
   w:40,
   h:40,
@@ -93,36 +94,40 @@ let player = {
   onGround:false
 };
 
+/* ===== ESTADO ===== */
 let running = false;
 let moveL = false;
 let moveR = false;
+let speed = 5;
+
+/* ===== OBSTÁCULOS ===== */
+let obstacles = [];
+let spawnTimer = 0;
 
 /* ===== CONTROLES ===== */
 document.getElementById("left").onpointerdown = ()=>moveL=true;
 document.getElementById("left").onpointerup = ()=>moveL=false;
 document.getElementById("right").onpointerdown = ()=>moveR=true;
 document.getElementById("right").onpointerup = ()=>moveR=false;
-document.getElementById("jump").onclick = ()=>{
-  if(player.onGround){
-    player.vy = player.jump;
-    player.onGround = false;
-  }
-};
+
+document.getElementById("jump").onclick = jump;
 
 document.addEventListener("keydown",e=>{
   if(e.key==="ArrowLeft") moveL=true;
   if(e.key==="ArrowRight") moveR=true;
-  if(e.key===" "||e.key==="ArrowUp"){
-    if(player.onGround){
-      player.vy = player.jump;
-      player.onGround=false;
-    }
-  }
+  if(e.key===" "||e.key==="ArrowUp") jump();
 });
 document.addEventListener("keyup",e=>{
   if(e.key==="ArrowLeft") moveL=false;
   if(e.key==="ArrowRight") moveR=false;
 });
+
+function jump(){
+  if(player.onGround){
+    player.vy = player.jump;
+    player.onGround = false;
+  }
+}
 
 /* ===== LOOP ===== */
 function loop(){
@@ -130,19 +135,18 @@ function loop(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // fondo
+  /* Fondo */
   ctx.fillStyle="#222";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // suelo
+  /* Suelo */
   ctx.fillStyle="#000";
   ctx.fillRect(0,canvas.height-50,canvas.width,50);
 
-  // movimiento lateral
-  if(moveL) player.x -= 5;
-  if(moveR) player.x += 5;
+  /* Jugador */
+  if(moveL) player.x -= 4;
+  if(moveR) player.x += 4;
 
-  // física
   player.vy += player.gravity;
   player.y += player.vy;
 
@@ -152,16 +156,48 @@ function loop(){
     player.onGround = true;
   }
 
-  // jugador
   ctx.fillStyle="#b400ff";
   ctx.fillRect(player.x,player.y,player.w,player.h);
+
+  /* Obstáculos */
+  spawnTimer++;
+  if(spawnTimer > 90){
+    obstacles.push({
+      x:canvas.width,
+      y:canvas.height-80,
+      w:30,
+      h:30
+    });
+    spawnTimer = 0;
+  }
+
+  obstacles.forEach((o,index)=>{
+    o.x -= speed;
+    ctx.fillStyle="#ff0055";
+    ctx.fillRect(o.x,o.y,o.w,o.h);
+
+    /* Colisión */
+    if(
+      player.x < o.x + o.w &&
+      player.x + player.w > o.x &&
+      player.y < o.y + o.h &&
+      player.y + player.h > o.y
+    ){
+      alert("💥 Choque");
+      location.reload();
+    }
+
+    if(o.x + o.w < 0){
+      obstacles.splice(index,1);
+    }
+  });
 
   requestAnimationFrame(loop);
 }
 
 /* ===== START ===== */
 document.getElementById("start").onclick = ()=>{
-  menu.style.display="none";
+  document.getElementById("menu").style.display="none";
   player.y = canvas.height-90;
   running = true;
   loop();
