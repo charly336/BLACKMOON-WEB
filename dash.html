@@ -1,195 +1,306 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aerial Dance Dash</title>
-    <style>
-        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #87CEEB; }
-        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Canvas responsivo */
-        canvas { display: block; background: linear-gradient(#2c3e50, #000); width: 100%; height: calc(100% - 60px); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aerial Dash · Black Moon</title>
 
-        /* Interfaz de usuario */
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none; }
-        button { pointer-events: auto; padding: 15px 30px; font-size: 20px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 10px; transition: 0.3s; }
-        button:hover { transform: scale(1.1); }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 
-        /* Footer */
-        footer { height: 60px; background: #222; color: white; display: flex; justify-content: space-around; align-items: center; z-index: 10; }
-        footer a { color: #3498db; text-decoration: none; font-size: 14px; }
-    </style>
+body{
+  background:#000;
+  overflow:hidden;
+  color:white;
+}
+
+/* ---------------- FOG ---------------- */
+#fog{
+  position:absolute;
+  inset:0;
+  background:url("fog.png") repeat-x;
+  opacity:0.25;
+  pointer-events:none;
+  animation:fog 80s linear infinite;
+  z-index:2;
+}
+@keyframes fog{
+  from{background-position:0 0;}
+  to{background-position:-3000px 0;}
+}
+
+/* ---------------- MENU ---------------- */
+#menu{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,#000,#16002e);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:10;
+  backdrop-filter:blur(10px);
+}
+#menu h1{
+  font-size:2.6rem;
+  margin-bottom:25px;
+}
+#menu button{
+  padding:15px 55px;
+  border-radius:30px;
+  border:none;
+  background:linear-gradient(45deg,#7f00ff,#c77dff);
+  color:white;
+  font-size:1.2rem;
+}
+
+/* ---------------- HUD ---------------- */
+#hud{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:rgba(0,0,0,0.45);
+  padding:12px 16px;
+  border-radius:16px;
+  backdrop-filter:blur(8px);
+  z-index:5;
+}
+
+/* ---------------- CANVAS ---------------- */
+canvas{display:block}
+
+/* ---------------- BUTTON ---------------- */
+#jumpBtn{
+  position:absolute;
+  bottom:90px;
+  right:20px;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:rgba(127,0,255,0.75);
+  border:none;
+  color:white;
+  font-size:0.9rem;
+  backdrop-filter:blur(8px);
+  z-index:5;
+}
+
+/* ---------------- FOOTER ---------------- */
+footer{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:50px;
+  background:linear-gradient(to right,#000,#2b2b2b,#7f00ff,#000);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  backdrop-filter:blur(8px);
+  z-index:5;
+}
+footer a{
+  color:white;
+  text-decoration:none;
+  font-size:0.85rem;
+}
+</style>
 </head>
+
 <body>
 
-<div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-
-    <div id="ui-layer">
-        <h1 id="title" style="color: white; text-shadow: 2px 2px #000;">AERIAL DANCE DASH</h1>
-        <button id="startBtn">BAILAR / JUGAR</button>
-    </div>
-
-    <footer>
-        <a href="#">Web Oficial</a>
-        <a href="#">Galería Danza</a>
-        <a href="#">Música</a>
-        <a href="#">Créditos</a>
-    </footer>
+<div id="menu">
+  <h1>🌙 Aerial Dash</h1>
+  <button onclick="startGame()">INICIAR RITUAL</button>
 </div>
 
-<audio id="bgMusic" loop>
-    <source src="tu-musica.mp3" type="audio/mpeg">
-</audio>
+<div id="fog"></div>
+
+<div id="hud">
+  Fase Lunar: <span id="phase">I</span><br>
+  Altura Máxima: <span id="record">0</span>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<button id="jumpBtn">IMPULSO</button>
+
+<footer>
+  <a href="#">Podcast</a>
+  <a href="#">Escuela</a>
+  <a href="#">Records</a>
+  <a href="#">Black Moon</a>
+</footer>
+
+<audio id="music" loop></audio>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const bgMusic = document.getElementById('bgMusic');
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-// Configuración de pantalla
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 60;
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-window.addEventListener('resize', resize);
 resize();
+window.addEventListener("resize", resize);
 
-// --- CARGA DE IMÁGENES (Aquí cambias las rutas) ---
-const assets = {
-    player: new Image(), // Tu bailarina aérea
-    sun: new Image(),
-    cloud: new Image(),
-    mountain: new Image(),
-    obstacle: new Image()
+/* -------- IMÁGENES BLACK MOON -------- */
+const isis = new Image();
+isis.src = "isis_moon.png";
+
+const tela = new Image();
+tela.src = "tela.png";
+
+const moon = new Image();
+moon.src = "luna.png";
+
+const sun = new Image();
+sun.src = "sol.png";
+
+/* -------- MÚSICA -------- */
+const tracks = [
+  "bm_luna_nueva.mp3",
+  "bm_creciente.mp3",
+  "bm_llena.mp3",
+  "bm_roja.mp3",
+  "bm_eclipse.mp3"
+];
+
+/* -------- JUGADOR -------- */
+let player = {
+  x:80,
+  y:canvas.height-180,
+  w:55,
+  h:55,
+  vy:0,
+  jump:-19,
+  gravity:0.9,
+  onGround:false
 };
 
-// Reemplaza estas URLs con tus archivos locales
-assets.sun.src = 'https://cdn-icons-png.flaticon.com/512/869/869869.png'; 
-assets.cloud.src = 'https://pngimg.com/uploads/cloud/cloud_PNG13.png';
-assets.mountain.src = 'https://pngimg.com/uploads/mountain/mountain_PNG18.png';
-assets.player.src = 'https://cdn-icons-png.flaticon.com/512/3211/3211183.png'; // Icono danza
+/* -------- ESTADO -------- */
+let obstacles=[];
+let particles=[];
+let frame=0;
+let speed=6;
+let phase=1;
+let score=0;
+let record=localStorage.getItem("blackmoonRecord")||0;
+document.getElementById("record").innerText=record;
 
-// Estado del juego
-let gameActive = false;
-let score = 0;
-let gravity = 0.6;
-let scrollSpeed = 5;
-
-// Objeto Jugador
-const player = {
-    x: 100,
-    y: 300,
-    w: 50,
-    h: 80,
-    dy: 0,
-    jumpForce: -12,
-    grounded: false
-};
-
-// Obstáculos y Fondo
-let obstacles = [];
-let bgElements = [];
-
-function init() {
-    score = 0;
-    obstacles = [];
-    player.y = canvas.height - 150;
-    gameActive = true;
-    bgMusic.play();
-    spawnObstacle();
+/* -------- CONTROL -------- */
+function jump(){
+  if(player.onGround){
+    player.vy=player.jump;
+    player.onGround=false;
+    spawnParticles();
+  }
 }
+document.addEventListener("click",jump);
+document.getElementById("jumpBtn").addEventListener("click",jump);
 
-function spawnObstacle() {
-    if(!gameActive) return;
-    obstacles.push({ x: canvas.width, y: canvas.height - 70, w: 40, h: 40 });
-    setTimeout(spawnObstacle, 1500 + Math.random() * 1000);
-}
-
-// Lógica de Salto
-function jump() {
-    if (player.grounded) {
-        player.dy = player.jumpForce;
-        player.grounded = false;
-    }
-}
-
-window.addEventListener('keydown', (e) => { if(e.code === 'Space') jump(); });
-canvas.addEventListener('touchstart', jump);
-
-function update() {
-    if (!gameActive) return;
-
-    // Gravedad y Movimiento
-    player.dy += gravity;
-    player.y += player.dy;
-
-    // Suelo básico
-    if (player.y + player.h > canvas.height - 30) {
-        player.y = canvas.height - 30 - player.h;
-        player.dy = 0;
-        player.grounded = true;
-    }
-
-    // Actualizar Obstáculos
-    obstacles.forEach((obs, index) => {
-        obs.x -= scrollSpeed;
-        
-        // Colisión simple
-        if (player.x < obs.x + obs.w && player.x + player.w > obs.x &&
-            player.y < obs.y + obs.h && player.y + player.h > obs.y) {
-            gameOver();
-        }
-
-        if (obs.x + obs.w < 0) {
-            obstacles.splice(index, 1);
-            score++;
-        }
+/* -------- PARTÍCULAS -------- */
+function spawnParticles(){
+  for(let i=0;i<12;i++){
+    particles.push({
+      x:player.x+player.w/2,
+      y:player.y+player.h/2,
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-0.5)*6,
+      life:35
     });
-
-    draw();
-    requestAnimationFrame(update);
+  }
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+/* -------- LOOP -------- */
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // Dibujar Sol/Luna
-    ctx.drawImage(assets.sun, canvas.width - 150, 50, 100, 100);
+  ctx.fillStyle = phase%2===0 ? "#88ccee" : "#0a0018";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // Dibujar Montañas (Fondo estático o lento)
-    ctx.drawImage(assets.mountain, 0, canvas.height - 200, 400, 200);
-    ctx.drawImage(assets.mountain, 400, canvas.height - 200, 400, 200);
+  ctx.drawImage(phase%2===0?sun:moon,canvas.width-100,20,70,70);
 
-    // Dibujar Jugador (Bailarina)
-    ctx.drawImage(assets.player, player.x, player.y, player.w, player.h);
+  player.vy+=player.gravity;
+  player.y+=player.vy;
 
-    // Dibujar Obstáculos (Picos o telas)
-    ctx.fillStyle = "#ff0000";
-    obstacles.forEach(obs => {
-        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+  if(player.y+player.h>=canvas.height-80){
+    player.y=canvas.height-80-player.h;
+    player.vy=0;
+    player.onGround=true;
+  }
+
+  ctx.drawImage(isis,player.x,player.y,player.w,player.h);
+
+  if(frame%120===0){
+    obstacles.push({
+      x:canvas.width,
+      y:canvas.height-140,
+      w:70,
+      h:100
     });
+  }
 
-    // Marcador
-    ctx.fillStyle = "white";
-    ctx.font = "24px Arial";
-    ctx.fillText(`Puntos: ${score}`, 20, 40);
+  obstacles.forEach((o,i)=>{
+    o.x-=speed;
+    ctx.drawImage(tela,o.x,o.y,o.w,o.h);
+
+    if(player.x<o.x+o.w &&
+       player.x+player.w>o.x &&
+       player.y<o.y+o.h &&
+       player.y+player.h>o.y){
+      endGame();
+    }
+
+    if(o.x+o.w<0) obstacles.splice(i,1);
+  });
+
+  particles.forEach((p,i)=>{
+    ctx.fillStyle="rgba(180,0,255,0.85)";
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fill();
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.life--;
+    if(p.life<=0) particles.splice(i,1);
+  });
+
+  frame++;
+  score++;
+
+  if(score%1200===0){
+    phase++;
+    speed+=1;
+    document.getElementById("phase").innerText=phase;
+    loadMusic();
+  }
+
+  requestAnimationFrame(loop);
 }
 
-function gameOver() {
-    gameActive = false;
-    bgMusic.pause();
-    alert("¡Caída! Puntuación: " + score);
-    location.reload();
+/* -------- AUDIO -------- */
+function loadMusic(){
+  const music=document.getElementById("music");
+  music.src=tracks[(phase-1)%tracks.length];
+  music.play();
 }
 
-startBtn.addEventListener('click', () => {
-    document.getElementById('ui-layer').style.display = 'none';
-    init();
-    update();
-});
+/* -------- GAME OVER -------- */
+function endGame(){
+  if(score>record){
+    localStorage.setItem("blackmoonRecord",score);
+  }
+  alert("🌙 El aire te soltó… vuelve a intentarlo");
+  location.reload();
+}
+
+/* -------- START -------- */
+function startGame(){
+  document.getElementById("menu").style.display="none";
+  loadMusic();
+  loop();
+}
 </script>
 
 </body>
