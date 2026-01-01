@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"links/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>2048 Ilimited - Black Moon</title>
 
 <style>
@@ -22,7 +22,7 @@ html, body{
   background:linear-gradient(180deg,#071021 0%,#0a2345 50%,#131f3b 100%);
   color:#fff;
 
-  /* 🔒 BLOQUEO TOTAL DE SCROLL */
+  /* 🔒 BLOQUEO DE SCROLL */
   overflow:hidden;
   position:fixed;
   width:100%;
@@ -34,6 +34,7 @@ html, body{
   max-width:920px;
   margin:auto;
   padding:14px;
+  padding-bottom:90px; /* espacio para footer */
 }
 
 .header{
@@ -85,8 +86,6 @@ html, body{
   background:rgba(255,255,255,0.04);
   border-radius:12px;
   padding:10px;
-
-  /* 👉 SOLO AQUÍ SE PERMITEN GESTOS */
   touch-action:none;
 }
 
@@ -121,6 +120,40 @@ html, body{
   background:rgba(255,255,255,0.05);
   border-radius:12px;
   padding:10px;
+  font-size:13px;
+  opacity:.85;
+}
+
+/* 🦶 FOOTER */
+.footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:70px;
+  background:rgba(10,15,35,0.95);
+  backdrop-filter:blur(8px);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+
+.footer a{
+  color:#fff;
+  text-decoration:none;
+  font-size:12px;
+  text-align:center;
+  opacity:.85;
+}
+
+.footer a:hover{
+  opacity:1;
+}
+
+.footer span{
+  display:block;
+  font-size:18px;
 }
 
 @media(max-width:768px){
@@ -151,13 +184,32 @@ html, body{
     </div>
 
     <aside class="sidePanel">
-      <p style="font-size:13px;opacity:.8">
-        Desliza para jugar.<br>
-        Optimizado para celular 📱
-      </p>
+      Desliza para jugar 📱<br>
+      Optimizado para móvil<br>
+      Black Moon Games 🌙
     </aside>
   </div>
 </div>
+
+<!-- 🦶 FOOTER CON 4 LINKS -->
+<footer class="footer">
+  <a href="https://open.spotify.com" target="_blank">
+    <span>🎧</span>
+    Podcast
+  </a>
+  <a href="https://charly336.github.io/BLACKMOON-WEB/" target="_blank">
+    <span>🎮</span>
+    Juegos
+  </a>
+  <a href="https://instagram.com" target="_blank">
+    <span>📸</span>
+    Instagram
+  </a>
+  <a href="https://wa.me/" target="_blank">
+    <span>💬</span>
+    Contacto
+  </a>
+</footer>
 
 <script>
 const size = 4;
@@ -171,8 +223,7 @@ const newBtn = document.getElementById("newBtn");
 function init(){
   board = Array.from({length:size},()=>Array(size).fill(0));
   score = 0;
-  spawn();
-  spawn();
+  spawn(); spawn();
   render();
 }
 
@@ -209,10 +260,8 @@ function render(){
 
 function move(dir){
   let moved=false;
-
   const dx={left:-1,right:1,up:0,down:0}[dir];
   const dy={up:-1,down:1,left:0,right:0}[dir];
-
   const range=[...Array(size).keys()];
   if(dir==="right"||dir==="down") range.reverse();
 
@@ -231,14 +280,10 @@ function move(dir){
       }
     }
   }
-
-  if(moved){
-    spawn();
-    render();
-  }
+  if(moved){ spawn(); render(); }
 }
 
-/* 📱 CONTROLES TOUCH ESTABLES */
+/* 📱 TOUCH */
 let startX=null,startY=null;
 
 boardEl.addEventListener("touchstart",e=>{
@@ -251,23 +296,20 @@ boardEl.addEventListener("touchstart",e=>{
 boardEl.addEventListener("touchend",e=>{
   e.preventDefault();
   if(startX===null) return;
-
   const t=e.changedTouches[0];
   const dx=t.clientX-startX;
   const dy=t.clientY-startY;
 
   if(Math.abs(dx)<30 && Math.abs(dy)<30) return;
 
-  if(Math.abs(dx)>Math.abs(dy))
-    move(dx>0?"right":"left");
-  else
-    move(dy>0?"down":"up");
+  Math.abs(dx)>Math.abs(dy)
+    ? move(dx>0?"right":"left")
+    : move(dy>0?"down":"up");
 
-  startX=null;
-  startY=null;
+  startX=null; startY=null;
 },{passive:false});
 
-/* ⌨️ TECLADO */
+/* ⌨️ */
 window.addEventListener("keydown",e=>{
   const m={37:"left",38:"up",39:"right",40:"down"};
   if(m[e.keyCode]) move(m[e.keyCode]);
@@ -279,3 +321,4 @@ init();
 
 </body>
 </html>
+
