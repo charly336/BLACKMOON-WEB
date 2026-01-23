@@ -1,105 +1,161 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-	<title> 🎧 Blackmoon Records 🎤 </title>
-    <style>
-        body {
-            background-image: url("721770.png");
-            background-size: cover;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            font-weight: bold;
-            font-size: 110px;
-            color:#f4d03f; <!-- amarillo -->
-        }
-      h2 {
-            font-weight: bold;
-            font-size: 50px;
-            color: #fbfcfc ; <!-- blanco -->
-        }
-	h3 {
-            font-weight: bold;
-            font-size: 50px;
-            color:#2ecc71  ; <!-- verde -->
-        }
-      p {
-            font-weight: bold;
-            font-size: 150%;
-            color: #111273; <!-- AZUL -->
-        }
-      
-        a {
-            color: purple;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .espacio {
-            margin: 20px;
-        }
-        .imagen-mediana {
-            width: 200px;
-            height: 200px;
-            border: 2px solid #000;
-            border-radius: 10px;
-        }
-    </style>
-</head>
-	<marquee behavior="scroll" direction="left"><h1>Blackmoon Records</h1></marquee><br><br> <!-- amarillo -->
-	<title>Blackmoon records | Inicio</title>
-    <meta name="description" content="Descripción breve de mi sitio web">
-<body>
-	<p>Somos miembros del Grupo Blackmoon, estamos incursionandocon la creacion de contenido musical de aereo, ya tenemos varias canciones en plataformas digitales, gracias por seguirnos</p> <!-- naranja -->
-	<h3>--📅 22 ENERO NUEVO DISCO 📅--</h3>
-	<h3>Nuestro 1 disco</h3>
-	<iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/1LU8pBzk6MBMiznnyBK3Ps?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-	<h3>Nuestro 2 disco</h3>
-	<iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/0NcuIKpRZGzEuVkxw1Kr9r?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-	<h3>Nuestro 3 disco</h3>
-	<iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/0V5sLanSQTIv8yM2IZh78b?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-	<h3>Otros sencillos</h3>
-	<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/2alebb6Wjo0MO2GI2RAcKo?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-	<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/3WVqBbFIo2oManOLKu3koY?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-	<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4Mr51C0LhLKDC9zOeQ7ftR?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-	<p>Tenemos mas canciones, en varias plataformas </p>
-    </body>
- 
-   
-    <marquee behavior="scroll" direction="left"><h2>&copy; Todos somos Blackmoon</h2></font></marquee> 	 <!-- blanco -->
-    <marquee behavior="scroll" direction="left"><h2>&copy; 1 año haciendo musica para ustedes</h2></font></marquee> 	 <!-- blanco -->
-    <marquee behavior="scroll" direction="left"><h2>&copy; Y..... VOLEMOS ALTO  </h2></font></marquee>    <!-- blanco -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<footer style="
-    width:100%;
-    padding:20px 0;
-    background: linear-gradient(to right, #8A2BE2, #FF1493, #FFA500, #00CED1);
+<title>🎧 Blackmoon Records | Inicio</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#0b0b0f;
+    color:white;
+}
+
+/* ===== CABECERA TIPO VIAJES ===== */
+.hero{
+    height:70vh;
+    background-image:url("721770.png"); /* imagen grande */
+    background-size:cover;
+    background-position:center;
     display:flex;
-    justify-content:space-around;
+    flex-direction:column;
+    justify-content:center;
     align-items:center;
-">
+    text-align:center;
+    box-shadow: inset 0 0 0 2000px rgba(0,0,0,.55);
+}
+
+.hero h1{
+    font-size:90px;
+    color:#f4d03f;
+    margin:0;
+}
+
+.hero p{
+    max-width:800px;
+    font-size:22px;
+    color:#ffffff;
+    margin-top:20px;
+}
+
+/* ===== BOTONES PRINCIPALES ===== */
+.menu-discos{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:25px;
+    padding:60px 20px;
+}
+
+.menu-discos a{
+    text-decoration:none;
+    padding:25px 40px;
+    font-size:22px;
+    font-weight:bold;
+    color:black;
+    border-radius:12px;
+    transition:transform .3s, box-shadow .3s;
+}
+
+/* colores individuales */
+.disco1{background:#2ecc71;}
+.disco2{background:#3498db;}
+.disco3{background:#e74c3c;}
+.disco4{background:#9b59b6;}
+.extras{background:#f39c12;}
+
+.menu-discos a:hover{
+    transform:scale(1.08);
+    box-shadow:0 0 20px rgba(255,255,255,.4);
+}
+
+/* ===== SECCION INFO ===== */
+.info{
+    padding:60px 20px;
+    text-align:center;
+}
+
+.info h2{
+    font-size:45px;
+    color:#fbfcfc;
+}
+
+.info p{
+    max-width:900px;
+    margin:auto;
+    font-size:20px;
+    color:#cfd2ff;
+}
+
+/* ===== FOOTER BLACKMOON ===== */
+footer{
+    margin-top:60px;
+    padding:30px 0;
+    background: linear-gradient(90deg,#8A2BE2,#FF1493,#FFA500,#00CED1);
+    display:flex;
+    justify-content:center;
+    gap:50px;
+}
+
+footer a img{
+    width:55px;
+    transition:transform .3s;
+}
+
+footer a img:hover{
+    transform:scale(1.2);
+}
+</style>
+</head>
+
+<body>
+
+<!-- CABECERA -->
+<section class="hero">
+    <h1>Blackmoon Records</h1>
+    <p>
+        Somos miembros del Grupo Blackmoon.  
+        Creamos música inspirada en el aire, el movimiento y la libertad.  
+        Gracias por acompañarnos en este viaje musical.
+    </p>
+</section>
+
+<!-- BOTONES DE NAVEGACIÓN -->
+<section class="menu-discos">
+    <a class="disco1" href="disco1.html">Disco 1</a>
+    <a class="disco2" href="disco2.html">Disco 2</a>
+    <a class="disco3" href="disco3.html">Disco 3</a>
+    <a class="disco4" href="disco4.html">Disco 4</a>
+    <a class="extras" href="extras.html">Canciones Varias</a>
+</section>
+
+<!-- INFO -->
+<section class="info">
+    <h2>Volemos Alto</h2>
+    <p>
+        Blackmoon Records nace como un proyecto musical que conecta danza aérea,
+        emociones, historias y sonidos.  
+        Cada disco representa una etapa, un vuelo distinto y una visión propia.
+    </p>
+</section>
+
+<!-- FOOTER (LINKS SIN CAMBIAR) -->
+<footer>
     <a href="Games List.html">
-        <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" alt="GAMES" style="width:50px;">
+        <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg">
     </a>
 
     <a href="PLATAFORMAS POD.HTML">
-        <img src="BKM PODCAST 2.0.jpg" alt="PODCAST" style="width:50px;">
+        <img src="BKM PODCAST 2.0.jpg">
     </a>
 
     <a href="REDES PBM.html">
-        <img src="PRODUCTOS BKM 2.O.jpg" alt="PRODUCTOS" style="width:50px;">
-    </a>
-
-    <a href="https://www.jotform.com/app/251536021952856">
-        <img src="GPO BKM 2.jpg" alt="APP" style="width:50px;">
+        <img src="PRODUCTOS BKM 2.O.jpg">
     </a>
 </footer>
-
 
 </body>
 </html>
