@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>🎧 Blackmoon Records | Disco 1</title>
+<title>Blackmoon Records | Disco 1</title>
 
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
     font-family: Arial, sans-serif;
@@ -17,7 +20,10 @@ body{
 /* ===== HERO ===== */
 .hero-disco{
     min-height:60vh;
-    background-image:url("portada_disco1.jpg");
+    background: linear-gradient(
+        rgba(0,0,0,.65),
+        rgba(0,0,0,.65)
+    ), url("721770.png");
     background-size:cover;
     background-position:center;
     display:flex;
@@ -26,11 +32,10 @@ body{
     align-items:center;
     text-align:center;
     padding:40px 20px;
-    box-shadow: inset 0 0 0 2000px rgba(0,0,0,.6);
 }
 
 .hero-disco h1{
-    font-size:clamp(45px,8vw,80px);
+    font-size:clamp(40px,8vw,80px);
     color:#2ecc71;
     margin:0;
 }
@@ -48,7 +53,7 @@ section{
 }
 
 h2{
-    font-size:clamp(28px,6vw,42px);
+    font-size:clamp(26px,6vw,42px);
     margin-bottom:20px;
 }
 
@@ -64,29 +69,29 @@ h2{
 /* ===== SPOTIFY ===== */
 .spotify{
     max-width:900px;
-    margin:40px auto;
+    margin:30px auto;
 }
 
 .spotify iframe{
     width:100%;
     height:160px;
-    border-radius:14px;
+    border-radius:12px;
+    border:none;
 }
 
 /* ===== CANCIONES ===== */
 .lista{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
     gap:15px;
     max-width:900px;
     margin:auto;
 }
 
-.lista button{
+.lista div{
     padding:16px;
     font-size:16px;
     font-weight:bold;
-    border:none;
     border-radius:12px;
     background:#2ecc71;
     color:black;
@@ -94,7 +99,7 @@ h2{
     transition:.3s;
 }
 
-.lista button:hover{
+.lista div:hover{
     transform:scale(1.07);
     box-shadow:0 0 15px #2ecc71;
 }
@@ -103,7 +108,7 @@ h2{
 .letras{
     max-width:900px;
     margin:auto;
-    border-top:2px solid rgba(255,255,255,.1);
+    border-top:2px solid rgba(255,255,255,.15);
 }
 
 .letras p{
@@ -131,7 +136,7 @@ footer a img:hover{
     transform:scale(1.15);
 }
 
-/* ===== MOBILE EXTRA ===== */
+/* ===== MOBILE ===== */
 @media(max-width:600px){
     .spotify iframe{
         height:200px;
@@ -153,8 +158,7 @@ footer a img:hover{
     <h2>Sobre este disco</h2>
     <p>
         Este primer disco marca el nacimiento del proyecto.
-        Son canciones creadas desde la experiencia, el cuerpo
-        y la conexión con el aire.
+        Canciones creadas desde la experiencia, el cuerpo y el aire.
     </p>
 </section>
 
@@ -162,8 +166,8 @@ footer a img:hover{
 <section>
     <h2>Escúchalo completo</h2>
     <div class="spotify">
-        <iframe src="https://open.spotify.com/embed/album/1LU8pBzk6MBMiznnyBK3Ps?utm_source=generator"
-        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        <iframe src="https://open.spotify.com/embed/album/1LU8pBzk6MBMiznnyBK3Ps"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"></iframe>
     </div>
 </section>
@@ -172,12 +176,12 @@ footer a img:hover{
 <section>
     <h2>Lista de canciones</h2>
     <div class="lista">
-        <button>Canción 01</button>
-        <button>Canción 02</button>
-        <button>Canción 03</button>
-        <button>Canción 04</button>
-        <button>Canción 05</button>
-        <button>Canción 06</button>
+        <div>Canción 01</div>
+        <div>Canción 02</div>
+        <div>Canción 03</div>
+        <div>Canción 04</div>
+        <div>Canción 05</div>
+        <div>Canción 06</div>
     </div>
 </section>
 
@@ -187,7 +191,7 @@ footer a img:hover{
     <p>
         Selecciona una canción para mostrar la letra aquí.
         <br><br>
-        (Aquí conectamos las letras más adelante)
+        (zona lista para letras individuales)
     </p>
 </section>
 
