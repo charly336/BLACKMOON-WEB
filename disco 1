@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🎧 Blackmoon Records | Disco 1</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#0b0b0f;
+    color:white;
+}
+
+/* ===== HERO ===== */
+.hero-disco{
+    min-height:60vh;
+    background-image:url("portada_disco1.jpg");
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:40px 20px;
+    box-shadow: inset 0 0 0 2000px rgba(0,0,0,.6);
+}
+
+.hero-disco h1{
+    font-size:clamp(45px,8vw,80px);
+    color:#2ecc71;
+    margin:0;
+}
+
+.hero-disco p{
+    max-width:800px;
+    font-size:clamp(16px,3.5vw,22px);
+    margin-top:15px;
+}
+
+/* ===== SECCIONES ===== */
+section{
+    padding:50px 20px;
+    text-align:center;
+}
+
+h2{
+    font-size:clamp(28px,6vw,42px);
+    margin-bottom:20px;
+}
+
+/* ===== DESCRIPCIÓN ===== */
+.descripcion p{
+    max-width:900px;
+    margin:auto;
+    font-size:18px;
+    color:#cfd2ff;
+    line-height:1.6;
+}
+
+/* ===== SPOTIFY ===== */
+.spotify{
+    max-width:900px;
+    margin:40px auto;
+}
+
+.spotify iframe{
+    width:100%;
+    height:160px;
+    border-radius:14px;
+}
+
+/* ===== CANCIONES ===== */
+.lista{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:15px;
+    max-width:900px;
+    margin:auto;
+}
+
+.lista button{
+    padding:16px;
+    font-size:16px;
+    font-weight:bold;
+    border:none;
+    border-radius:12px;
+    background:#2ecc71;
+    color:black;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.lista button:hover{
+    transform:scale(1.07);
+    box-shadow:0 0 15px #2ecc71;
+}
+
+/* ===== LETRAS ===== */
+.letras{
+    max-width:900px;
+    margin:auto;
+    border-top:2px solid rgba(255,255,255,.1);
+}
+
+.letras p{
+    font-size:17px;
+    color:#ddd;
+    line-height:1.7;
+}
+
+/* ===== FOOTER ===== */
+footer{
+    margin-top:60px;
+    padding:30px 0;
+    background: linear-gradient(90deg,#8A2BE2,#FF1493,#FFA500,#00CED1);
+    display:flex;
+    justify-content:center;
+    gap:40px;
+}
+
+footer a img{
+    width:50px;
+    transition:.3s;
+}
+
+footer a img:hover{
+    transform:scale(1.15);
+}
+
+/* ===== MOBILE EXTRA ===== */
+@media(max-width:600px){
+    .spotify iframe{
+        height:200px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero-disco">
+    <h1>Disco 1</h1>
+    <p>El inicio del viaje musical de Blackmoon Records</p>
+</section>
+
+<!-- DESCRIPCIÓN -->
+<section class="descripcion">
+    <h2>Sobre este disco</h2>
+    <p>
+        Este primer disco marca el nacimiento del proyecto.
+        Son canciones creadas desde la experiencia, el cuerpo
+        y la conexión con el aire.
+    </p>
+</section>
+
+<!-- SPOTIFY -->
+<section>
+    <h2>Escúchalo completo</h2>
+    <div class="spotify">
+        <iframe src="https://open.spotify.com/embed/album/1LU8pBzk6MBMiznnyBK3Ps?utm_source=generator"
+        frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+    </div>
+</section>
+
+<!-- CANCIONES -->
+<section>
+    <h2>Lista de canciones</h2>
+    <div class="lista">
+        <button>Canción 01</button>
+        <button>Canción 02</button>
+        <button>Canción 03</button>
+        <button>Canción 04</button>
+        <button>Canción 05</button>
+        <button>Canción 06</button>
+    </div>
+</section>
+
+<!-- LETRAS -->
+<section class="letras">
+    <h2>Letra</h2>
+    <p>
+        Selecciona una canción para mostrar la letra aquí.
+        <br><br>
+        (Aquí conectamos las letras más adelante)
+    </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <a href="Games List.html">
+        <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg">
+    </a>
+
+    <a href="PLATAFORMAS POD.HTML">
+        <img src="BKM PODCAST 2.0.jpg">
+    </a>
+
+    <a href="REDES PBM.html">
+        <img src="PRODUCTOS BKM 2.O.jpg">
+    </a>
+</footer>
+
+</body>
+</html>
