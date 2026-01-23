@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🎧 Blackmoon Records Vol 2</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#0b0b0f;
+    color:white;
+}
+
+/* ===== HERO ===== */
+.hero{
+    height:70vh;
+    background-image:url("721770.png");
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    box-shadow: inset 0 0 0 2000px rgba(0,0,0,.55);
+}
+
+.hero h1{
+    font-size:90px;
+    color:#2ecc71;
+    margin:0;
+}
+
+.hero p{
+    max-width:850px;
+    font-size:22px;
+    margin-top:20px;
+}
+
+/* ===== CANCIONES ===== */
+.canciones{
+    padding:60px 20px;
+    text-align:center;
+}
+
+.canciones h2{
+    font-size:45px;
+}
+
+.lista{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    margin-top:30px;
+}
+
+.lista button{
+    padding:18px 30px;
+    font-size:18px;
+    font-weight:bold;
+    border:none;
+    border-radius:12px;
+    background:#2ecc71;
+    color:black;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.lista button:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 20px #2ecc71;
+}
+
+/* ===== LETRAS ===== */
+.letras{
+    max-width:900px;
+    margin:60px auto;
+    padding-top:40px;
+    border-top:2px solid rgba(255,255,255,.2);
+}
+
+.letras h3{
+    font-size:32px;
+    color:#2ecc71;
+    text-align:center;
+}
+
+.letras pre{
+    white-space:pre-wrap;
+    font-size:18px;
+    line-height:1.8;
+    color:#ddd;
+}
+
+/* ===== FOOTER ===== */
+footer{
+    margin-top:60px;
+    padding:30px 0;
+    background: linear-gradient(90deg,#8A2BE2,#FF1493,#FFA500,#00CED1);
+    display:flex;
+    justify-content:center;
+    gap:50px;
+}
+
+footer a img{
+    width:55px;
+    transition:.3s;
+}
+
+footer a img:hover{
+    transform:scale(1.2);
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+    <h1>Blackmoon Records vol.2</h1>
+    <pEl segundo disco de Blackmoon Records marca una etapa de transformación. Si el primer volumen fue el inicio del vuelo,
+      este segundo trabajo representa el momento en el que el cuerpo aprende a sostenerse en el aire, a confiar y a profundizar en el movimiento.</p>
+    <p>Vol. 2 nace desde la experiencia. Las canciones exploran emociones más complejas, 
+    silencios más largos y una identidad sonora más definida. Aquí, la música no solo acompaña al movimiento: lo cuestiona, lo empuja y lo reta.</p>
+    <p>Este disco habla de procesos, de caídas que enseñan, de la fuerza que se construye con el tiempo y de la decisión consciente de seguir creando. 
+      Cada tema es una pieza que conecta con la disciplina, la constancia y el crecimiento personal.</p>
+      <p>Blackmoon Records Vol. 2 no busca repetir el origen, sino expandirlo. Es un disco que camina con más firmeza, 
+        que arriesga con intención y que confirma que el proyecto no fue un impulso pasajero, sino un camino elegido.
+
+       Este es el punto donde el vuelo deja de ser intento
+        y comienza a convertirse en dominio.</p>
+    </section>
+
+<!-- CANCIONES -->
+<section class="canciones">
+    <h2>Lista de canciones</h2>
+<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/album/0NcuIKpRZGzEuVkxw1Kr9r?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <button onclick="mostrarLetra('Baile entre sombras', letra1)">Baile entre sombras</button>
+        <button onclick="mostrarLetra('Libre en el aire', letra2)">Libre en el aire</button>
+        <button onclick="mostrarLetra('Subiendo y cayendo', letra3)">Subiendo y cayendo</button>
+        <button onclick="mostrarLetra('Ni infierno  ni cielo', letra4)">Ni infierno  ni cielo</button>
+        <button onclick="mostrarLetra('Bailando en la noche', letra5)">Bailando en la noche</button>    
+        <button onclick="mostrarLetra('volando entre sueños', letra6)">volando entre sueños</button>
+        <button onclick="mostrarLetra('Danza del aprendisaje', letra7)">Danza del aprendisaje</button>
+      <button onclick="mostrarLetra('Entre el vuelo y la roca', letra8)">Entre el vuelo y la roca</button>
+    </div>
+</section>
+
+<!-- LETRA -->
+<section class="letras" id="zonaLetra">
+    <h3 id="tituloLetra">Letra</h3>
+    <pre id="textoLetra">
+Selecciona una canción para ver la letra aquí.
+    </pre>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <a href="Games List.html">
+        <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg">
+    </a>
+
+    <a href="PLATAFORMAS POD.HTML">
+        <img src="BKM PODCAST 2.0.jpg">
+    </a>
+
+    <a href="REDES PBM.html">
+        <img src="PRODUCTOS BKM 2.O.jpg">
+    </a>
+</footer>
+
+<!-- SCRIPT LETRAS -->
+<script>
+const letra1 = `
+
+`;
+const letra2 = `
+
+`;
+const letra3 = `
+
+`;
+const letra4 = `
+*
+
+
+`;
+
+const letra5 = `
+
+`;
+
+const letra6 = `
+
+`;
+    
+const letra7= `
+
+`;
+const letra8= `
+
+`;
+
+
+
+function mostrarLetra(titulo, letra){
+    document.getElementById("tituloLetra").innerText = titulo;
+    document.getElementById("textoLetra").innerText = letra;
+
+    document.getElementById("zonaLetra").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+</script>
+
+</body>
+</html>
