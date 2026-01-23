@@ -7,7 +7,6 @@
 <title>🎧 Blackmoon Records | Inicio</title>
 
 <style>
-/* ===== RESET ===== */
 body{
     margin:0;
     font-family: Arial, sans-serif;
@@ -15,7 +14,7 @@ body{
     color:white;
 }
 
-/* ===== HERO / CABECERA GRANDE ===== */
+/* ===== HERO ===== */
 .hero{
     height:70vh;
     background-image:url("721770.png");
@@ -38,18 +37,17 @@ body{
 .hero p{
     max-width:850px;
     font-size:22px;
-    color:#ffffff;
     margin-top:20px;
 }
 
-/* ===== BOTONES COLOREADOS SIN FONDO NEGRO ===== */
+/* ===== BOTONES ===== */
 .menu-discos{
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
     gap:25px;
     padding:60px 20px;
-    background: transparent; /* 🔥 sin fondo */
+    background: transparent;
 }
 
 .menu-discos a{
@@ -59,11 +57,10 @@ body{
     font-weight:bold;
     color:black;
     border-radius:14px;
-    transition: all .35s ease;
+    transition:.35s;
     box-shadow:0 8px 25px rgba(0,0,0,.4);
 }
 
-/* colores sólidos */
 .disco1{background:#2ecc71;}
 .disco2{background:#3498db;}
 .disco3{background:#e74c3c;}
@@ -75,7 +72,21 @@ body{
     box-shadow:0 0 30px rgba(255,255,255,.6);
 }
 
-/* ===== SECCION INFO ===== */
+/* ===== IMAGEN BAJO BOTONES ===== */
+.imagen-banner{
+    padding:40px 20px;
+    display:flex;
+    justify-content:center;
+}
+
+.imagen-banner img{
+    max-width:100%;
+    width:900px;
+    border-radius:20px;
+    box-shadow:0 0 40px rgba(0,0,0,.7);
+}
+
+/* ===== INFO ===== */
 .info{
     padding:60px 20px;
     text-align:center;
@@ -83,7 +94,6 @@ body{
 
 .info h2{
     font-size:45px;
-    color:#fbfcfc;
 }
 
 .info p{
@@ -93,7 +103,7 @@ body{
     color:#cfd2ff;
 }
 
-/* ===== FOOTER BLACKMOON ===== */
+/* ===== FOOTER ===== */
 footer{
     margin-top:60px;
     padding:30px 0;
@@ -105,7 +115,7 @@ footer{
 
 footer a img{
     width:55px;
-    transition:transform .3s;
+    transition:.3s;
 }
 
 footer a img:hover{
@@ -116,7 +126,7 @@ footer a img:hover{
 
 <body>
 
-<!-- CABECERA -->
+<!-- HERO -->
 <section class="hero">
     <h1>Blackmoon Records</h1>
     <p>
@@ -129,10 +139,16 @@ footer a img:hover{
 <!-- BOTONES -->
 <section class="menu-discos">
     <a class="disco1" href="disco 1.html">Vol 1</a>
-    <a class="disco2" href="disco2.html">vol 2</a>
-    <a class="disco3" href="disco3.html">vol 3</a>
-    <a class="disco4" href="disco4.html">vol 4</a>
-    <a class="extras" href="extras.html">sencillos</a>
+    <a class="disco2" href="disco2.html">Vol 2</a>
+    <a class="disco3" href="disco3.html">Vol 3</a>
+    <a class="disco4" href="disco4.html">Vol 4</a>
+    <a class="extras" href="extras.html">Sencillos</a>
+</section>
+
+<!-- IMAGEN -->
+<section class="imagen-banner">
+    <!-- CAMBIA SOLO EL SRC -->
+    <img src="imagen_banner_blackmoon.jpg" alt="Blackmoon Records">
 </section>
 
 <!-- INFO -->
@@ -140,23 +156,12 @@ footer a img:hover{
     <h2>Volemos Alto</h2>
     <p>
         Blackmoon Records nace como un proyecto musical que conecta danza aérea,
-        🌙 Blackmoon Records
-
-Blackmoon Records nace desde el movimiento, desde el aire y desde la necesidad de transformar experiencias en sonido. No somos solo un sello musical: somos un espacio creativo donde la emoción, el cuerpo y la historia se convierten en canciones.
-
-Cada proyecto que sale de Blackmoon Records está inspirado en el vuelo, en la caída, en el esfuerzo y en la libertad. Nuestra música surge de la danza aérea, del arte independiente y de la búsqueda constante de nuevas formas de expresión. Aquí no seguimos fórmulas: construimos identidad.
-
-Creemos en la música como un lenguaje que conecta disciplinas, personas y mundos. Cada disco representa una etapa, un proceso y una visión distinta, pero todos comparten la misma esencia: crear desde la verdad, desde la pasión y desde el riesgo de volar alto.
-
-Blackmoon Records forma parte de un universo creativo más grande, donde conviven podcasts, escuela, productos y proyectos digitales, todos unidos por una misma filosofía: crecer, compartir y crear comunidad.
-
-Este es solo el comienzo del viaje.
-Seguimos explorando, seguimos creando…
-y sobre todo, seguimos volando alto.
+        movimiento y emoción. Creamos desde la experiencia, la pasión y el riesgo
+        de volar alto.
     </p>
 </section>
 
-<!-- FOOTER (LINKS ORIGINALES) -->
+<!-- FOOTER -->
 <footer>
     <a href="Games List.html">
         <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg">
