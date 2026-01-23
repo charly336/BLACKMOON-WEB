@@ -20,10 +20,9 @@ body{
 /* ===== HERO ===== */
 .hero-disco{
     min-height:60vh;
-    background: linear-gradient(
-        rgba(0,0,0,.65),
-        rgba(0,0,0,.65)
-    ), url("721770.png");
+    background:
+        linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
+        url("721770.png");
     background-size:cover;
     background-position:center;
     display:flex;
@@ -75,11 +74,11 @@ h2{
 .spotify iframe{
     width:100%;
     height:160px;
-    border-radius:12px;
     border:none;
+    border-radius:12px;
 }
 
-/* ===== CANCIONES ===== */
+/* ===== LISTA CANCIONES ===== */
 .lista{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
@@ -107,14 +106,23 @@ h2{
 /* ===== LETRAS ===== */
 .letras{
     max-width:900px;
-    margin:auto;
+    margin:60px auto 0;
+    padding-top:40px;
     border-top:2px solid rgba(255,255,255,.15);
 }
 
-.letras p{
+.letras h3{
+    font-size:30px;
+    margin-bottom:20px;
+    color:#2ecc71;
+}
+
+.letras pre{
+    white-space:pre-wrap;
     font-size:17px;
-    color:#ddd;
     line-height:1.7;
+    color:#ddd;
+    text-align:left;
 }
 
 /* ===== FOOTER ===== */
@@ -176,23 +184,19 @@ footer a img:hover{
 <section>
     <h2>Lista de canciones</h2>
     <div class="lista">
-        <div>Canción 01</div>
-        <div>Canción 02</div>
-        <div>Canción 03</div>
-        <div>Canción 04</div>
-        <div>Canción 05</div>
-        <div>Canción 06</div>
+        <div onclick="mostrarLetra('Canción 01', letra1)">Canción 01</div>
+        <div onclick="mostrarLetra('Canción 02', letra2)">Canción 02</div>
+        <div onclick="mostrarLetra('Canción 03', letra3)">Canción 03</div>
+        <div onclick="mostrarLetra('Canción 04', letra4)">Canción 04</div>
     </div>
 </section>
 
 <!-- LETRAS -->
-<section class="letras">
-    <h2>Letra</h2>
-    <p>
-        Selecciona una canción para mostrar la letra aquí.
-        <br><br>
-        (zona lista para letras individuales)
-    </p>
+<section class="letras" id="zona-letra">
+    <h3 id="titulo-letra">Letra</h3>
+    <pre id="texto-letra">
+Selecciona una canción para mostrar la letra aquí.
+    </pre>
 </section>
 
 <!-- FOOTER -->
@@ -209,6 +213,39 @@ footer a img:hover{
         <img src="PRODUCTOS BKM 2.O.jpg">
     </a>
 </footer>
+
+<!-- ===== SCRIPT LETRAS ===== -->
+<script>
+const letra1 = `Verso 1
+Aquí va la primera parte de la canción
+
+Coro
+Aquí va el coro poderoso
+
+Verso 2
+Más letra aquí`;
+
+const letra2 = `Verso
+Letra de la canción 2
+
+Coro
+Emoción y vuelo`;
+
+const letra3 = `Letra completa
+Canción 3`;
+
+const letra4 = `Letra completa
+Canción 4`;
+
+function mostrarLetra(titulo, letra){
+    document.getElementById("titulo-letra").innerText = titulo;
+    document.getElementById("texto-letra").innerText = letra;
+
+    document.getElementById("zona-letra").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+</script>
 
 </body>
 </html>
