@@ -122,31 +122,43 @@ footer a img:hover{
 <!-- HERO -->
 <section class="hero">
     <h1>Blackmoon Records vol.2</h1>
-    <pEl segundo disco de Blackmoon Records marca una etapa de transformación. Si el primer volumen fue el inicio del vuelo,
-      este segundo trabajo representa el momento en el que el cuerpo aprende a sostenerse en el aire, a confiar y a profundizar en el movimiento.</p>
+
+    <p>El segundo disco de Blackmoon Records marca una etapa de transformación. Si el primer volumen fue el inicio del vuelo,
+    este segundo trabajo representa el momento en el que el cuerpo aprende a sostenerse en el aire, a confiar y a profundizar en el movimiento.</p>
+
     <p>Vol. 2 nace desde la experiencia. Las canciones exploran emociones más complejas, 
     silencios más largos y una identidad sonora más definida. Aquí, la música no solo acompaña al movimiento: lo cuestiona, lo empuja y lo reta.</p>
-    <p>Este disco habla de procesos, de caídas que enseñan, de la fuerza que se construye con el tiempo y de la decisión consciente de seguir creando. 
-      Cada tema es una pieza que conecta con la disciplina, la constancia y el crecimiento personal.</p>
-      <p>Blackmoon Records Vol. 2 no busca repetir el origen, sino expandirlo. Es un disco que camina con más firmeza, 
-        que arriesga con intención y que confirma que el proyecto no fue un impulso pasajero, sino un camino elegido.
 
-       Este es el punto donde el vuelo deja de ser intento
-        y comienza a convertirse en dominio.</p>
-    </section>
+    <p>Este disco habla de procesos, de caídas que enseñan, de la fuerza que se construye con el tiempo y de la decisión consciente de seguir creando. 
+    Cada tema es una pieza que conecta con la disciplina, la constancia y el crecimiento personal.</p>
+
+    <p>Blackmoon Records Vol. 2 no busca repetir el origen, sino expandirlo. Es un disco que camina con más firmeza, 
+    que arriesga con intención y que confirma que el proyecto no fue un impulso pasajero, sino un camino elegido.
+
+    Este es el punto donde el vuelo deja de ser intento
+    y comienza a convertirse en dominio.</p>
+</section>
 
 <!-- CANCIONES -->
 <section class="canciones">
     <h2>Lista de canciones</h2>
-<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/album/0NcuIKpRZGzEuVkxw1Kr9r?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+    <iframe style="border-radius:12px"
+        src="https://open.spotify.com/embed/album/0NcuIKpRZGzEuVkxw1Kr9r?theme=0"
+        width="100%" height="352" frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+
+    <!-- 👇 ESTA ERA LA PIEZA QUE FALTABA -->
+    <div class="lista">
         <button onclick="mostrarLetra('Baile entre sombras', letra1)">Baile entre sombras</button>
         <button onclick="mostrarLetra('Libre en el aire', letra2)">Libre en el aire</button>
         <button onclick="mostrarLetra('Subiendo y cayendo', letra3)">Subiendo y cayendo</button>
-        <button onclick="mostrarLetra('Ni infierno  ni cielo', letra4)">Ni infierno  ni cielo</button>
-        <button onclick="mostrarLetra('Bailando en la noche', letra5)">Bailando en la noche</button>    
-        <button onclick="mostrarLetra('volando entre sueños', letra6)">volando entre sueños</button>
-        <button onclick="mostrarLetra('Danza del aprendisaje', letra7)">Danza del aprendisaje</button>
-      <button onclick="mostrarLetra('Entre el vuelo y la roca', letra8)">Entre el vuelo y la roca</button>
+        <button onclick="mostrarLetra('Ni infierno ni cielo', letra4)">Ni infierno ni cielo</button>
+        <button onclick="mostrarLetra('Bailando en la noche', letra5)">Bailando en la noche</button>
+        <button onclick="mostrarLetra('Volando entre sueños', letra6)">Volando entre sueños</button>
+        <button onclick="mostrarLetra('Danza del aprendizaje', letra7)">Danza del aprendizaje</button>
+        <button onclick="mostrarLetra('Entre el vuelo y la roca', letra8)">Entre el vuelo y la roca</button>
     </div>
 </section>
 
@@ -160,62 +172,28 @@ Selecciona una canción para ver la letra aquí.
 
 <!-- FOOTER -->
 <footer>
-    <a href="Games List.html">
-        <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg">
-    </a>
-
-    <a href="PLATAFORMAS POD.HTML">
-        <img src="BKM PODCAST 2.0.jpg">
-    </a>
-
-    <a href="REDES PBM.html">
-        <img src="PRODUCTOS BKM 2.O.jpg">
-    </a>
+    <a href="Games List.html"><img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg"></a>
+    <a href="PLATAFORMAS POD.HTML"><img src="BKM PODCAST 2.0.jpg"></a>
+    <a href="REDES PBM.html"><img src="PRODUCTOS BKM 2.O.jpg"></a>
 </footer>
 
-<!-- SCRIPT LETRAS -->
 <script>
-const letra1 = `
-
-`;
-const letra2 = `
-
-`;
-const letra3 = `
-
-`;
-const letra4 = `
-*
-
-
-`;
-
-const letra5 = `
-
-`;
-
-const letra6 = `
-
-`;
-    
-const letra7= `
-
-`;
-const letra8= `
-
-`;
-
-
+const letra1 = ``;
+const letra2 = ``;
+const letra3 = ``;
+const letra4 = ``;
+const letra5 = ``;
+const letra6 = ``;
+const letra7 = ``;
+const letra8 = ``;
 
 function mostrarLetra(titulo, letra){
     document.getElementById("tituloLetra").innerText = titulo;
     document.getElementById("textoLetra").innerText = letra;
-
-    document.getElementById("zonaLetra").scrollIntoView({
-        behavior: "smooth"
-    });
+    document.getElementById("zonaLetra").scrollIntoView({ behavior: "smooth" });
 }
 </script>
 
 </body>
 </html>
+
