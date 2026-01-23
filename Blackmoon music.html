@@ -7,6 +7,7 @@
 <title>🎧 Blackmoon Records | Inicio</title>
 
 <style>
+/* ===== RESET ===== */
 body{
     margin:0;
     font-family: Arial, sans-serif;
@@ -14,10 +15,10 @@ body{
     color:white;
 }
 
-/* ===== CABECERA TIPO VIAJES ===== */
+/* ===== HERO / CABECERA GRANDE ===== */
 .hero{
     height:70vh;
-    background-image:url("721770.png"); /* imagen grande */
+    background-image:url("721770.png");
     background-size:cover;
     background-position:center;
     display:flex;
@@ -35,13 +36,13 @@ body{
 }
 
 .hero p{
-    max-width:800px;
+    max-width:850px;
     font-size:22px;
     color:#ffffff;
     margin-top:20px;
 }
 
-/* ===== BOTONES PRINCIPALES ===== */
+/* ===== BOTONES TRANSPARENTES ===== */
 .menu-discos{
     display:flex;
     flex-wrap:wrap;
@@ -55,21 +56,25 @@ body{
     padding:25px 40px;
     font-size:22px;
     font-weight:bold;
-    color:black;
-    border-radius:12px;
-    transition:transform .3s, box-shadow .3s;
+    color:white;
+    border-radius:14px;
+    background: rgba(255,255,255,0.05);
+    border:2px solid;
+    backdrop-filter: blur(6px);
+    transition: all .35s ease;
 }
 
-/* colores individuales */
-.disco1{background:#2ecc71;}
-.disco2{background:#3498db;}
-.disco3{background:#e74c3c;}
-.disco4{background:#9b59b6;}
-.extras{background:#f39c12;}
+/* colores por sección */
+.disco1{border-color:#2ecc71;}
+.disco2{border-color:#3498db;}
+.disco3{border-color:#e74c3c;}
+.disco4{border-color:#9b59b6;}
+.extras{border-color:#f39c12;}
 
 .menu-discos a:hover{
-    transform:scale(1.08);
-    box-shadow:0 0 20px rgba(255,255,255,.4);
+    transform:scale(1.1);
+    box-shadow:0 0 25px currentColor;
+    background: rgba(255,255,255,0.12);
 }
 
 /* ===== SECCION INFO ===== */
@@ -123,7 +128,7 @@ footer a img:hover{
     </p>
 </section>
 
-<!-- BOTONES DE NAVEGACIÓN -->
+<!-- BOTONES PRINCIPALES -->
 <section class="menu-discos">
     <a class="disco1" href="disco1.html">Disco 1</a>
     <a class="disco2" href="disco2.html">Disco 2</a>
@@ -142,7 +147,7 @@ footer a img:hover{
     </p>
 </section>
 
-<!-- FOOTER (LINKS SIN CAMBIAR) -->
+<!-- FOOTER (LINKS ORIGINALES) -->
 <footer>
     <a href="Games List.html">
         <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg">
