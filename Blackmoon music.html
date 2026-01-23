@@ -42,13 +42,14 @@ body{
     margin-top:20px;
 }
 
-/* ===== BOTONES TRANSPARENTES ===== */
+/* ===== BOTONES COLOREADOS SIN FONDO NEGRO ===== */
 .menu-discos{
     display:flex;
     flex-wrap:wrap;
     justify-content:center;
     gap:25px;
     padding:60px 20px;
+    background: transparent; /* 🔥 sin fondo */
 }
 
 .menu-discos a{
@@ -56,25 +57,22 @@ body{
     padding:25px 40px;
     font-size:22px;
     font-weight:bold;
-    color:white;
+    color:black;
     border-radius:14px;
-    background: rgba(255,255,255,0.05);
-    border:2px solid;
-    backdrop-filter: blur(6px);
     transition: all .35s ease;
+    box-shadow:0 8px 25px rgba(0,0,0,.4);
 }
 
-/* colores por sección */
-.disco1{border-color:#2ecc71;}
-.disco2{border-color:#3498db;}
-.disco3{border-color:#e74c3c;}
-.disco4{border-color:#9b59b6;}
-.extras{border-color:#f39c12;}
+/* colores sólidos */
+.disco1{background:#2ecc71;}
+.disco2{background:#3498db;}
+.disco3{background:#e74c3c;}
+.disco4{background:#9b59b6;}
+.extras{background:#f39c12;}
 
 .menu-discos a:hover{
     transform:scale(1.1);
-    box-shadow:0 0 25px currentColor;
-    background: rgba(255,255,255,0.12);
+    box-shadow:0 0 30px rgba(255,255,255,.6);
 }
 
 /* ===== SECCION INFO ===== */
@@ -128,7 +126,7 @@ footer a img:hover{
     </p>
 </section>
 
-<!-- BOTONES PRINCIPALES -->
+<!-- BOTONES -->
 <section class="menu-discos">
     <a class="disco1" href="disco1.html">Disco 1</a>
     <a class="disco2" href="disco2.html">Disco 2</a>
