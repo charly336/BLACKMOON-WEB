@@ -3,13 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackmoon Records | vol-1</title>
+
+<title>🎧 Blackmoon Records | Disco 1</title>
 
 <style>
-*{
-    box-sizing:border-box;
-}
-
 body{
     margin:0;
     font-family: Arial, sans-serif;
@@ -18,11 +15,9 @@ body{
 }
 
 /* ===== HERO ===== */
-.hero-disco{
-    min-height:60vh;
-    background:
-        linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
-        url("721770.png");
+.hero{
+    height:70vh;
+    background-image:url("721770.png");
     background-size:cover;
     background-position:center;
     display:flex;
@@ -30,67 +25,44 @@ body{
     justify-content:center;
     align-items:center;
     text-align:center;
-    padding:40px 20px;
+    box-shadow: inset 0 0 0 2000px rgba(0,0,0,.55);
 }
 
-.hero-disco h1{
-    font-size:clamp(40px,8vw,80px);
+.hero h1{
+    font-size:90px;
     color:#2ecc71;
     margin:0;
 }
 
-.hero-disco p{
-    max-width:800px;
-    font-size:clamp(16px,3.5vw,22px);
-    margin-top:15px;
+.hero p{
+    max-width:850px;
+    font-size:22px;
+    margin-top:20px;
 }
 
-/* ===== SECCIONES ===== */
-section{
-    padding:50px 20px;
+/* ===== CANCIONES ===== */
+.canciones{
+    padding:60px 20px;
     text-align:center;
 }
 
-h2{
-    font-size:clamp(26px,6vw,42px);
-    margin-bottom:20px;
+.canciones h2{
+    font-size:45px;
 }
 
-/* ===== DESCRIPCIÓN ===== */
-.descripcion p{
-    max-width:900px;
-    margin:auto;
-    font-size:18px;
-    color:#cfd2ff;
-    line-height:1.6;
-}
-
-/* ===== SPOTIFY ===== */
-.spotify{
-    max-width:900px;
-    margin:30px auto;
-}
-
-.spotify iframe{
-    width:100%;
-    height:160px;
-    border:none;
-    border-radius:12px;
-}
-
-/* ===== LISTA CANCIONES ===== */
 .lista{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-    gap:15px;
-    max-width:900px;
-    margin:auto;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+    margin-top:30px;
 }
 
-.lista div{
-    padding:16px;
-    font-size:16px;
+.lista button{
+    padding:18px 30px;
+    font-size:18px;
     font-weight:bold;
+    border:none;
     border-radius:12px;
     background:#2ecc71;
     color:black;
@@ -98,31 +70,30 @@ h2{
     transition:.3s;
 }
 
-.lista div:hover{
-    transform:scale(1.07);
-    box-shadow:0 0 15px #2ecc71;
+.lista button:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 20px #2ecc71;
 }
 
 /* ===== LETRAS ===== */
 .letras{
     max-width:900px;
-    margin:60px auto 0;
+    margin:60px auto;
     padding-top:40px;
-    border-top:2px solid rgba(255,255,255,.15);
+    border-top:2px solid rgba(255,255,255,.2);
 }
 
 .letras h3{
-    font-size:30px;
-    margin-bottom:20px;
+    font-size:32px;
     color:#2ecc71;
+    text-align:center;
 }
 
 .letras pre{
     white-space:pre-wrap;
-    font-size:17px;
-    line-height:1.7;
+    font-size:18px;
+    line-height:1.8;
     color:#ddd;
-    text-align:left;
 }
 
 /* ===== FOOTER ===== */
@@ -132,23 +103,16 @@ footer{
     background: linear-gradient(90deg,#8A2BE2,#FF1493,#FFA500,#00CED1);
     display:flex;
     justify-content:center;
-    gap:40px;
+    gap:50px;
 }
 
 footer a img{
-    width:50px;
+    width:55px;
     transition:.3s;
 }
 
 footer a img:hover{
-    transform:scale(1.15);
-}
-
-/* ===== MOBILE ===== */
-@media(max-width:600px){
-    .spotify iframe{
-        height:200px;
-    }
+    transform:scale(1.2);
 }
 </style>
 </head>
@@ -156,50 +120,31 @@ footer a img:hover{
 <body>
 
 <!-- HERO -->
-<section class="hero-disco">
+<section class="hero">
     <h1>Disco 1</h1>
     <p>El inicio del viaje musical de Blackmoon Records</p>
 </section>
 
-<!-- DESCRIPCIÓN -->
-<section class="descripcion">
-    <h2>Sobre este disco</h2>
-    <p>
-        Este primer disco marca el nacimiento del proyecto.
-        Canciones creadas desde la experiencia, el cuerpo y el aire.
-    </p>
-</section>
-
-<!-- SPOTIFY -->
-<section>
-    <h2>Escúchalo completo</h2>
-    <div class="spotify">
-        <iframe src="https://open.spotify.com/embed/album/1LU8pBzk6MBMiznnyBK3Ps"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy"></iframe>
-    </div>
-</section>
-
 <!-- CANCIONES -->
-<section>
+<section class="canciones">
     <h2>Lista de canciones</h2>
+
     <div class="lista">
-        <div onclick="mostrarLetra('Canción 01', letra1)">Canción 01</div>
-        <div onclick="mostrarLetra('Canción 02', letra2)">Canción 02</div>
-        <div onclick="mostrarLetra('Canción 03', letra3)">Canción 03</div>
-        <div onclick="mostrarLetra('Canción 04', letra4)">Canción 04</div>
-        <div onclick="mostrarLetra('Canción 05', letra5)">Canción 05</div>
-        <div onclick="mostrarLetra('Canción 06', letra6)">Canción 06</div>
-        <div onclick="mostrarLetra('Canción 07', letra7)">Canción 07</div>
-        
+        <button onclick="mostrarLetra('Canción 1', letra1)">Canción 1</button>
+        <button onclick="mostrarLetra('Canción 2', 'Letra pendiente')">Canción 2</button>
+        <button onclick="mostrarLetra('Canción 3', 'Letra pendiente')">Canción 3</button>
+        <button onclick="mostrarLetra('Canción 4', 'Letra pendiente')">Canción 4</button>
+        <button onclick="mostrarLetra('Canción 5', 'Letra pendiente')">Canción 5</button>
+        <button onclick="mostrarLetra('Canción 6', 'Letra pendiente')">Canción 6</button>
+        <button onclick="mostrarLetra('Canción 7', 'Letra pendiente')">Canción 7</button>
     </div>
 </section>
 
-<!-- LETRAS -->
-<section class="letras" id="zona-letra">
-    <h3 id="titulo-letra">Letra</h3>
-    <pre id="texto-letra">
-Selecciona una canción para mostrar la letra aquí.
+<!-- LETRA -->
+<section class="letras" id="zonaLetra">
+    <h3 id="tituloLetra">Letra</h3>
+    <pre id="textoLetra">
+Selecciona una canción para ver la letra aquí.
     </pre>
 </section>
 
@@ -218,68 +163,23 @@ Selecciona una canción para mostrar la letra aquí.
     </a>
 </footer>
 
-<!-- ===== SCRIPT LETRAS ===== -->
+<!-- SCRIPT LETRAS -->
 <script>
-const letra1 = `TU LETRA AQUÍ`;
-Verso 1:
+const letra1 = `VERSO 1
+Aquí va la letra completa de tu canción 1
 
-Entre el aire y la seda me encuentro,  
-Cada giro, cada trazo es un cuento,  
-Las manos quemadas, los brazos tensos,  
-El cuerpo aprende a danzar entre el viento.
+CORO
+Aquí va el coro de la canción
 
-Coro:
-
-Subo y subo, el corazón late fuerte,  
-Las alturas me llaman, no hay nada que me frene,  
-Entre figuras, giros y caídas,  
-Encuentro la alegría, en la danza mi vida.
-
-Verso 2:
-
-Apretar, sostener, no dejarme caer,  
-La frustración se asoma, pero no voy a ceder,  
-Cada golpe, cada error es enseñanza,  
-Superando el miedo, en cada balanza.
-
-Puente:
-
-La seda se vuelve mi piel,  
-El aire se llena de miel,  
-En cada intento, en cada lucha,  
-Encuentro mi fuerza, la vida me escucha.
-
-**Coro:**
-
-Subo y subo, el corazón late fuerte,  
-Las alturas me llaman, no hay nada que me frene,  
-Entre figuras, giros y caídas,  
-Encuentro la alegría, en la danza mi vida.
-
-Final:
-
-Y cuando las luces se apagan,  
-La sensación queda, el alma no se apaga,  
-Superar la frustración, abrazar la pasión,  
-En la danza aérea, encuentro mi canción.
-
-const letra2 = `Verso
-Letra de la canción 2
-
-Coro
-Emoción y vuelo`;
-
-const letra3 = `Letra completa
-Canción 3`;
-
-const letra4 = `Letra completa
-Canción 4`;
+VERSO 2
+Aquí continúa la letra
+`;
 
 function mostrarLetra(titulo, letra){
-    document.getElementById("titulo-letra").innerText = titulo;
-    document.getElementById("texto-letra").innerText = letra;
+    document.getElementById("tituloLetra").innerText = titulo;
+    document.getElementById("textoLetra").innerText = letra;
 
-    document.getElementById("zona-letra").scrollIntoView({
+    document.getElementById("zonaLetra").scrollIntoView({
         behavior: "smooth"
     });
 }
