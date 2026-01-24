@@ -335,25 +335,6 @@ const track = document.getElementById("tickerTrack");
 });
 </script>
 <!-- ================= END NEWS TICKER ================= -->
-
-   
-
-  const container = document.getElementById("news-container");
-
-  newsData.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "news-item";
-    div.innerHTML = `
-      <img src="${item.image}" class="news-thumb" alt="${item.title}">
-      <div class="news-content">
-        <span class="news-date">${item.date}</span>
-        <h3 class="news-title">${item.title}</h3>
-        <p class="news-text">${item.text}</p>
-        <a href="${item.link}" class="news-link">Leer más</a>
-      </div>
-    `;
-    container.appendChild(div);
-  });
 </script>
 
 
