@@ -1,159 +1,116 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Black Moon Comics</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Black Moon Comics | Lector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        /* RESET */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}
+body{
+    background:#000;
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+}
 
-        body {
-            background: radial-gradient(circle at top, #1a1a2e, #000);
-            color: #fff;
-            min-height: 100vh;
-        }
+header{
+    text-align:center;
+    padding:20px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
 
-        header {
-            text-align: center;
-            padding: 60px 20px;
-        }
+header h1{
+    letter-spacing:2px;
+}
 
-        header h1 {
-            font-size: 3rem;
-            letter-spacing: 3px;
-        }
+.comic-container{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
 
-        header p {
-            margin-top: 15px;
-            color: #bdbdbd;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+.comic-page{
+    max-width:90%;
+    max-height:80vh;
+    box-shadow:0 0 30px rgba(255,255,255,.2);
+    border-radius:10px;
+    animation:fadeIn .6s ease;
+}
 
-        .moon {
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle, #fff, #aaa);
-            border-radius: 50%;
-            margin: 30px auto;
-            box-shadow: 0 0 40px rgba(255,255,255,0.3);
-        }
+.controls{
+    display:flex;
+    justify-content:space-between;
+    padding:20px;
+}
 
-        main {
-            padding: 40px 20px;
-            max-width: 1100px;
-            margin: auto;
-        }
+button{
+    background:#fff;
+    color:#000;
+    border:none;
+    padding:10px 20px;
+    border-radius:30px;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-        .comics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 30px;
-        }
+button:hover{
+    background:#000;
+    color:#fff;
+    border:1px solid #fff;
+}
 
-        .comic-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .comic-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 0 25px rgba(255,255,255,0.15);
-        }
-
-        .comic-card h2 {
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-        }
-
-        .comic-card p {
-            font-size: 0.9rem;
-            color: #cfcfcf;
-            margin-bottom: 25px;
-        }
-
-        .comic-card a {
-            display: inline-block;
-            padding: 10px 25px;
-            border-radius: 30px;
-            text-decoration: none;
-            color: #000;
-            background: #fff;
-            font-weight: bold;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .comic-card a:hover {
-            background: #000;
-            color: #fff;
-            border: 1px solid #fff;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: #888;
-            font-size: 0.85rem;
-        }
-    </style>
+@keyframes fadeIn{
+    from{opacity:0; transform:scale(.97);}
+    to{opacity:1; transform:scale(1);}
+}
+</style>
 </head>
 
 <body>
 
-    <header>
-        <h1>BLACK MOON COMICS</h1>
-        <div class="moon"></div>
-        <p>
-            Historias nacidas en la oscuridad, creadas bajo la luna.
-            Bienvenido al universo narrativo de Grupo Black Moon.
-        </p>
-    </header>
+<header>
+    <h1>ISIS MOON</h1>
+</header>
 
-    <main>
-        <section class="comics-grid">
+<div class="comic-container">
+    <img id="page" class="comic-page" src="paginas/pagina1.jpg">
+</div>
 
-            <div class="comic-card">
-                <h2>Isis Moon</h2>
-                <p>El origen del mito. El nacimiento del universo Black Moon.</p>
-                <a href="isis-moon.html">Leer cómic</a>
-            </div>
+<div class="controls">
+    <button onclick="prevPage()">◀ Anterior</button>
+    <button onclick="nextPage()">Siguiente ▶</button>
+</div>
 
-            <div class="comic-card">
-                <h2>Sombras del Aire</h2>
-                <p>Cuando el vuelo deja cicatrices y secretos.</p>
-                <a href="sombras-del-aire.html">Leer cómic</a>
-            </div>
+<script>
+let currentPage = 1;
+const totalPages = 10;
 
-            <div class="comic-card">
-                <h2>Black Moon: Génesis</h2>
-                <p>La historia detrás del grupo, la caída y el ascenso.</p>
-                <a href="genesis.html">Leer cómic</a>
-            </div>
+function nextPage(){
+    if(currentPage < totalPages){
+        currentPage++;
+        updatePage();
+    }
+}
 
-            <div class="comic-card">
-                <h2>Noches Carmesí</h2>
-                <p>Deseo, traición y oscuridad bajo la luna roja.</p>
-                <a href="noches-carmesi.html">Leer cómic</a>
-            </div>
+function prevPage(){
+    if(currentPage > 1){
+        currentPage--;
+        updatePage();
+    }
+}
 
-        </section>
-    </main>
-
-    <footer>
-        © 2026 Grupo Black Moon — Black Moon Comics
-    </footer>
+function updatePage(){
+    const img = document.getElementById("page");
+    img.style.animation = "none";
+    img.offsetHeight;
+    img.style.animation = null;
+    img.src = `paginas/pagina${currentPage}.jpg`;
+}
+</script>
 
 </body>
 </html>
