@@ -10,142 +10,150 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family: 'Arial', sans-serif;
 }
 
-/* ===== GENERAL ===== */
 body{
     background:#000;
     color:#fff;
-    overflow:hidden;
+    overflow-x:hidden;
+}
+
+/* ===== LUNA DE FONDO ===== */
+body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 70% 20%, rgba(255,255,255,.15), transparent 40%),
+        radial-gradient(circle at center, #111 0%, #000 70%);
+    z-index:-2;
+}
+
+/* ===== PARTICULAS ===== */
+canvas{
+    position:fixed;
+    inset:0;
+    z-index:-1;
 }
 
 /* ===== INTRO ===== */
 #intro{
     position:fixed;
     inset:0;
-    background:radial-gradient(circle at center, #1a1a2e, #000);
+    background:radial-gradient(circle, #1a1a2e, #000);
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-    flex-direction:column;
-    z-index:999;
-    animation:introFade 5s ease forwards;
+    z-index:10;
+    animation:introFade 5s forwards;
 }
 
 .moon{
-    width:180px;
-    height:180px;
+    width:200px;
+    height:200px;
     border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, #fff, #aaa, #555);
-    box-shadow:0 0 60px rgba(255,255,255,.4);
-    animation:moonRise 4s ease forwards;
+    background:radial-gradient(circle at 30% 30%, #fff, #aaa, #333);
+    box-shadow:0 0 80px rgba(255,255,255,.4);
+    animation:moonRise 4s forwards;
 }
 
 .intro-title{
     margin-top:40px;
-    font-size:2.8rem;
-    letter-spacing:6px;
+    font-size:3rem;
+    letter-spacing:8px;
     opacity:0;
-    animation:titleIn 2s ease forwards;
-    animation-delay:2s;
+    animation:titleIn 2s forwards 2s;
 }
 
 /* ===== HOME ===== */
 #home{
-    min-height:100vh;
     opacity:0;
-    animation:homeIn 1.5s ease forwards;
-    animation-delay:5s;
-    overflow:auto;
+    animation:homeIn 1.5s forwards 5s;
+    min-height:100vh;
 }
 
 header{
     text-align:center;
-    padding:70px 20px 40px;
+    padding:90px 20px 40px;
 }
 
 header h1{
-    font-size:3rem;
-    letter-spacing:4px;
+    font-size:3.2rem;
+    letter-spacing:5px;
 }
 
 header p{
-    max-width:600px;
+    max-width:620px;
     margin:20px auto;
-    color:#ccc;
+    color:#aaa;
 }
 
 main{
-    max-width:1100px;
+    max-width:1200px;
     margin:auto;
     padding:40px 20px 80px;
 }
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-    gap:30px;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:35px;
 }
 
 .card{
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.1);
-    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(10px);
+    border-radius:22px;
     padding:25px;
     text-align:center;
     transition:.4s;
-    animation:floatUp .8s ease forwards;
 }
 
 .card:hover{
-    transform:translateY(-10px);
-    box-shadow:0 0 30px rgba(255,255,255,.15);
+    transform:translateY(-12px);
+    box-shadow:0 0 40px rgba(255,255,255,.15);
 }
 
 .cover{
     width:100%;
-    border-radius:14px;
-    margin-bottom:15px;
-    box-shadow:0 0 25px rgba(0,0,0,.8);
+    border-radius:16px;
+    margin-bottom:18px;
 }
 
 .card h2{
     margin-bottom:10px;
+    letter-spacing:2px;
 }
 
 .card p{
     font-size:.9rem;
     color:#bbb;
-    margin-bottom:20px;
+    margin-bottom:22px;
 }
 
+/* ===== BOTONES TRANSPARENTES ===== */
 .card a{
     display:inline-block;
-    padding:10px 26px;
-    border-radius:30px;
-    background:#fff;
-    color:#000;
+    padding:12px 34px;
+    border-radius:40px;
+    border:1px solid rgba(255,255,255,.4);
+    background:rgba(255,255,255,.05);
+    color:#fff;
     text-decoration:none;
-    font-weight:bold;
-    position:relative;
-    overflow:hidden;
+    letter-spacing:2px;
+    backdrop-filter:blur(6px);
+    transition:.4s;
 }
 
-.card a::after{
-    content:'';
-    position:absolute;
-    inset:0;
-    background:radial-gradient(circle, rgba(255,255,255,.6), transparent);
-    opacity:0;
-    transition:.3s;
+.card a:hover{
+    background:rgba(255,255,255,.15);
+    box-shadow:0 0 20px rgba(255,255,255,.4);
 }
 
-.card a:hover::after{
-    opacity:1;
-}
-
-/* ===== ANIMATIONS ===== */
+/* ===== ANIMACIONES ===== */
 @keyframes moonRise{
     from{transform:scale(.6); opacity:0;}
     to{transform:scale(1); opacity:1;}
@@ -153,7 +161,7 @@ main{
 
 @keyframes titleIn{
     from{opacity:0; letter-spacing:20px;}
-    to{opacity:1; letter-spacing:6px;}
+    to{opacity:1; letter-spacing:8px;}
 }
 
 @keyframes introFade{
@@ -164,23 +172,18 @@ main{
 @keyframes homeIn{
     to{opacity:1;}
 }
-
-@keyframes floatUp{
-    from{opacity:0; transform:translateY(25px);}
-    to{opacity:1; transform:translateY(0);}
-}
 </style>
 </head>
 
 <body>
 
-<!-- ===== INTRO ===== -->
+<canvas id="particles"></canvas>
+
 <section id="intro">
     <div class="moon"></div>
     <div class="intro-title">BLACK MOON COMICS</div>
 </section>
 
-<!-- ===== HOME ===== -->
 <section id="home">
 
 <header>
@@ -189,40 +192,75 @@ main{
 </header>
 
 <main>
-    <div class="grid">
+<div class="grid">
 
-        <div class="card">
-            <img src="portadas/isis-moon.jpg" class="cover">
-            <h2>luna y su romance aereo</h2>
-            <p>El origen del mito Black Moon.</p>
-            <a href="#">proximamente</a>
-        </div>
+<div class="card">
+    <img src="portadas/isis-moon.jpg" class="cover">
+    <h2>Luna y su Romance Aéreo</h2>
+    <p>El origen del mito Black Moon.</p>
+    <a href="#">PRÓXIMAMENTE</a>
+</div>
 
-        <div class="card">
-            <img src="portadas/sombras.jpg" class="cover">
-            <h2>.....</h2>
-            <p>El vuelo también deja cicatrices.</p>
-            <a href="#">proximamente</a>
-        </div>
+<div class="card">
+    <img src="portadas/sombras.jpg" class="cover">
+    <h2>Sombras</h2>
+    <p>El vuelo también deja cicatrices.</p>
+    <a href="#">PRÓXIMAMENTE</a>
+</div>
 
-        <div class="card">
-            <img src="portadas/genesis.jpg" class="cover">
-            <h2>....</h2>
-            <p>La caída y el ascenso del grupo.</p>
-            <a href="#">proximamente</a>
-        </div>
+<div class="card">
+    <img src="portadas/genesis.jpg" class="cover">
+    <h2>Génesis</h2>
+    <p>La caída y el ascenso.</p>
+    <a href="#">PRÓXIMAMENTE</a>
+</div>
 
-        <div class="card">
-            <img src="portadas/noches.jpg" class="cover">
-            <h2>.......</h2>
-            <p>Deseo, traición y luna roja.</p>
-            <a href="#">proximamente</a>
-        </div>
+<div class="card">
+    <img src="portadas/noches.jpg" class="cover">
+    <h2>Noches Rojas</h2>
+    <p>Deseo, traición y luna sangrante.</p>
+    <a href="#">PRÓXIMAMENTE</a>
+</div>
 
-    </div>
+</div>
 </main>
-
 </section>
+
+<script>
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let w,h,particles=[];
+
+function resize(){
+    w=canvas.width=window.innerWidth;
+    h=canvas.height=window.innerHeight;
+}
+window.addEventListener('resize',resize);
+resize();
+
+for(let i=0;i<80;i++){
+    particles.push({
+        x:Math.random()*w,
+        y:Math.random()*h,
+        r:Math.random()*1.5+0.5,
+        s:Math.random()*0.4+0.2
+    });
+}
+
+function animate(){
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='rgba(255,255,255,.6)';
+    particles.forEach(p=>{
+        p.y-=p.s;
+        if(p.y<0)p.y=h;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
 
 </body>
 </html>
