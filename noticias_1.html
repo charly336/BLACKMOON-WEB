@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noticias | Black Moon</title>
+  <style>
+    :root{
+      --bg:#0b0b0f;
+      --card:#141420;
+      --accent:#8b5cf6; /* luna violeta */
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #1b1b2f 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+    header{
+      position:relative;
+      height:320px;
+      overflow:hidden;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    header img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter:brightness(.65) saturate(1.1);
+    }
+    header::after{
+      content:"";
+      position:absolute; inset:0;
+      background:linear-gradient(to bottom, rgba(11,11,15,.1), rgba(11,11,15,.85));
+    }
+    .header-content{
+      position:absolute; inset:0;
+      display:flex; align-items:flex-end;
+      padding:32px;
+      z-index:2;
+    }
+    .title-box{
+      background:rgba(20,20,32,.85);
+      backdrop-filter: blur(6px);
+      border:1px solid rgba(139,92,246,.35);
+      border-radius:16px;
+      padding:18px 22px;
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+    }
+    .title-box h1{margin:0; font-size:32px; letter-spacing:.5px}
+    .title-box p{margin:6px 0 0; color:var(--muted)}
+
+    main{max-width:1100px; margin:40px auto; padding:0 16px}
+
+    .news-card{
+      background:linear-gradient(180deg, rgba(20,20,32,.95), rgba(20,20,32,.85));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:20px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap:0;
+      box-shadow:0 18px 50px rgba(0,0,0,.5);
+    }
+    .news-card img{
+      width:100%; height:100%; object-fit:cover;
+    }
+    .news-content{
+      padding:28px;
+      display:flex; flex-direction:column; gap:14px;
+    }
+    .badge{
+      align-self:flex-start;
+      background:rgba(139,92,246,.15);
+      border:1px solid rgba(139,92,246,.45);
+      color:#c4b5fd;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:.4px;
+    }
+    .news-content h2{margin:6px 0 0; font-size:26px}
+    .news-content .meta{color:var(--muted); font-size:13px}
+    .news-text{
+      margin-top:6px;
+      line-height:1.6;
+      color:#d1d5db;
+    }
+    .actions{margin-top:auto; display:flex; gap:12px}
+    .btn{
+      background:transparent;
+      color:var(--text);
+      border:1px solid rgba(139,92,246,.45);
+      padding:10px 16px;
+      border-radius:12px;
+      cursor:pointer;
+    }
+    .btn.primary{
+      background:linear-gradient(135deg, #8b5cf6, #6d28d9);
+      border:none;
+    }
+
+    footer{
+      margin:60px 0 20px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    @media (max-width: 900px){
+      .news-card{grid-template-columns:1fr}
+      header{height:240px}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- IMAGEN DE CABECERA -->
+  <header>
+    <!-- Cambia la imagen por la tuya -->
+    <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1600" alt="Black Moon Noticias" />
+    <div class="header-content">
+      <div class="title-box">
+        <h1>Noticias Black Moon</h1>
+        <p>Comunicados, lanzamientos y eventos del universo Black Moon</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- NOTICIA PRINCIPAL -->
+    <section class="news-card">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200" alt="Noticia Black Moon" />
+      <div class="news-content">
+        <span class="badge">COMUNICADO</span>
+        <h2>Título de la noticia</h2>
+        <div class="meta">24 · Enero · Black Moon</div>
+        <div class="news-text">
+          <p>
+            Este es el cuadro de texto estilo Black Moon. Aquí va el contenido de la noticia:
+            anuncios importantes, lanzamientos de cómics, eventos, convocatorias o novedades
+            del proyecto.
+          </p>
+          <p>
+            El diseño está pensado para verse oscuro, elegante y lunar, manteniendo la esencia
+            Black Moon.
+          </p>
+        </div>
+        <div class="actions">
+          <button class="btn">Archivo</button>
+          <button class="btn primary">Leer más</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © Black Moon · Noticias oficiales
+  </footer>
+
+</body>
+</html>
