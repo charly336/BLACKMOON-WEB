@@ -8,99 +8,134 @@
 <style>
 body{
     margin:0;
-    background:#0b0b0f;
     font-family: Arial, sans-serif;
     color:white;
-    display:flex;
-    flex-direction:column;
     min-height:100vh;
+    background:#050509;
+    overflow-x:hidden;
 }
 
+/* ===== LUNA REALISTA ===== */
+.moon{
+    position:fixed;
+    top:-180px;
+    right:-180px;
+    width:450px;
+    height:450px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 30%, #fdfdfd 20%, #d9d9d9 45%, #9a9a9a 60%, transparent 70%),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,.2), transparent 60%);
+    box-shadow:0 0 80px rgba(200,200,255,.25);
+    opacity:.18;
+    z-index:-3;
+}
+
+/* ===== NIEBLA ===== */
+.fog{
+    position:fixed;
+    inset:0;
+    background:
+      repeating-radial-gradient(circle at 50% 80%,
+      rgba(255,255,255,.04) 0,
+      rgba(255,255,255,.02) 80px,
+      transparent 160px);
+    animation:fogMove 60s linear infinite;
+    z-index:-2;
+    pointer-events:none;
+}
+
+@keyframes fogMove{
+    from{transform:translateX(0);}
+    to{transform:translateX(-400px);}
+}
+
+/* ===== HEADER ===== */
 header{
     text-align:center;
-    padding:15px;
-    font-size:1.5em;
-    background:#111;
+    padding:14px;
+    font-size:1.3em;
+    background:rgba(10,10,20,0.85);
+    backdrop-filter:blur(6px);
 }
 
+/* ===== COMIC ===== */
 #comic-container{
-    flex:1;
     display:flex;
     justify-content:center;
     align-items:center;
     position:relative;
-    overflow:hidden;
+    padding:10px;
 }
 
 .page{
-    position:absolute;
-    width:90%;
-    max-width:600px;
-    height:auto;
-    transition:transform 0.6s ease, opacity 0.6s ease;
-    box-shadow:0 10px 30px rgba(0,0,0,.7);
+    width:100%;
+    max-width:620px;
+    box-shadow:0 15px 40px rgba(0,0,0,.9);
+    border-radius:10px;
+    transition:transform .6s ease, opacity .6s ease;
 }
 
-.hidden{
-    opacity:0;
-    transform:translateX(100%);
-}
+.hidden{opacity:0; transform:translateX(100%);}
+.show{opacity:1; transform:translateX(0);}
 
-.show{
-    opacity:1;
-    transform:translateX(0);
-}
-
+/* ===== CONTROLES ===== */
 .controls{
     display:flex;
     justify-content:center;
-    gap:20px;
-    margin:15px 0;
+    gap:15px;
+    margin:10px 0;
 }
 
 button{
-    padding:10px 20px;
+    padding:10px 18px;
     border:none;
-    border-radius:20px;
-    background:#6a00ff;
+    border-radius:25px;
+    background:linear-gradient(135deg,#6a00ff,#9a4dff);
     color:white;
     cursor:pointer;
-    font-size:1em;
 }
 
-button:hover{
-    background:#8b3dff;
-}
-
-#page-indicator{
-    text-align:center;
-    font-size:0.9em;
-    opacity:0.8;
-}
-
+/* ===== FOOTER ===== */
 footer{
-    background:#111;
-    padding:15px;
+    background:rgba(10,10,20,0.9);
+    padding:12px;
     display:flex;
     justify-content:center;
-    gap:30px;
+    gap:25px;
+    flex-wrap:wrap;
 }
 
 footer a{
     color:#aaa;
     text-decoration:none;
-    font-size:0.9em;
+    font-size:.85em;
 }
 
-footer a:hover{
-    color:white;
+/* ===== WEBTOON MODE ===== */
+.webtoon{
+    flex-direction:column;
+}
+
+.webtoon img{
+    margin-bottom:20px;
+    border-radius:10px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:768px){
+    .controls{display:none;}
+    #comic-container{flex-direction:column;}
 }
 </style>
 </head>
 
 <body>
 
-<header>📖 Luna y su amor al volar 📖 </header>
+<div class="moon"></div>
+<div class="fog"></div>
+
+<header>📖 Luna y su amor al volar 📖</header>
 
 <div id="comic-container">
     <img id="page" class="page show" src="paginas/1.jpg">
@@ -111,7 +146,7 @@ footer a:hover{
     <button onclick="nextPage()">Siguiente ➡</button>
 </div>
 
-<div id="page-indicator">Página 1</div>
+<div id="page-indicator" style="text-align:center;opacity:.7">Página 1</div>
 
 <footer>
     <a href="https://charly336.github.io/BLACKMOON-WEB/">Pagina de Inicio</a>
@@ -120,42 +155,44 @@ footer a:hover{
 </footer>
 
 <script>
-const pages = [
-    "paginas/1.jpg",
-    "paginas/2.jpg",
-    "paginas/3.jpg",
-    "paginas/4.jpg"
+const pages=[
+ "paginas/1.jpg",
+ "paginas/2.jpg",
+ "paginas/3.jpg",
+ "paginas/4.jpg"
 ];
 
-let currentPage = 0;
-const pageImg = document.getElementById("page");
-const indicator = document.getElementById("page-indicator");
+let currentPage=0;
+const pageImg=document.getElementById("page");
+const container=document.getElementById("comic-container");
+const indicator=document.getElementById("page-indicator");
 
-function nextPage(){
-    if(currentPage < pages.length - 1){
-        changePage(currentPage + 1, 1);
+/* Webtoon automático */
+if(window.innerWidth<768){
+    container.innerHTML="";
+    container.classList.add("webtoon");
+    pages.forEach(p=>{
+        const img=document.createElement("img");
+        img.src=p;
+        img.className="page";
+        container.appendChild(img);
+    });
+}else{
+    function nextPage(){
+        if(currentPage<pages.length-1) changePage(currentPage+1,1);
     }
-}
-
-function prevPage(){
-    if(currentPage > 0){
-        changePage(currentPage - 1, -1);
+    function prevPage(){
+        if(currentPage>0) changePage(currentPage-1,-1);
     }
-}
-
-function changePage(index, direction){
-    pageImg.classList.remove("show");
-    pageImg.classList.add("hidden");
-
-    setTimeout(() => {
-        pageImg.src = pages[index];
-        pageImg.style.transform = `translateX(${direction * -100}%)`;
-        pageImg.classList.remove("hidden");
-        pageImg.classList.add("show");
-        pageImg.style.transform = "translateX(0)";
-        currentPage = index;
-        indicator.textContent = `Página ${currentPage + 1}`;
-    }, 300);
+    function changePage(i,d){
+        pageImg.classList.add("hidden");
+        setTimeout(()=>{
+            pageImg.src=pages[i];
+            pageImg.classList.remove("hidden");
+            currentPage=i;
+            indicator.textContent=`Página ${i+1}`;
+        },300);
+    }
 }
 </script>
 
