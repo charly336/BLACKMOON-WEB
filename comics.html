@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Black Moon Comics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #1a1a2e, #000);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            letter-spacing: 3px;
+        }
+
+        header p {
+            margin-top: 15px;
+            color: #bdbdbd;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .moon {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #fff, #aaa);
+            border-radius: 50%;
+            margin: 30px auto;
+            box-shadow: 0 0 40px rgba(255,255,255,0.3);
+        }
+
+        main {
+            padding: 40px 20px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .comics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+        }
+
+        .comic-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .comic-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 0 25px rgba(255,255,255,0.15);
+        }
+
+        .comic-card h2 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .comic-card p {
+            font-size: 0.9rem;
+            color: #cfcfcf;
+            margin-bottom: 25px;
+        }
+
+        .comic-card a {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: #000;
+            background: #fff;
+            font-weight: bold;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .comic-card a:hover {
+            background: #000;
+            color: #fff;
+            border: 1px solid #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>BLACK MOON COMICS</h1>
+        <div class="moon"></div>
+        <p>
+            Historias nacidas en la oscuridad, creadas bajo la luna.
+            Bienvenido al universo narrativo de Grupo Black Moon.
+        </p>
+    </header>
+
+    <main>
+        <section class="comics-grid">
+
+            <div class="comic-card">
+                <h2>Isis Moon</h2>
+                <p>El origen del mito. El nacimiento del universo Black Moon.</p>
+                <a href="isis-moon.html">Leer cómic</a>
+            </div>
+
+            <div class="comic-card">
+                <h2>Sombras del Aire</h2>
+                <p>Cuando el vuelo deja cicatrices y secretos.</p>
+                <a href="sombras-del-aire.html">Leer cómic</a>
+            </div>
+
+            <div class="comic-card">
+                <h2>Black Moon: Génesis</h2>
+                <p>La historia detrás del grupo, la caída y el ascenso.</p>
+                <a href="genesis.html">Leer cómic</a>
+            </div>
+
+            <div class="comic-card">
+                <h2>Noches Carmesí</h2>
+                <p>Deseo, traición y oscuridad bajo la luna roja.</p>
+                <a href="noches-carmesi.html">Leer cómic</a>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        © 2026 Grupo Black Moon — Black Moon Comics
+    </footer>
+
+</body>
+</html>
