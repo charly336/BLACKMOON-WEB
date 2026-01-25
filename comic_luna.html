@@ -191,6 +191,10 @@ footer a:hover{color:white}
     <a href="https://charly336.github.io/BLACKMOON-WEB/Blackmoon%20music.html">Vamos a cantar</a>
     <a href="https://charly336.github.io/BLACKMOON-WEB/Games%20List.html">Jugamos?</a>
 </footer>
+    <audio id="page-sound" preload="auto">
+    <source src="page-flip.mp3" type="audio/mpeg">
+    </audio>
+
 
 <script>
 const pages=[
@@ -217,6 +221,11 @@ function prevPage(){
 }
 
 function flipTo(i){
+    const sound = document.getElementById("page-sound");
+    sound.currentTime = 0;
+    sound.volume = 0.5;
+    sound.play().catch(()=>{});
+
     pageImg.classList.add("flip-out");
     setTimeout(()=>{
         pageImg.src=pages[i];
@@ -225,6 +234,8 @@ function flipTo(i){
         currentPage=i;
         indicator.textContent=`Página ${i+1}`;
     },400);
+}
+
 }
 </script>
 
