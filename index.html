@@ -300,112 +300,145 @@ audio::-webkit-media-controls-timeline{
 </section>
 
 <style>
-.bm-news-ticker{
-  background:#0b0b0e;
-  border-top:1px solid rgba(255,255,255,.1);
-  border-bottom:1px solid rgba(255,255,255,.1);
-  overflow:hidden;
-  padding:18px 0;
+/* Contenedor principal */
+.bm-news-ticker {
+  background: #0b0b0e;
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  overflow: hidden;
+  padding: 18px 0;
 }
 
-.ticker-track{
-  display:flex;
-  gap:30px;
-  width:max-content;
+/* Track del ticker */
+.ticker-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
   animation: scrollLeft 40s linear infinite;
 }
 
-.bm-news-ticker:hover .ticker-track{
+.bm-news-ticker:hover .ticker-track {
   animation-play-state: paused;
 }
 
-@keyframes scrollLeft{
-  from{ transform: translateX(0); }
-  to{ transform: translateX(-50%); }
+/* Animación del scroll */
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-.ticker-item{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  background:rgba(255,255,255,0.06);
+/* Cada item del ticker */
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
   backdrop-filter: blur(10px);
-  border-radius:14px;
-  padding:12px 18px;
-  min-width:320px;
-  box-shadow:0 0 18px rgba(0,0,0,.6);
+  border-radius: 14px;
+  padding: 10px 14px;
+  min-width: 280px;
+  box-shadow: 0 0 18px rgba(0,0,0,.6);
+  flex-shrink: 0;
+  transition: transform 0.3s;
 }
 
-.ticker-item img{
-  width:70px;
-  height:70px;
-  object-fit:cover;
-  border-radius:10px;
-  flex-shrink:0;
+.ticker-item:hover {
+  transform: scale(1.05);
 }
 
-.ticker-text{
-  font-size:.9rem;
+/* Imagen del item */
+.ticker-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 
-.ticker-text strong{
-  color:#b46de1;
-  display:block;
-  font-size:1rem;
+/* Texto del item */
+.ticker-text {
+  font-size: 0.85rem;
 }
 
-.ticker-text span{
-  color:#aaa;
-  font-size:.75rem;
+.ticker-text strong {
+  color: #b46de1;
+  display: block;
+  font-size: 0.95rem;
 }
 
-.ticker-item a{
-  text-decoration:none;
-  color:#fff;
+.ticker-text span {
+  color: #aaa;
+  font-size: 0.7rem;
 }
 
-@media(max-width:600px){
-  .ticker-item{
-    min-width:260px;
+/* Enlace */
+.ticker-item a {
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ticker-item {
+    min-width: 240px;
+    padding: 8px 12px;
+    gap: 10px;
   }
-  .ticker-item img{
-    width:55px;
-    height:55px;
+  .ticker-item img {
+    width: 50px;
+    height: 50px;
+  }
+  .ticker-text {
+    font-size: 0.8rem;
+  }
+  .ticker-text strong {
+    font-size: 0.9rem;
+  }
+  .ticker-text span {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker-track {
+    gap: 12px;
+  }
+  .ticker-item {
+    min-width: 200px;
+    padding: 6px 10px;
+  }
+  .ticker-item img {
+    width: 45px;
+    height: 45px;
+  }
+  .ticker-text {
+    font-size: 0.75rem;
+  }
+  .ticker-text strong {
+    font-size: 0.85rem;
+  }
+  .ticker-text span {
+    font-size: 0.6rem;
   }
 }
 </style>
 
 <script>
 const newsTickerData = [
-  {
-    title: "Black Moon Comics inicia",
-    date: "24 Ene 2026",
-    image: "image.png",
-    link: "noticias_1.html"
-  },
-  {
-    title: "VOL. 4 ya disponible",
-    date: "22 enero 2026",
-    image: "new.jpg",
-    link: "noticias_2.html"
-  },
-  {
-    title: "nueva pagina de musica",
-    date: "23 enero",
-    image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg",
-    link: "noticias_3.html"
-  }
+  { title: "Black Moon Comics inicia", date: "24 Ene 2026", image: "image.png", link: "noticias_1.html" },
+  { title: "VOL. 4 ya disponible", date: "22 enero 2026", image: "new.jpg", link: "noticias_2.html" },
+  { title: "nueva pagina de musica", date: "23 enero", image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg", link: "noticias_3.html" }
 ];
 
 const track = document.getElementById("tickerTrack");
 
 // duplicamos para loop infinito fluido
-[...newsTickerData, ...newsTickerData].forEach(item=>{
+[...newsTickerData, ...newsTickerData].forEach(item => {
   const div = document.createElement("div");
-  div.className="ticker-item";
-  div.innerHTML=`
+  div.className = "ticker-item";
+  div.innerHTML = `
     <a href="${item.link}">
-      <img src="${item.image}">
+      <img src="${item.image}" alt="${item.title}">
     </a>
     <div class="ticker-text">
       <strong>${item.title}</strong>
@@ -416,6 +449,7 @@ const track = document.getElementById("tickerTrack");
 });
 </script>
 <!-- ================= END NEWS TICKER ================= -->
+
 
     <ul>
 
