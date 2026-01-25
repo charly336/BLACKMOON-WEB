@@ -13,8 +13,7 @@ body{
     color:white;
     min-height:100vh;
     overflow-x:hidden;
-    background:
-      radial-gradient(circle at top, #1b1b3a, #04040a 70%);
+    background:radial-gradient(circle at top, #1b1b3a, #04040a 70%);
 }
 
 /* ===== ESTRELLAS ===== */
@@ -31,13 +30,9 @@ body{
     animation:twinkle 6s infinite alternate;
     z-index:-3;
 }
+@keyframes twinkle{from{opacity:.6;}to{opacity:1;}}
 
-@keyframes twinkle{
-    from{opacity:.6;}
-    to{opacity:1;}
-}
-
-/* ===== LUNA LLENA ===== */
+/* ===== LUNA ===== */
 .moon{
     position:fixed;
     top:-160px;
@@ -45,8 +40,7 @@ body{
     width:420px;
     height:420px;
     border-radius:50%;
-    background:
-      radial-gradient(circle at 30% 30%, #ffffff 25%, #d9d9d9 45%, #9c9c9c 60%, transparent 72%);
+    background:radial-gradient(circle at 30% 30%, #fff 25%, #d9d9d9 45%, #9c9c9c 60%, transparent 72%);
     box-shadow:0 0 120px rgba(220,220,255,.35);
     opacity:.25;
     z-index:-2;
@@ -63,10 +57,9 @@ body{
     animation:float 18s linear infinite;
     z-index:-1;
 }
-
 @keyframes float{
-    from{transform:translateY(0); opacity:0;}
-    to{transform:translateY(-120vh); opacity:1;}
+    from{transform:translateY(0);opacity:0;}
+    to{transform:translateY(-120vh);opacity:1;}
 }
 
 /* ===== HEADER ===== */
@@ -85,6 +78,7 @@ header{
     justify-content:center;
     align-items:center;
     padding:20px;
+    touch-action:pan-y;
 }
 
 .page{
@@ -102,7 +96,6 @@ header{
     transform:rotateY(-180deg);
     opacity:0;
 }
-
 .flip-in{
     transform:rotateY(0deg);
     opacity:1;
@@ -115,7 +108,6 @@ header{
     gap:20px;
     margin-bottom:8px;
 }
-
 button{
     padding:10px 22px;
     border:none;
@@ -142,13 +134,11 @@ footer{
     gap:25px;
     flex-wrap:wrap;
 }
-
 footer a{
     color:#aaa;
     text-decoration:none;
     font-size:.85em;
 }
-
 footer a:hover{color:white}
 
 /* ===== RESPONSIVE ===== */
@@ -172,10 +162,9 @@ footer a:hover{color:white}
     <span style="left:90%;animation-delay:1s"></span>
 </div>
 
-<header>📖 Suspendidos en el aire 📖</header>
+<header>📖 Suspendidos en el Aire 📖</header>
 
 <div id="comic-container">
-    <!-- PRIMERA PÁGINA YA CARGADA -->
     <img id="page" class="page flip-in" src="c_0.jpeg">
 </div>
 
@@ -187,14 +176,10 @@ footer a:hover{color:white}
 <div id="page-indicator">Página 1</div>
 
 <footer>
-    <a href="https://charly336.github.io/BLACKMOON-WEB/">Pagina de Inicio</a>
-    <a href="https://charly336.github.io/BLACKMOON-WEB/Blackmoon%20music.html">Vamos a cantar</a>
-    <a href="https://charly336.github.io/BLACKMOON-WEB/Games%20List.html">Jugamos?</a>
+    <a href="#">Inicio</a>
+    <a href="#">Música</a>
+    <a href="#">Juegos</a>
 </footer>
-    <audio id="page-sound" preload="auto">
-    <source src="page-flip.mp3" type="audio/mpeg">
-    </audio>
-
 
 <script>
 const pages=[
@@ -208,24 +193,14 @@ let currentPage=0;
 const pageImg=document.getElementById("page");
 const indicator=document.getElementById("page-indicator");
 
+/* ===== CAMBIO DE PÁGINA ===== */
 function nextPage(){
-    if(currentPage<pages.length-1){
-        flipTo(currentPage+1);
-    }
+    if(currentPage<pages.length-1) flipTo(currentPage+1);
 }
-
 function prevPage(){
-    if(currentPage>0){
-        flipTo(currentPage-1);
-    }
+    if(currentPage>0) flipTo(currentPage-1);
 }
-
 function flipTo(i){
-    const sound = document.getElementById("page-sound");
-    sound.currentTime = 0;
-    sound.volume = 0.5;
-    sound.play().catch(()=>{});
-
     pageImg.classList.add("flip-out");
     setTimeout(()=>{
         pageImg.src=pages[i];
@@ -236,6 +211,28 @@ function flipTo(i){
     },400);
 }
 
+/* ===== SWIPE TÁCTIL ===== */
+let startX=0;
+let endX=0;
+const threshold=60;
+
+const container=document.getElementById("comic-container");
+
+container.addEventListener("touchstart",e=>{
+    startX=e.touches[0].clientX;
+},{passive:true});
+
+container.addEventListener("touchend",e=>{
+    endX=e.changedTouches[0].clientX;
+    handleSwipe();
+});
+
+function handleSwipe(){
+    const diff=startX-endX;
+    if(Math.abs(diff)>threshold){
+        if(diff>0) nextPage();
+        else prevPage();
+    }
 }
 </script>
 
