@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== BASE ===== */
 body{
     margin:0;
     font-family:Arial, sans-serif;
@@ -16,7 +15,7 @@ body{
     background:radial-gradient(circle at top, #1b1b3a, #04040a 70%);
 }
 
-/* ===== ESTRELLAS ===== */
+/* ESTRELLAS */
 .stars{
     position:fixed;
     inset:0;
@@ -32,7 +31,7 @@ body{
 }
 @keyframes twinkle{from{opacity:.6;}to{opacity:1;}}
 
-/* ===== LUNA ===== */
+/* LUNA */
 .moon{
     position:fixed;
     top:-160px;
@@ -46,7 +45,7 @@ body{
     z-index:-2;
 }
 
-/* ===== PARTÍCULAS ===== */
+/* PARTÍCULAS */
 .particles span{
     position:fixed;
     bottom:-10px;
@@ -62,7 +61,7 @@ body{
     to{transform:translateY(-120vh);opacity:1;}
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 header{
     text-align:center;
     padding:14px;
@@ -71,7 +70,7 @@ header{
     backdrop-filter:blur(6px);
 }
 
-/* ===== COMIC ===== */
+/* COMIC */
 #comic-container{
     perspective:1600px;
     display:flex;
@@ -91,17 +90,11 @@ header{
     backface-visibility:hidden;
 }
 
-/* ===== FLIP ===== */
-.flip-out{
-    transform:rotateY(-180deg);
-    opacity:0;
-}
-.flip-in{
-    transform:rotateY(0deg);
-    opacity:1;
-}
+/* FLIP */
+.flip-out{transform:rotateY(-180deg);opacity:0;}
+.flip-in{transform:rotateY(0deg);opacity:1;}
 
-/* ===== CONTROLES ===== */
+/* CONTROLES */
 .controls{
     display:flex;
     justify-content:center;
@@ -125,7 +118,7 @@ button{
     margin-bottom:10px;
 }
 
-/* ===== FOOTER ===== */
+/* FOOTER */
 footer{
     background:rgba(10,10,20,.9);
     padding:12px;
@@ -139,9 +132,8 @@ footer a{
     text-decoration:none;
     font-size:.85em;
 }
-footer a:hover{color:white}
+footer a:hover{color:white;}
 
-/* ===== RESPONSIVE ===== */
 @media(max-width:768px){
     .controls{display:none;}
     .page{max-width:95%;}
@@ -153,7 +145,7 @@ footer a:hover{color:white}
 
 <div class="stars"></div>
 <div class="moon"></div>
-  <div class="particles">
+<div class="particles">
     <span style="left:10%;animation-delay:0s"></span>
     <span style="left:30%;animation-delay:4s"></span>
     <span style="left:50%;animation-delay:2s"></span>
@@ -173,71 +165,61 @@ footer a:hover{color:white}
 </div>
 
 <div id="page-indicator">Página 1</div>
-  
-  <footer>
-    <a href="#">Inicio</a>
-    <a href="#">Música</a>
-    <a href="#">Juegos</a>
+
+<footer>
+  <a href="#">Inicio</a>
+  <a href="#">Música</a>
+  <a href="#">Juegos</a>
 </footer>
 
 <script>
-
-/* NOMBRES EXACTOS */
 const pages = [
-"H00.jpg","h1.jpg","h2.jpg","h3.jpg","h4.jpg","h5.jpg",
- "h6.jpg","h7.jpg","h8.jpg","h9.jpg","c_9.jpeg",
- "h10.jpg","h11.jpg","h12.jpg","h13.jpg",
+  "H00.jpg","h1.jpg","h2.jpg","h3.jpg","h4.jpg","h5.jpg",
+  "h6.jpg","h7.jpg","h8.jpg","h9.jpg","c_9.jpeg",
   "h10.jpg","h11.jpg","h12.jpg","h13.jpg",
   "h14.jpg","h15.jpg","h16.jpg","h17.jpg",
-  "h18.jpg","H19.jpg","h20.jpg","H21.jpg"
-  "H22.jpg","H23.jpg","H24.jpg","H25.jpg"
-  "H26.jpg","H27.jpg","H28.jpg",
+  "h18.jpg","H19.jpg","h20.jpg","H21.jpg",
+  "H22.jpg","H23.jpg","H24.jpg","H25.jpg",
+  "H26.jpg","H27.jpg","H28.jpg"
 ];
 
-let currentPage=0;
-const pageImg=document.getElementById("page");
-const indicator=document.getElementById("page-indicator");
+let currentPage = 0;
+const pageImg = document.getElementById("page");
+const indicator = document.getElementById("page-indicator");
 
-/* ===== CAMBIO DE PÁGINA ===== */
 function nextPage(){
-    if(currentPage<pages.length-1) flipTo(currentPage+1);
+    if(currentPage < pages.length - 1) flipTo(currentPage + 1);
 }
 function prevPage(){
-    if(currentPage>0) flipTo(currentPage-1);
+    if(currentPage > 0) flipTo(currentPage - 1);
 }
 function flipTo(i){
     pageImg.classList.add("flip-out");
     setTimeout(()=>{
-        pageImg.src=pages[i];
+        pageImg.src = pages[i];
         pageImg.classList.remove("flip-out");
         pageImg.classList.add("flip-in");
-        currentPage=i;
-        indicator.textContent=`Página ${i+1}`;
+        currentPage = i;
+        indicator.textContent = `Página ${i + 1}`;
     },400);
 }
-  /* ===== SWIPE TÁCTIL ===== */
-let startX=0;
-let endX=0;
-const threshold=60;
 
-const container=document.getElementById("comic-container");
+/* SWIPE */
+let startX = 0;
+const threshold = 60;
+const container = document.getElementById("comic-container");
 
-container.addEventListener("touchstart",e=>{
-    startX=e.touches[0].clientX;
+container.addEventListener("touchstart", e=>{
+    startX = e.touches[0].clientX;
 },{passive:true});
 
-container.addEventListener("touchend",e=>{
-    endX=e.changedTouches[0].clientX;
-    handleSwipe();
-});
-
-function handleSwipe(){
-    const diff=startX-endX;
-    if(Math.abs(diff)>threshold){
-        if(diff>0) nextPage();
-        else prevPage();
+container.addEventListener("touchend", e=>{
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
+    if(Math.abs(diff) > threshold){
+        diff > 0 ? nextPage() : prevPage();
     }
-}
+});
 </script>
 
 </body>
