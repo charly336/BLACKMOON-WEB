@@ -250,6 +250,370 @@ function animate(){
 }
 animate();
 </script>
+          <h1 class="marquee-title">🎭🌚 BLACKMOON GROUP 🌚🎭</h1>
+    </marquee>
+    <!-- ================= BLACK MOON AUDIO PLAYER ================= -->
+<div class="bm-audio-wrapper">
+  <audio controls autoplay loop>
+    <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
+    <source src="8.-Soy un Quetzal en el Viento.m4a" type="audio/mp4">
+    <source src="1.- Volando con Black Moon.m4a" type="audio/mp4">
+    Tu navegador no soporta audio HTML5.
+  </audio>
+</div>
+
+<style>
+/* CONTENEDOR CENTRADO */
+.bm-audio-wrapper{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  margin:140px 0 60px;
+}
+
+/* ESTILO DEL REPRODUCTOR */
+.bm-audio-wrapper audio{
+  width:90%;
+  max-width:520px;
+  padding:14px;
+  border-radius:20px;
+  background:rgba(20,20,28,0.75);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 25px rgba(180,109,225,0.35),
+    inset 0 0 12px rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.15);
+}
+
+/* CHROME / EDGE */
+audio::-webkit-media-controls-panel{
+  background:transparent;
+}
+
+audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-volume-slider,
+audio::-webkit-media-controls-timeline{
+  filter: drop-shadow(0 0 6px #b46de1);
+}
+
+/* HOVER GLOW */
+.bm-audio-wrapper audio:hover{
+  box-shadow:
+    0 0 35px rgba(180,109,225,0.6),
+    inset 0 0 18px rgba(255,255,255,0.08);
+  transform: scale(1.02);
+  transition: .3s ease;
+}
+
+/* MÓVIL */
+@media(max-width:600px){
+  .bm-audio-wrapper{
+    margin-top:110px;
+  }
+  .bm-audio-wrapper audio{
+    max-width:95%;
+  }
+}
+</style>
+<!-- ================= END AUDIO PLAYER ================= -->
+ <!-- ================= BLACK MOON NEWS TICKER ================= -->
+<section class="bm-news-ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</section>
+
+<style>
+/* Contenedor principal */
+.bm-news-ticker {
+  background: #0b0b0e;
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  overflow: hidden;
+  padding: 18px 0;
+}
+
+/* Track del ticker */
+.ticker-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: scrollLeft 40s linear infinite;
+}
+
+.bm-news-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+/* Animación del scroll */
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Cada item del ticker */
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 10px 14px;
+  min-width: 280px;
+  box-shadow: 0 0 18px rgba(0,0,0,.6);
+  flex-shrink: 0;
+  transition: transform 0.3s;
+}
+
+.ticker-item:hover {
+  transform: scale(1.05);
+}
+
+/* Imagen del item */
+.ticker-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Texto del item */
+.ticker-text {
+  font-size: 0.85rem;
+}
+
+.ticker-text strong {
+  color: #b46de1;
+  display: block;
+  font-size: 0.95rem;
+}
+
+.ticker-text span {
+  color: #aaa;
+  font-size: 0.7rem;
+}
+
+/* Enlace */
+.ticker-item a {
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ticker-item {
+    min-width: 240px;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .ticker-item img {
+    width: 50px;
+    height: 50px;
+  }
+  .ticker-text {
+    font-size: 0.8rem;
+  }
+  .ticker-text strong {
+    font-size: 0.9rem;
+  }
+  .ticker-text span {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker-track {
+    gap: 12px;
+  }
+  .ticker-item {
+    min-width: 200px;
+    padding: 6px 10px;
+  }
+  .ticker-item img {
+    width: 45px;
+    height: 45px;
+  }
+  .ticker-text {
+    font-size: 0.75rem;
+  }
+  .ticker-text strong {
+    font-size: 0.85rem;
+  }
+  .ticker-text span {
+    font-size: 0.6rem;
+  }
+}
+</style>
+
+<script>
+const newsTickerData = [
+  { title: "Black Moon Comics inicia", date: "24 Ene 2026", image: "image.png", link: "noticias_1.html" },
+  { title: "VOL. 4 ya disponible", date: "22 enero 2026", image: "new.jpg", link: "noticias_2.html" },
+  { title: "nueva pagina de musica", date: "23 enero", image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg", link: "noticias_3.html" }
+];
+
+const track = document.getElementById("tickerTrack");
+
+// duplicamos para loop infinito fluido
+[...newsTickerData, ...newsTickerData].forEach(item => {
+  const div = document.createElement("div");
+  div.className = "ticker-item";
+  div.innerHTML = `
+    <a href="${item.link}">
+      <img src="${item.image}" alt="${item.title}">
+    </a>
+    <div class="ticker-text">
+      <strong>${item.title}</strong>
+      <span>${item.date}</span>
+    </div>
+  `;
+  track.appendChild(div);
+});
+</script>
+<!-- ================= END NEWS TICKER ================= -->
+
+
+    <ul>
+
+        <li>
+            <a href="AerialBM.HTML" class="enlace-botón">AERIAL BLACKMOON</a>
+            <img src="aerial black moon.jpg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="Blackmoon music.html" class="enlace-botón">BLACKMOON RECORDS</a>
+            <img src="Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg" class="imagen-mediana">
+        </li>
+
+       <li>
+            <a href="PLATAFORMAS POD.HTML" class="enlace-botón">BLACKMOON PODCAST</a>
+            <img src="BKM PODCAST 2.0.jpg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="REDES PBM.html" class="enlace-botón">PRODUCTOS BLACKMOON</a>
+            <img src="PRODUCTOS BKM 2.O.jpg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="SISTEMSBM.HTML" class="enlace-botón">BLACKMOON SYSTEMS</a>
+            <img src="bkm systerms 2.0.jpg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="Games List.html" class="enlace-botón">BLACKMOON GAMES</a>
+            <img src="Imagen de WhatsApp 2025-11-02 a las 17.12.14_83e6c797.jpg" class="imagen-mediana">
+        </li>
+        
+         <li>
+            <a href="comics.html" class="enlace-botón">BLACKMOON COMICS</a>
+            <img src="portada.jpeg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="https://www.youtube.com/@BikerBlackmoon" class="enlace-botón">BIKER BLACKMOON</a>
+            <img src="BIKER.jpg" class="imagen-mediana">
+        </li>
+        
+        <li>
+            <a href="https://www.jotform.com/app/253047701093856" class="enlace-botón">BLACKMOON GIFT</a>
+            <img src="manualidades .jpg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="LADCH.HTML" class="enlace-botón">ANGELES DE CHARLY</a>
+            <img src="ANGELESDE CHARLY.jpg" class="imagen-mediana">
+        </li>
+
+        <li>
+            <a href="https://eliza-03.github.io/Eliza-03.github.io./" class="enlace-botón">Acompañamiento psicológico</a>
+            <img src="img_33.jpg" class="imagen-mediana">
+        </li>
+
+        
+         
+
+    </ul>
+
+</div>
+
+<!-- ---------------- BOTÓN WHATSAPP CON LATIDO ---------------- -->
+<a href="https://wa.me/5215560693556?text=Hola%20Blackmoon,%20quiero%20información" class="boton-ws">
+    <img src="fi41wha6c3e-whatsapp-logo-file-whatsapp-svg-wikimedia-commons.png">
+</a>
+<a href="https://wa.me/5215560693556?text=Hola%20Blackmoon,%20quiero%20información" class="boton-ws">
+    <img src="fi41wha6c3e-whatsapp-logo-file-whatsapp-svg-wikimedia-commons.png">
+</a>
+
+<footer>
+    <marquee behavior="scroll" direction="left"><h2>&copy; 2024 - 2026, Ing. Carlos Lezama</h2></marquee>
+    <marquee behavior="scroll" direction="left"><h2>5 Años Volando Alto — Aerial Blackmoon</h2></marquee>
+    <marquee behavior="scroll" direction="left"><h2>2 Años Al Aire — Blackmoon Podcast</h2></marquee>
+    <marquee behavior="scroll" direction="left"><h2>Todos Los Derechos Reservados</h2></marquee>
+</footer>
+
+<script>
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = [];
+const particleCount = 90;
+
+class Particle {
+    constructor() {
+        this.x = Math.random()*canvas.width;
+        this.y = Math.random()*canvas.height;
+        this.size = Math.random()*2+1;
+        this.speedX = (Math.random()-.5)*0.5;
+        this.speedY = (Math.random()-.5)*0.5;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(180,109,225,0.9)";
+        ctx.shadowColor = "#b46de1";
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+    }
+}
+
+function initParticles(){
+    for (let i = 0; i < particleCount; i++){
+        particles.push(new Particle());
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize",()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+initParticles();
+animateParticles();
+</script>
+ 
+
+</body>
+</html>
+
 
 </body>
 </html>
