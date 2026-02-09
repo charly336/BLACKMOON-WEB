@@ -1,21 +1,220 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💻🌚 Blackmoon Group 🌚💻</title>
+
+<title>💻🌚 Blackmoon Group  🌚💻</title>
 
 <style>
-/* ================= RESET ================= */
-body{
-  margin:0;
-  font-family:'Inter',Arial,sans-serif;
-  background:#050505;
-  color:#fff;
-  overflow-x:hidden;
+
+/* ------------------ RESET GLOBAL ------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #050505;
+    color: #fff;
+    overflow-x: hidden;
 }
 
-/* ================= INTRO ================= */
+/* ------------------ CANVAS PARTÍCULAS ------------------ */
+#particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* ------------------ NAVBAR FIJA ------------------ */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 16px 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.navbar a {
+    color: #b46de1;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    transition: .3s;
+    opacity: .8;
+}
+
+.navbar a:hover {
+    opacity: 1;
+    transform: translateY(-3px);
+}
+
+/* ------------------ CONTENIDO ------------------ */
+.container {
+    width: 95%;
+    max-width: 1100px;
+    margin: auto;
+    padding-top: 120px;
+}
+
+/* ------------------ TITULAR PRINCIPAL ------------------ */
+.marquee-title {
+    font-size: 12vw;
+    font-weight: 900;
+    text-align: center;
+    color: #F5BE27;
+    margin-bottom: 20px;
+    animation: glow 2.5s infinite;
+}
+
+@keyframes glow {
+    0% { text-shadow: 0 0 10px #F5BE27;}
+    50% { text-shadow: 0 0 25px #F5BE27;}
+    100% { text-shadow: 0 0 10px #F5BE27;}
+}
+
+/* ------------------ GRID DE SECCIONES ------------------ */
+ul {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 25px;
+}
+
+@media(min-width: 800px) {
+    ul {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+li {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 0 25px rgba(255,255,255,0.06);
+    transition: .35s ease;
+}
+
+li:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0 35px rgba(180,109,225,0.35);
+}
+
+/* ------------------ BOTONES PREMIUM ------------------ */
+.enlace-botón {
+    background: linear-gradient(135deg, #7d3c98, #b46de1);
+    color: #fff;
+    padding: 14px;
+    display: block;
+    text-align: center;
+    font-size: 26px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    box-shadow: 0 0 18px rgba(180,109,225,0.25);
+    transition: .3s;
+}
+
+.enlace-botón:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 28px rgba(180,109,225,0.55);
+}
+
+/* ------------------ IMÁGENES ------------------ */
+.imagen-mediana {
+    width: 100%;
+    max-width: 260px;
+    border-radius: 14px;
+    margin-top: 15px;
+    transition: .3s;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.imagen-mediana:hover {
+    transform: scale(1.05);
+}
+
+/* ------------------ BOTÓN WHATSAPP: LATIDO + FLOTE ------------------ */
+
+.boton-ws {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 2000;
+    background: none;
+    padding: 0;
+    border-radius: 50%;
+    transition: 0.35s ease;
+
+    animation: wsHeartBeat 1.9s infinite ease-in-out,
+               wsFloat 3.5s infinite ease-in-out;
+}
+
+.boton-ws img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    box-shadow: 0 0 22px rgba(37, 211, 102, 0.55);
+    transition: 0.25s;
+}
+
+@keyframes wsHeartBeat {
+    0%   { transform: scale(1); }
+    20%  { transform: scale(1.22); }
+    40%  { transform: scale(1); }
+    60%  { transform: scale(1.18); }
+    80%  { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes wsFloat {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+}
+
+.boton-ws:hover img {
+    transform: scale(1.22);
+    box-shadow: 0 0 32px rgba(37,211,102,0.85);
+}
+
+/* ------------------ FOOTER ------------------ */
+footer {
+    margin-top: 50px;
+    padding: 25px 0;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 30px rgba(255,255,255,0.1);
+}
+
+footer marquee h2 {
+    color: #b46de1;
+    font-size: 5vw;
+    text-shadow: 0 0 8px rgba(180,109,225,0.6);
+}
+
+</style>
+
+</head>
+
+<body>
+  <!-- ================= INTRO BLACKMOON ================= -->
+<style>
 #bm-intro{
   position:fixed;
   inset:0;
@@ -75,166 +274,41 @@ body{
   transform:scale(1.08);
   box-shadow:0 0 40px rgba(180,109,225,1);
 }
-
-/* ================= PARTICULAS ================= */
-#particles{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-}
-
-/* ================= NAVBAR ================= */
-.navbar{
-  position:fixed;
-  top:0;
-  width:100%;
-  padding:16px 0;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(12px);
-  display:flex;
-  justify-content:center;
-  gap:40px;
-  z-index:1000;
-}
-.navbar a{
-  color:#b46de1;
-  text-decoration:none;
-  font-weight:700;
-  font-size:18px;
-}
-
-/* ================= CONTENIDO ================= */
-.container{
-  width:95%;
-  max-width:1100px;
-  margin:auto;
-  padding-top:120px;
-}
-
-.marquee-title{
-  font-size:12vw;
-  font-weight:900;
-  text-align:center;
-  color:#F5BE27;
-  animation:glow 2.5s infinite;
-}
-@keyframes glow{
-  0%{text-shadow:0 0 10px #F5BE27}
-  50%{text-shadow:0 0 25px #F5BE27}
-  100%{text-shadow:0 0 10px #F5BE27}
-}
-
-ul{
-  list-style:none;
-  padding:0;
-  display:grid;
-  gap:25px;
-}
-@media(min-width:800px){
-  ul{grid-template-columns:repeat(2,1fr)}
-}
-
-li{
-  background:rgba(255,255,255,.08);
-  backdrop-filter:blur(12px);
-  border-radius:16px;
-  padding:20px;
-  transition:.3s;
-}
-li:hover{
-  transform:translateY(-6px);
-  box-shadow:0 0 35px rgba(180,109,225,.4);
-}
-
-.enlace-botón{
-  display:block;
-  background:linear-gradient(135deg,#7d3c98,#b46de1);
-  padding:14px;
-  font-size:26px;
-  text-align:center;
-  border-radius:10px;
-  color:#fff;
-  text-decoration:none;
-  font-weight:700;
-}
-
-.imagen-mediana{
-  width:100%;
-  max-width:260px;
-  display:block;
-  margin:15px auto 0;
-  border-radius:14px;
-}
-
-/* ================= FOOTER ================= */
-footer{
-  margin-top:50px;
-  padding:25px 0;
-  background:rgba(255,255,255,.07);
-  backdrop-filter:blur(12px);
-  text-align:center;
-}
 </style>
-</head>
 
-<body>
-
-<!-- ========== INTRO ========== -->
 <div id="bm-intro">
   <div class="bm-intro-box">
     <h1>🌑 BLACKMOON GROUP 🌑</h1>
     <p>Música · Comics · Podcast · Escuela · Sistemas</p>
-    <button onclick="entrar()">Entrar</button>
+    <button onclick="entrarBlackmoon()">Entrar</button>
   </div>
 </div>
+
+<script>
+function entrarBlackmoon(){
+  document.getElementById("bm-intro").classList.add("hidden");
+}
+</script>
+<!-- ================= END INTRO ================= -->
+
+  
+</script>
+
 
 <canvas id="particles"></canvas>
 
 <nav class="navbar">
-  <a href="#">Inicio</a>
-  <a href="https://www.instagram.com/grupo_blackmoon">Instagram</a>
+    <a href="#">.</a>
+    <a href="https://www.jotform.com/app/251536021952856">Nuestra app</a>
+    <a href="#">.</a>
+    <a href="https://charly336.github.io/BLACKMOON-WEB/Game%20fly%20and%20flyp.html">Memorama atajo rapido</a>
+    <a href="#">.</a>
+    <a href="https://www.instagram.com/grupo_blackmoon?igsh=MTA5cnp0MG0xMjk4Zg%3D%3D&utm_source=qr">Instagram</a>
+    <a href="#">.</a>
 </nav>
-<footer>
-  <marquee>© 2024 - 2026 Blackmoon Group</marquee>
-</footer>
-
-<script>
-function entrar(){
-  document.getElementById("bm-intro").classList.add("hidden");
-}
-
-/* PARTICULAS */
-const canvas=document.getElementById("particles");
-const ctx=canvas.getContext("2d");
-canvas.width=innerWidth;
-canvas.height=innerHeight;
-
-const particles=[];
-for(let i=0;i<90;i++){
-  particles.push({
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
-    r:Math.random()*2+1,
-    dx:(Math.random()-.5)*.5,
-    dy:(Math.random()-.5)*.5
-  });
-}
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.x+=p.dx;p.y+=p.dy;
-    if(p.x<0||p.x>canvas.width)p.dx*=-1;
-    if(p.y<0||p.y>canvas.height)p.dy*=-1;
-    ctx.fillStyle="rgba(180,109,225,.9)";
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fill();
-  });
-  requestAnimationFrame(animate);
-}
-animate();
-</script>
-          <h1 class="marquee-title">🎭🌚 BLACKMOON GROUP 🌚🎭</h1>
+<div class="container">
+    <marquee behavior="scroll" direction="left">
+        <h1 class="marquee-title">🎭🌚 BLACKMOON GROUP 🌚🎭</h1>
     </marquee>
     <!-- ================= BLACK MOON AUDIO PLAYER ================= -->
 <div class="bm-audio-wrapper">
@@ -594,10 +668,6 @@ initParticles();
 animateParticles();
 </script>
  
-
-</body>
-</html>
-
 
 </body>
 </html>
