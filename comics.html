@@ -173,6 +173,39 @@ main{
     to{opacity:1;}
 }
 </style>
+    <style>
+.bm-comics-counter{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:40px 0;
+}
+
+.bm-counter-box{
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:20px;
+  padding:30px 50px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(138,43,226,0.4);
+}
+
+.bm-counter-box h3{
+  color:#ffffff;
+  font-family:Arial, sans-serif;
+  letter-spacing:2px;
+  margin-bottom:15px;
+}
+
+.bm-counter-number{
+  font-size:48px;
+  font-weight:bold;
+  color:#a855f7;
+  text-shadow:0 0 20px #9333ea;
+  font-family:monospace;
+}
+</style>
 </head>
 
 <body>
@@ -187,6 +220,14 @@ main{
 <section id="home">
 
 <header>
+    <!-- ===== CONTADOR BLACK MOON COMICS ===== -->
+<div class="bm-comics-counter">
+  <div class="bm-counter-box">
+    <h3>🌙 Lectores del Multiverso</h3>
+    <div class="bm-counter-number" id="bmCounter">00000</div>
+  </div>
+</div>
+
     <h1>BLACKMOON COMICS</h1>
     <p>Historias nacidas en la oscuridad. Universos creados bajo la luna.</p>
 </header>
@@ -260,6 +301,19 @@ function animate(){
     requestAnimationFrame(animate);
 }
 animate();
+</script>
+<script>
+let count = localStorage.getItem("bmComicsCounter");
+
+if(!count){
+  count = 0;
+}
+
+count++;
+localStorage.setItem("bmComicsCounter", count);
+
+let display = document.getElementById("bmCounter");
+display.textContent = count.toString().padStart(5,"0");
 </script>
 
 </body>
