@@ -230,12 +230,108 @@ h1 {
 .footer-link img:hover {
     transform: scale(1.15);
 }
+/* -------------------- WHATSAPP FLOTANTE -------------------- */
+.boton-ws {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 3000;
+    background: #25d366;
+    padding: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 18px rgba(0,0,0,0.4);
+    transition: .35s ease;
+}
+.boton-ws:hover {
+    transform: scale(1.15) translateY(-4px);
+}
+.boton-ws img {
+    width: 45px;
+}
 
+</style>
+</head>
 </style>
 </head>
 
 <body>
+ <!-- ================= INTRO BLACKMOON ================= -->
+<style>
+#bm-intro{
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(rgba(5,5,10,.85),rgba(5,5,10,.95)),
+    url("systems2.jpg") center/cover no-repeat;
+  z-index:99999;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 
+#bm-intro.hidden{
+  animation:fadeOut 1s forwards;
+}
+
+@keyframes fadeOut{
+  to{opacity:0;visibility:hidden}
+}
+
+.bm-intro-box{
+  text-align:center;
+ background: rgba(0,0,0,0.25);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.15);
+  padding:40px 30px;
+  border-radius:22px;
+  box-shadow:0 0 40px rgba(180,109,225,.6);
+  max-width:520px;
+}
+
+.bm-intro-box h1{
+  font-size:2.6rem;
+  color:#F5BE27;
+  text-shadow:0 0 15px #a138a8;
+}
+
+.bm-intro-box p{
+  color:#eb3fc3;
+  font-size:1.1rem;
+  margin:20px 0 30px;
+}
+
+.bm-intro-box button{
+  background:linear-gradient(135deg,#7d3c98,#b46de1);
+  border:none;
+  color:#e7ed34;
+  font-size:1.2rem;
+  font-weight:700;
+  padding:14px 36px;
+  border-radius:30px;
+  cursor:pointer;
+  box-shadow:0 0 25px rgba(180,109,225,.7);
+  transition:.3s;
+}
+.bm-intro-box button:hover{
+  transform:scale(1.08);
+  box-shadow:0 0 40px rgba(180,109,225,1);
+}
+</style>
+
+<div id="bm-intro">
+  <div class="bm-intro-box">
+    <h1>🌑blackmoon systems🌑</h1>
+    <p>creacion de paginas, reparacion de computadoras y ayuda digital ...</p>
+    <button onclick="entrarBlackmoon()">Entrar</button>
+  </div>
+</div>
+
+<script>
+function entrarBlackmoon(){
+  document.getElementById("bm-intro").classList.add("hidden");
+}
+</script>
+<!-- ================= END INTRO ================= -->
 <!-- ---------------- PARTÍCULAS ---------------- -->
 <canvas id="particles"></canvas>
 
@@ -326,6 +422,11 @@ h1 {
 
     </div>
 </footer>
+<!-- WHATSAPP -->
+<a href="https://wa.me/5215560693556?text=Hola%20Aerial%20Blackmoon%2C%20quiero%20información" class="boton-ws">
+    <img src="WTTS.jpeg">
+</a>
+
 
 <!-- ---------------- SCRIPT DE PARTÍCULAS ---------------- -->
 <script>
