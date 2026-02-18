@@ -9,154 +9,94 @@
 body{
     margin:0;
     font-family:Arial, sans-serif;
-    color:white;
-    min-height:100vh;
-    overflow-x:hidden;
-    background:radial-gradient(circle at top, #1b1b3a, #04040a 70%);
-}
-
-/* ESTRELLAS */
-.stars{
-    position:fixed;
-    inset:0;
-    background:
-      radial-gradient(1px 1px at 10% 20%, #fff, transparent),
-      radial-gradient(1px 1px at 30% 80%, #fff, transparent),
-      radial-gradient(1px 1px at 50% 40%, #fff, transparent),
-      radial-gradient(1px 1px at 70% 10%, #fff, transparent),
-      radial-gradient(1px 1px at 90% 60%, #fff, transparent);
-    background-size:200px 200px;
-    animation:twinkle 6s infinite alternate;
-    z-index:-3;
-}
-@keyframes twinkle{from{opacity:.6;}to{opacity:1;}}
-
-/* LUNA */
-.moon{
-    position:fixed;
-    top:-160px;
-    right:-160px;
-    width:420px;
-    height:420px;
-    border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, #fff 25%, #d9d9d9 45%, #9c9c9c 60%, transparent 72%);
-    box-shadow:0 0 120px rgba(220,220,255,.35);
-    opacity:.25;
-    z-index:-2;
-}
-
-/* PARTÍCULAS */
-.particles span{
-    position:fixed;
-    bottom:-10px;
-    width:3px;
-    height:3px;
-    background:rgba(255,255,255,.6);
-    border-radius:50%;
-    animation:float 18s linear infinite;
-    z-index:-1;
-}
-@keyframes float{
-    from{transform:translateY(0);opacity:0;}
-    to{transform:translateY(-120vh);opacity:1;}
+    background:#000;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
 /* HEADER */
 header{
+    width:100%;
     text-align:center;
-    padding:14px;
-    font-size:1.3em;
-    background:rgba(10,10,20,.85);
-    backdrop-filter:blur(6px);
+    padding:15px;
+    font-size:1.4em;
+    background:#111;
+    color:white;
 }
 
-/* COMIC */
+/* CONTENEDOR COMIC */
 #comic-container{
-    perspective:1600px;
+    width:100%;
+    max-width:900px;
+    margin:20px auto;
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:20px;
-    touch-action:pan-y;
 }
 
+/* PAGINA */
 .page{
     width:100%;
-    max-width:720px;
-    border-radius:12px;
-    box-shadow:0 25px 60px rgba(0,0,0,.9);
-    transform-origin:left center;
-    transition:transform .8s ease, opacity .6s ease;
-    backface-visibility:hidden;
+    height:auto;
+    border-radius:8px;
+    box-shadow:0 20px 50px rgba(0,0,0,.9);
+    background:white;
+    transition:transform .5s ease, opacity .5s ease;
 }
 
-/* FLIP */
-.flip-out{transform:rotateY(-180deg);opacity:0;}
-.flip-in{transform:rotateY(0deg);opacity:1;}
+/* ANIMACION */
+.flip-out{
+    opacity:0;
+    transform:scale(.95);
+}
+
+.flip-in{
+    opacity:1;
+    transform:scale(1);
+}
 
 /* CONTROLES */
 .controls{
+    margin:15px;
     display:flex;
-    justify-content:center;
     gap:20px;
-    margin-bottom:8px;
 }
+
 button{
-    padding:10px 22px;
+    padding:10px 25px;
     border:none;
-    border-radius:30px;
-    background:linear-gradient(135deg,#6a00ff,#9a4dff);
+    border-radius:25px;
+    background:#6a00ff;
     color:white;
-    cursor:pointer;
     font-size:1em;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#8d35ff;
 }
 
 #page-indicator{
-    text-align:center;
-    font-size:.85em;
-    opacity:.75;
-    margin-bottom:10px;
+    margin-bottom:15px;
+    color:white;
 }
-
-/* FOOTER */
-footer{
-    background:rgba(10,10,20,.9);
-    padding:12px;
-    display:flex;
-    justify-content:center;
-    gap:25px;
-    flex-wrap:wrap;
-}
-footer a{
-    color:#aaa;
-    text-decoration:none;
-    font-size:.85em;
-}
-footer a:hover{color:white;}
 
 @media(max-width:768px){
-    .controls{display:none;}
-    .page{max-width:95%;}
+    button{
+        padding:8px 15px;
+        font-size:.9em;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="stars"></div>
-<div class="moon"></div>
-<div class="particles">
-    <span style="left:10%;animation-delay:0s"></span>
-    <span style="left:30%;animation-delay:4s"></span>
-    <span style="left:50%;animation-delay:2s"></span>
-    <span style="left:70%;animation-delay:6s"></span>
-    <span style="left:90%;animation-delay:1s"></span>
-</div>
-
-<header>📖 nuevo aparato 📖</header>
+<header>📖 Black Moon Comics 📖</header>
 
 <div id="comic-container">
-  <img id="page" class="page" src="H00.jpg">
+  <img id="page" class="page">
 </div>
 
 <div class="controls">
@@ -164,21 +104,16 @@ footer a:hover{color:white;}
   <button onclick="nextPage()">Siguiente ➡</button>
 </div>
 
-<div id="page-indicator">Página 1</div>
-
-<footer>
-  <a href="#">Inicio</a>
-  <a href="#">Música</a>
-  <a href="#">Juegos</a>
-</footer>
+<div id="page-indicator"></div>
 
 <script>
+
 const pages = [
   "b_01.jpg","b_02.jpg","b_03.jpg","b_04.jpg","b_05.jpg",
   "b_06.jpg","b_07.jpg","b_08.jpg","b_09.jpg","b_010.jpg",
   "b_011.jpg","b_012.jpg","b_013.jpg","b_014.jpg","b_015.jpg",
   "b_016.jpg","b_017.jpg","b_018.jpg","b_019.jpg","b_020.jpg",
-  "b_021.jpg","b_022.jpg","b_023.jpg", "b_024.jpg","b_025.jpg",
+  "b_021.jpg","b_022.jpg","b_023.jpg","b_024.jpg","b_025.jpg",
   "b_026.jpg","b_027.jpg","b_028.jpg","b_029.jpg","b_030.jpg",
   "b_031.jpg","b_032.jpg","b_033.jpg","b_034.jpg","b_035.jpg",
   "b_036.jpg","b_037.jpg","b_038.jpg","b_039.jpg","b_040.jpg",
@@ -189,39 +124,33 @@ let currentPage = 0;
 const pageImg = document.getElementById("page");
 const indicator = document.getElementById("page-indicator");
 
-function nextPage(){
-    if(currentPage < pages.length - 1) flipTo(currentPage + 1);
-}
-function prevPage(){
-    if(currentPage > 0) flipTo(currentPage - 1);
-}
-function flipTo(i){
+/* CARGAR PRIMERA PAGINA */
+function loadPage(i){
     pageImg.classList.add("flip-out");
     setTimeout(()=>{
         pageImg.src = pages[i];
         pageImg.classList.remove("flip-out");
         pageImg.classList.add("flip-in");
         currentPage = i;
-        indicator.textContent = `Página ${i + 1}`;
-    },400);
+        indicator.textContent = "Página " + (i + 1);
+    },200);
 }
 
-/* SWIPE */
-let startX = 0;
-const threshold = 60;
-const container = document.getElementById("comic-container");
-
-container.addEventListener("touchstart", e=>{
-    startX = e.touches[0].clientX;
-},{passive:true});
-
-container.addEventListener("touchend", e=>{
-    const endX = e.changedTouches[0].clientX;
-    const diff = startX - endX;
-    if(Math.abs(diff) > threshold){
-        diff > 0 ? nextPage() : prevPage();
+function nextPage(){
+    if(currentPage < pages.length - 1){
+        loadPage(currentPage + 1);
     }
-});
+}
+
+function prevPage(){
+    if(currentPage > 0){
+        loadPage(currentPage - 1);
+    }
+}
+
+/* INICIAR */
+loadPage(0);
+
 </script>
 
 </body>
