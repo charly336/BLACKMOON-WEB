@@ -336,18 +336,28 @@ function responder(texto) {
   if (texto.includes("musica")) {
     agregarMensaje("Isis", "Black Moon Records no se escucha… se siente.");
   }
+  else if (texto.includes("hola")) {
+    agregarMensaje("Isis", "Como estas aerealista.");
+  }
+  else if (texto.includes("que eres,")) {
+    agregarMensaje("Isis", "soy un avatar y estoy aprendiendo.");
+  }
+  else if (texto.includes("escuela")) {
+    agregarMensaje("Isis", "Nuestra escuela de danza aerea.");
+  }
+  else if (texto.includes("podcast")) {
+    agregarMensaje("Isis", "Escucha nustros podcasts, en tu plataforma favorita");
+  }
   else if (texto.includes("comic")) {
     agregarMensaje("Isis", "Las historias nacen en la sombra.");
   }
-  else if (texto.includes("hola")) {
-    agregarMensaje("Isis", "Como estas aerealista.");
+  else if (texto.includes("adios")) {
+    agregarMensaje("Isis", "    Sigue explorando la pagina.");
   }
   else if (texto.includes("bien")) {
     agregarMensaje("Isis", "Me alegra mucho, explora nuestra pagina");
   }
- else if (texto.includes("podcast")) {
-    agregarMensaje("Isis", "Escucha nistros podcasts, en sus diferentes paginas");
-  }
+ 
   else if (texto.includes("blackmoon")) {
     agregarMensaje("Isis", "Si esa es mi casa, mi vida.");
   }
