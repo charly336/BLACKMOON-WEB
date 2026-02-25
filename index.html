@@ -218,80 +218,133 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 <a href="https://wa.me/5215560693556" target="_blank" class="whatsapp-btn">
     <img src="WTTS.jpeg" alt="WhatsApp">
 </a>
-<!-- ===== ISIS MOON ASSISTANT ===== -->
+<!-- ===== ISIS MOON INTERACTIVA ===== -->
 
 <style>
-#isis-moon {
+#isis-container {
   position: fixed;
   bottom: 20px;
   right: 20px;
+  z-index: 9999;
+  font-family: Arial, sans-serif;
+}
+
+#isis-avatar {
   width: 120px;
   cursor: pointer;
   animation: floatMoon 3s ease-in-out infinite;
-  z-index: 9999;
 }
 
 @keyframes floatMoon {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+  50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 }
 
-#isis-dialog {
-  position: fixed;
-  bottom: 160px;
-  right: 20px;
-  max-width: 260px;
+#isis-chat {
+  display: none;
   background: #111;
-  color: #fff;
+  color: white;
+  width: 260px;
   padding: 15px;
   border-radius: 15px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  box-shadow: 0 0 20px rgba(128,0,255,0.4);
-  display: none;
-  z-index: 9999;
+  box-shadow: 0 0 20px rgba(128,0,255,0.5);
+  margin-bottom: 10px;
 }
 
-#isis-dialog button {
-  margin-top: 10px;
-  background: #7a00ff;
-  border: none;
-  color: white;
-  padding: 5px 10px;
+#isis-messages {
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+#isis-input {
+  width: 100%;
+  padding: 5px;
   border-radius: 8px;
-  cursor: pointer;
+  border: none;
+}
+
+.isis-msg {
+  margin-bottom: 6px;
+}
+
+.isis-user {
+  color: #b366ff;
 }
 </style>
 
-<img id="isis-moon" src="isismoon.png" alt="Isis Moon">
-
-<div id="isis-dialog">
-  <div id="isis-text"></div>
-  <button onclick="cerrarIsis()">Cerrar</button>
+<div id="isis-container">
+  <div id="isis-chat">
+    <div id="isis-messages"></div>
+    <input type="text" id="isis-input" placeholder="Escríbele a Isis..." />
+  </div>
+  <img id="isis-avatar" src="isismoon.png" alt="Isis Moon">
 </div>
 
 <script>
-const mensajes = [
-  "La altura revela lo que eres.",
-  "¿Buscas música… o destino?",
-  "Explora. Yo vigilo desde arriba.",
-  "Cada clic es una decisión.",
-  "La luna no guía… despierta."
-];
+const avatar = document.getElementById("isis-avatar");
+const chat = document.getElementById("isis-chat");
+const messages = document.getElementById("isis-messages");
+const input = document.getElementById("isis-input");
 
-const avatar = document.getElementById("isis-moon");
-const dialogo = document.getElementById("isis-dialog");
-const texto = document.getElementById("isis-text");
+let saludoMostrado = false;
 
+// Mostrar chat al hacer clic
 avatar.addEventListener("click", () => {
-  const random = mensajes[Math.floor(Math.random() * mensajes.length)];
-  texto.innerText = random;
-  dialogo.style.display = "block";
+  chat.style.display = chat.style.display === "none" ? "block" : "none";
 });
 
-function cerrarIsis() {
-  dialogo.style.display = "none";
+// Saludo automático
+window.addEventListener("load", () => {
+  if (!saludoMostrado) {
+    agregarMensaje("Isis", "Bienvenido... La luna ya te observaba.");
+    saludoMostrado = true;
+  }
+});
+
+// Detectar scroll
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    agregarMensaje("Isis", "Mientras más bajas... más revelas.");
+  }
+});
+
+// Responder cuando el usuario escribe
+input.addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    const textoUsuario = input.value.trim();
+    if (textoUsuario === "") return;
+
+    agregarMensaje("Tú", textoUsuario, true);
+    responder(textoUsuario.toLowerCase());
+    input.value = "";
+  }
+});
+
+function agregarMensaje(nombre, texto, esUsuario = false) {
+  const div = document.createElement("div");
+  div.classList.add("isis-msg");
+  if (esUsuario) div.classList.add("isis-user");
+  div.innerHTML = "<strong>" + nombre + ":</strong> " + texto;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function responder(texto) {
+  if (texto.includes("musica")) {
+    agregarMensaje("Isis", "Black Moon Records no se escucha… se siente.");
+  }
+  else if (texto.includes("comic")) {
+    agregarMensaje("Isis", "Las historias nacen en la sombra.");
+  }
+  else if (texto.includes("hola")) {
+    agregarMensaje("Isis", "No es un saludo… es el inicio.");
+  }
+  else {
+    agregarMensaje("Isis", "Interesante… sigue explorando.");
+  }
 }
 </script>
 </body>
