@@ -218,6 +218,81 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 <a href="https://wa.me/5215560693556" target="_blank" class="whatsapp-btn">
     <img src="WTTS.jpeg" alt="WhatsApp">
 </a>
+<!-- ===== ISIS MOON ASSISTANT ===== -->
 
+<style>
+#isis-moon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 120px;
+  cursor: pointer;
+  animation: floatMoon 3s ease-in-out infinite;
+  z-index: 9999;
+}
+
+@keyframes floatMoon {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+
+#isis-dialog {
+  position: fixed;
+  bottom: 160px;
+  right: 20px;
+  max-width: 260px;
+  background: #111;
+  color: #fff;
+  padding: 15px;
+  border-radius: 15px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  box-shadow: 0 0 20px rgba(128,0,255,0.4);
+  display: none;
+  z-index: 9999;
+}
+
+#isis-dialog button {
+  margin-top: 10px;
+  background: #7a00ff;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+
+<img id="isis-moon" src="isis-avatar.png" alt="Isis Moon">
+
+<div id="isis-dialog">
+  <div id="isis-text"></div>
+  <button onclick="cerrarIsis()">Cerrar</button>
+</div>
+
+<script>
+const mensajes = [
+  "La altura revela lo que eres.",
+  "¿Buscas música… o destino?",
+  "Explora. Yo vigilo desde arriba.",
+  "Cada clic es una decisión.",
+  "La luna no guía… despierta."
+];
+
+const avatar = document.getElementById("isis-moon");
+const dialogo = document.getElementById("isis-dialog");
+const texto = document.getElementById("isis-text");
+
+avatar.addEventListener("click", () => {
+  const random = mensajes[Math.floor(Math.random() * mensajes.length)];
+  texto.innerText = random;
+  dialogo.style.display = "block";
+});
+
+function cerrarIsis() {
+  dialogo.style.display = "none";
+}
+</script>
 </body>
 </html>
