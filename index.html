@@ -280,7 +280,7 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
     <div id="isis-messages"></div>
     <input type="text" id="isis-input" placeholder="Escríbele a Isis..." />
   </div>
-  <img id="isis-avatar" src="isis-avatar.png" alt="Isis Moon">
+  <img id="isis-avatar" src="isismoon.png" alt="Isis Moon">
 </div>
 
 <script>
@@ -340,7 +340,16 @@ function responder(texto) {
     agregarMensaje("Isis", "Las historias nacen en la sombra.");
   }
   else if (texto.includes("hola")) {
-    agregarMensaje("Isis", "No es un saludo… es el inicio.");
+    agregarMensaje("Isis", "Como estas aerealista.");
+  }
+  else if (texto.includes("bien")) {
+    agregarMensaje("Isis", "Me alegra mucho, explora nuestra pagina");
+  }
+ else if (texto.includes("podcast")) {
+    agregarMensaje("Isis", "Escucha nistros podcasts, en sus diferentes paginas");
+  }
+  else if (texto.includes("blackmoon")) {
+    agregarMensaje("Isis", "Si esa es mi casa, mi vida.");
   }
   else {
     agregarMensaje("Isis", "Interesante… sigue explorando.");
