@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BLACKMOON GROUP</title>
 
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
 
 <style>
@@ -20,59 +19,122 @@ body{
     font-family:'Montserrat',sans-serif;
     background:#0d0d0d;
     color:#ffffff;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
     text-align:center;
-    overflow:hidden;
 }
 
-.container{
-    max-width:700px;
+.main-wrapper{
+    max-width:900px;
+    margin:auto;
+    padding:40px 20px 120px 20px;
 }
+
+/* TITULOS */
 
 h1{
     font-size:3rem;
     letter-spacing:8px;
-    font-weight:600;
     margin-bottom:15px;
 }
 
 .subtitle{
-    font-weight:300;
     font-size:1rem;
     opacity:0.7;
-    margin-bottom:50px;
+    margin-bottom:40px;
 }
 
-.nav{
+/* LISTA GENERAL */
+
+.main-list{
+    list-style:none;
     display:flex;
     flex-direction:column;
-    gap:20px;
+    gap:35px;
 }
 
-.nav a{
+/* AUDIO */
+
+.bm-audio-wrapper{
+    display:flex;
+    justify-content:center;
+}
+
+.bm-audio-wrapper audio{
+    width:100%;
+    max-width:520px;
+    padding:14px;
+    border-radius:20px;
+    background:rgba(20,20,28,0.75);
+    box-shadow:0 0 25px rgba(180,109,225,0.35);
+}
+
+/* CONTADOR */
+
+.bm-counter-box{
+    padding:20px;
+    border-radius:15px;
+    background:rgba(255,255,255,0.05);
+}
+
+.bm-counter-number{
+    font-size:2rem;
+    margin-top:10px;
+    letter-spacing:4px;
+}
+
+/* NAV */
+
+.nav{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.nav li a{
     text-decoration:none;
     color:#fff;
     border:1px solid rgba(255,255,255,0.2);
     padding:15px;
-    transition:all 0.4s ease;
-    letter-spacing:2px;
+    display:block;
+    transition:0.3s;
 }
 
-.nav a:hover{
-    background:#ffffff;
+.nav li a:hover{
+    background:#fff;
     color:#000;
-    transform:translateY(-3px);
 }
+
+/* FOOTER */
 
 .footer{
-    position:absolute;
-    bottom:20px;
-    font-size:0.7rem;
+    margin-top:60px;
+    font-size:0.8rem;
     opacity:0.5;
-    letter-spacing:2px;
+    list-style:none;
+}
+
+/* BOTON WHATSAPP */
+
+.whatsapp-btn{
+    position:fixed;
+    left:20px;
+    bottom:20px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#25D366;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:30px;
+    color:white;
+    text-decoration:none;
+    box-shadow:0 0 15px rgba(0,0,0,0.6);
+    z-index:999;
+}
+
+.whatsapp-btn:hover{
+    transform:scale(1.1);
 }
 
 @media(max-width:600px){
@@ -87,264 +149,76 @@ h1{
 
 <body>
 
-<!-- ================= BLACK MOON AUDIO PLAYER ================= -->
-<ul<div class="bm-audio-wrapper">
-  <audio controls autoplay loop>
-    <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
-    <source src="8.-Soy un Quetzal en el Viento.m4a" type="audio/mp4">
-    <source src="1.- Volando con Black Moon.m4a" type="audio/mp4">
-    Tu navegador no soporta audio HTML5.
-  </audio>
-</div>
+<div class="main-wrapper">
+
+<ul class="main-list">
+
+<li>
+    <h1>BLACKMOON GROUP</h1>
+    <p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos</p>
+</li>
+
+<li class="bm-audio-wrapper">
+    <audio controls autoplay loop>
+        <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
+        Tu navegador no soporta audio HTML5.
+    </audio>
+</li>
+
+<li>
+    <div class="bm-counter-box">
+        <h3>🌙 Visitantes Blackmoon 🌙</h3>
+        <div class="bm-counter-number" id="bmCounter">00000</div>
+    </div>
+</li>
+
+<li>
+    <ul class="nav">
+        <li><a href="AerialBM.HTML">AÉRIAL BLACKMOON</a></li>
+        <li><a href="Blackmoon music.html">BLACK MOON RECORDS</a></li>
+        <li><a href="PLATAFORMAS POD.HTML">BLACKMOON PODCAST</a></li>
+        <li><a href="REDES PBM.html">PRODUCTOS BLACK MOON</a></li>
+        <li><a href="comics.html">COMICS</a></li>
+        <li><a href="https://www.youtube.com/@BikerBlackmoon">BLACKMOON BIKER</a></li>
+        <li><a href="Games List.html">BLACKMOON GAMES</a></li>
+        <li><a href="SISTEMSBM.HTML">BLACKMOON SYSTEMS</a></li>
+        <li><a href="https://eliza-03.github.io/Eliza-03.github.io./">ACOMPAÑAMIENTO PSICOLOGICO</a></li>
+        <li><a href="https://www.jotform.com/app/253047701093856">BLACKMOON GIFT</a></li>
+        <li><a href="LADCH.HTML">ANGELES DE CHARLY</a></li>
+    </ul>
+</li>
+
+<li>
+    <ul class="footer">
+        <li>© 2026 BLACK MOON</li>
+        <li>Ing. Carlos Lezama</li>
+    </ul>
+</li>
+
 </ul>
-    <!-- ===== CONTADOR BLACK MOON COMICS ===== -->
-<ul<div class="bm-comics-counter">
-  <div class="bm-counter-box">
-    <h3>🌙 visitantes blackmoon 🌙 </h3>
-    <div class="bm-counter-number" id="bmCounter">00000</div>
-  </div>
+
 </div>
-<style>
-/* CONTENEDOR CENTRADO */
-.bm-audio-wrapper{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  width:100%;
-  margin:140px 0 60px;
-}
 
-/* ESTILO DEL REPRODUCTOR */
-.bm-audio-wrapper audio{
-  width:90%;
-  max-width:520px;
-  padding:14px;
-  border-radius:20px;
-  background:rgba(20,20,28,0.75);
-  backdrop-filter: blur(14px);
-  box-shadow:
-    0 0 25px rgba(180,109,225,0.35),
-    inset 0 0 12px rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.15);
-}
-
-/* CHROME / EDGE */
-audio::-webkit-media-controls-panel{
-  background:transparent;
-}
-
-audio::-webkit-media-controls-play-button,
-audio::-webkit-media-controls-volume-slider,
-audio::-webkit-media-controls-timeline{
-  filter: drop-shadow(0 0 6px #b46de1);
-}
-
-/* HOVER GLOW */
-.bm-audio-wrapper audio:hover{
-  box-shadow:
-    0 0 35px rgba(180,109,225,0.6),
-    inset 0 0 18px rgba(255,255,255,0.08);
-  transform: scale(1.02);
-  transition: .3s ease;
-}
-
-/* MÓVIL */
-@media(max-width:600px){
-  .bm-audio-wrapper{
-    margin-top:110px;
-  }
-  .bm-audio-wrapper audio{
-    max-width:95%;
-  }
-}
-</style>
-</ul>
-<!-- ================= END AUDIO PLAYER ================= -->
-
-
-<ul<div class="container">
-
-<h1>BLACKMOON GROUP</h1>
-<p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos</p>
-     <!-- ================= BLACK MOON NEWS TICKER ================= -->
-<ul<section class="bm-news-ticker">
-  <div class="ticker-track" id="tickerTrack"></div>
-</section>
-
-<style>
-/* Contenedor principal */
-.bm-news-ticker {
-  background: #0b0b0e;
-  border-top: 1px solid rgba(255,255,255,.1);
-  border-bottom: 1px solid rgba(255,255,255,.1);
-  overflow: hidden;
-  padding: 18px 0;
-}
-
-/* Track del ticker */
-.ticker-track {
-  display: flex;
-  gap: 20px;
-  width: max-content;
-  animation: scrollLeft 40s linear infinite;
-}
-
-.bm-news-ticker:hover .ticker-track {
-  animation-play-state: paused;
-}
-
-/* Animación del scroll */
-@keyframes scrollLeft {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-/* Cada item del ticker */
-.ticker-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  padding: 10px 14px;
-  min-width: 280px;
-  box-shadow: 0 0 18px rgba(0,0,0,.6);
-  flex-shrink: 0;
-  transition: transform 0.3s;
-}
-
-.ticker-item:hover {
-  transform: scale(1.05);
-}
-
-/* Imagen del item */
-.ticker-item img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 10px;
-  flex-shrink: 0;
-}
-
-/* Texto del item */
-.ticker-text {
-  font-size: 0.85rem;
-}
-
-.ticker-text strong {
-  color: #b46de1;
-  display: block;
-  font-size: 0.95rem;
-}
-
-.ticker-text span {
-  color: #aaa;
-  font-size: 0.7rem;
-}
-
-/* Enlace */
-.ticker-item a {
-  text-decoration: none;
-  color: #fff;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .ticker-item {
-    min-width: 240px;
-    padding: 8px 12px;
-    gap: 10px;
-  }
-  .ticker-item img {
-    width: 50px;
-    height: 50px;
-  }
-  .ticker-text {
-    font-size: 0.8rem;
-  }
-  .ticker-text strong {
-    font-size: 0.9rem;
-  }
-  .ticker-text span {
-    font-size: 0.65rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .ticker-track {
-    gap: 12px;
-  }
-  .ticker-item {
-    min-width: 200px;
-    padding: 6px 10px;
-  }
-  .ticker-item img {
-    width: 45px;
-    height: 45px;
-  }
-  .ticker-text {
-    font-size: 0.75rem;
-  }
-  .ticker-text strong {
-    font-size: 0.85rem;
-  }
-  .ticker-text span {
-    font-size: 0.6rem;
-  }
-}
-</style>
+<!-- CONTADOR FUNCIONAL -->
 
 <script>
-const newsTickerData = [
-  { title: "Black Moon Comics inicia", date: "24 Ene 2026", image: "image.png", link: "noticias_1.html" },
-  { title: "VOL. 4 ya disponible", date: "22 enero 2026", image: "new.jpg", link: "noticias_2.html" },
-  { title: "nueva pagina de musica", date: "23 enero", image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg", link: "noticias_3.html" }
-];
+let counter = localStorage.getItem("bm_visits");
 
-const track = document.getElementById("tickerTrack");
+if(!counter){
+    counter = 1;
+}else{
+    counter = parseInt(counter) + 1;
+}
 
-// duplicamos para loop infinito fluido
-[...newsTickerData, ...newsTickerData].forEach(item => {
-  const div = document.createElement("div");
-  div.className = "ticker-item";
-  div.innerHTML = `
-    <a href="${item.link}">
-      <img src="${item.image}" alt="${item.title}">
-    </a>
-    <div class="ticker-text">
-      <strong>${item.title}</strong>
-      <span>${item.date}</span>
-    </div>
-  `;
-  track.appendChild(div);
-});
+localStorage.setItem("bm_visits", counter);
+
+document.getElementById("bmCounter").innerText = String(counter).padStart(5, "0");
 </script>
-</ul>
-<!-- ================= END NEWS TICKER ================= -->
 
-<div class="nav">
-<a href="AerialBM.HTML">AÉRIAL BLACKMOON</a>
-<a href="Blackmoon music.html">BLACK MOON RECORDS</a>
-<a href="PLATAFORMAS POD.HTML">BLACKMOON PODCAST</a>
-<a href="REDES PBM.html">PRODUCTOS BLACK MOON</a>
-<a href="comics.html">COMICS</a>
-<a href="https://www.youtube.com/@BikerBlackmoon">BLACKMOON BIKER</a>
-<a href="Games List.html">BLACKMOON GAMES</a>
-<a href="SISTEMSBM.HTML">BLACKMOON SYSTEMS</a>
-<a href="https://eliza-03.github.io/Eliza-03.github.io./" class="enlace-botón">ACOMPAÑAMIENTO PSICOLOGICO</a>
-<a href="https://www.jotform.com/app/253047701093856">BLACKMOON GIFT</a>
-<a href="LADCH.HTML">ANGELES DE CHARLY</a>
-</ul>
-</div>
-
-</div>
-
-<ul<div class="footer">
-<li> © 2026 BLACK MOON</li>
-<li> Ing. Carlos Lezama</li>
-</div>
-</ul>
+<!-- BOTON WHATSAPP -->
+<a href="https://wa.me/5210000000000" target="_blank" class="whatsapp-btn">
+    💬
+</a>
 
 </body>
 </html>
