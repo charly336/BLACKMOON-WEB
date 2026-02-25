@@ -218,7 +218,7 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 <a href="https://wa.me/5215560693556" target="_blank" class="whatsapp-btn">
     <img src="WTTS.jpeg" alt="WhatsApp">
 </a>
-<!-- ===== ISIS MOON MISTERIOSA ===== -->
+<!-- ===== ISIS MOON INTERACTIVA ===== -->
 
 <style>
 #isis-container {
@@ -230,31 +230,30 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 }
 
 #isis-avatar {
-  width: 130px;
+  width: 120px;
   cursor: pointer;
-  transition: 0.4s ease;
-  animation: floatMoon 4s ease-in-out infinite;
+  animation: floatMoon 3s ease-in-out infinite;
 }
 
 @keyframes floatMoon {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+  50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 }
 
 #isis-chat {
   display: none;
-  background: rgba(10,10,15,0.95);
+  background: #111;
   color: white;
-  width: 280px;
+  width: 260px;
   padding: 15px;
   border-radius: 15px;
-  box-shadow: 0 0 25px rgba(120,0,255,0.6);
+  box-shadow: 0 0 20px rgba(128,0,255,0.5);
   margin-bottom: 10px;
 }
 
 #isis-messages {
-  max-height: 150px;
+  max-height: 120px;
   overflow-y: auto;
   font-size: 13px;
   margin-bottom: 10px;
@@ -262,11 +261,13 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 
 #isis-input {
   width: 100%;
-  padding: 6px;
+  padding: 5px;
   border-radius: 8px;
   border: none;
-  background: #1a1a1f;
-  color: white;
+}
+
+.isis-msg {
+  margin-bottom: 6px;
 }
 
 .isis-user {
@@ -277,9 +278,9 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 <div id="isis-container">
   <div id="isis-chat">
     <div id="isis-messages"></div>
-    <input type="text" id="isis-input" placeholder="Habla con la luna..." />
+    <input type="text" id="isis-input" placeholder="Escríbele a Isis..." />
   </div>
-  <img id="isis-avatar" src="isis-seria.png" alt="Isis Moon">
+  <img id="isis-avatar" src="isis-avatar.png" alt="Isis Moon">
 </div>
 
 <script>
@@ -288,92 +289,63 @@ const chat = document.getElementById("isis-chat");
 const messages = document.getElementById("isis-messages");
 const input = document.getElementById("isis-input");
 
-// ===== CAMBIO DE EXPRESIÓN SEGÚN SECCIÓN =====
-function detectarSeccion() {
-  const seccion = window.location.pathname;
+let saludoMostrado = false;
 
-  if (seccion.includes("music")) {
-    avatar.src = "isis-sonrisa.png";
-    hablar("La música revela lo que escondes.");
-  }
-  else if (seccion.includes("comic")) {
-    avatar.src = "isis-observando.png";
-    hablar("Las historias no son ficción… son memoria.");
-  }
-  else {
-    avatar.src = "isis-seria.png";
-  }
-}
-
-window.addEventListener("load", () => {
-  detectarSeccion();
-
-  if (!localStorage.getItem("isisSaludo")) {
-    hablar("No llegaste por accidente.");
-    localStorage.setItem("isisSaludo", "true");
-  }
-});
-
-// ===== MOSTRAR CHAT =====
+// Mostrar chat al hacer clic
 avatar.addEventListener("click", () => {
   chat.style.display = chat.style.display === "none" ? "block" : "none";
 });
 
-// ===== MENSAJES =====
-function hablar(texto) {
+// Saludo automático
+window.addEventListener("load", () => {
+  if (!saludoMostrado) {
+    agregarMensaje("Isis", "Bienvenido... La luna ya te observaba.");
+    saludoMostrado = true;
+  }
+});
+
+// Detectar scroll
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    agregarMensaje("Isis", "Mientras más bajas... más revelas.");
+  }
+});
+
+// Responder cuando el usuario escribe
+input.addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    const textoUsuario = input.value.trim();
+    if (textoUsuario === "") return;
+
+    agregarMensaje("Tú", textoUsuario, true);
+    responder(textoUsuario.toLowerCase());
+    input.value = "";
+  }
+});
+
+function agregarMensaje(nombre, texto, esUsuario = false) {
   const div = document.createElement("div");
-  div.innerHTML = "<strong>Isis:</strong> " + texto;
+  div.classList.add("isis-msg");
+  if (esUsuario) div.classList.add("isis-user");
+  div.innerHTML = "<strong>" + nombre + ":</strong> " + texto;
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
 
-// ===== IA REAL (OpenAI API) =====
-// Necesitas tu API KEY
-const API_KEY = "AQUI_TU_API_KEY";
-
-async function consultarIA(pregunta) {
-  const respuesta = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + API_KEY
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "Eres Isis Moon. Habla de forma misteriosa, elegante y breve." },
-        { role: "user", content: pregunta }
-      ]
-    })
-  });
-
-  const data = await respuesta.json();
-  return data.choices[0].message.content;
-}
-
-// ===== INPUT =====
-input.addEventListener("keypress", async function(e) {
-  if (e.key === "Enter") {
-    const textoUsuario = input.value.trim();
-    if (!textoUsuario) return;
-
-    const userMsg = document.createElement("div");
-    userMsg.classList.add("isis-user");
-    userMsg.innerHTML = "<strong>Tú:</strong> " + textoUsuario;
-    messages.appendChild(userMsg);
-
-    input.value = "";
-
-    hablar("...");
-
-    try {
-      const respuestaIA = await consultarIA(textoUsuario);
-      hablar(respuestaIA);
-    } catch (error) {
-      hablar("La conexión con la luna falló.");
-    }
+function responder(texto) {
+  if (texto.includes("musica")) {
+    agregarMensaje("Isis", "Black Moon Records no se escucha… se siente.");
   }
-});
+  else if (texto.includes("comic")) {
+    agregarMensaje("Isis", "Las historias nacen en la sombra.");
+  }
+  else if (texto.includes("hola")) {
+    agregarMensaje("Isis", "No es un saludo… es el inicio.");
+  }
+  else {
+    agregarMensaje("Isis", "Interesante… sigue explorando.");
+  }
+}
 </script>
 </body>
 </html>
