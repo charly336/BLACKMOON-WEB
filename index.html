@@ -25,10 +25,10 @@ body{
 .main-wrapper{
     max-width:900px;
     margin:auto;
-    padding:40px 20px 120px 20px;
+    padding:60px 20px 120px 20px;
 }
 
-/* TITULOS */
+/* TITULO */
 
 h1{
     font-size:3rem;
@@ -48,7 +48,7 @@ h1{
     list-style:none;
     display:flex;
     flex-direction:column;
-    gap:35px;
+    gap:40px;
 }
 
 /* AUDIO */
@@ -73,6 +73,7 @@ h1{
     padding:20px;
     border-radius:15px;
     background:rgba(255,255,255,0.05);
+    text-align:center;
 }
 
 .bm-counter-number{
@@ -126,11 +127,12 @@ h1{
     display:flex;
     justify-content:center;
     align-items:center;
-    font-size:30px;
+    font-size:28px;
     color:white;
     text-decoration:none;
     box-shadow:0 0 15px rgba(0,0,0,0.6);
     z-index:999;
+    transition:0.3s;
 }
 
 .whatsapp-btn:hover{
@@ -199,24 +201,21 @@ h1{
 
 </div>
 
-<!-- CONTADOR FUNCIONAL -->
-
+<!-- CONTADOR GLOBAL REAL -->
 <script>
-let counter = localStorage.getItem("bm_visits");
-
-if(!counter){
-    counter = 1;
-}else{
-    counter = parseInt(counter) + 1;
-}
-
-localStorage.setItem("bm_visits", counter);
-
-document.getElementById("bmCounter").innerText = String(counter).padStart(5, "0");
+fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("bmCounter").innerText =
+      String(data.value).padStart(5, "0");
+  })
+  .catch(error => {
+    console.error("Error contador:", error);
+  });
 </script>
 
-<!-- BOTON WHATSAPP -->
-<a href="https://wa.me/5210000000000" target="_blank" class="whatsapp-btn">
+<!-- BOTON WHATSAPP (CAMBIA EL NUMERO POR EL TUYO) -->
+<a href="https://wa.me/5215560693556" target="_blank" class="whatsapp-btn">
     💬
 </a>
 
