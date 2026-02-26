@@ -208,6 +208,161 @@ h1{
 }
 
 </style>
+    <!-- ================= BLACK MOON NEWS TICKER ================= -->
+<section class="bm-news-ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</section>
+
+<style>
+/* Contenedor principal */
+.bm-news-ticker {
+  background: #0b0b0e;
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  overflow: hidden;
+  padding: 18px 0;
+}
+
+/* Track del ticker */
+.ticker-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: scrollLeft 40s linear infinite;
+}
+
+.bm-news-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+/* Animación del scroll */
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Cada item del ticker */
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 10px 14px;
+  min-width: 280px;
+  box-shadow: 0 0 18px rgba(0,0,0,.6);
+  flex-shrink: 0;
+  transition: transform 0.3s;
+}
+
+.ticker-item:hover {
+  transform: scale(1.05);
+}
+
+/* Imagen del item */
+.ticker-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Texto del item */
+.ticker-text {
+  font-size: 0.85rem;
+}
+
+.ticker-text strong {
+  color: #b46de1;
+  display: block;
+  font-size: 0.95rem;
+}
+
+.ticker-text span {
+  color: #aaa;
+  font-size: 0.7rem;
+}
+
+/* Enlace */
+.ticker-item a {
+  text-decoration: none;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ticker-item {
+    min-width: 240px;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .ticker-item img {
+    width: 50px;
+    height: 50px;
+  }
+  .ticker-text {
+    font-size: 0.8rem;
+  }
+  .ticker-text strong {
+    font-size: 0.9rem;
+  }
+  .ticker-text span {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticker-track {
+    gap: 12px;
+  }
+  .ticker-item {
+    min-width: 200px;
+    padding: 6px 10px;
+  }
+  .ticker-item img {
+    width: 45px;
+    height: 45px;
+  }
+  .ticker-text {
+    font-size: 0.75rem;
+  }
+  .ticker-text strong {
+    font-size: 0.85rem;
+  }
+  .ticker-text span {
+    font-size: 0.6rem;
+  }
+}
+</style>
+
+<script>
+const newsTickerData = [
+  { title: "Black Moon Comics inicia", date: "24 Ene 2026", image: "image.png", link: "noticias_1.html" },
+  { title: "VOL. 4 ya disponible", date: "22 enero 2026", image: "new.jpg", link: "noticias_2.html" },
+  { title: "nueva pagina de musica", date: "23 enero", image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg", link: "noticias_3.html" }
+];
+
+const track = document.getElementById("tickerTrack");
+
+// duplicamos para loop infinito fluido
+[...newsTickerData, ...newsTickerData].forEach(item => {
+  const div = document.createElement("div");
+  div.className = "ticker-item";
+  div.innerHTML = `
+    <a href="${item.link}">
+      <img src="${item.image}" alt="${item.title}">
+    </a>
+    <div class="ticker-text">
+      <strong>${item.title}</strong>
+      <span>${item.date}</span>
+    </div>
+  `;
+  track.appendChild(div);
+});
+</script>
+<!-- ================= END NEWS TICKER ================= -->
 </head>
 
 <body>
@@ -376,27 +531,32 @@ function responderAutomatico(tipo){
 function analizarMensaje(texto) {
 
   if (texto.includes("hola") || texto.includes("buenas")) {
-    responderAutomatico("saludo");
+    responderAutomatico("como estas aerealista?");
   }
 
   else if (texto.includes("musica") || texto.includes("cancion")) {
-    responderAutomatico("musica");
+    responderAutomatico("dejate llevar por ella, blackmoon se vive y se siente");
+  }
+  else if (texto.includes("que hago") || texto.includes("explorar")) {
+    responderAutomatico("empieza a explorar, nuestra pagina, ve nuestras secciones");
   }
 
   else if (texto.includes("escuela") || texto.includes("aerea")) {
-    responderAutomatico("escuela");
+    responderAutomatico("nuestra academia de danza aerea");
   }
-
+  else if (texto.includes("novio") || texto.includes("pareja")) {
+    responderAutomatico("si mi creador, blackmoon es mi casa");
+  }
   else if (texto.includes("podcast")) {
-    responderAutomatico("podcast");
+    responderAutomatico("escuchalo en tu plataforma favorita");
   }
 
   else if (texto.includes("comic")) {
-    responderAutomatico("comic");
+    responderAutomatico("Nuestras hoistorias te encantaran");
   }
 
   else if (texto.includes("adios") || texto.includes("bye")) {
-    responderAutomatico("adios");
+    responderAutomatico("hasta luego aerealista");
   }
 
   else {
