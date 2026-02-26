@@ -114,113 +114,39 @@ h1{
     list-style:none;
 }
 
-/* BOTON WHATSAPP */
+/* ===== BOTON WHATSAPP PROFESIONAL ===== */
 
 .whatsapp-btn{ 
     position:fixed;
-    left:10px;
-    bottom:10px;
-    width:5px;      /* antes 40px */
-    height:5px;     /* antes 40px */
+    left:20px;
+    bottom:20px;
+    width:60px;
+    height:60px;
     border-radius:50%;
     background:#25D366;
     display:flex;
     justify-content:center;
     align-items:center;
-    font-size:13px;  /* antes 28px */
-    color:white;
-    text-decoration:none;
-    box-shadow:0 0 10px rgba(0,0,0,0.5);
+    box-shadow:0 8px 25px rgba(0,0,0,0.4);
     z-index:999;
-    transition:0.3s;
+    transition:all 0.3s ease;
+    overflow:hidden;
+}
+
+.whatsapp-btn img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:50%;
 }
 
 .whatsapp-btn:hover{
     transform:scale(1.1);
+    box-shadow:0 12px 35px rgba(0,0,0,0.6);
 }
 
-@media(max-width:600px){
-    h1{
-        font-size:2rem;
-        letter-spacing:5px;
-    }
-}
+/* ===== ISIS MOON ===== */
 
-</style>
-</head>
-
-<body>
-
-<div class="main-wrapper">
-
-<ul class="main-list">
-
-<li>
-    <h1>🌑 BLACKMOON GROUP 🌑</h1>
-    <p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos</p>
-</li>
-
-<li class="bm-audio-wrapper">
-    <audio controls autoplay loop>
-        <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
-        Tu navegador no soporta audio HTML5.
-    </audio>
-</li>
-
-<li>
-    <div class="bm-counter-box">
-        <h3>🌙 Visitantes Blackmoon 🌙</h3>
-        <div class="bm-counter-number" id="bmCounter">00546</div>
-    </div>
-</li>
-
-<li>
-    <ul class="nav">
-        <li><a href="AerialBM.HTML">AÉRIAL BLACKMOON</a></li>
-        <li><a href="Blackmoon music.html">BLACK MOON RECORDS</a></li>
-        <li><a href="PLATAFORMAS POD.HTML">BLACKMOON PODCAST</a></li>
-        <li><a href="REDES PBM.html">PRODUCTOS BLACK MOON</a></li>
-        <li><a href="comics.html">COMICS</a></li>
-        <li><a href="https://www.youtube.com/@BikerBlackmoon">BLACKMOON BIKER</a></li>
-        <li><a href="Games List.html">BLACKMOON GAMES</a></li>
-        <li><a href="SISTEMSBM.HTML">BLACKMOON SYSTEMS</a></li>
-        <li><a href="https://eliza-03.github.io/Eliza-03.github.io./">ACOMPAÑAMIENTO PSICOLOGICO</a></li>
-        <li><a href="https://www.jotform.com/app/253047701093856">BLACKMOON GIFT</a></li>
-        <li><a href="LADCH.HTML">ANGELES DE CHARLY</a></li>
-    </ul>
-</li>
-
-<li>
-    <ul class="footer">
-        <li>© 2024-2026 GRUPO BLACKMOON</li>
-        <li>Ing. Carlos Lezama</li>
-    </ul>
-</li>
-
-</ul>
-
-</div>
-
-<!-- CONTADOR GLOBAL REAL -->
-<script>
-fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById("bmCounter").innerText =
-      String(data.value).padStart(5, "0");
-  })
-  .catch(error => {
-    console.error("Error contador:", error);
-  });
-</script>
-
-<!-- BOTON WHATSAPP (CAMBIA EL NUMERO POR EL TUYO) -->
-<a href="https://wa.me/5215560693556" target="_blank" class="whatsapp-btn">
-    <img src="WTTS.jpeg" alt="WhatsApp">
-</a>
-<!-- ===== ISIS MOON INTERACTIVA ===== -->
-
-<style>
 #isis-container {
   position: fixed;
   bottom: 20px;
@@ -273,8 +199,87 @@ fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
 .isis-user {
   color: #b366ff;
 }
-</style>
 
+@media(max-width:600px){
+    h1{
+        font-size:2rem;
+        letter-spacing:5px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="main-wrapper">
+
+<ul class="main-list">
+
+<li>
+    <h1>🌑 BLACKMOON GROUP 🌑</h1>
+    <p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos</p>
+</li>
+
+<li class="bm-audio-wrapper">
+    <audio controls autoplay loop>
+        <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
+        Tu navegador no soporta audio HTML5.
+    </audio>
+</li>
+
+<li>
+    <div class="bm-counter-box">
+        <h3>🌙 Visitantes Blackmoon 🌙</h3>
+        <div class="bm-counter-number" id="bmCounter">00000</div>
+    </div>
+</li>
+
+<li>
+    <ul class="nav">
+        <li><a href="AerialBM.HTML">AÉRIAL BLACKMOON</a></li>
+        <li><a href="Blackmoon music.html">BLACK MOON RECORDS</a></li>
+        <li><a href="PLATAFORMAS POD.HTML">BLACKMOON PODCAST</a></li>
+        <li><a href="REDES PBM.html">PRODUCTOS BLACK MOON</a></li>
+        <li><a href="comics.html">COMICS</a></li>
+        <li><a href="https://www.youtube.com/@BikerBlackmoon">BLACKMOON BIKER</a></li>
+        <li><a href="Games List.html">BLACKMOON GAMES</a></li>
+        <li><a href="SISTEMSBM.HTML">BLACKMOON SYSTEMS</a></li>
+        <li><a href="https://eliza-03.github.io/Eliza-03.github.io./">ACOMPAÑAMIENTO PSICOLOGICO</a></li>
+        <li><a href="https://www.jotform.com/app/253047701093856">BLACKMOON GIFT</a></li>
+        <li><a href="LADCH.HTML">ANGELES DE CHARLY</a></li>
+    </ul>
+</li>
+
+<li>
+    <ul class="footer">
+        <li>© 2024-2026 GRUPO BLACKMOON</li>
+        <li>Ing. Carlos Lezama</li>
+    </ul>
+</li>
+
+</ul>
+</div>
+
+<!-- CONTADOR GLOBAL -->
+<script>
+fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("bmCounter").innerText =
+      String(data.value).padStart(5, "0");
+  })
+  .catch(error => {
+    console.error("Error contador:", error);
+  });
+</script>
+
+<!-- BOTON WHATSAPP -->
+<a href="https://wa.me/5215560693556" target="_blank" class="whatsapp-btn">
+    <img src="WTTS.jpeg" alt="WhatsApp">
+</a>
+
+<!-- ISIS MOON -->
 <div id="isis-container">
   <div id="isis-chat">
     <div id="isis-messages"></div>
@@ -289,36 +294,21 @@ const chat = document.getElementById("isis-chat");
 const messages = document.getElementById("isis-messages");
 const input = document.getElementById("isis-input");
 
-let saludoMostrado = false;
-
-// Mostrar chat al hacer clic
 avatar.addEventListener("click", () => {
   chat.style.display = chat.style.display === "none" ? "block" : "none";
 });
 
-// Saludo automático
 window.addEventListener("load", () => {
-  if (!saludoMostrado) {
-    agregarMensaje("Isis", "Bienvenido... La luna ya te observaba.");
-    saludoMostrado = true;
-  }
+  responderAutomatico("saludo");
 });
 
-// Detectar scroll
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 300) {
-    agregarMensaje("Isis", "Mientras más bajas... más revelas.");
-  }
-});
-
-// Responder cuando el usuario escribe
 input.addEventListener("keypress", function(e) {
   if (e.key === "Enter") {
     const textoUsuario = input.value.trim();
     if (textoUsuario === "") return;
 
     agregarMensaje("Tú", textoUsuario, true);
-    responder(textoUsuario.toLowerCase());
+    analizarMensaje(textoUsuario.toLowerCase());
     input.value = "";
   }
 });
@@ -332,39 +322,88 @@ function agregarMensaje(nombre, texto, esUsuario = false) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-function responder(texto) {
-  if (texto.includes("musica")) {
-    agregarMensaje("Isis", "Black Moon Records no se escucha… se siente.");
+/* ===== RESPUESTAS MULTIPLES ===== */
+
+const respuestas = {
+  saludo: [
+    "Bienvenido... la luna ya sabía que vendrías.",
+    "Has regresado al multiverso Blackmoon.",
+    "La oscuridad también escucha."
+  ],
+  musica: [
+    "Black Moon Records no se oye… se siente.",
+    "Cada canción guarda un secreto.",
+    "La música vibra más fuerte en la sombra."
+  ],
+  escuela: [
+    "La altura revela lo que ocultas.",
+    "En el aire nadie puede mentir.",
+    "Nuestra escuela no enseña… transforma."
+  ],
+  podcast: [
+    "Las voces cuentan lo que la mente calla.",
+    "Escucha… siempre hay algo detrás del micrófono.",
+    "El podcast abre portales invisibles."
+  ],
+  comic: [
+    "Las historias nacen en la sombra.",
+    "Cada viñeta es un fragmento del destino.",
+    "El cómic revela lo que la luna esconde."
+  ],
+  adios: [
+    "La luna seguirá observándote.",
+    "No es un adiós… es un hasta el próximo eclipse.",
+    "Sigue explorando… siempre hay más."
+  ],
+  default: [
+    "Interesante… cuéntame más.",
+    "Eso despierta algo en la sombra.",
+    "Sigue explorando el multiverso.",
+    "La luna escucha todo.",
+    "Nada es casual aquí."
+  ]
+};
+
+function obtenerRespuesta(tipo) {
+  const lista = respuestas[tipo];
+  return lista[Math.floor(Math.random() * lista.length)];
+}
+
+function responderAutomatico(tipo){
+  agregarMensaje("Isis", obtenerRespuesta(tipo));
+}
+
+function analizarMensaje(texto) {
+
+  if (texto.includes("hola") || texto.includes("buenas")) {
+    responderAutomatico("saludo");
   }
-  else if (texto.includes("hola")) {
-    agregarMensaje("Isis", "Como estas aerealista.");
+
+  else if (texto.includes("musica") || texto.includes("cancion")) {
+    responderAutomatico("musica");
   }
-  else if (texto.includes("que eres,")) {
-    agregarMensaje("Isis", "soy un avatar y estoy aprendiendo.");
+
+  else if (texto.includes("escuela") || texto.includes("aerea")) {
+    responderAutomatico("escuela");
   }
-  else if (texto.includes("escuela")) {
-    agregarMensaje("Isis", "Nuestra escuela de danza aerea.");
-  }
+
   else if (texto.includes("podcast")) {
-    agregarMensaje("Isis", "Escucha nustros podcasts, en tu plataforma favorita");
+    responderAutomatico("podcast");
   }
+
   else if (texto.includes("comic")) {
-    agregarMensaje("Isis", "Las historias nacen en la sombra.");
+    responderAutomatico("comic");
   }
-  else if (texto.includes("adios")) {
-    agregarMensaje("Isis", "    Sigue explorando la pagina.");
+
+  else if (texto.includes("adios") || texto.includes("bye")) {
+    responderAutomatico("adios");
   }
-  else if (texto.includes("bien")) {
-    agregarMensaje("Isis", "Me alegra mucho, explora nuestra pagina");
-  }
- 
-  else if (texto.includes("blackmoon")) {
-    agregarMensaje("Isis", "Si esa es mi casa, mi vida.");
-  }
+
   else {
-    agregarMensaje("Isis", "Interesante… sigue explorando.");
+    responderAutomatico("default");
   }
 }
 </script>
+
 </body>
 </html>
