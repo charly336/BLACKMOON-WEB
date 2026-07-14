@@ -171,34 +171,38 @@
         }
 
         /* ========================================================
-           SECCIÓN DE REDES SOCIALES (Botones Circulares y Chicos)
+           SECCIÓN DE REDES SOCIALES (Arreglo de Tamaño e Imágenes)
            ======================================================== */
         .redes {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px; /* Espacio entre círculos */
+            gap: 15px;         /* Espacio entre cada círculo */
             margin-top: 20px;
+            flex-wrap: wrap;   /* Evita que se amontonen en pantallas chicas */
         }
 
         .redes a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;         /* Tamaño chico */
-            height: 45px;        /* Tamaño chico */
-            border-radius: 50%;  /* Totalmente circular */
-            color: #ffffff;
-            font-size: 1.2rem;   /* Tamaño del ícono dentro */
-            transition: all 0.3s ease;
+            display: inline-block;
+            width: 45px !important;   /* Forzamos el tamaño chico (Ancho) */
+            height: 45px !important;  /* Forzamos el tamaño chico (Alto) */
+            max-width: 45px;
+            max-height: 45px;
+            border-radius: 50% !important; /* Círculo perfecto */
+            overflow: hidden !important;   /* Recorta todo lo que se salga del círculo */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
 
-        /* Colores personalizados por red social al pasar el cursor (Hover) */
-        .redes a.insta { background-color: #e1306c; }
-        .redes a.correo { background-color: #ea4335; }
-        .redes a.wtts { background-color: #25d366; }
-        .redes a.tik-tok { background-color: #000000; border: 1px solid #333; }
+        /* Esto obliga a tu imagen grande a encogerse al tamaño del botón */
+        .redes a img {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover !important; /* Hace que la imagen se adapte sin deformarse */
+            display: block;
+        }
 
         .redes a:hover {
             transform: translateY(-5px);
