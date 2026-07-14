@@ -1,342 +1,340 @@
-V<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradoja Aérea | BlackMoon Studios</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-<title>Paradoja Aérea | BlackMoon Studios</title>
+    <script src="https://kit.fontawesome.com/6d9b4b8c35.js" crossorigin="anonymous"></script>
 
-<link rel="stylesheet" href="style.css">
+    <style>
+        /* ========================================================
+           ESTILOS GENERALES (Asegúrate de adaptarlos a tu gusto)
+           ======================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0b0b12;
+            color: #ffffff;
+            scroll-behavior: smooth;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-<script src="https://kit.fontawesome.com/6d9b4b8c35.js" crossorigin="anonymous"></script>
+        /* Menú / Navegación */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(11, 11, 18, 0.95);
+            z-index: 1000;
+        }
 
+        .logo img {
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        #menu {
+            display: flex;
+            list-style: none;
+        }
+
+        #menu li {
+            margin-left: 20px;
+        }
+
+        #menu a:hover {
+            color: #ff4757;
+        }
+
+        .menu-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Secciones */
+        section {
+            padding: 100px 50px 60px 50px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Botones generales */
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #ff4757;
+            color: #fff;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background-color: #e84118;
+            transform: translateY(-2px);
+        }
+
+        /* Hero / Inicio */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 140px;
+        }
+
+        .hero-logo {
+            width: 180px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .hero h2 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #a4b0be;
+            text-transform: none;
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+        }
+
+        .hero p {
+            max-width: 700px;
+            margin: 0 auto 30px auto;
+            line-height: 1.6;
+            color: #dcdde1;
+        }
+
+        /* Sobre el podcast y Episodios */
+        .contenido, .episodio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .contenido img, .episodio img {
+            width: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .contenido p, .episodio p {
+            line-height: 1.8;
+            color: #dcdde1;
+        }
+
+        /* YouTube */
+        .video {
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        /* ========================================================
+           SECCIÓN DE REDES SOCIALES (Botones Circulares y Chicos)
+           ======================================================== */
+        .redes {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* Espacio entre círculos */
+            margin-top: 20px;
+        }
+
+        .redes a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;         /* Tamaño chico */
+            height: 45px;        /* Tamaño chico */
+            border-radius: 50%;  /* Totalmente circular */
+            color: #ffffff;
+            font-size: 1.2rem;   /* Tamaño del ícono dentro */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Colores personalizados por red social al pasar el cursor (Hover) */
+        .redes a.insta { background-color: #e1306c; }
+        .redes a.correo { background-color: #ea4335; }
+        .redes a.wtts { background-color: #25d366; }
+        .redes a.tik-tok { background-color: #000000; border: 1px solid #333; }
+
+        .redes a:hover {
+            transform: translateY(-5px);
+            filter: brightness(1.2);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background-color: #07070a;
+            color: #747d8c;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Móvil básico */
+        @media (max-width: 768px) {
+            header { padding: 20px; }
+            #menu { display: none; }
+            .menu-btn { display: block; }
+            .contenido, .episodio { flex-direction: column; text-align: center; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- ========================= -->
-<!-- ESTRELLAS -->
-<!-- ========================= -->
+    <div id="stars"></div>
+
+    <header>
+        <div class="logo">
+            <img src="nyx.jpeg" alt="Logo">
+        </div>
+        <nav>
+            <ul id="menu">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#podcast">Podcast</a></li>
+                <li><a href="#episodios">Episodios</a></li>
+                <li><a href="#youtube">YouTube</a></li>
+                <li><a href="#spotify">Spotify</a></li>
+                <li><a href="#galeria">Galería</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+        <div class="menu-btn">☰</div>
+    </header>
+
+    <section id="inicio" class="hero">
+        <div class="overlay">
+            <img class="hero-logo" src="nyx.jpeg" alt="Logo Hero">
+            <h1>In-App-Daptados</h1>
+            <h2>"Historias de citas, banderas rojas y todo lo que nadie te cuenta de las apps para ligar."</h2>
+            <p>
+                Vivimos en una época donde basta un match para conocer a alguien... pero también para encontrarte con mentiras, manipulación, estafas, identidades falsas y situaciones que pueden terminar muy mal.
+                In-Ap-Daptados es un podcast donde analizamos el mundo de las aplicaciones de citas desde una perspectiva entretenida, crítica y preventiva.
+            </p>
+            <div class="botones">
+                <a href="https://www.youtube.com/@in-app-daptados" class="btn">
+                    <i class="fab fa-youtube"></i> Ver en YouTube
+                </a>
+                <a href="https://open.spotify.com/show/033JSL5WaLsW153CRfRiEC?si=c5d0ca5134604822" class="btn">
+                    <i class="fab fa-spotify"></i> Escuchar en Spotify
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="podcast">
+        <h2>Sobre el Podcast</h2>
+        <div class="contenido">
+            <div>
+                <img src="IN-APP.jpeg" alt="Portada Podcast">
+            </div>
+            <div>
+                <p>
+                    Aquí hablamos de las experiencias reales detrás de Tinder, Bumble, Badoo, Facebook Parejas, Grindr, Happn y otras plataformas. Cada episodio explora historias sorprendentes, señales de alerta, errores comunes, perfiles sospechosos y consejos para tener citas más seguras.
+                    No se trata de decir que todas las apps sean malas, sino de aprender a identificar comportamientos que pueden poner en riesgo tu bienestar emocional, económico o físico.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="episodios">
+        <h2>Último Episodio</h2>
+        <div class="episodio">
+            <img src="img_spoty.png" alt="Portada Último Episodio">
+            <div>
+                <h3>Episodio más reciente.</h3>
+                <p>Haz clic abajo para escuchar nuestro último análisis en la plataforma.</p>
+                <a href="https://open.spotify.com/show/033JSL5WaLsW153CRfRiEC?si=ca64ceb58654427e" class="btn">Escuchar</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="youtube">
+        <h2>YouTube</h2>
+        <div class="video">
+            <iframe width="100%" height="500" src="https://www.youtube.com/embed/VIDEO" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </section>
+
+    <section id="spotify">
+        <h2>Spotify</h2>
+    </section>
+
+    <section id="galeria">
+        <h2>Galería</h2>
+    </section>
+
+    <section id="contacto">
+        <h2>Síguenos</h2>
+        <div class="redes">
+            <a href="https://www.instagram.com/inappdaptados?" class="insta" title="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            
+            <a href="mailto:inappdaptados@gmail.com" class="correo" title="Correo">
+                <i class="fas fa-envelope"></i>
+            </a>
+            
+            <a href="https://whatsapp.com/channel/0029VbD0k5AAYIUC5dbRZU1d" class="wtts" title="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            
+            <a href="https://www.tiktok.com/@inappdaptados?_r=1&_t=ZS-980knt2A7iJ" class="tik-tok" title="TikTok">
+                <i class="fab fa-tiktok"></i>
+            </a>
+        </div>
+    </section>
 
-<div id="stars"></div>
+    <footer>
+        &copy; 2026 BlackMoon Studios
+    </footer>
 
-<!-- ========================= -->
-<!-- MENU -->
-<!-- ========================= -->
-
-<header>
-
-<div class="logo">
-
-<!-- CAMBIAR LOGO -->
-
-<img src="nyx.jpeg" alt="Logo">
-
-</div>
-
-<nav>
-
-<ul id="menu">
-
-<li><a href="#inicio">Inicio</a></li>
-
-<li><a href="#podcast">Podcast</a></li>
-
-<li><a href="#episodios">Episodios</a></li>
-
-<li><a href="#youtube">YouTube</a></li>
-
-<li><a href="#spotify">Spotify</a></li>
-
-<li><a href="#galeria">Galería</a></li>
-
-<li><a href="#contacto">Contacto</a></li>
-
-</ul>
-
-</nav>
-
-<div class="menu-btn">
-
-☰
-
-</div>
-
-</header>
-
-<!-- ========================= -->
-<!-- HERO -->
-<!-- ========================= -->
-
-<section id="inicio" class="hero">
-
-<div class="overlay">
-
-<img class="hero-logo" src="nyx.jpeg">
-
-<h1>In-App-Daptados</h1>
-
-<h2>
-"Historias de citas, banderas rojas y todo lo que nadie te cuenta de las apps para ligar."
-</h2>
-
-<p>
-
-Vivimos en una época donde basta un match para conocer a alguien... pero también para encontrarte con mentiras, manipulación, estafas, identidades falsas y situaciones que pueden terminar muy mal.
-
-In-Ap-Daptados es un podcast donde analizamos el mundo de las aplicaciones de citas desde una perspectiva entretenida, crítica y preventiva.
-
-
-
-</p>
-
-<div class="botones">
-
-<a href="https://www.youtube.com/@in-app-daptados" class="btn">
-
-<i class="fab fa-youtube"></i>
-
-Ver en YouTube
-
-</a>
-
-<a href="https://open.spotify.com/show/033JSL5WaLsW153CRfRiEC?si=c5d0ca5134604822" class="btn">
-
-<i class="fab fa-spotify"></i>
-
-Escuchar en Spotify
-
-</a>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ========================= -->
-<!-- PODCAST -->
-<!-- ========================= -->
-
-<section id="podcast">
-
-<h2>
-
-Sobre el Podcast
-
-</h2>
-
-<div class="contenido">
-
-<div>
-
-<img src="IN-APP.jpeg">
-
-</div>
-
-<div>
-
-<p>
-
-Aquí hablamos de las experiencias reales detrás de Tinder, Bumble, Badoo, Facebook Parejas, Grindr, Happn y otras plataformas. Cada episodio explora historias sorprendentes, señales de alerta, errores comunes, perfiles sospechosos y consejos para tener citas más seguras.
-
-No se trata de decir que todas las apps sean malas, sino de aprender a identificar comportamientos que pueden poner en riesgo tu bienestar emocional, económico o físico.
-
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ========================= -->
-<!-- EPISODIO DESTACADO -->
-<!-- ========================= -->
-
-<section id="episodios">
-
-<h2>
-
-Último Episodio
-
-</h2>
-
-<div class="episodio">
-
-<img src="img_spoty.png">
-
-<div>
-
-<h3>
-
-Episodio mas reciente.
-
-</h3>
-
-<p>
-
-
-
-</p>
-
-<a href="https://open.spotify.com/show/033JSL5WaLsW153CRfRiEC?si=ca64ceb58654427e" class="btn">
-
-Escuchar
-
-</a>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ========================= -->
-<!-- YOUTUBE -->
-<!-- ========================= -->
-
-<section id="youtube">
-
-<h2>
-
-YouTube
-
-</h2>
-
-<div class="video">
-
-<!--
-PEGAR AQUÍ EL IFRAME
-DE YOUTUBE
--->
-
-<iframe
-
-width="100%"
-
-height="500"
-
-src="https://www.youtube.com/embed/VIDEO"
-
-frameborder="0"
-
-allowfullscreen>
-
-</iframe>
-
-</div>
-
-</section>
-
-<!-- ========================= -->
-<!-- SPOTIFY -->
-<!-- ========================= -->
-
-<section id="spotify">
-
-<h2>
-
-Spotify
-
-</h2>
-
-
-
-</section>
-
-<!-- ========================= -->
-<!-- GALERIA -->
-<!-- ========================= -->
-
-<section id="galeria">
-
-<h2>
-
-Galería
-
-</h2>
-
-
-
-</section>
-
-<!-- ========================= -->
-<!-- REDES -->
-<!-- ========================= -->
-
-<section id="contacto">
-
-<h2>
-
-Síguenos
-
-</h2>
-
-<div class="redes">
-
-<a href="https://www.instagram.com/inappdaptados?">
-
-
-
-<i class="INSTA"></i>
-
-</a>
-
-<a href="inappdaptados@gmail.com">
-
-
-
-<i class=""></i>
-
-</a>
-
-<a href="https://whatsapp.com/channel/0029VbD0k5AAYIUC5dbRZU1d">
-
-
-
-<i class="wtts"></i>
-
-</a>
-
-<a href="https://www.tiktok.com/@inappdaptados?_r=1&_t=ZS-980knt2A7iJ">
-
-
-
-<i class="tik-tok"></i>
-
-</a>
-
-<a href="#">
-
-<i class="fab fa-tiktok"></i>
-
-
-
-</a>
-
-</div>
-
-<p>
-
-</p>
-
-</section>
-
-<footer>
-
-© 2026 BlackMoon Studios
-
-</footer>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 
 </html>
