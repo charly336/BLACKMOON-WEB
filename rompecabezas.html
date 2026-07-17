@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rompecabezas — Caminito de la Luna</title>
+  <style>
+    :root{
+      --bg:#05021a; --card:#0b1020; --accent:#d9d5f7; --moon:#f5f3d7;
+      --wood1: linear-gradient(90deg,#8b5a2b 0%, #a36b3a 25%, #7a4f29 50%, #9c6a3a 75%, #6e4a2a 100%);
+    }
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, Arial, sans-serif;color:var(--accent);background: radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.03), transparent 10%), radial-gradient(ellipse at 80% 80%, rgba(255,255,255,0.02), transparent 10%), linear-gradient(180deg,#001026 0%, #020517 50%, #05021a 100%);overflow:hidden}
+    .app{display:grid;grid-template-columns:340px 1fr;gap:18px;height:100vh;padding:18px;box-sizing:border-box}
+
+    /* MENU - caminito */
+    .menu{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);overflow:auto}
+    .menu .sky{height:160px;background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.06), transparent 2%), radial-gradient(circle at 80% 60%, rgba(255,255,255,0.03), transparent 2%), linear-gradient(180deg,#01021a,#03103a);border-radius:12px;position:relative;margin-bottom:12px}
+    .moon{position:absolute;right:20px;top:18px;width:72px;height:72px;background:radial-gradient(circle at 30% 30%, #fff, #f3e9c6 20%, #d7c78e 35%, #a78b5b 80%);box-shadow:0 0 30px rgba(255,255,200,0.15) inset;border-radius:50%}
+    .stars{position:absolute;inset:0;background-image:radial-gradient(circle,#fff 1px, transparent 1px);background-size:3px 3px;opacity:0.35;mix-blend-mode:screen}
+    .caminito{display:flex;align-items:center;gap:10px;padding:12px 6px;flex-wrap:nowrap;overflow:auto}
+    .node{min-width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.06);cursor:pointer;position:relative}
+    .node.locked{filter:grayscale(80%) opacity(0.5);cursor:not-allowed}
+    .node.completed{background:linear-gradient(180deg,#ffd97a,#ffd15a);color:#1a1000;border-color:rgba(255,255,255,0.06)}
+    .edge{height:6px;flex:0 0 40px;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:4px}
+    .levels-title{margin:6px 0 10px;font-weight:600}
+
+    /* PANEL PRINCIPAL */
+    .main{display:flex;flex-direction:column;gap:12px}
+    .topbar{display:flex;align-items:center;justify-content:space-between}
+    .board-wrap{flex:1;display:flex;align-items:center;justify-content:center}
+    .board{background:linear-gradient(180deg, rgba(0,0,0,0.4), rgba(255,255,255,0.02));padding:18px;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,0.7);display:grid;place-items:center}
+    .frame{background:var(--wood1);padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);position:relative}
+    .canvas{width:720px;height:480px;background:#111;border-radius:6px;position:relative;overflow:hidden}
+
+    /* PIEZAS */
+    .piece{position:absolute;box-sizing:border-box;border:1px solid rgba(0,0,0,0.15);cursor:grab;background-repeat:no-repeat;background-size:calc(100% * var(--cols)) calc(100% * var(--rows));background-blend-mode:multiply}
+    .piece.grabbing{cursor:grabbing}
+
+    /* CONTROLS */
+    .controls{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--accent);cursor:pointer}
+
+    .side-info{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:12px}
+    .small{font-size:13px;color:rgba(255,255,255,0.7)}
+    input[type=file]{display:none}
+
+    /* responsive */
+    @media(max-width:960px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}}  
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="menu">
+      <div class="sky">
+        <div class="moon"></div>
+        <div class="stars"></div>
+      </div>
+      <div class="levels-title">Niveles</div>
+      <div id="caminito" class="caminito"></div>
+
+      <div style="margin-top:12px" class="levels-title">Imágenes disponibles</div>
+      <div id="thumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <label class="btn" for="uploadImg">Subir imagen</label>
+      <input id="uploadImg" type="file" accept="image/*">
+      <hr style="opacity:0.06;margin:12px 0">
+      <div class="small">Historial de rompecabezas resueltos</div>
+      <div id="history" style="margin-top:8px;max-height:160px;overflow:auto"></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div style="display:flex;gap:12px;align-items:center">
+          <strong id="levelLabel">Nivel 1</strong>
+          <div class="small">Piezas: <span id="piecesCount">6</span></div>
+          <div class="small">Tiempo: <span id="timeLimitLabel">01:30</span></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label class="btn">Toggle música <input id="musicToggle" type="checkbox" style="margin-left:8px"></label>
+          <button class="btn" id="shuffleBtn">Barajar</button>
+          <button class="btn" id="solveBtn">Resolver</button>
+        </div>
+      </div>
+
+      <div class="board-wrap">
+        <div class="board">
+          <div class="frame" id="frameEl">
+            <div class="canvas" id="puzzleCanvas"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <div class="side-info">
+          <div class="small">Ajustes rápidos</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <select id="frameSelect" class="btn">
+              <option value="wood">Madera clásica</option>
+              <option value="metal">Metal oscuro</option>
+              <option value="simple">Marco simple</option>
+            </select>
+            <label class="btn">Subir música<input id="uploadAudio" type="file" accept="audio/*"></label>
+            <button class="btn" id="resetBtn">Reset historial</button>
+          </div>
+        </div>
+        <div class="side-info" style="min-width:260px">
+          <div class="small">Progreso</div>
+          <div style="margin-top:8px"><progress id="progress" value="0" max="40" style="width:100%"></progress></div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px"><span class="small">Completados</span><span id="completedCount">0</span></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <audio id="bgMusic" loop></audio>
+
+  <script>
+    // --- CONFIG y ESTADO ---
+    const TOTAL_LEVELS = 40;
+    const levels = Array.from({length:TOTAL_LEVELS},(_,i)=>i+1);
+    // Cada 5 niveles aumenta piezas: base 6, +2 cada bloque
+    function piecesForLevel(level){
+      const block = Math.floor((level-1)/5);
+      return 6 + block*2; // 6,6, then 8,8, etc -> but will produce: 6,6? Actually for levels1-5 block=0 =>6;6-10 block=1=>8 -> perfect
+    }
+    function timeForLevel(level){
+      // estimado en segundos, crece ligeramente
+      return 60 + level*6; // from 66s up to ~300s
+    }
+
+    // imágenes de ejemplo (placeholders) - puedes reemplazarlas subiendo
+    let gallery = [
+      {id:'img_default_1',name:'Paisaje luna',src:'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder'},
+      {id:'img_default_2',name:'Tela y sombra',src:'https://images.unsplash.com/photo-1508873699372-7ae1be6b5f97?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder'}
+    ];
+
+    // estado
+    let currentLevel = 1;
+    let currentImage = null;
+    let rows=2,cols=3;
+    let piecesCount = piecesForLevel(currentLevel);
+    let boardRect = {w:720,h:480};
+    let pieces = []; // array de piezas
+    let solved = false;
+    let timerInterval = null;
+
+    // referencias DOM
+    const caminito = document.getElementById('caminito');
+    const thumbs = document.getElementById('thumbs');
+    const puzzleCanvas = document.getElementById('puzzleCanvas');
+    const levelLabel = document.getElementById('levelLabel');
+    const piecesCountEl = document.getElementById('piecesCount');
+    const timeLimitLabel = document.getElementById('timeLimitLabel');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+    const progressEl = document.getElementById('progress');
+    const completedCountEl = document.getElementById('completedCount');
+
+    // --- INICIALIZACION ---
+    function init(){
+      renderCaminito();
+      renderThumbs();
+      loadHistory();
+      selectImage(gallery[0]);
+      loadProgress();
+      attachEvents();
+      buildLevel(currentLevel);
+    }
+
+    function renderCaminito(){
+      caminito.innerHTML='';
+      for(let i=1;i<=TOTAL_LEVELS;i++){
+        const node=document.createElement('div');
+        node.className='node'; node.textContent=i;
+        const completed = isLevelCompleted(i);
+        if(completed) node.classList.add('completed');
+        if(i>getHighestUnlocked()) node.classList.add('locked');
+        node.onclick = ()=>{ if(i<=getHighestUnlocked()) changeLevel(i); }
+        caminito.appendChild(node);
+        if(i<TOTAL_LEVELS){const edge=document.createElement('div');edge.className='edge';caminito.appendChild(edge)}
+      }
+    }
+
+    function getHighestUnlocked(){
+      const hist = JSON.parse(localStorage.getItem('pj_history')||'[]');
+      const high = hist.reduce((a,c)=>Math.max(a,c.level),1);
+      return Math.max(1,high+1); // desbloquea siguiente
+    }
+
+    function isLevelCompleted(l){
+      const hist = JSON.parse(localStorage.getItem('pj_history')||'[]');
+      return hist.some(h=>h.level===l && h.solved);
+    }
+
+    function renderThumbs(){
+      thumbs.innerHTML='';
+      gallery.forEach(g=>{
+        const t=document.createElement('div');t.style.width='64px';t.style.height='48px';t.style.borderRadius='8px';t.style.overflow='hidden';t.style.cursor='pointer';t.style.border='2px solid rgba(255,255,255,0.03)';
+        const img=document.createElement('img');img.src=g.src;img.style.width='100%';img.style.height='100%';img.style.objectFit='cover';
+        t.appendChild(img);t.onclick=()=>selectImage(g);thumbs.appendChild(t);
+      })
+    }
+
+    function attachEvents(){
+      document.getElementById('uploadImg').addEventListener('change',e=>{
+        const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=ev=>{ const src=ev.target.result; const id='img_'+Date.now(); gallery.push({id,name:f.name,src}); renderThumbs(); selectImage(gallery[gallery.length-1]); }; reader.readAsDataURL(f);
+      });
+      document.getElementById('uploadAudio').addEventListener('change',e=>{
+        const f=e.target.files[0]; if(!f) return; const src=URL.createObjectURL(f); bgMusic.src=src; if(musicToggle.checked) bgMusic.play();
+      });
+      musicToggle.addEventListener('change',()=>{ if(musicToggle.checked) bgMusic.play(); else bgMusic.pause(); });
+      document.getElementById('shuffleBtn').addEventListener('click',()=>shufflePieces());
+      document.getElementById('solveBtn').addEventListener('click',()=>solveInstant());
+      document.getElementById('frameSelect').addEventListener('change',e=>changeFrame(e.target.value));
+      document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm('Resetear historial?')){localStorage.removeItem('pj_history'); loadHistory(); renderCaminito(); loadProgress();}});
+    }
+
+    function selectImage(imgObj){ currentImage = imgObj; buildLevel(currentLevel); }
+
+    function changeLevel(l){ currentLevel=l; buildLevel(l); }
+
+    function buildLevel(level){
+      // limpiar
+      stopTimer(); puzzleCanvas.innerHTML=''; solved=false; pieces=[];
+      levelLabel.textContent='Nivel '+level;
+      piecesCount = piecesForLevel(level);
+      piecesCountEl.textContent = piecesCount;
+      const t = timeForLevel(level); timeLimitLabel.textContent = formatTime(t);
+
+      // rows/cols estimados segun piezas -> intentar cuadrado
+      const approx = Math.ceil(Math.sqrt(piecesCount));
+      cols = approx; rows = Math.ceil(piecesCount/cols);
+      puzzleCanvas.style.setProperty('--rows',rows);
+      puzzleCanvas.style.setProperty('--cols',cols);
+      // cargar img
+      const img = new Image(); img.crossOrigin='anonymous'; img.onload = ()=>{
+        createPiecesFromImage(img,rows,cols);
+        startTimer(t);
+      };
+      img.onerror = ()=>{ alert('Error cargando imagen. Intenta subir otra.'); };
+      img.src = currentImage ? currentImage.src : '';
+      updateProgressUI();
+    }
+
+    function createPiecesFromImage(img,rows,cols){
+      const {w,h} = {w:boardRect.w,h:boardRect.h};
+      // Cada pieza tamaño
+      const pw = Math.floor(w/cols); const ph = Math.floor(h/rows);
+      // generar piezas con posiciones correctas
+      let id=0;
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          if(id>=piecesCount) break;
+          const el = document.createElement('div'); el.className='piece'; el.style.width=pw+'px'; el.style.height=ph+'px';
+          el.style.left = (c*pw)+'px'; el.style.top = (r*ph)+'px';
+          el.dataset.correctLeft = (c*pw); el.dataset.correctTop = (r*ph);
+          el.dataset.row=r; el.dataset.col=c; el.dataset.id=id;
+          // background positioning to show slice
+          el.style.backgroundImage = 'url("'+img.src+'"), '+getWoodPattern();
+          el.style.backgroundPosition = `-${c*pw}px -${r*ph}px, 0 0`;
+          el.style.backgroundSize = `${cols*100}% ${rows*100}%, cover`;
+          // madera overlay using multiple backgrounds above (wood below)
+          // draggable
+          makeDraggable(el);
+          puzzleCanvas.appendChild(el);
+          pieces.push(el);
+          id++;
+        }
+      }
+      // desordenar
+      shufflePieces(true);
+    }
+
+    function getWoodPattern(){
+      // simple CSS gradient as 'wood texture'
+      return 'linear-gradient(90deg, rgba(139,90,43,0.9) 0%, rgba(163,107,58,0.75) 25%, rgba(122,79,41,0.6) 50%, rgba(156,106,58,0.5) 75%, rgba(110,74,42,0.6) 100%)';
+    }
+
+    function makeDraggable(el){
+      let offsetX=0,offsetY=0, startX=0,startY=0;
+      function onDown(e){
+        e.preventDefault(); el.classList.add('grabbing');
+        const rect = puzzleCanvas.getBoundingClientRect();
+        startX = (e.touches?e.touches[0].clientX:e.clientX) - rect.left;
+        startY = (e.touches?e.touches[0].clientY:e.clientY) - rect.top;
+        offsetX = startX - parseInt(el.style.left);
+        offsetY = startY - parseInt(el.style.top);
+        window.addEventListener('mousemove',onMove); window.addEventListener('mouseup',onUp);
+        window.addEventListener('touchmove',onMove,{passive:false}); window.addEventListener('touchend',onUp);
+      }
+      function onMove(e){ e.preventDefault(); const rect = puzzleCanvas.getBoundingClientRect(); const mx=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; const my=(e.touches?e.touches[0].clientY:e.clientY)-rect.top; let nx = mx - offsetX; let ny = my - offsetY; // bounds
+        nx = Math.max(0, Math.min(nx, boardRect.w-parseInt(el.style.width))); ny = Math.max(0, Math.min(ny, boardRect.h-parseInt(el.style.height)));
+        el.style.left = nx + 'px'; el.style.top = ny + 'px';
+      }
+      function onUp(e){ el.classList.remove('grabbing'); window.removeEventListener('mousemove',onMove); window.removeEventListener('mouseup',onUp); window.removeEventListener('touchmove',onMove); window.removeEventListener('touchend',onUp); snapToGrid(el); checkSolved(); }
+      el.addEventListener('mousedown',onDown); el.addEventListener('touchstart',onDown,{passive:false});
+    }
+
+    function snapToGrid(el){
+      // si queda cerca de su posición correcta, snap
+      const left = parseInt(el.style.left); const top = parseInt(el.style.top);
+      const correctLeft = parseInt(el.dataset.correctLeft); const correctTop = parseInt(el.dataset.correctTop);
+      const dx = Math.abs(left-correctLeft); const dy = Math.abs(top-correctTop);
+      if(dx<20 && dy<20){ el.style.left=correctLeft+'px'; el.style.top=correctTop+'px'; el.style.pointerEvents='none'; }
+    }
+
+    function shufflePieces(initial=false){
+      // mezclar posiciones aleatorias
+      pieces.forEach(p=>{
+        const w = parseInt(p.style.width), h = parseInt(p.style.height);
+        const nx = Math.floor(Math.random()*(boardRect.w-w)); const ny = Math.floor(Math.random()*(boardRect.h-h));
+        p.style.left = nx + 'px'; p.style.top = ny + 'px'; p.style.pointerEvents='auto';
+      });
+      if(!initial) solved=false;
+    }
+
+    function checkSolved(){
+      const all = pieces.every(p=>{
+        const left = parseInt(p.style.left), top = parseInt(p.style.top);
+        return (Math.abs(left-parseInt(p.dataset.correctLeft))<5 && Math.abs(top-parseInt(p.dataset.correctTop))<5);
+      });
+      if(all && !solved){ solved=true; onSolved(); }
+    }
+
+    function onSolved(){ stopTimer(); saveHistory({level:currentLevel, solved:true, date:new Date().toISOString()}); renderCaminito(); loadHistory(); loadProgress(); alert('¡Nivel '+currentLevel+' completado!'); }
+
+    function saveHistory(entry){ const h = JSON.parse(localStorage.getItem('pj_history')||'[]'); h.push(entry); localStorage.setItem('pj_history',JSON.stringify(h)); }
+
+    function loadHistory(){ const h = JSON.parse(localStorage.getItem('pj_history')||'[]'); const histEl = document.getElementById('history'); histEl.innerHTML=''; h.slice().reverse().forEach(it=>{ const d = new Date(it.date); const el=document.createElement('div'); el.className='small'; el.textContent = `Nivel ${it.level} · ${it.solved? 'Resuelto' : 'Intento'} · ${d.toLocaleString()}`; histEl.appendChild(el); }); }
+
+    function startTimer(seconds){ let remaining = seconds; const lbl = document.getElementById('timeLimitLabel'); lbl.textContent = formatTime(remaining);
+      timerInterval = setInterval(()=>{ remaining--; lbl.textContent = formatTime(remaining); if(remaining<=0){ clearInterval(timerInterval); onTimeUp(); } },1000); }
+    function stopTimer(){ if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
+    function onTimeUp(){ alert('Se acabó el tiempo. Intenta de nuevo.'); saveHistory({level:currentLevel, solved:false, date:new Date().toISOString()}); loadHistory(); }
+    function formatTime(s){ const m = Math.floor(s/60); const ss = s%60; return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
+
+    function solveInstant(){ pieces.forEach(p=>{ p.style.left = p.dataset.correctLeft+'px'; p.style.top = p.dataset.correctTop+'px'; p.style.pointerEvents='none'; }); checkSolved(); }
+
+    function changeFrame(name){ const f = document.getElementById('frameEl'); if(name==='wood'){ f.style.background = getWoodPattern(); } else if(name==='metal'){ f.style.background = 'linear-gradient(180deg,#2b2f33,#1b1d20)'; } else { f.style.background = 'rgba(255,255,255,0.02)'; }
+    }
+
+    function loadProgress(){ const h = JSON.parse(localStorage.getItem('pj_history')||'[]'); const completed = h.filter(x=>x.solved).map(x=>x.level); progressEl.value = completed.length; completedCountEl.textContent = completed.length; }
+
+    // helpers
+    function updateProgressUI(){ loadProgress(); renderCaminito(); }
+
+    // inicializar
+    init();
+
+    // expose minimal API por depuracion
+    window.puzzleAPI = {changeLevel,selectImage,shufflePieces,solveInstant,saveHistory,loadHistory};
+  </script>
+</body>
+</html>
