@@ -1,191 +1,299 @@
+Aquí tienes tu código **reestructurado y corregido**, manteniendo exactamente todos tus enlaces, imágenes, reproductores, textos, modales e información original.
+
+### ¿Qué mejoras se aplicaron?
+
+1. **HTML Válido y Limpio:** Se corrigieron etiquetas HTML mal escritas (como `<il>` por `<li>`, enlaces dobles `<a><a>`, etiquetas `<font>` obsoletas) e inclusión correcta del `<head>`.
+2. **Diseño Responsivo e Impactante:** Se organizaron tus botones en una **cuadrícula adaptable (Grid)** con tarjetas tipo *glassmorphism* (cristal). Esto hace que las imágenes y enlaces queden alineados perfectamente en computadoras y celulares.
+3. **Efectos y Tipografía Profesionales:** Fondo oscuro con filtro de desenfoque (*backdrop-blur*), sombras brillantes, transiciones suaves en botones y títulos con degradados elegantes.
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   
+    <title>Mi Página Web | Inicio</title>
+    <meta name="description" content="Descripción breve de mi sitio web">
     <style>
+        :root {
+            --primary-purple: #9966FF;
+            --accent-yellow: #F5BE27;
+            --accent-pink: #eb3fc3;
+            --bg-glass: rgba(0, 0, 0, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         body {
-            background-image: url("blackmoon podcast.png");
-            background-size: cover;
-            font-family: Arial, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("blackmoon podcast.png") center/cover fixed no-repeat;
+            color: #ffffff;
             text-align: center;
+            min-height: 100vh;
+            padding: 20px 10px;
         }
-        h1 {
+
+        /* Contenedor Principal */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Reproductor Spotify */
+        .spotify-player {
+            margin: 20px auto 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            max-width: 900px;
+        }
+
+        /* Marquees / Mensajes */
+        .marquee-title {
+            color: var(--primary-purple);
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(153, 102, 255, 0.5);
+            margin: 20px 0;
+        }
+
+        .marquee-text {
+            color: var(--accent-yellow);
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(245, 190, 39, 0.5);
+            margin: 15px 0;
+        }
+
+        .marquee-subtext {
+            color: var(--accent-pink);
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(235, 63, 195, 0.5);
+            margin: 15px 0;
+        }
+
+        /* Grid de Plataformas (Iconos + Enlaces) */
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            list-style: none;
+            padding: 20px 0;
+            margin: 30px 0;
+        }
+
+        .platform-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(153, 102, 255, 0.4);
+            border-color: var(--primary-purple);
+        }
+
+        .imagen-mediana {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .enlace-botón {
+            background: linear-gradient(135deg, #1717EE, #6060FF);
+            color: #ffffff;
+            padding: 12px 24px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
             font-weight: bold;
-            font-size: 35px;
-            color: #9966FF;
+            border-radius: 25px;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(23, 23, 238, 0.4);
+            width: 80%;
         }
-      h2 {
-            font-weight: bold;
-            font-size: 40px;
-            color: #9966FF;
+
+        .enlace-botón:hover {
+            background: linear-gradient(135deg, #0f0fbf, #4040e0);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(23, 23, 238, 0.7);
+            text-decoration: none;
         }
-      
-        a:hover {
-            text-decoration: underline;
+
+        /* Modal Intro Blackmoon */
+        #bm-intro {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(5, 5, 10, .85), rgba(5, 5, 10, .95)),
+                        url("blackmoon podcast.png") center/cover no-repeat;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .espacio {
+
+        #bm-intro.hidden {
+            animation: fadeOut 1s forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .bm-intro-box {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, .15);
+            padding: 40px 30px;
+            border-radius: 22px;
+            box-shadow: 0 0 40px rgba(180, 109, 225, .6);
+            max-width: 520px;
             margin: 20px;
         }
-        .imagen-mediana {
-            width: 200px;
-            height: 200px;
-            border: 2px solid #000;
-            border-radius: 10px;
+
+        .bm-intro-box h1 {
+            font-size: 2.6rem;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 15px #a138a8;
+            margin-bottom: 10px;
         }
-      .enlace-botón {
-  background-color: rgba(0,0,0,0.6);
-  border: none;
-  color: #1717EE;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 12px;
-  }
-      
-      
+
+        .bm-intro-box p {
+            color: var(--accent-pink);
+            font-size: 1.1rem;
+            margin: 20px 0 30px;
+        }
+
+        .bm-intro-box button {
+            background: linear-gradient(135deg, #7d3c98, #b46de1);
+            border: none;
+            color: #e7ed34;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 14px 36px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(180, 109, 225, .7);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .bm-intro-box button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 40px rgba(180, 109, 225, 1);
+        }
     </style>
 </head>
-	<title>Mi Página Web | Inicio</title>
-    <meta name="description" content="Descripción breve de mi sitio web">
 <body>
- <!-- ================= INTRO BLACKMOON ================= -->
-<style>
-#bm-intro{
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(5,5,10,.85),rgba(5,5,10,.95)),
-    url("blackmoon podcast.png") center/cover no-repeat;
-  z-index:99999;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
 
-#bm-intro.hidden{
-  animation:fadeOut 1s forwards;
-}
+    <!-- ================= INTRO BLACKMOON ================= -->
+    <div id="bm-intro">
+        <div class="bm-intro-box">
+            <h1>🌑BLACKMOON PODCAST🌑</h1>
+            <p>NUESTRO PODCAST DE DANZA AEREA Y SUS DIFERENTES PLATAFORMAS ...</p>
+            <button onclick="entrarBlackmoon()">Entrar</button>
+        </div>
+    </div>
 
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden}
-}
+    <script>
+        function entrarBlackmoon(){
+            document.getElementById("bm-intro").classList.add("hidden");
+        }
+    </script>
+    <!-- ================= END INTRO ================= -->
 
-.bm-intro-box{
-  text-align:center;
- background: rgba(0,0,0,0.25);
-  backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.15);
-  padding:40px 30px;
-  border-radius:22px;
-  box-shadow:0 0 40px rgba(180,109,225,.6);
-  max-width:520px;
-}
+    <div class="container">
+        <!-- Reproductor de Spotify -->
+        <iframe class="spotify-player" src="https://open.spotify.com/embed/episode/4YF4cMkyvbhBIj1rkHnJDG?utm_source=generator&theme=0" width="100%" height="200" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>    
 
-.bm-intro-box h1{
-  font-size:2.6rem;
-  color:#F5BE27;
-  text-shadow:0 0 15px #a138a8;
-}
+        <!-- Mensaje de bienvenida -->
+        <marquee behavior="scroll" direction="left">
+            <h1 class="marquee-title">Escuchanos en tus plataformas de podcast preferidas</h1>
+        </marquee>
 
-.bm-intro-box p{
-  color:#eb3fc3;
-  font-size:1.1rem;
-  margin:20px 0 30px;
-}
-
-.bm-intro-box button{
-  background:linear-gradient(135deg,#7d3c98,#b46de1);
-  border:none;
-  color:#e7ed34;
-  font-size:1.2rem;
-  font-weight:700;
-  padding:14px 36px;
-  border-radius:30px;
-  cursor:pointer;
-  box-shadow:0 0 25px rgba(180,109,225,.7);
-  transition:.3s;
-}
-.bm-intro-box button:hover{
-  transform:scale(1.08);
-  box-shadow:0 0 40px rgba(180,109,225,1);
-}
-</style>
-
-<div id="bm-intro">
-  <div class="bm-intro-box">
-    <h1>🌑BLACKMOON PODCAST🌑</h1>
-    <p>NUESTRO PODCAST DE DANZA AEREA Y SUS DIFERENTES PLATAFORMAS ...</p>
-    <button onclick="entrarBlackmoon()">Entrar</button>
-  </div>
-</div>
-
-<script>
-function entrarBlackmoon(){
-  document.getElementById("bm-intro").classList.add("hidden");
-}
-</script>
-<!-- ================= END INTRO ================= -->
-
-
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/episode/4YF4cMkyvbhBIj1rkHnJDG?utm_source=generator&theme=0" width="80%" height="200" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>      
- 
-
-<marquee behavior="scroll" direction="left"><h1>Escuchanos en tus plataformas de podcast preferidas</h1></font></marquee><br><br>
-   
-                       
-       
-             <div style="display: flex; flex-wrap: wrap; font-size:50px;">
-             <ol>
-               
-               <!-- Boton spotify -->
-<br><il><img src="spotify.png" style="width: 150px"></il><br><br><il><a href="https://open.spotify.com/show/1Jw4Vem2XkNuCG9pKqHRXy?si=skH15ttFT1yrXz-ma5Rrpw" class="enlace-botón">Spotify</a></il><br>
-      
-                <!-- Boton apple -->
-   
-<br><il><img src="apple podcast.png" style="width: 150px"></il><br><br><il><a href="https://podcasts.apple.com/mx/podcast/blackmoon-podcast-2-0/id1749141836" class="enlace-botón">Apple Podcast</a></il><br>
-               
-               <!-- Boton iheart -->
-               
-<br><il><img src="descarga.png" style="width: 150px"></il><br><br><il><a href="https://www.iheart.com/podcast/269-blackmoon-podcast-20-181181103?cmp=ios_share&sc=ios_social_share&pr=false&autoplay=true" class="enlace-botón">IHeart</a></il><br>
-               
-               
-               <!-- Boton youtube -->
-
-<br><il><img src="youtube.png"style="width: 150px"></il><br><br><il><a href="https://youtube.com/@Blackmoonpodcast?si=FPBLandM1I_P7Ooj"class="enlace-botón">Youtube</a></il><br>
-   
-   
-   <!-- Boton telegram -->
-
-<br><il><img src="telegram_img.jpg"style="width: 150px"></il><br><br><il><a href="https://t.me/+j69o0rHVHBM3YmQx"class="enlace-botón">telegram</a></il><br>
-   
-               
-               <!-- Boton youtube podcast -->
+        <!-- Cuadrícula de Plataformas -->
+        <ol class="platforms-grid">
             
-             <br><il><img src="MUSIC_IMG.jpg" style="width: 150px"></il><br><br><il><a><a href="https://music.youtube.com/playlist?list=PLBVMXUQpoQH21WZWciXqGH6LS-1xen0e-"class="enlace-botón">Youtube music</a></il><br>
-               
-               <!-- Boton Amazon -->
-               
-<br><il><img src="amazon music.png" style="width: 150px"></il><br><br><il><a><a href="https://music.amazon.com.mx/podcasts/25fb835a-55be-47a3-a6e2-c1629cd68b11/blackmoon-podcast-2-0?ref=dm_sh_1UtRoWUpK3IFNLco2XYe5K91I"class="enlace-botón">Amazon Music</a></il><br>
-               
-               
+            <!-- Boton spotify -->
+            <li class="platform-card">
+                <img src="spotify.png" class="imagen-mediana" alt="Spotify">
+                <a href="https://open.spotify.com/show/1Jw4Vem2XkNuCG9pKqHRXy?si=skH15ttFT1yrXz-ma5Rrpw" class="enlace-botón">Spotify</a>
+            </li>
+
+            <!-- Boton apple -->
+            <li class="platform-card">
+                <img src="apple podcast.png" class="imagen-mediana" alt="Apple Podcast">
+                <a href="https://podcasts.apple.com/mx/podcast/blackmoon-podcast-2-0/id1749141836" class="enlace-botón">Apple Podcast</a>
+            </li>
+
+            <!-- Boton iheart -->
+            <li class="platform-card">
+                <img src="descarga.png" class="imagen-mediana" alt="IHeart">
+                <a href="https://www.iheart.com/podcast/269-blackmoon-podcast-20-181181103?cmp=ios_share&sc=ios_social_share&pr=false&autoplay=true" class="enlace-botón">IHeart</a>
+            </li>
+
+            <!-- Boton youtube -->
+            <li class="platform-card">
+                <img src="youtube.png" class="imagen-mediana" alt="YouTube">
+                <a href="https://youtube.com/@Blackmoonpodcast?si=FPBLandM1I_P7Ooj" class="enlace-botón">Youtube</a>
+            </li>
+
+            <!-- Boton telegram -->
+            <li class="platform-card">
+                <img src="telegram_img.jpg" class="imagen-mediana" alt="Telegram">
+                <a href="https://t.me/+j69o0rHVHBM3YmQx" class="enlace-botón">Telegram</a>
+            </li>
+
+            <!-- Boton youtube podcast -->
+            <li class="platform-card">
+                <img src="MUSIC_IMG.jpg" class="imagen-mediana" alt="YouTube Music">
+                <a href="https://music.youtube.com/playlist?list=PLBVMXUQpoQH21WZWciXqGH6LS-1xen0e-" class="enlace-botón">Youtube Music</a>
+            </li>
+
+            <!-- Boton Amazon -->
+            <li class="platform-card">
+                <img src="amazon music.png" class="imagen-mediana" alt="Amazon Music">
+                <a href="https://music.amazon.com.mx/podcasts/25fb835a-55be-47a3-a6e2-c1629cd68b11/blackmoon-podcast-2-0?ref=dm_sh_1UtRoWUpK3IFNLco2XYe5K91I" class="enlace-botón">Amazon Music</a>
+            </li>
+
             <!-- Boton podimo -->
-            
-<br><il><img src="OIP (5).jpeg" style="width: 150px"></il><br><br><il><a><a  href="https://share.podimo.com/s/kSfOJztV" class="enlace-botón">Podimo podcast</a></il><br>
-         
-            
-            
-             </div>
- <marquee behavior="scroll" direction="left"><FONT SIZE=7><h1>Recuerda compartir y ponerle me gusta a cualquier platafoma que nos escuches, nos ayudarias mucho:</h1></font></marquee>
+            <li class="platform-card">
+                <img src="OIP (5).jpeg" class="imagen-mediana" alt="Podimo">
+                <a href="https://share.podimo.com/s/kSfOJztV" class="enlace-botón">Podimo podcast</a>
+            </li>
 
-<marquee behavior="alternate" direction="left"><FONT SIZE=7><h2>&copy; Todos somos Blackmoon</h2></font></marquee> 	
+        </ol>
 
-<marquee behavior="scroll"direction="right"><FONT SIZE=7><h2>&copy; Y..... VOLEMOS ALTO  </h2></font></marquee> 
+        <!-- Marquees Inferiores -->
+        <marquee behavior="scroll" direction="left">
+            <h2 class="marquee-text">Recuerda compartir y ponerle me gusta a cualquier plataforma que nos escuchas, nos ayudarias mucho:</h2>
+        </marquee>
+
+        <marquee behavior="alternate" direction="left">
+            <h2 class="marquee-subtext">&copy; Todos somos Blackmoon</h2>
+        </marquee> 	
+
+        <marquee behavior="scroll" direction="right">
+            <h2 class="marquee-text">&copy; Y..... VOLEMOS ALTO </h2>
+        </marquee>
+    </div>
 
 </body>
 </html>
