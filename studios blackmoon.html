@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studios Blackmoon</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #161e2e;
+            --card-hover: #1f293d;
+            --accent: #8b5cf6;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--text-color);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Contenedor de la Imagen */
+        .banner-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px dashed var(--accent);
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        .banner-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Lista de Enlaces */
+        .links-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 18px 25px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid #2d3748;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .link-btn:hover {
+            background-color: var(--card-hover);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 40px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Studios Blackmoon</h1>
+    </header>
+
+    <!-- Sección donde irá tu imagen -->
+    <div class="banner-container">
+        <!-- Reemplaza "tu-imagen-aqui.jpg" por el nombre o URL de tu imagen -->
+        <img src="tu-imagen-aqui.jpg" alt="Imagen Studios Blackmoon" onerror="this.style.display='none'; this.parentElement.innerText='[ Coloca tu imagen aquí ]';">
+    </div>
+
+    <!-- Lista de los 7 Enlaces -->
+    <main class="links-container">
+        <!-- Reemplaza "https://..." con las URLs reales de cada enlace -->
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">1. Blackmoon Podcast</a>
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">2. In-App-Adaptados</a>
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">3. Paradoja Aérea</a>
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">4. Psicología</a>
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">5. Terror</a>
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">6. Otro Enlace 1</a>
+        <a href="https://tu-enlace-aqui.com" target="_blank" class="link-btn">7. Otro Enlace 2</a>
+    </main>
+
+    <footer>
+        <p>&copy; Studios Blackmoon - Todos los derechos reservados</p>
+    </footer>
+
+</body>
+</html>
