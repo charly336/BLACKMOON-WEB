@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte - LogBook</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #334155;
+            transition: transform 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        .feature-card ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .feature-card li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .feature-card li::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .support-section {
+            text-align: center;
+            margin: 60px 0 40px;
+            padding: 40px 20px;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            border: 2px solid var(--primary);
+        }
+
+        .support-section h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .support-section p {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        /* Botón de correo en grande */
+        .btn-mail {
+            display: inline-block;
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-mail:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.6);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid #334155;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Centro de Soporte y Funcionalidades</h1>
+        <p>Conoce todas las herramientas disponibles en LogBook y ponte en contacto con nuestro equipo de atención.</p>
+    </header>
+
+    <div class="container">
+        <main class="features-grid">
+            
+            <!-- Funcionalidad 1 -->
+            <div class="feature-card">
+                <h3>1. Galería de Entrenamiento</h3>
+                <p>Guarda tus fotos y videos de entrenamientos para llevar un registro visual de tus avances y técnicas.</p>
+            </div>
+
+            <!-- Funcionalidad 2 -->
+            <div class="feature-card">
+                <h3>2. Juegos Interactivos</h3>
+                <p>Accede a juegos de diferentes tipos para agilizar la mente, motivarte y entretenerte en tus descansos.</p>
+            </div>
+
+            <!-- Funcionalidad 3 -->
+            <div class="feature-card">
+                <h3>3. Conexión Blackmoon</h3>
+                <p>Más y mejores conexiones con el grupo Blackmoon para mantener la comunidad unida e interactuar fácilmente.</p>
+            </div>
+
+            <!-- Funcionalidad 4 -->
+            <div class="feature-card">
+                <h3>4. Retos Mensuales</h3>
+                <p>Supera ejercicios mensuales diseñados en forma de retos para poner a prueba tu disciplina constantemente.</p>
+            </div>
+
+            <!-- Funcionalidad 5 -->
+            <div class="feature-card">
+                <h3>5. Perfil de Usuario y Alumno</h3>
+                <p>Pantalla de inicio personalizada con toda la información clave, estadísticas y datos de tu perfil.</p>
+            </div>
+
+            <!-- Funcionalidad 6 -->
+            <div class="feature-card">
+                <h3>6. Herramientas para Profesores</h3>
+                <ul>
+                    <li><strong>6.1 Sección Alumnos:</strong> Gestión y seguimiento individual de cada estudiante.</li>
+                    <li><strong>6.2 Reproductor Musical:</strong> Guarda y reproduce las canciones asignadas a cada rutina.</li>
+                </ul>
+            </div>
+
+            <!-- Funcionalidad 7 -->
+            <div class="feature-card">
+                <h3>7. Arma tu Rutina</h3>
+                <p>Crea tu rutina personalizada con nombre e imagen. Diseñada especialmente para que nunca olvides tus ejercicios.</p>
+            </div>
+
+        </main>
+
+        <!-- Sección del botón de contacto grande -->
+        <section class="support-section">
+            <h2>¿Necesitas Ayuda o Tienes Dudas?</h2>
+            <p>Escríbenos directamente a nuestro soporte oficial. Estamos para ayudarte.</p>
+            
+            <a href="mailto:soportelogbook@gmail.com" class="btn-mail">
+                ✉️ Contactar a Soporte: soportelogbook@gmail.com
+            </a>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; LogBook - Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>
