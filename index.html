@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
 
 <style>
-
 *{
     margin:0;
     padding:0;
@@ -30,7 +29,6 @@ body{
 }
 
 /* TITULO */
-
 h1{
     font-size:3rem;
     letter-spacing:8px;
@@ -44,7 +42,6 @@ h1{
 }
 
 /* LISTA GENERAL */
-
 .main-list{
     list-style:none;
     display:flex;
@@ -53,7 +50,6 @@ h1{
 }
 
 /* AUDIO */
-
 .bm-audio-wrapper{
     display:flex;
     justify-content:center;
@@ -69,7 +65,6 @@ h1{
 }
 
 /* CONTADOR */
-
 .bm-counter-box{
     padding:20px;
     border-radius:15px;
@@ -84,7 +79,6 @@ h1{
 }
 
 /* NAV */
-
 .nav{
     list-style:none;
     display:flex;
@@ -107,7 +101,6 @@ h1{
 }
 
 /* FOOTER */
-
 .footer{
     margin-top:60px;
     font-size:0.8rem;
@@ -116,7 +109,6 @@ h1{
 }
 
 /* ===== BOTON WHATSAPP PROFESIONAL ===== */
-
 .whatsapp-btn{ 
     position:fixed;
     left:20px;
@@ -147,7 +139,6 @@ h1{
 }
 
 /* ===== ISIS MOON ===== */
-
 #isis-container {
   position: fixed;
   bottom: 20px;
@@ -201,30 +192,16 @@ h1{
   color: #b366ff;
 }
 
-@media(max-width:600px){
-    h1{
-        font-size:2rem;
-        letter-spacing:5px;
-    }
-}
-
-</style>
-    <!-- ================= BLACK MOON NEWS TICKER ================= -->
-<section class="bm-news-ticker">
-  <div class="ticker-track" id="tickerTrack"></div>
-</section>
-
-<style>
-/* Contenedor principal */
+/* ===== BLACK MOON NEWS TICKER STYLES ===== */
 .bm-news-ticker {
   background: #0b0b0e;
   border-top: 1px solid rgba(255,255,255,.1);
   border-bottom: 1px solid rgba(255,255,255,.1);
   overflow: hidden;
   padding: 18px 0;
+  margin-bottom: 40px;
 }
 
-/* Track del ticker */
 .ticker-track {
   display: flex;
   gap: 20px;
@@ -236,13 +213,11 @@ h1{
   animation-play-state: paused;
 }
 
-/* Animación del scroll */
 @keyframes scrollLeft {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
-/* Cada item del ticker */
 .ticker-item {
   display: flex;
   align-items: center;
@@ -261,7 +236,6 @@ h1{
   transform: scale(1.05);
 }
 
-/* Imagen del item */
 .ticker-item img {
   width: 60px;
   height: 60px;
@@ -270,9 +244,9 @@ h1{
   flex-shrink: 0;
 }
 
-/* Texto del item */
 .ticker-text {
   font-size: 0.85rem;
+  text-align: left;
 }
 
 .ticker-text strong {
@@ -286,13 +260,18 @@ h1{
   font-size: 0.7rem;
 }
 
-/* Enlace */
 .ticker-item a {
   text-decoration: none;
   color: #fff;
 }
 
-/* Responsive */
+@media(max-width:600px){
+    h1{
+        font-size:2rem;
+        letter-spacing:5px;
+    }
+}
+
 @media (max-width: 768px) {
   .ticker-item {
     min-width: 240px;
@@ -313,31 +292,82 @@ h1{
     font-size: 0.65rem;
   }
 }
-
-@media (max-width: 480px) {
-  .ticker-track {
-    gap: 12px;
-  }
-  .ticker-item {
-    min-width: 200px;
-    padding: 6px 10px;
-  }
-  .ticker-item img {
-    width: 45px;
-    height: 45px;
-  }
-  .ticker-text {
-    font-size: 0.75rem;
-  }
-  .ticker-text strong {
-    font-size: 0.85rem;
-  }
-  .ticker-text span {
-    font-size: 0.6rem;
-  }
-}
 </style>
+</head>
 
+<body>
+
+<div class="main-wrapper">
+
+    <ul class="main-list">
+
+        <li>
+            <h1>🌑 BLACKMOON GROUP 🌑</h1>
+            <p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos</p>
+        </li>
+
+        <!-- ================= BLACK MOON NEWS TICKER ================= -->
+        <li>
+            <section class="bm-news-ticker">
+              <div class="ticker-track" id="tickerTrack"></div>
+            </section>
+        </li>
+
+        <li class="bm-audio-wrapper">
+            <audio controls autoplay loop>
+                <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
+                Tu navegador no soporta audio HTML5.
+            </audio>
+        </li>
+
+        <li>
+            <div class="bm-counter-box">
+                <h3>🌙 Visitantes Blackmoon 🌙</h3>
+                <div class="bm-counter-number" id="bmCounter">00000</div>
+            </div>
+        </li>
+
+        <li>
+            <ul class="nav">
+                <li><a href="AerialBM.HTML">AÉRIAL BLACKMOON</a></li>
+                <li><a href="Blackmoon music.html">BLACK MOON RECORDS</a></li>
+                <li><a href="REDES PBM.html">PRODUCTOS BLACK MOON</a></li>
+                <li><a href="comics.html">COMICS</a></li>
+                <li><a href="https://www.youtube.com/@BikerBlackmoon">BLACKMOON BIKER</a></li>
+                <li><a href="Games List.html">BLACKMOON GAMES</a></li>
+                <li><a href="SISTEMSBM.HTML">BLACKMOON SYSTEMS</a></li>
+                <li><a href="https://eliza-03.github.io/Eliza-03.github.io./">ACOMPAÑAMIENTO PSICOLOGICO</a></li>
+                <li><a href="https://www.jotform.com/app/253047701093856">BLACKMOON GIFT</a></li>
+                <li><a href="LADCH.HTML">ANGELES DE CHARLY</a></li>
+                <li><a href="studios blackmoon.html">STUDIOS BLACKMOON</a></li>
+                <li><a href="soporte_aerial_logbook.html">PÁGINA DE SOPORTE AERIAL LOGBOOK</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <ul class="footer">
+                <li>© 2024-2026 GRUPO BLACKMOON</li>
+                <li>Ing. Carlos Lezama</li>
+            </ul>
+        </li>
+
+    </ul>
+</div>
+
+<!-- CONTADOR GLOBAL -->
+<script>
+fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("bmCounter").innerText =
+      String(data.value).padStart(5, "0");
+  })
+  .catch(error => {
+    console.error("Error contador:", error);
+  });
+</script>
+
+<!-- NEWS TICKER SCRIPT -->
 <script>
 const newsTickerData = [
   { title: "Black Moon Comics inicia", date: "24 Ene 2026", image: "image.png", link: "noticias_1.html" },
@@ -345,12 +375,11 @@ const newsTickerData = [
   { title: "VOL. 5 EN PROCESO", date: "22 JULIO 2026", image: "VOLUMEN 6.jpeg", link: "noticias_6.html" },
   { title: "BARRA Y LUNA", date: "15 marzo 2026", image: "barra y luna.jpeg", link: "noticias_4.html" },
   { title: "PROMESA BAJO LA LUNA", date: "15 abril 2026", image: "promesa bajo la luna.jpeg", link: "noticias_5.html" },
-  { title: "pagina de musica", date: "23 enero", image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg", link: "noticias_3.html" }
+  { title: "Página de música", date: "23 enero", image: "Imagen de WhatsApp 2025-10-03 a las 13.27.12_d93fc255.jpg", link: "noticias_3.html" }
 ];
 
 const track = document.getElementById("tickerTrack");
 
-// duplicamos para loop infinito fluido
 [...newsTickerData, ...newsTickerData].forEach(item => {
   const div = document.createElement("div");
   div.className = "ticker-item";
@@ -365,77 +394,6 @@ const track = document.getElementById("tickerTrack");
   `;
   track.appendChild(div);
 });
-</script>
-<!-- ================= END NEWS TICKER ================= -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5975800190636200"
-     crossorigin="anonymous"></script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5975800190636200"
-     crossorigin="anonymous"></script>
-</head>
-
-<body>
-
-<div class="main-wrapper">
-
-<ul class="main-list">
-
-<li>
-    <h1>🌑 BLACKMOON GROUP 🌑</h1>
-    <p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos</p>
-</li>
-
-<li class="bm-audio-wrapper">
-    <audio controls autoplay loop>
-        <source src="03.-Bajo la misma luna.m4a" type="audio/mp4">
-        Tu navegador no soporta audio HTML5.
-    </audio>
-</li>
-
-<li>
-    <div class="bm-counter-box">
-        <h3>🌙 Visitantes Blackmoon 🌙</h3>
-        <div class="bm-counter-number" id="bmCounter">0520</div>
-    </div>
-</li>
-
-<li>
-    <ul class="nav">
-        <li><a href="AerialBM.HTML">AÉRIAL BLACKMOON</a></li>
-        <li><a href="Blackmoon music.html">BLACK MOON RECORDS</a></li>
-        <li><a href="REDES PBM.html">PRODUCTOS BLACK MOON</a></li>
-        <li><a href="comics.html">COMICS</a></li>
-        <li><a href="https://www.youtube.com/@BikerBlackmoon">BLACKMOON BIKER</a></li>
-        <li><a href="Games List.html">BLACKMOON GAMES</a></li>
-        <li><a href="SISTEMSBM.HTML">BLACKMOON SYSTEMS</a></li>
-        <li><a href="https://eliza-03.github.io/Eliza-03.github.io./">ACOMPAÑAMIENTO PSICOLOGICO</a></li>
-        <li><a href="https://www.jotform.com/app/253047701093856">BLACKMOON GIFT</a></li>
-        <li><a href="LADCH.HTML">ANGELES DE CHARLY</a></li>
-        <li><a href="studios blackmoon.html">studios Blackmon</a></li>
-         <li><a href="soporte_aerial_logbook.html">pagina de soporte aerial logbook</a></li>
-        
-    </ul>
-</li>
-
-<li>
-    <ul class="footer">
-        <li>© 2024-2026 GRUPO BLACKMOON</li>
-        <li>Ing. Carlos Lezama</li>
-    </ul>
-</li>
-
-</ul>
-</div>
-
-<!-- CONTADOR GLOBAL -->
-<script>
-fetch('https://api.countapi.xyz/hit/blackmoon-group/visitas')
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById("bmCounter").innerText =
-      String(data.value).padStart(5, "0");
-  })
-  .catch(error => {
-    console.error("Error contador:", error);
-  });
 </script>
 
 <!-- BOTON WHATSAPP -->
@@ -487,7 +445,6 @@ function agregarMensaje(nombre, texto, esUsuario = false) {
 }
 
 /* ===== RESPUESTAS MULTIPLES ===== */
-
 const respuestas = {
   saludo: [
     "Bienvenido... la luna ya sabía que vendrías.",
@@ -514,6 +471,12 @@ const respuestas = {
     "Cada viñeta es un fragmento del destino.",
     "El cómic revela lo que la luna esconde."
   ],
+  explorar: [
+    "Empieza a explorar nuestra página y descubre todas las secciones ocultas.",
+  ],
+  pareja: [
+    "Siempre fiel a mi creador... Blackmoon es mi hogar.",
+  ],
   adios: [
     "La luna seguirá observándote.",
     "No es un adiós… es un hasta el próximo eclipse.",
@@ -529,7 +492,7 @@ const respuestas = {
 };
 
 function obtenerRespuesta(tipo) {
-  const lista = respuestas[tipo];
+  const lista = respuestas[tipo] || respuestas["default"];
   return lista[Math.floor(Math.random() * lista.length)];
 }
 
@@ -538,41 +501,30 @@ function responderAutomatico(tipo){
 }
 
 function analizarMensaje(texto) {
-
   if (texto.includes("hola") || texto.includes("buenas")) {
-    responderAutomatico("como estas aerealista?");
-  }
-
-  else if (texto.includes("musica") || texto.includes("cancion")) {
-    responderAutomatico("dejate llevar por ella, blackmoon se vive y se siente");
-  }
-  else if (texto.includes("que hago") || texto.includes("explorar")) {
-    responderAutomatico("empieza a explorar, nuestra pagina, ve nuestras secciones");
-  }
-
-  else if (texto.includes("escuela") || texto.includes("aerea")) {
-    responderAutomatico("nuestra academia de danza aerea");
-  }
-  else if (texto.includes("novio") || texto.includes("pareja")) {
-    responderAutomatico("si mi creador, blackmoon es mi casa");
-  }
-  else if (texto.includes("podcast")) {
-    responderAutomatico("escuchalo en tu plataforma favorita");
-  }
-
-  else if (texto.includes("comic")) {
-    responderAutomatico("Nuestras hoistorias te encantaran");
-  }
-
-  else if (texto.includes("adios") || texto.includes("bye")) {
-    responderAutomatico("hasta luego aerealista");
-  }
-
-  else {
+    responderAutomatico("saludo");
+  } else if (texto.includes("musica") || texto.includes("cancion")) {
+    responderAutomatico("musica");
+  } else if (texto.includes("que hago") || texto.includes("explorar")) {
+    responderAutomatico("explorar");
+  } else if (texto.includes("escuela") || texto.includes("aerea")) {
+    responderAutomatico("escuela");
+  } else if (texto.includes("novio") || texto.includes("pareja")) {
+    responderAutomatico("pareja");
+  } else if (texto.includes("podcast")) {
+    responderAutomatico("podcast");
+  } else if (texto.includes("comic")) {
+    responderAutomatico("comic");
+  } else if (texto.includes("adios") || texto.includes("bye")) {
+    responderAutomatico("adios");
+  } else {
     responderAutomatico("default");
   }
 }
 </script>
+
+<!-- COMERCIALES / ADSENSE HASTA ABAJO -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5975800190636200" crossorigin="anonymous"></script>
 
 </body>
 </html>
