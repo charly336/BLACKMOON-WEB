@@ -6,7 +6,7 @@
 <meta name="google-adsense-account" content="ca-pub-5975800190636200">
 <title> 🌓BLACKMOON GROUP🌗 </title>
 
-<!-- GOOGLE ADSENSE -->
+<!-- GOOGLE ADSENSE (Carga Principal) -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5975800190636200"
      crossorigin="anonymous"></script>
 
@@ -269,6 +269,14 @@ h1{
   color: #fff;
 }
 
+/* ===== CUADRO DE ANUNCIOS ADSENSE ===== */
+.ad-container-bottom {
+  max-width: 900px;
+  margin: 40px auto 20px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
 @media(max-width:600px){
     h1{
         font-size:2rem;
@@ -516,8 +524,18 @@ function analizarMensaje(texto) {
 }
 </script>
 
-<!-- COMERCIALES / ADSENSE HASTA ABAJO -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5975800190636200"
-     crossorigin="anonymous"></script>
+<!-- BLOQUE DE ANUNCIOS ADSENSE HASTA ABAJO -->
+<div class="ad-container-bottom">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-5975800190636200"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+
 </body>
 </html>
