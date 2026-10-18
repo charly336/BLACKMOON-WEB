@@ -567,7 +567,7 @@ track.appendChild(div);
 
 <!-- SCRIPT DE COMENTARIOS CON GOOGLE APPS SCRIPT -->
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqd0hshzYGE2H3lS9lhTDwiS9BZqhtTcQzbOv0GlC4LUikehP9dwIBXIUXFQ3V55KhjQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxd5QtGEHV18tkb87mQ7nN_SPHj2TyjEs61Z1wD6qd-cKmPqX0IgTJPM7SNahQ3cFnNA/exec";
 
 document.addEventListener("DOMContentLoaded", fetchComments);
 
@@ -578,6 +578,7 @@ async function fetchComments() {
         const data = await res.json();
         renderComments(data);
     } catch (err) {
+        console.error(err);
         container.innerHTML = `<p style="color: #ff5555; text-align: center;">Error al cargar comentarios.</p>`;
     }
 }
@@ -591,8 +592,8 @@ function renderComments(comments) {
         return;
     }
 
-    const parents = comments.filter(c => !c.parent_id);
-    const replies = comments.filter(c => c.parent_id);
+    const parents = comments.filter(c => !c.parent_id || c.parent_id === "");
+    const replies = comments.filter(c => c.parent_id && c.parent_id !== "");
 
     parents.forEach(parent => {
         const parentReplies = replies.filter(r => r.parent_id == parent.id);
@@ -648,38 +649,43 @@ async function submitComment(parentId = null) {
         return;
     }
 
-    const payload = {
-        action: "add",
-        parent_id: parentId || "",
-        autor: authorInput.value.trim(),
-        comentario: textInput.value.trim()
-    };
+    const formData = new URLSearchParams();
+    formData.append("action", "add");
+    formData.append("parent_id", parentId || "");
+    formData.append("autor", authorInput.value.trim());
+    formData.append("comentario", textInput.value.trim());
 
     try {
         await fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
         });
 
         authorInput.value = "";
         textInput.value = "";
-        setTimeout(fetchComments, 1000);
+        setTimeout(fetchComments, 1200);
     } catch (e) {
+        console.error(e);
         alert("Error al enviar el comentario.");
     }
 }
 
 async function sendReaction(id, type) {
+    const formData = new URLSearchParams();
+    formData.append("action", "reaction");
+    formData.append("id", id);
+    formData.append("type", type);
+
     try {
         await fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "reaction", id: id, type: type })
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
         });
-        setTimeout(fetchComments, 800);
+        setTimeout(fetchComments, 1000);
     } catch (e) {
         console.error(e);
     }
