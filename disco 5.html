@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💿 Blackmoon Records - Disco 5 💿</title>
+
+<style>
+/* ------------------ ESTILO GLOBAL ------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', Arial, sans-serif;
+    background: #0e0e0e;
+    color: #ffffff;
+    text-align: center;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+#particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* ------------------ NAVBAR FIJA ------------------ */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 12px 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: 0.3s;
+    opacity: 0.75;
+}
+
+.navbar a:hover {
+    opacity: 1;
+    color: #b46de1;
+}
+
+/* ------------------ CONTENEDOR PRINCIPAL ------------------ */
+.container {
+    width: 92%;
+    max-width: 900px;
+    margin: auto;
+    padding-top: 110px;
+    padding-bottom: 60px;
+}
+
+h1 {
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 700;
+    color: #F5BE27;
+    text-shadow: 0 0 15px rgba(245, 190, 39, 0.4);
+    margin-bottom: 10px;
+}
+
+.subtitulo {
+    color: #eb3fc3;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+/* ------------------ PORTADA DEL DISCO ------------------ */
+.portada-disco {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 18px;
+    box-shadow: 0 0 30px rgba(180, 109, 225, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: 0.4s ease;
+}
+
+.portada-disco:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 45px rgba(180, 109, 225, 0.7);
+}
+
+/* ------------------ SECCIONES DE CANCIONES ------------------ */
+.track-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 22px;
+    margin-top: 25px;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.3);
+    text-align: left;
+    transition: 0.35s ease;
+}
+
+.track-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(180, 109, 225, 0.5);
+    box-shadow: 0 0 25px rgba(180, 109, 225, 0.2);
+}
+
+.track-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #F5BE27;
+    margin: 0 0 8px 0;
+}
+
+.track-desc {
+    color: #d0d0d0;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* REPRODUCTOR AUDIO */
+audio {
+    width: 100%;
+    border-radius: 10px;
+    outline: none;
+}
+
+/* ------------------ BOTÓN VOLVER ------------------ */
+.btn-volver {
+    display: inline-block;
+    margin-top: 40px;
+    padding: 12px 35px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #7d3c98, #b46de1);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    box-shadow: 0 0 18px rgba(180, 109, 225, 0.4);
+    transition: 0.3s ease;
+}
+
+.btn-volver:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(180, 109, 225, 0.8);
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="https://charly336.github.io/BLACKMOON-WEB/">Inicio</a>
+    <a href="https://charly336.github.io/BLACKMOON-WEB/Blackmoon%20music.html">Música</a>
+    <a class="disco4" href="disco 4.html">Vol. 4</a>
+    <a class="disco5" href="disco 5.html" style="color: #F5BE27;">Vol. 5</a>
+</nav>
+
+<!-- CONTENIDO DEL DISCO 5 -->
+<div class="container">
+    <h1>💿 BLACKMOON RECORDS 💿</h1>
+    <p class="subtitulo">Volumen 5 — Producciones Oficiales</p>
+
+    <!-- Imagen de Portada del Disco 5 -->
+    <img src="disco5.jpg" alt="Portada Disco 5" class="portada-disco">
+
+    <!-- TRACK 1 -->
+    <div class="track-card">
+        <h3 class="track-title">01. Nombre de la Canción 1</h3>
+        <p class="track-desc">Descripción o música temática para danza aérea / espectáculo.</p>
+        <audio controls>
+            <source src="audio_disco5_track1.mp3" type="audio/mpeg">
+            Tu navegador no soporta el reproductor de audio.
+        </audio>
+    </div>
+
+    <!-- TRACK 2 -->
+    <div class="track-card">
+        <h3 class="track-title">02. Nombre de la Canción 2</h3>
+        <p class="track-desc">Descripción o música temática para danza aérea / espectáculo.</p>
+        <audio controls>
+            <source src="audio_disco5_track2.mp3" type="audio/mpeg">
+            Tu navegador no soporta el reproductor de audio.
+        </audio>
+    </div>
+
+    <!-- TRACK 3 -->
+    <div class="track-card">
+        <h3 class="track-title">03. Nombre de la Canción 3</h3>
+        <p class="track-desc">Descripción o música temática para danza aérea / espectáculo.</p>
+        <audio controls>
+            <source src="audio_disco5_track3.mp3" type="audio/mpeg">
+            Tu navegador no soporta el reproductor de audio.
+        </audio>
+    </div>
+
+    <!-- Botón de regreso -->
+    <a href="https://charly336.github.io/BLACKMOON-WEB/Blackmoon%20music.html" class="btn-volver">← Volver a Música</a>
+</div>
+
+<!-- SCRIPT DE PARTÍCULAS -->
+<script>
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = [];
+const particleCount = 65;
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(180,109,225,0.9)";
+        ctx.shadowColor = "#b46de1";
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function initParticles() {
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+initParticles();
+animateParticles();
+</script>
+
+</body>
+</html>
