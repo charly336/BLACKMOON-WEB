@@ -75,17 +75,31 @@ body.background-hidden::before {
 }
 
 h1 {
-    margin: 0 0 8px;
-    font-size: clamp(1.7rem, 5vw, 2.5rem);
-    letter-spacing: 0.12em;
+    margin: 0 0 14px;
+    color: #fff;
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    line-height: 1.15;
+    text-align: center;
+    text-shadow: 0 3px 24px rgba(175, 130, 220, 0.2);
+}
+
+h1 span {
+    display: block;
+    margin-top: 5px;
+    color: #d3b4eb;
+    font-weight: 700;
+    letter-spacing: 0.16em;
 }
 
 .eyebrow {
-    margin: 0 0 10px;
-    color: #d3b4eb;
+    margin: 0 0 12px;
+    color: #cbb0e2;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.2em;
+    text-align: center;
 }
 
 .subtitle {
@@ -93,6 +107,24 @@ h1 {
     color: rgba(255, 255, 255, 0.72);
     font-size: 0.92rem;
     line-height: 1.6;
+    text-align: center;
+}
+
+header {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+header::after {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 44px;
+    height: 2px;
+    border-radius: 2px;
+    background: #b894d6;
+    content: "";
+    transform: translateX(-50%);
 }
 
 .carousel {
@@ -245,7 +277,7 @@ footer {
 
     <header>
         <p class="eyebrow">CATÁLOGO</p>
-        <h1>PRODUCTOS BLACKMOON</h1>
+        <h1>PRODUCTOS <span>BLACKMOON</span></h1>
         <p class="subtitle">Explora cada producto y escríbenos para comprar.</p>
     </header>
 
