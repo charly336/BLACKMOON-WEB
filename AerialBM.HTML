@@ -3,175 +3,315 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎪 Aerial Blackmoon | Premium Glass Edition 🎪</title>
+<title>Aerial Blackmoon | Academia de danza aérea</title>
 
 <style>
 
-/* -------------------------------- FONDO Y AJUSTES ------------------------------ */
+* {
+    box-sizing: border-box;
+}
+
 body {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
     margin: 0;
-    padding: 0;
-    font-family: 'Inter', Arial, sans-serif;
-    text-align: center;
-    color: #fff;
-    background: #050505;
+    padding: 0 16px;
     overflow-x: hidden;
+    background: #0b0c10;
+    color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    text-align: center;
+    line-height: 1.5;
 }
 
-/* ------------------------- CANVAS DE PARTÍCULAS ------------------------- */
-#particles {
+body::before {
     position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
     z-index: -1;
+    inset: 0;
+    background:
+        linear-gradient(rgba(12, 13, 18, 0.72), rgba(12, 13, 18, 0.84)),
+        url("aerial black moon.jpg") center / cover no-repeat;
+    content: "";
 }
 
-/* --------------------------- NAVBAR FIJA --------------------------- */
 .navbar {
     position: fixed;
-    top: 0;
-    width: 100%;
-    padding: 14px 0;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.15);
     z-index: 1000;
+    top: 12px;
+    left: 50%;
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 8px;
+    width: min(calc(100% - 24px), 680px);
+    padding: 8px;
+    transform: translateX(-50%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(28, 29, 34, 0.76);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
+
 .navbar a {
-    color: #ffddaa;
-    font-weight: 700;
-    font-size: 20px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.9rem;
+    font-weight: 500;
     text-decoration: none;
-    opacity: .85;
-    transition: .3s;
-}
-.navbar a:hover {
-    opacity: 1;
-    transform: translateY(-3px);
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-/* --------------------------- CONTENEDOR GLASS --------------------------- */
+.navbar a:hover,
+.navbar a:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
 .glass-box {
-    margin: 120px auto 30px;
-    width: 92%;
-    max-width: 900px;
-    padding: 25px;
+    width: min(100%, 760px);
+    margin: 24px auto;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.music-box {
+    margin-top: 100px;
+    padding: 14px;
+}
+
+.page-title {
+    width: min(100%, 760px);
+    margin: 36px auto 22px;
+}
+
+.page-title h1 {
+    margin: 0;
+    color: #f5f5f7;
+    font-size: clamp(1.5rem, 5vw, 2.15rem);
+    font-weight: 650;
+    letter-spacing: -0.035em;
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+}
+
+.social-grid li {
+    min-width: 0;
+    padding: 18px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 0 25px rgba(0,0,0,0.5);
-    animation: fadeIn 1.2s ease;
+    background: rgba(255, 255, 255, 0.045);
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-/* --------------------------- ANIMACIONES --------------------------- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px);}
-    to   { opacity: 1; transform: translateY(0);}
+.social-grid li:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.075);
 }
 
-/* --------------------------- TITULOS --------------------------- */
-h1 {
-    font-size: clamp(32px, 7vw, 70px);
-    color: #ffddaa;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 20px rgba(255,221,170,0.5);
-}
-h2 {
-    font-size: clamp(22px, 5vw, 42px);
-    color: #cc99ff;
-    text-shadow: 0 0 15px rgba(204,153,255,0.6);
-}
-
-/* --------------------------- BOTONES GLASS --------------------------- */
 .enlace-botón {
     display: block;
-    background: rgba(255,255,255,0.16);
-    padding: 12px 20px;
-    color: #fff;
-    border-radius: 16px;
     margin-top: 12px;
-    font-size: clamp(16px, 3.5vw, 26px);
-    font-weight: 700;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
     text-decoration: none;
-    border: 1px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 18px rgba(0,0,0,0.45);
-    transition: .3s;
-}
-.enlace-botón:hover {
-    transform: scale(1.07);
-    background: rgba(255,255,255,0.33);
-    box-shadow: 0 0 28px rgba(204,153,255,0.6);
+    transition: background 0.2s ease;
 }
 
-/* --------------------------- ICONOS --------------------------- */
+.enlace-botón:hover,
+.enlace-botón:focus-visible {
+    background: rgba(255, 255, 255, 0.14);
+}
+
 .icono-red {
-    width: 150px;
-    height: 150px;
+    width: 76px;
+    height: 76px;
     object-fit: contain;
-    filter: drop-shadow(0 0 14px rgba(0,0,0,0.7));
-    transition: .3s;
-}
-.icono-red:hover {
-    transform: scale(1.08);
+    border-radius: 16px;
 }
 
-/* --------------------------- GRID --------------------------- */
-ul {
-    padding: 0;
-    margin: 0 auto;
-    width: 92%;
-    max-width: 900px;
-    list-style: none;
-    display: grid;
-    gap: 40px;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-}
-
-/* --------------------------- IFRAME --------------------------- */
 iframe {
+    display: block;
     width: 100%;
-    border-radius: 18px;
-    box-shadow: 0 0 22px rgba(0,0,0,0.7);
+    border: 0;
+    border-radius: 14px;
 }
 
-/* ------------------ MARQUEES ------------------ */
-marquee h1, marquee h2 {
-    margin-top: 15px;
-}
-
-/* --------------------------- FOOTER --------------------------- */
 footer {
-    margin-top: 40px;
-    padding: 25px;
-    background: rgba(255,255,255,0.08);
-    border-top: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
+    width: min(100%, 760px);
+    margin: 24px auto 40px;
+    padding: 14px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.9rem;
 }
 
-/* -------------------- WHATSAPP FLOTANTE -------------------- */
+footer p {
+    margin: 4px 0;
+}
+
 .boton-ws {
     position: fixed;
-    bottom: 28px;
-    right: 28px;
     z-index: 3000;
-    background: #25d366;
-    padding: 12px;
+    right: 18px;
+    bottom: 18px;
+    display: grid;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 50%;
-    box-shadow: 0 0 18px rgba(0,0,0,0.4);
-    transition: .35s ease;
+    background: #25d366;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
-.boton-ws:hover {
-    transform: scale(1.15) translateY(-4px);
-}
+
 .boton-ws img {
-    width: 45px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#bm-intro {
+    position: fixed;
+    z-index: 99999;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background:
+        linear-gradient(rgba(9, 10, 14, 0.72), rgba(9, 10, 14, 0.84)),
+        url("aerial black moon.jpg") center / cover no-repeat;
+}
+
+#bm-intro.hidden {
+    animation: fadeOut 0.6s forwards;
+}
+
+.bm-intro-box {
+    width: min(100%, 440px);
+    padding: 32px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 28px;
+    background: rgba(30, 31, 37, 0.62);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.bm-intro-box h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.7rem, 7vw, 2.4rem);
+    letter-spacing: -0.04em;
+}
+
+.bm-intro-box p {
+    margin: 12px 0 24px;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 1rem;
+}
+
+.bm-intro-box button {
+    min-width: 140px;
+    padding: 12px 24px;
+    border: 0;
+    border-radius: 999px;
+    background: #f5f5f7;
+    color: #17181d;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.bm-intro-box button:hover,
+.bm-intro-box button:focus-visible {
+    opacity: 0.82;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 0 12px;
+    }
+
+    .navbar {
+        top: 8px;
+        gap: 0;
+        padding: 5px;
+    }
+
+    .navbar a {
+        padding: 9px 10px;
+        font-size: 0.78rem;
+    }
+
+    .music-box {
+        margin-top: 82px;
+        padding: 10px;
+    }
+
+    .glass-box {
+        padding: 16px;
+        border-radius: 20px;
+    }
+
+    .social-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .social-grid li {
+        padding: 14px 10px;
+        border-radius: 16px;
+    }
+
+    .icono-red {
+        width: 64px;
+        height: 64px;
+    }
+
+    .enlace-botón {
+        padding: 9px 8px;
+        font-size: 0.84rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 </style>
@@ -179,71 +319,9 @@ footer {
 
 <body>
  <!-- ================= INTRO BLACKMOON ================= -->
-<style>
-#bm-intro{
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(5,5,10,.85),rgba(5,5,10,.95)),
-    url("aerial black moon.jpg") center/cover no-repeat;
-  z-index:99999;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-#bm-intro.hidden{
-  animation:fadeOut 1s forwards;
-}
-
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden}
-}
-
-.bm-intro-box{
-  text-align:center;
- background: rgba(0,0,0,0.25);
-  backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.15);
-  padding:40px 30px;
-  border-radius:22px;
-  box-shadow:0 0 40px rgba(180,109,225,.6);
-  max-width:520px;
-}
-
-.bm-intro-box h1{
-  font-size:2.6rem;
-  color:#F5BE27;
-  text-shadow:0 0 15px #a138a8;
-}
-
-.bm-intro-box p{
-  color:#eb3fc3;
-  font-size:1.1rem;
-  margin:20px 0 30px;
-}
-
-.bm-intro-box button{
-  background:linear-gradient(135deg,#7d3c98,#b46de1);
-  border:none;
-  color:#e7ed34;
-  font-size:1.2rem;
-  font-weight:700;
-  padding:14px 36px;
-  border-radius:30px;
-  cursor:pointer;
-  box-shadow:0 0 25px rgba(180,109,225,.7);
-  transition:.3s;
-}
-.bm-intro-box button:hover{
-  transform:scale(1.08);
-  box-shadow:0 0 40px rgba(180,109,225,1);
-}
-</style>
-
 <div id="bm-intro">
   <div class="bm-intro-box">
-    <h1>🌑AERIAL BLACKMOON🌑</h1>
+    <h1>Aerial Blackmoon</h1>
     <p>ESCUELA DE DANZA AEREA ...</p>
     <button onclick="entrarBlackmoon()">Entrar</button>
   </div>
@@ -256,57 +334,56 @@ function entrarBlackmoon(){
 </script>
 <!-- ================= END INTRO ================= -->
 
-<!-- PARTICULAS -->
-<canvas id="particles"></canvas>
-
 <!-- NAVBAR -->
 <nav class="navbar">
-    <a href="https://charly336.github.io/BLACKMOON-WEB/">Pagina Inicio</a>
-    <a href="https://open.spotify.com/intl-es/artist/4lF7Q4iXqYQgTGV2rtNteG?si=00aXk65PTqOnsGJjsS4wUA">Nuestra musica</a>
+    <a href="https://charly336.github.io/BLACKMOON-WEB/">Página inicio</a>
+    <a href="https://open.spotify.com/intl-es/artist/4lF7Q4iXqYQgTGV2rtNteG?si=00aXk65PTqOnsGJjsS4wUA">Nuestra música</a>
     <a href="https://open.spotify.com/show/1Jw4Vem2XkNuCG9pKqHRXy?si=753244836f594bd9">Podcast</a>
 </nav>
 
 <!-- SPOTIFY -->
-<div class="glass-box">
+<div class="glass-box music-box">
 <iframe src="https://open.spotify.com/embed/episode/3rBdq7EUIwOGkQv94thAM1?utm_source=generator&theme=0"
 height="350" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
 </iframe>
 </div>
 
 <!-- TÍTULO -->
-<marquee behavior="scroll" direction="left"><h1>REDES DE CONTACTO DE LA ACADEMIA</h1></marquee>
+<header class="page-title">
+    <h1>Redes de contacto</h1>
+</header>
 
 <!-- REDES -->
 <section class="glass-box">
-<ul>
+<ul class="social-grid">
 
 <li>
-    <img src="INSTA.png" class="icono-red">
+    <img src="INSTA.png" class="icono-red" alt="Instagram">
     <a href="https://www.instagram.com/blackmoonofiacademy?igsh=MWwyZW1meHpjeDU0Mw%3D%3D&utm_source=qr" class="enlace-botón">INSTAGRAM</a>
 </li>
 
 <li>
-    <img src="FACE.png" class="icono-red">
+    <img src="FACE.png" class="icono-red" alt="Facebook">
     <a href="https://www.facebook.com/charly.blackmoon?mibextid=LQQJ4d" class="enlace-botón">META</a>
 </li>
 
 <li>
-    <img src="plaza.jpg" class="icono-red">
+    <img src="plaza.jpg" class="icono-red" alt="Ubicación de la academia">
     <a href="https://maps.app.goo.gl/6jr3Rf4ZQPkJEBGG7" class="enlace-botón">MAPS</a>
 </li>
 
 <li>
-    <img src="06 camara.png" class="icono-red">
+    <img src="06 camara.png" class="icono-red" alt="Galería de fotos">
     <a href="https://drive.google.com/drive/folders/1LUNE-NfE2IIrMaRpCEIqA_Njj5fhRCTN?usp=sharing" class="enlace-botón">FOTOS</a>
 </li>
 
 <li>
-    <img src="cursor 1.png" class="icono-red">
+    <img src="cursor 1.png" class="icono-red" alt="Clases de danza aérea">
     <a href="https://drive.google.com/drive/folders/1uL5IXjza-84T_JtaTC7muq-YHDxYiK5c?usp=drive_link" class="enlace-botón">CLASES</a>
 </li>
 
 <li>
-    <img src="d8de9499498d71ca521a14399c496846.jpg" class="icono-red">
+    <img src="d8de9499498d71ca521a14399c496846.jpg" class="icono-red" alt="Eventos de la academia">
     <a href="https://drive.google.com/drive/folders/1CIF-zw5LlsId1ioWO1ImEau1bYZrEtOW?usp=drive_link" class="enlace-botón">EVENTOS</a>
 </li>
 
@@ -315,69 +392,14 @@ height="350" allow="autoplay; clipboard-write; encrypted-media; fullscreen; pict
 
 <!-- FOOTER -->
 <footer>
-    <marquee behavior="scroll" direction="left"><h2>&copy; Todos Somos Blackmoon</h2></marquee>
-    <marquee behavior="scroll" direction="left"><h2>&copy; 5 Años Volando Alto</h2></marquee>
+    <p>&copy; Todos Somos Blackmoon</p>
+    <p>5 Años Volando Alto</p>
 </footer>
 
 <!-- WHATSAPP -->
-<a href="https://wa.me/5215560693556?text=Hola%20Aerial%20Blackmoon%2C%20quiero%20información" class="boton-ws">
-    <img src="WTTS.jpeg">
+<a href="https://wa.me/5215560693556?text=Hola%20Aerial%20Blackmoon%2C%20quiero%20información" class="boton-ws" aria-label="Contactar por WhatsApp">
+    <img src="WTTS.jpeg" alt="">
 </a>
-
-<!-- SCRIPT PARTÍCULAS -->
-<script>
-const canvas=document.getElementById("particles");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-const particles=[];
-const particleCount=85;
-
-class Particle{
- constructor(){
-  this.x=Math.random()*canvas.width;
-  this.y=Math.random()*canvas.height;
-  this.size=Math.random()*2+1;
-  this.speedX=(Math.random()-.5)*0.6;
-  this.speedY=(Math.random()-.5)*0.6;
- }
- update(){
-  this.x+=this.speedX;
-  this.y+=this.speedY;
-  if(this.x<0||this.x>canvas.width) this.speedX*=-1;
-  if(this.y<0||this.y>canvas.height) this.speedY*=-1;
- }
- draw(){
-  ctx.fillStyle="rgba(180,109,225,0.9)";
-  ctx.shadowColor="#b46de1";
-  ctx.shadowBlur=12;
-  ctx.beginPath();
-  ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
-  ctx.fill();
- }
-}
-
-function initParticles(){
- for(let i=0;i<particleCount;i++){
-  particles.push(new Particle());
- }
-}
-
-function animate(){
- ctx.clearRect(0,0,canvas.width,canvas.height);
- particles.forEach(p=>{p.update();p.draw();});
- requestAnimationFrame(animate);
-}
-
-window.addEventListener("resize",()=>{
- canvas.width=window.innerWidth;
- canvas.height=window.innerHeight;
-});
-
-initParticles();
-animate();
-</script>
 
 </body>
 </html>
