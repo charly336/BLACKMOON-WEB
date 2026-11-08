@@ -448,6 +448,222 @@ font-size: 0.9rem;
 font-size: 0.65rem;
 }
 }
+
+/* Diseño minimalista de la página principal */
+html {
+background: #09090d;
+}
+
+body {
+isolation: isolate;
+position: relative;
+background: transparent;
+}
+
+body::before {
+content: "";
+position: fixed;
+inset: 0;
+z-index: -1;
+background:
+linear-gradient(rgba(7, 7, 12, 0.76), rgba(7, 7, 12, 0.9)),
+url("FONDO.jpg") center / cover no-repeat;
+transition: opacity 0.3s ease;
+}
+
+body.background-hidden::before {
+opacity: 0;
+}
+
+.main-wrapper {
+max-width: 820px;
+padding: 48px 24px 80px;
+}
+
+.main-list {
+gap: 28px;
+}
+
+.page-heading {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 20px;
+text-align: left;
+}
+
+h1 {
+font-size: clamp(1.7rem, 5vw, 2.5rem);
+letter-spacing: 0.12em;
+margin-bottom: 8px;
+}
+
+.subtitle {
+margin-bottom: 0;
+font-size: 0.9rem;
+line-height: 1.6;
+}
+
+.background-toggle {
+flex: 0 0 auto;
+border: 1px solid rgba(255, 255, 255, 0.24);
+border-radius: 999px;
+padding: 10px 14px;
+background: rgba(12, 12, 18, 0.7);
+color: #fff;
+font: inherit;
+font-size: 0.78rem;
+cursor: pointer;
+transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.background-toggle:hover,
+.background-toggle:focus-visible {
+background: rgba(255, 255, 255, 0.12);
+border-color: rgba(255, 255, 255, 0.55);
+}
+
+.bm-audio-wrapper audio {
+max-width: 100%;
+padding: 8px;
+border: 1px solid rgba(255, 255, 255, 0.12);
+border-radius: 12px;
+background: rgba(12, 12, 18, 0.78);
+box-shadow: none;
+}
+
+.nav {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 10px;
+}
+
+.nav li a {
+height: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+min-height: 52px;
+padding: 12px 14px;
+border: 1px solid rgba(255, 255, 255, 0.14);
+border-radius: 10px;
+background: rgba(12, 12, 18, 0.48);
+font-size: 0.82rem;
+letter-spacing: 0.035em;
+}
+
+.nav li a:hover {
+background: rgba(255, 255, 255, 0.92);
+}
+
+.bm-news-ticker {
+margin-bottom: 0;
+padding: 8px 0;
+border: 0;
+background: transparent;
+}
+
+.ticker-track {
+animation: none;
+}
+
+.ticker-item {
+min-width: 230px;
+padding: 8px;
+border: 1px solid rgba(255, 255, 255, 0.12);
+border-radius: 10px;
+background: rgba(12, 12, 18, 0.5);
+box-shadow: none;
+}
+
+.ticker-item:hover {
+transform: none;
+}
+
+.ticker-item img {
+width: 46px;
+height: 46px;
+border-radius: 7px;
+}
+
+.ticker-text strong {
+color: #d3b4eb;
+}
+
+.comments-section {
+margin-top: 0;
+padding: 22px;
+border: 1px solid rgba(255, 255, 255, 0.12);
+border-radius: 14px;
+background: rgba(12, 12, 18, 0.76);
+backdrop-filter: blur(8px);
+box-shadow: none;
+}
+
+.comments-section h2 {
+color: #e2d5ee;
+font-size: 1.15rem;
+letter-spacing: 0.06em;
+}
+
+.comment-form input,
+.comment-form textarea {
+border-color: rgba(255, 255, 255, 0.16);
+border-radius: 8px;
+background: rgba(0, 0, 0, 0.35);
+}
+
+.comment-form input:focus,
+.comment-form textarea:focus {
+border-color: #bca0d5;
+box-shadow: none;
+}
+
+.bm-btn {
+border: 1px solid rgba(255, 255, 255, 0.2);
+border-radius: 8px;
+background: rgba(255, 255, 255, 0.1);
+box-shadow: none;
+}
+
+.bm-btn:hover {
+transform: none;
+background: rgba(255, 255, 255, 0.18);
+box-shadow: none;
+}
+
+.comment-card {
+border-radius: 8px;
+background: rgba(0, 0, 0, 0.25);
+}
+
+.footer {
+margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+.main-wrapper {
+padding: 32px 16px 70px;
+}
+
+.page-heading {
+align-items: flex-start;
+flex-direction: column;
+gap: 14px;
+}
+
+.nav {
+grid-template-columns: 1fr;
+}
+
+.background-toggle {
+padding: 8px 12px;
+}
+
+.comments-section {
+padding: 18px 14px;
+}
+}
 </style>
 </head>
 
@@ -463,8 +679,15 @@ font-size: 0.65rem;
 <ul class="main-list">
 
 <li>
-<h1>🌑 BLACKMOON GROUP 🌑</h1>
+<header class="page-heading">
+<div>
+<h1>BLACKMOON GROUP</h1>
 <p class="subtitle">Multiverso Creativo • Música • Aéreo • Podcast • Juegos • Apps</p>
+</div>
+<button class="background-toggle" id="backgroundToggle" type="button" aria-pressed="true">
+Ocultar fondo
+</button>
+</header>
 </li>
 
 <!-- ================= BLACK MOON NEWS TICKER ================= -->
@@ -549,7 +772,7 @@ const newsTickerData = [
 
 const track = document.getElementById("tickerTrack");
 
-[...newsTickerData, ...newsTickerData].forEach(item => {
+newsTickerData.forEach(item => {
 const div = document.createElement("div");
 div.className = "ticker-item";
 div.innerHTML = `
@@ -562,6 +785,13 @@ div.innerHTML = `
    </div>
  `;
 track.appendChild(div);
+});
+
+const backgroundToggle = document.getElementById("backgroundToggle");
+backgroundToggle.addEventListener("click", () => {
+const backgroundVisible = document.body.classList.toggle("background-hidden") === false;
+backgroundToggle.textContent = backgroundVisible ? "Ocultar fondo" : "Mostrar fondo";
+backgroundToggle.setAttribute("aria-pressed", String(backgroundVisible));
 });
 </script>
 

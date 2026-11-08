@@ -6,425 +6,333 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>🛒 PRODUCTOS BLACKMOON 🛒</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+* {
+    box-sizing: border-box;
+}
 
-/* ------------------ MODO NOCHE DEEP BLACKMOON ------------------ */
+html {
+    min-height: 100%;
+    background: #09090d;
+}
+
 body {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
     margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-   background-image: url('PRODUCTOS BLACKMOON.png');
-    color: #fff;
+    padding: 32px 20px 48px;
     overflow-x: hidden;
-    text-align: center;
+    color: #fff;
+    background: transparent;
+    font-family: 'Montserrat', Arial, sans-serif;
 }
 
-/* ------------------ NEBLINA ANIMADA ------------------ */
-.neblina {
-    position: fixed;
-    top: -10%;
-    left: -10%;
-    width: 130%;
-    height: 130%;
-    background: url("https://i.ibb.co/zHByp9k/fog.png") repeat;
-    opacity: 0.17;
-    mix-blend-mode: screen;
-    animation: fogMove 45s linear infinite;
-    z-index: -1;
-    pointer-events: none;
-}
-
-@keyframes fogMove {
-    0%   { transform: translate(0, 0) scale(1.2); }
-    50%  { transform: translate(-10%, -6%) scale(1.25); }
-    100% { transform: translate(0, 0) scale(1.2); }
-}
-
-/* ------------------ PARTÍCULAS ------------------ */
-#particles {
+body::before {
     position: fixed;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -2;
+    z-index: -1;
+    background:
+        linear-gradient(rgba(7, 7, 12, 0.76), rgba(7, 7, 12, 0.9)),
+        url("FONDO.jpg") center / cover no-repeat;
+    content: "";
+    transition: opacity 0.3s ease;
 }
 
-/* ------------------ NAVBAR PREMIUM ------------------ */
-.navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    padding: 14px 0;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    z-index: 1000;
+body.background-hidden::before {
+    opacity: 0;
+}
+
+.page {
+    width: min(100%, 820px);
+    margin: 0 auto;
+}
+
+.topbar {
     display: flex;
-    justify-content: center;
-    gap: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
 }
 
-.navbar a {
-    color: #ffddaa;
-    font-weight: 700;
-    font-size: 20px;
+.topbar a,
+.background-toggle {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    padding: 9px 14px;
+    color: #fff;
+    background: rgba(12, 12, 18, 0.7);
+    font: inherit;
+    font-size: 0.82rem;
     text-decoration: none;
-    opacity: .85;
-    transition: .3s;
-}
-.navbar a:hover {
-    opacity: 1;
-    transform: translateY(-3px);
 }
 
-/* ------------------ TÍTULOS ------------------ */
+.background-toggle {
+    cursor: pointer;
+}
+
 h1 {
-    font-size: clamp(28px, 6vw, 50px);
-    margin-top: 120px;
-    color: #ffddaa;
-    text-shadow: 0 0 20px rgba(255,220,140,0.5);
-}
-h2 {
-    font-size: clamp(20px, 4vw, 32px);
-    color: #cc99ff;
-    text-shadow: 0 0 18px rgba(204,153,255,0.6);
+    margin: 0 0 8px;
+    font-size: clamp(1.7rem, 5vw, 2.5rem);
+    letter-spacing: 0.12em;
 }
 
-/* ------------------ BOTÓN GLASS PREMIUM ------------------ */
-.enlace-botón {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #ffffff;
-    padding: 14px 26px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-size: clamp(18px, 2.5vw, 24px);
-    display: inline-block;
-    margin: 20px 0;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 18px rgba(0,0,0,0.45);
-    transition: .3s;
-}
-.enlace-botón:hover {
-    transform: scale(1.07);
-    background: rgba(255,255,255,0.32);
-    box-shadow: 0 0 30px rgba(204,153,255,0.55);
+.eyebrow {
+    margin: 0 0 10px;
+    color: #d3b4eb;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
 }
 
-/* ------------------ CARRUSEL GLASS ------------------ */
+.subtitle {
+    margin: 0 0 24px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
 .carousel {
     position: relative;
-    width: 95%;
-    max-width: 420px;
-    margin: 30px auto;
+    width: min(100%, 560px);
+    margin: 28px auto 16px;
     overflow: hidden;
-    border-radius: 18px;
-    border: 2px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
-}
-
-.carousel-inner {
-    display: flex;
-    transition: transform 0.5s ease;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    background: rgba(12, 12, 18, 0.72);
 }
 
 .carousel-item {
-    min-width: 100%;
-    box-sizing: border-box;
-    padding: 10px;
+    display: none;
+    padding: 14px;
+}
+
+.carousel-item.active {
+    display: block;
 }
 
 .carousel-item img {
+    display: block;
     width: 100%;
-    height: 260px;
-    object-fit: cover;
-    border-radius: 14px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    height: min(58vh, 390px);
+    min-height: 220px;
+    border-radius: 9px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.22);
 }
 
-/* Nombres bajo cada imagen */
 .img-name {
-    margin-top: 10px;
-    font-size: 20px;
-    color: #ffddaa;
+    margin-top: 14px;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
 }
 
-/* ------------------ FLECHAS DEL CARRUSEL ------------------ */
 .carousel-control {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.55);
-    border: none;
+    top: 42%;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 50%;
     color: #fff;
-    font-size: 28px;
-    width: 45px;
-    height: 45px;
+    background: rgba(0, 0, 0, 0.58);
+    font-size: 1.3rem;
     cursor: pointer;
+}
+
+.carousel-control:hover,
+.carousel-control:focus-visible,
+.background-toggle:hover,
+.background-toggle:focus-visible,
+.topbar a:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.prev { left: 22px; }
+.next { right: 22px; }
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px auto 24px;
+}
+
+.product-count {
+    margin: 0 0 18px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-align: center;
+}
+
+.carousel-dot {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 0;
     border-radius: 50%;
-    transition: .3s;
-}
-.prev { left: 10px; }
-.next { right: 10px; }
-
-.carousel-control:hover {
-    background: rgba(0,0,0,0.75);
-    transform: translateY(-50%) scale(1.12);
+    background: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
 }
 
-/* ------------------ WHATSAPP FLOTANTE ------------------ */
-.boton-ws {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    z-index: 3000;
-    background: #25d366;
-    padding: 12px;
-    border-radius: 50%;
-    transition: .35s ease;
-}
-.boton-ws:hover {
-    transform: scale(1.15) translateY(-4px);
-}
-.boton-ws img {
-    width: 45px;
+.carousel-dot[aria-current="true"] {
+    background: #fff;
+    transform: scale(1.2);
 }
 
-/* ------------------ FOOTER GLASS ------------------ */
+.buy-button {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    border: 1px solid rgba(37, 211, 102, 0.6);
+    border-radius: 9px;
+    padding: 13px 24px;
+    color: #fff;
+    background: #168b48;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.16);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.buy-button:hover,
+.buy-button:focus-visible {
+    background: #1aa657;
+    box-shadow: 0 10px 28px rgba(37, 211, 102, 0.28);
+    transform: translateY(-2px);
+}
+
 footer {
-    margin-top: 40px;
-    padding: 25px;
-    background: rgba(255,255,255,0.08);
-    border-top: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(8px);
+    margin-top: 42px;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.82rem;
 }
 
+@media (max-width: 600px) {
+    body {
+        padding: 22px 16px 36px;
+    }
+
+    .carousel-item {
+        padding: 9px;
+    }
+
+    .carousel-item img {
+        height: 48vh;
+    }
+
+    .prev { left: 16px; }
+    .next { right: 16px; }
+}
 </style>
 
 </head>
 
 <body>
-   <!-- ================= INTRO BLACKMOON ================= -->
-<style>
-#bm-intro{
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(rgba(5,5,10,.85),rgba(5,5,10,.95)),
-    url("img_productos.jpg") center/cover no-repeat;
-  z-index:99999;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
+<main class="page">
+    <nav class="topbar" aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <button class="background-toggle" id="backgroundToggle" type="button" aria-pressed="true">Ocultar fondo</button>
+    </nav>
 
-#bm-intro.hidden{
-  animation:fadeOut 1s forwards;
-}
+    <header>
+        <p class="eyebrow">CATÁLOGO</p>
+        <h1>PRODUCTOS BLACKMOON</h1>
+        <p class="subtitle">Explora cada producto y escríbenos para comprar.</p>
+    </header>
 
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden}
-}
-
-.bm-intro-box{
-  text-align:center;
- background: rgba(0,0,0,0.25);
-  backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.15);
-  padding:40px 30px;
-  border-radius:22px;
-  box-shadow:0 0 40px rgba(180,109,225,.6);
-  max-width:520px;
-}
-
-.bm-intro-box h1{
-  font-size:2.6rem;
-  color:#F5BE27;
-  text-shadow:0 0 15px #a138a8;
-}
-
-.bm-intro-box p{
-  color:#eb3fc3;
-  font-size:1.1rem;
-  margin:20px 0 30px;
-}
-
-.bm-intro-box button{
-  background:linear-gradient(135deg,#7d3c98,#b46de1);
-  border:none;
-  color:#e7ed34;
-  font-size:1.2rem;
-  font-weight:700;
-  padding:14px 36px;
-  border-radius:30px;
-  cursor:pointer;
-  box-shadow:0 0 25px rgba(180,109,225,.7);
-  transition:.3s;
-}
-.bm-intro-box button:hover{
-  transform:scale(1.08);
-  box-shadow:0 0 40px rgba(180,109,225,1);
-}
-</style>
-
-<div id="bm-intro">
-  <div class="bm-intro-box">
-    <h1>🌑PRODUCTOS BLACKMOON🌑</h1>
-    <p>NUESTROS PRODUCTOS</p>
-    <button onclick="entrarBlackmoon()">Entrar</button>
-  </div>
-</div>
-
-<script>
-function entrarBlackmoon(){
-  document.getElementById("bm-intro").classList.add("hidden");
-}
-</script>
-<!-- ================= END INTRO ================= -->
-
-<!-- NEBLINA -->
-<div class="neblina"></div>
-
-<!-- PARTÍCULAS -->
-<canvas id="particles"></canvas>
-
-<!-- NAVBAR -->
-<nav class="navbar">
-    <a href="https://charly336.github.io/BLACKMOON-WEB/">Inicio</a>
-    <a href="https://charly336.github.io/BLACKMOON-WEB/Blackmoon%20music.html">musica</a>
-    <a href="https://charly336.github.io/BLACKMOON-WEB/Games%20List.html">juegos</a>
-</nav>
-
-<h1>PRODUCTOS BLACKMOON</h1>
-
-<a href="https://wa.me/5215560693556?text=Hola%20deseo%20más%20información" class="enlace-botón">INFORMACIÓN</a>
-
-<!-- CARRUSEL PREMIUM -->
-<div class="carousel">
-
-    <div class="carousel-inner">
-
-        <div class="carousel-item">
-            <img src="BREAS.jpg">
+    <section class="carousel" aria-label="Catálogo de productos">
+        <div class="carousel-item active" aria-hidden="false">
+            <img src="BREAS.jpg" alt="Paquete de breas">
             <div class="img-name">PAQUETE DE BREAS</div>
         </div>
-
-        <div class="carousel-item">
-            <img src="BREAS 2.jpg">
+        <div class="carousel-item" aria-hidden="true">
+            <img src="BREAS 2.jpg" alt="Breas 2">
             <div class="img-name">BREAS 2</div>
         </div>
-
-        <div class="carousel-item">
-            <img src="BREA SECA.jpg">
+        <div class="carousel-item" aria-hidden="true">
+            <img src="BREA SECA.jpg" alt="Brea seca">
             <div class="img-name">BREA SECA</div>
         </div>
-
-        <div class="carousel-item">
-            <img src="02 BREAS.jpg">
+        <div class="carousel-item" aria-hidden="true">
+            <img src="02 BREAS.jpg" alt="Breas">
             <div class="img-name">BREAS</div>
         </div>
-
-        <div class="carousel-item">
-            <img src="03 MAGNESIAS.jpg">
+        <div class="carousel-item" aria-hidden="true">
+            <img src="03 MAGNESIAS.jpg" alt="Magnesia">
             <div class="img-name">MAGNESIA</div>
         </div>
-
-        <div class="carousel-item">
-            <img src="rec.jpg">
+        <div class="carousel-item" aria-hidden="true">
+            <img src="rec.jpg" alt="Reconocimientos">
             <div class="img-name">RECONOCIMIENTOS</div>
         </div>
-
-        <div class="carousel-item">
-            <img src="pla.jpg">
+        <div class="carousel-item" aria-hidden="true">
+            <img src="pla.jpg" alt="Playeras">
             <div class="img-name">PLAYERAS</div>
         </div>
 
-    </div>
+        <button class="carousel-control prev" type="button" aria-label="Ver producto anterior" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="carousel-control next" type="button" aria-label="Ver producto siguiente" onclick="moveSlide(1)">&#10095;</button>
+    </section>
 
-    <button class="carousel-control prev" onclick="moveSlide(-1)">&#10094;</button>
-    <button class="carousel-control next" onclick="moveSlide(1)">&#10095;</button>
+    <p class="product-count" id="productCount" aria-live="polite"></p>
+    <nav class="carousel-dots" id="carouselDots" aria-label="Seleccionar producto"></nav>
 
-</div>
+    <a class="buy-button" id="buyButton" href="https://wa.me/5215560693556?text=Hola%2C%20me%20interesa%20el%20PAQUETE%20DE%20BREAS" target="_blank" rel="noopener noreferrer">
+        Comprar por WhatsApp&nbsp; ↗
+    </a>
+
+    <footer>&copy; Todos Somos Blackmoon · Y... VOLEMOS ALTO</footer>
+</main>
 
 <script>
+const products = [...document.querySelectorAll(".carousel-item")];
+const dotsContainer = document.getElementById("carouselDots");
+const productCount = document.getElementById("productCount");
+const buyButton = document.getElementById("buyButton");
+const backgroundToggle = document.getElementById("backgroundToggle");
+const whatsappNumber = "5215560693556";
 let currentIndex = 0;
 
-function moveSlide(dir) {
-    const items = document.querySelectorAll('.carousel-item');
-    const total = items.length;
-
-    currentIndex = (currentIndex + dir + total) % total;
-
-    document.querySelector('.carousel-inner').style.transform =
-        `translateX(-${currentIndex * 100}%)`;
-}
-</script>
-
-<!-- FOOTER -->
-<footer>
-    <marquee><h2>&copy; Todos Somos Blackmoon</h2></marquee>
-    <marquee><h2>&copy; Y... VOLEMOS ALTO</h2></marquee>
-</footer>
-
-<!-- WHATSAPP -->
-<a href="https://wa.me/5215560693556?text=Hola%20deseo%20más%20información" class="boton-ws">
-    <img src="whatsapp.png">
-</a>
-
-<!-- PARTÍCULAS SCRIPT -->
-<script>
-const canvas=document.getElementById("particles");
-const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-const particles=[];
-const total=85;
-
-class Particle{
- constructor(){
-  this.x=Math.random()*canvas.width;
-  this.y=Math.random()*canvas.height;
-  this.size=Math.random()*2+1;
-  this.speedX=(Math.random()-.5)*0.6;
-  this.speedY=(Math.random()-.5)*0.6;
- }
- update(){
-  this.x+=this.speedX;
-  this.y+=this.speedY;
-  if(this.x<0||this.x>canvas.width) this.speedX*=-1;
-  if(this.y<0||this.y>canvas.height) this.speedY*=-1;
- }
- draw(){
-  ctx.fillStyle="rgba(180,109,225,0.9)";
-  ctx.shadowColor="#b46de1";
-  ctx.shadowBlur=12;
-  ctx.beginPath();
-  ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
-  ctx.fill();
- }
-}
-
-function init(){
- for(let i=0;i<total;i++) particles.push(new Particle());
-}
-
-function animate(){
- ctx.clearRect(0,0,canvas.width,canvas.height);
- particles.forEach(p=>{p.update();p.draw();});
- requestAnimationFrame(animate);
-}
-
-window.addEventListener("resize",()=>{
- canvas.width=window.innerWidth;
- canvas.height=window.innerHeight;
+products.forEach((product, index) => {
+    const dot = document.createElement("button");
+    dot.className = "carousel-dot";
+    dot.type = "button";
+    dot.setAttribute("aria-label", `Ver ${product.querySelector(".img-name").textContent}`);
+    dot.addEventListener("click", () => moveSlide(index - currentIndex));
+    dotsContainer.appendChild(dot);
 });
 
-init();
-animate();
+function moveSlide(direction) {
+    currentIndex = (currentIndex + direction + products.length) % products.length;
+
+    products.forEach((product, index) => {
+        const isCurrent = index === currentIndex;
+        product.classList.toggle("active", isCurrent);
+        product.setAttribute("aria-hidden", String(!isCurrent));
+        dotsContainer.children[index].setAttribute("aria-current", String(isCurrent));
+    });
+
+    const productName = products[currentIndex].querySelector(".img-name").textContent.trim();
+    productCount.textContent = `${String(currentIndex + 1).padStart(2, "0")} / ${String(products.length).padStart(2, "0")}`;
+    buyButton.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, me interesa el producto ${productName}`)}`;
+}
+
+moveSlide(0);
+
+backgroundToggle.addEventListener("click", () => {
+    const backgroundVisible = document.body.classList.toggle("background-hidden") === false;
+    backgroundToggle.textContent = backgroundVisible ? "Ocultar fondo" : "Mostrar fondo";
+    backgroundToggle.setAttribute("aria-pressed", String(backgroundVisible));
+});
 </script>
 
 </body>
