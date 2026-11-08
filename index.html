@@ -154,14 +154,21 @@ bottom: 20px;
 right: 20px;
 z-index: 9999;
 font-family: Arial, sans-serif;
+animation: floatMoon 3s ease-in-out infinite;
+}
+
+@keyframes floatMoon {
+0% { transform: translateY(0px); }
+50% { transform: translateY(-10px); }
+100% { transform: translateY(0px); }
 }
 
 #isis-avatar {
 width: 120px;
 cursor: pointer;
-/* Combinamos la animación de flotación con el punto de pivote optimizado para girar */
-transform-origin: center center;
+display: block;
 transition: transform 0.1s ease-out;
+transform-origin: center center;
 }
 
 #isis-chat {
@@ -1005,4 +1012,132 @@ responderAutomatico("saludo");
 input.addEventListener("keypress", function(e) {
 if (e.key === "Enter") {
 const textoUsuario = input.value.trim();
-if (textoUsuario ===
+if (textoUsuario === "") return;
+
+agregarMensaje("Tú", textoUsuario, true);
+analizarMensaje(textoUsuario.toLowerCase());
+input.value = "";
+}
+});
+
+function agregarMensaje(nombre, texto, esUsuario = false) {
+const div = document.createElement("div");
+div.classList.add("isis-msg");
+if (esUsuario) div.classList.add("isis-user");
+div.innerHTML = "<strong>" + nombre + ":</strong> " + texto;
+messages.appendChild(div);
+messages.scrollTop = messages.scrollHeight;
+}
+
+/* ===== SEGUIMIENTO DE OJOS / CURSOR PARA ISIS MOON ===== */
+window.addEventListener("mousemove", (e) => {
+    const rect = avatar.getBoundingClientRect();
+    const avatarX = rect.left + rect.width / 2;
+    const avatarY = rect.top + rect.height / 2;
+
+    const deltaX = e.clientX - avatarX;
+    const deltaY = e.clientY - avatarY;
+    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+    const maxTilt = 12;
+    const tiltX = Math.max(-maxTilt, Math.min(maxTilt, deltaX / 25));
+    const tiltY = Math.max(-maxTilt, Math.min(maxTilt, deltaY / 25));
+
+    // Solo aplicamos la inclinación a la imagen del avatar para no afectar el evento click del contenedor
+    avatar.style.transform = `translate(${tiltX}px, ${tiltY}px) rotate(${angle * 0.03}deg)`;
+});
+
+/* ===== RESPUESTAS MULTIPLES ===== */
+const respuestas = {
+saludo: [
+"Bienvenido... la luna ya sabía que vendrías.",
+"Has regresado al multiverso Blackmoon.",
+"La oscuridad también escucha."
+],
+musica: [
+"Black Moon Records no se oye… se siente.",
+"Cada canción guarda un secreto.",
+"La música vibra más fuerte en la sombra."
+],
+escuela: [
+"La altura revela lo que ocultas.",
+"En el aire nadie puede mentir.",
+"Nuestra escuela no enseña… transforma."
+],
+podcast: [
+"Las voces cuentan lo que la mente calla.",
+"Escucha… siempre hay algo detrás del micrófono.",
+"El podcast abre portales invisibles."
+],
+comic: [
+"Las historias nacen en la sombra.",
+"Cada viñeta es un fragmento del destino.",
+"El cómic revela lo que la luna esconde."
+],
+explorar: [
+"Empieza a explorar nuestra página y descubre todas las secciones ocultas.",
+],
+pareja: [
+"Siempre fiel a mi creador... Blackmoon es mi hogar.",
+],
+adios: [
+"La luna seguirá observándote.",
+"No es un adiós… es un hasta el próximo eclipse.",
+"Sigue explorando… siempre hay más."
+],
+default: [
+"Interesante… cuéntame más.",
+"Isis está aquí en la sombra para guiarte.",
+"Sigue explorando el multiverso.",
+"La luna escucha todo.",
+"Nada es casual aquí."
+]
+};
+
+function obtenerRespuesta(tipo) {
+const lista = respuestas[tipo] || respuestas["default"];
+return lista[Math.floor(Math.random() * lista.length)];
+}
+
+function responderAutomatico(tipo){
+agregarMensaje("Isis", obtenerRespuesta(tipo));
+}
+
+function analizarMensaje(texto) {
+if (texto.includes("hola") || texto.includes("buenas")) {
+responderAutomatico("saludo");
+} else if (texto.includes("musica") || texto.includes("cancion")) {
+responderAutomatico("musica");
+} else if (texto.includes("que hago") || texto.includes("explorar")) {
+responderAutomatico("explorar");
+} else if (texto.includes("escuela") || texto.includes("aerea")) {
+responderAutomatico("escuela");
+} else if (texto.includes("novio") || texto.includes("pareja")) {
+responderAutomatico("pareja");
+} else if (texto.includes("podcast")) {
+responderAutomatico("podcast");
+} else if (texto.includes("comic")) {
+responderAutomatico("comic");
+} else if (texto.includes("adios") || texto.includes("bye")) {
+responderAutomatico("adios");
+} else {
+responderAutomatico("default");
+}
+}
+</script>
+
+<!-- BLOQUE DE ANUNCIOS ADSENSE HASTA ABAJO -->
+<div class="ad-container-bottom">
+<ins class="adsbygoogle"
+style="display:block"
+data-ad-client="ca-pub-5975800190636200"
+data-ad-slot="1234567890"
+data-ad-format="auto"
+data-full-width-responsive="true"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+</body>
+</html>
